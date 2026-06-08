@@ -1,118 +1,115 @@
 """
-oferta.py -- motor de OFERTA del modelo de afluencia (v2, reformulado).
+oferta.py -- motor de OFERTA del modelo de afluencia (v3, por tipo de dia).
 
-El modelo NO usa clima. Se basa en: fechas (estacionalidad, via mes-calendario) +
-reporte operacional RROO (oferta operada y supresiones). La oferta 2027 es una
-VARIABLE editable por el usuario (plan de servicios), por servicio y mes; para Biotren
-se separa en Linea 1 y Linea 2 como dos unidades con su propia carga por viaje.
+El modelo NO usa clima. Base: fechas (estacionalidad) + reporte operacional (RROO).
+La oferta de trenes es la VARIABLE de planificacion, editable por el usuario y
+diferenciada por TIPO DE DIA (Lunes-Viernes 'LV', Sabado 'Sab', Domingo 'Dom') y mes.
 
-Unidades del modelo:
-  BIOTREN_L1, BIOTREN_L2, CORTO_LAJA, TREN_ARAUCANIA, LLANQUIHUE_PM
-La afluencia de Biotren se reparte L1/L2 con split fijo de matriz OD (20/80, supuesto).
+Unidades: BIOTREN_L1, BIOTREN_L2, CORTO_LAJA, TREN_ARAUCANIA, LLANQUIHUE_PM.
+La afluencia de Biotren se reparte 20/80 (L1/L2, matriz OD; supuesto).
 
-Diccionario de estaciones Llanquihue-Puerto Montt (linea XP-NQ en RROO):
-  XP=La Paloma, NQ=Llanquihue, AL=Alerce, EV=Puerto Varas.
-Nota operacional: los servicios de Laja-Talcahuano (CORTO_LAJA) circulan dentro de la
-operacion diaria de Linea 1 SOLO en el tramo Hualqui-Talcahuano (HQ-TH/TH-HQ), pero en
-el RROO figuran como linea propia (CORTO LJ), por lo que NO se duplican con L1.
+Estaciones Llanquihue-PM (XP-NQ): XP=La Paloma, NQ=Llanquihue, AL=Alerce, EV=Puerto Varas.
+Nota: los servicios Laja-Talcahuano circulan por L1 (Hualqui-Talcahuano) pero en el RROO
+figuran como linea propia (CORTO LJ); no se duplican con L1.
+
+Modelo por unidad/mes:
+  afluencia = SUMA_tipo_dia [ servicios_por_dia x n_dias_2027 x pax_por_viaje x (1-supresion) ]
 """
 import numpy as np
 import pandas as pd
 
 STATIONS = {"XP": "La Paloma", "NQ": "Llanquihue", "AL": "Alerce", "EV": "Puerto Varas"}
-
-UNIT = {
-    'BIOTREN L1': 'BIOTREN_L1', 'BIOTREN L2': 'BIOTREN_L2',
-    'CORTO LJ': 'CORTO_LAJA',
-    'XP - NQ': 'LLANQUIHUE_PM', 'XP-NQ': 'LLANQUIHUE_PM',
-    'VI - TM': 'TREN_ARAUCANIA', 'VI-TM': 'TREN_ARAUCANIA',
-}
+UNIT = {'BIOTREN L1': 'BIOTREN_L1', 'BIOTREN L2': 'BIOTREN_L2', 'CORTO LJ': 'CORTO_LAJA',
+        'XP - NQ': 'LLANQUIHUE_PM', 'XP-NQ': 'LLANQUIHUE_PM',
+        'VI - TM': 'TREN_ARAUCANIA', 'VI-TM': 'TREN_ARAUCANIA'}
 SERVICIOS = ['BIOTREN', 'CORTO_LAJA', 'TREN_ARAUCANIA', 'LLANQUIHUE_PM']
-UNIDADES_DE = {
-    'BIOTREN': ['BIOTREN_L1', 'BIOTREN_L2'],
-    'CORTO_LAJA': ['CORTO_LAJA'],
-    'TREN_ARAUCANIA': ['TREN_ARAUCANIA'],
-    'LLANQUIHUE_PM': ['LLANQUIHUE_PM'],
-}
+UNIDADES_DE = {'BIOTREN': ['BIOTREN_L1', 'BIOTREN_L2'], 'CORTO_LAJA': ['CORTO_LAJA'],
+               'TREN_ARAUCANIA': ['TREN_ARAUCANIA'], 'LLANQUIHUE_PM': ['LLANQUIHUE_PM']}
 NOMBRE = {'BIOTREN': 'Biotren', 'CORTO_LAJA': 'Laja-Talcahuano',
           'TREN_ARAUCANIA': 'Tren Araucania', 'LLANQUIHUE_PM': 'Llanquihue-Puerto Montt'}
+DTYPES = ['LV', 'Sab', 'Dom']
+DTNOMBRE = {'LV': 'Lunes a Viernes', 'Sab': 'Sabado', 'Dom': 'Domingo'}
+
+
+def _dt(dow):
+    return 'LV' if dow < 5 else ('Sab' if dow == 5 else 'Dom')
 
 
 def construir_parametros(rroo_path, afluencia_csv, sheet='2024-2025-Mar2026',
                          biotren_split=(0.20, 0.80)):
-    """Devuelve params por UNIDAD y mes: operados_hist, tasa_sup, pax_x_viaje."""
     r = pd.read_excel(rroo_path, sheet_name=sheet)
     r.columns = [c.strip() for c in r.columns]
     r['Fecha'] = pd.to_datetime(r['Fecha'])
-    r['mes'] = r['Fecha'].dt.month
-    r['ym'] = r['Fecha'].dt.to_period('M').astype(str)
     r['unit'] = r['LINEA'].map(UNIT)
     col = [c for c in r.columns if c.startswith('Atraso') and 'Salida' in c][0]
     r['sup'] = r['Salida Real'].isna() | r[col].astype(str).str.contains('SUP', case=False, na=False)
     r = r.dropna(subset=['unit'])
+    r['mes'] = r['Fecha'].dt.month
+    r['dt'] = r['Fecha'].dt.dayofweek.map(_dt)
+    r['d'] = r['Fecha'].dt.date
 
-    # operados/mes-calendario y tasa de supresion
-    nm = r.groupby(['unit', 'mes'])['ym'].nunique().reset_index(name='nm')
-    agg = r.groupby(['unit', 'mes']).agg(prog=('sup', 'size'), sup=('sup', 'sum')).reset_index()
-    agg = agg.merge(nm, on=['unit', 'mes'])
-    agg['operados_hist'] = ((agg['prog'] - agg['sup']) / agg['nm']).round(0)
-    agg['tasa_sup'] = (agg['sup'] / agg['prog']).round(4)
+    perday = r.groupby(['unit', 'd', 'mes', 'dt']).agg(prog=('sup', 'size'), sup=('sup', 'sum')).reset_index()
+    perday['oper'] = perday['prog'] - perday['sup']
+    sd = perday.groupby(['unit', 'mes', 'dt']).agg(servicios_dia=('prog', 'mean'),
+                                                   sup=('sup', 'sum'), prog=('prog', 'sum')).reset_index()
+    sd['tasa_sup'] = (sd['sup'] / sd['prog']).round(4)
+    sd = sd[['unit', 'mes', 'dt', 'servicios_dia', 'tasa_sup']]
+    sd['servicios_dia'] = sd['servicios_dia'].round(1)
 
-    # operados por ym (para pax_x_viaje)
-    op_ym = r.groupby(['unit', 'ym']).apply(lambda d: (~d['sup']).sum()).reset_index(name='operados')
-
-    # afluencia por unidad (Biotren split 20/80)
     af = pd.read_csv(afluencia_csv, parse_dates=['fecha'])
-    af['ym'] = af['fecha'].dt.to_period('M').astype(str)
-    afm = af.groupby(['servicio', 'ym'])['pasajeros'].sum().reset_index()
     recs = []
-    for _, x in afm.iterrows():
+    for _, x in af.iterrows():
         if x['servicio'] == 'BIOTREN':
-            recs.append(('BIOTREN_L1', x['ym'], x['pasajeros'] * biotren_split[0]))
-            recs.append(('BIOTREN_L2', x['ym'], x['pasajeros'] * biotren_split[1]))
+            recs.append(('BIOTREN_L1', x['fecha'], x['pasajeros'] * biotren_split[0]))
+            recs.append(('BIOTREN_L2', x['fecha'], x['pasajeros'] * biotren_split[1]))
         else:
-            recs.append((x['servicio'], x['ym'], x['pasajeros']))
-    afu = pd.DataFrame(recs, columns=['unit', 'ym', 'afluencia'])
+            recs.append((x['servicio'], x['fecha'], x['pasajeros']))
+    afu = pd.DataFrame(recs, columns=['unit', 'fecha', 'afluencia'])
+    afu['d'] = afu['fecha'].dt.date
+    j = afu.merge(perday[['unit', 'd', 'oper']], on=['unit', 'd'])
+    j = j[j['oper'] > 0]
+    j['mes'] = pd.to_datetime(j['fecha']).dt.month
+    j['dt'] = pd.to_datetime(j['fecha']).dt.dayofweek.map(_dt)
+    j['pxv'] = j['afluencia'] / j['oper']
+    pxv = j.groupby(['unit', 'mes', 'dt'])['pxv'].mean().reset_index(name='pax_x_viaje')
 
-    j = afu.merge(op_ym, on=['unit', 'ym'])
-    j['mes'] = pd.to_datetime(j['ym'] + '-01').dt.month
-    j['pxv'] = j['afluencia'] / j['operados'].replace(0, np.nan)
-    pxv = j.groupby(['unit', 'mes'])['pxv'].mean().reset_index(name='pax_x_viaje')
-
-    params = agg[['unit', 'mes', 'operados_hist', 'tasa_sup']].merge(pxv, on=['unit', 'mes'], how='left')
-    # reindexar a 12 meses por unidad e imputar huecos (p.ej. LP meses sin RROO) con media del servicio
-    full = pd.MultiIndex.from_product([params['unit'].unique(), range(1, 13)], names=['unit', 'mes'])
-    params = params.set_index(['unit', 'mes']).reindex(full).reset_index()
-    for col in ['operados_hist', 'tasa_sup', 'pax_x_viaje']:
-        params[col] = params.groupby('unit')[col].transform(lambda s: s.fillna(s.mean()))
-    params['operados_hist'] = params['operados_hist'].round(0)
+    params = sd.merge(pxv, on=['unit', 'mes', 'dt'], how='left')
+    full = pd.MultiIndex.from_product([params['unit'].unique(), range(1, 13), DTYPES],
+                                      names=['unit', 'mes', 'dt'])
+    params = params.set_index(['unit', 'mes', 'dt']).reindex(full).reset_index()
+    for c in ['servicios_dia', 'pax_x_viaje', 'tasa_sup']:
+        params[c] = params.groupby(['unit', 'dt'])[c].transform(lambda s: s.fillna(s.mean()))
+        params[c] = params.groupby('unit')[c].transform(lambda s: s.fillna(s.mean()))
+    params['servicios_dia'] = params['servicios_dia'].round(1)
     params['pax_x_viaje'] = params['pax_x_viaje'].round(1)
     params['tasa_sup'] = params['tasa_sup'].round(4)
-    return params.sort_values(['unit', 'mes']).reset_index(drop=True)
+    return params.sort_values(['unit', 'mes', 'dt']).reset_index(drop=True)
 
 
-def proyectar(params, plan=None, contingencia_extra=None):
-    """Proyeccion 2027 por unidad y servicio.
-    plan : df [unit, mes, servicios] (oferta planificada). None => operados_hist.
-    contingencia_extra : dict unit->fraccion extra de supresion (0=como historico).
-    Devuelve (por_unidad_df, por_servicio_df) en formato ancho (index 2027-MM).
-    """
+def dias_por_tipo(anio=2027):
+    d = pd.date_range(f'{anio}-01-01', f'{anio}-12-31')
+    df = pd.DataFrame({'mes': d.month, 'dt': d.dayofweek.map(_dt)})
+    return df.groupby(['mes', 'dt']).size().reset_index(name='n_dias')
+
+
+def proyectar(params, plan=None, contingencia_extra=None, anio=2027):
     p = params.copy()
     if plan is not None:
-        p = p.merge(plan, on=['unit', 'mes'], how='left')
-        p['servicios'] = p['servicios'].fillna(p['operados_hist'])
-    else:
-        p['servicios'] = p['operados_hist']
+        pl = plan[['unit', 'mes', 'dt', 'servicios_dia']].rename(columns={'servicios_dia': 'sd_plan'})
+        pl['mes'] = pl['mes'].astype(int)
+        p = p.merge(pl, on=['unit', 'mes', 'dt'], how='left')
+        p['servicios_dia'] = pd.to_numeric(p['sd_plan'], errors='coerce').fillna(p['servicios_dia'])
+        p = p.drop(columns='sd_plan')
+    p = p.merge(dias_por_tipo(anio), on=['mes', 'dt'], how='left')
     ce = contingencia_extra or {}
     p['f_sup'] = (1 - p['tasa_sup'] - p['unit'].map(ce).fillna(0)).clip(0, 1)
-    p['afluencia'] = (p['servicios'] * p['pax_x_viaje'] * p['f_sup']).round(0)
-
-    uni = p.pivot(index='mes', columns='unit', values='afluencia')
-    uni.index = [f'2027-{m:02d}' for m in uni.index]
-    # agregar a servicio
-    serv = pd.DataFrame(index=uni.index)
+    p['afl'] = p['servicios_dia'] * p['n_dias'] * p['pax_x_viaje'] * p['f_sup']
+    uni = p.groupby(['unit', 'mes'])['afl'].sum().reset_index()
+    uni_w = uni.pivot(index='mes', columns='unit', values='afl')
+    uni_w.index = [f'{anio}-{m:02d}' for m in uni_w.index]
+    serv = pd.DataFrame(index=uni_w.index)
     for s, us in UNIDADES_DE.items():
-        cols = [u for u in us if u in uni.columns]
+        cols = [u for u in us if u in uni_w.columns]
         if cols:
-            serv[s] = uni[cols].sum(axis=1)
-    return uni.round(0).astype('Int64'), serv.round(0).astype('Int64')
+            serv[s] = uni_w[cols].sum(axis=1)
+    return uni_w.round(0).astype('Int64'), serv.round(0).astype('Int64')
