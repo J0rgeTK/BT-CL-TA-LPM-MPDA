@@ -36,10 +36,17 @@ def _dt(dow):
 
 
 def construir_parametros(rroo_path, afluencia_csv, sheet='2024-2025-Mar2026',
-                         biotren_split=(0.20, 0.80)):
+                         biotren_split=(0.20, 0.80), ventana_meses=12):
+    """ventana_meses: usa solo los ultimos N meses para estimar servicios_dia y
+    pax_por_viaje (refleja el desempenio reciente). None => toda la historia."""
     r = pd.read_excel(rroo_path, sheet_name=sheet)
     r.columns = [c.strip() for c in r.columns]
     r['Fecha'] = pd.to_datetime(r['Fecha'])
+    _af_fechas = pd.read_csv(afluencia_csv, parse_dates=['fecha'])['fecha']
+    if ventana_meses:
+        maxd = min(r['Fecha'].max(), _af_fechas.max())
+        corte = maxd - pd.DateOffset(months=ventana_meses)
+        r = r[r['Fecha'] >= corte]
     r['unit'] = r['LINEA'].map(UNIT)
     col = [c for c in r.columns if c.startswith('Atraso') and 'Salida' in c][0]
     r['sup'] = r['Salida Real'].isna() | r[col].astype(str).str.contains('SUP', case=False, na=False)
@@ -57,6 +64,8 @@ def construir_parametros(rroo_path, afluencia_csv, sheet='2024-2025-Mar2026',
     sd['servicios_dia'] = sd['servicios_dia'].round(1)
 
     af = pd.read_csv(afluencia_csv, parse_dates=['fecha'])
+    if ventana_meses:
+        af = af[af['fecha'] >= corte]
     recs = []
     for _, x in af.iterrows():
         if x['servicio'] == 'BIOTREN':
