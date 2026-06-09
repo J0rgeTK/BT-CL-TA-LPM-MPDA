@@ -3,9 +3,11 @@ streamlit_app.py -- Modelo de afluencia EFE/Fesur 2027.
 Punto de entrada para Streamlit Cloud.  Local:  streamlit run streamlit_app.py
 
 Navegacion por pestanias (una por servicio + resumen). La OFERTA de trenes es la
-variable de planificacion, editable por TIPO DE DIA (L-V / Sabado / Domingo) y mes;
-Biotren con L1 y L2 por separado. Base: estacionalidad + reporte operacional. Sin clima.
-Biotren calibrado x1.07 al Resumen oficial. Parametros anclados en los ultimos 12 meses.
+variable de planificacion, editable por TIPO DE DIA (L-V / Sabado / Domingo) y mes.
+El escenario recomendado aplica ajuste conservador y calibracion con mayo 2026:
+la demanda no crece proporcionalmente con cada servicio adicional, sino que se mezcla
+la senal por oferta con la referencia estacional observada hasta mayo 2026. Sin clima.
+Biotren usa el total oficial diario con SSE; Llanquihue-PM se normaliza solo contra dias L-V.
 """
 import os
 import pandas as pd
@@ -43,7 +45,7 @@ st.markdown("""
 @st.cache_data
 def cargar():
     diario = pd.read_csv(os.path.join(DATA, "afluencia_diaria_consolidada.csv"), parse_dates=["fecha"])
-    params = pd.read_csv(os.path.join(DATA, "oferta_params.csv"))
+    params = O.aplicar_oferta_actual(pd.read_csv(os.path.join(DATA, "oferta_params.csv")))
     mdf = P.mensualizar(diario)
     base, _ = P.proyectar_2027(mdf)
     return diario, params, mdf, base
@@ -57,7 +59,7 @@ except Exception as e:
 
 st.markdown('<div class="hero"><h1>🚆 Modelo de afluencia 2027 — EFE/Fesur</h1>'
             '<p>Oferta de trenes como variable de planificacion · editable por tipo de dia (L-V / Sabado / '
-            'Domingo) y mes · base: estacionalidad + reporte operacional</p></div>', unsafe_allow_html=True)
+            'Domingo) y mes · calibrado con resultados reales de mayo 2026</p></div>', unsafe_allow_html=True)
 
 
 def fmt(n):
@@ -67,7 +69,8 @@ def fmt(n):
 def ocupacion(units):
     """Carga media por viaje (pax/servicio) por mes, ponderada por viajes."""
     nd = O.dias_por_tipo()
-    p = params[params.unit.isin(units)].merge(nd, on=["mes", "dt"])
+    p0 = O.calibrar_productividad_reciente(params)
+    p = p0[p0.unit.isin(units)].merge(nd, on=["mes", "dt"])
     p["viajes"] = p["servicios_dia"] * p["n_dias"] * (1 - p["tasa_sup"])
     p["pax"] = p["viajes"] * p["pax_x_viaje"]
     pormes = p.groupby("mes").apply(lambda x: x["pax"].sum() / max(x["viajes"].sum(), 1))
@@ -79,7 +82,7 @@ def ocupacion(units):
 def editor_oferta(unit, label):
     sub = params[params.unit == unit].pivot(index="mes", columns="dt", values="servicios_dia")[O.DTYPES]
     sub.index.name = "Mes"
-    st.caption(f"**{label}** — servicios por dia (editable). Default = oferta historica reciente.")
+    st.caption(f"**{label}** — servicios por dia (editable). Default = oferta vigente informada.")
     cfg = {dt: st.column_config.NumberColumn(O.DTNOMBRE[dt], min_value=0.0, step=1.0, format="%.0f") for dt in O.DTYPES}
     ed = st.data_editor(sub, use_container_width=True, key=f"of_{unit}", column_config=cfg)
     plan = ed.reset_index().melt(id_vars="Mes", var_name="dt", value_name="servicios_dia").rename(columns={"Mes": "mes"})
@@ -98,7 +101,7 @@ def render_servicio(s):
     planes = []
     if s == "BIOTREN":
         st.info("Edite **Linea 1** y **Linea 2** por separado. La afluencia se reparte 20/80 (matriz OD); "
-                "cada linea tiene su carga por viaje. Biotren esta calibrado x1.07 al Resumen oficial.")
+                "cada linea mantiene carga por viaje calibrada con el total oficial de mayo 2026.")
         c1, c2 = st.columns(2)
         with c1:
             planes.append(editor_oferta("BIOTREN_L1", "Linea 1"))
@@ -114,15 +117,22 @@ def render_servicio(s):
             ce[u] = cc[i].number_input(f"{u} (+% supresion)", 0.0, 30.0, 0.0, 1.0, key=f"ce_{u}") / 100.0
 
     plan = pd.concat(planes, ignore_index=True)
-    uni, serv = O.proyectar(params, plan=plan, contingencia_extra=ce)
+    uni, serv = O.proyectar_conservador(params, base_servicios=base, plan=plan, contingencia_extra=ce)
+    _, serv_oferta = O.proyectar(params, plan=plan, contingencia_extra=ce)
     pormes, ocup_media, ocup_dt = ocupacion(O.UNIDADES_DE[s])
+    viajes = O.viajes_anuales(params, plan=plan, contingencia_extra=ce, units=O.UNIDADES_DE[s])
+    ocup_proy = serv[s].dropna().sum() / max(viajes, 1)
 
     k = st.columns(4)
-    k[0].metric("Total anual 2027 (oferta)", fmt(serv[s].dropna().sum()))
+    k[0].metric("Total anual 2027 conservador", fmt(serv[s].dropna().sum()))
     k[1].metric("Referencia estacional", fmt(base[s].sum()))
-    k[2].metric("Ocupacion media (pax/viaje)", fmt(ocup_media))
+    k[2].metric("Pax/viaje proyectado", fmt(ocup_proy))
     pk = serv[s].astype(float).idxmax()
     k[3].metric("Mes peak", pk, fmt(serv[s].max()))
+
+    if s in O.AJUSTE_CONSERVADOR:
+        st.caption("Ajuste conservador aplicado: la proyeccion no asume que el aumento de servicios genere demanda proporcional. "
+                   "Se combina la proyeccion por oferta con la referencia estacional observada hasta 2026.")
 
     g, t = st.columns([3, 2])
     with g:
@@ -144,7 +154,8 @@ def render_servicio(s):
         out = pd.DataFrame(index=serv.index)
         if s == "BIOTREN":
             out["L1"] = uni["BIOTREN_L1"]; out["L2"] = uni["BIOTREN_L2"]
-        out["Total"] = serv[s]
+        out["Total conservador"] = serv[s]
+        out["Proy. solo oferta"] = serv_oferta[s]
         out["Ref. estac."] = base[s].values
         st.dataframe(out, use_container_width=True, height=330)
 
@@ -163,22 +174,39 @@ def render_servicio(s):
                    "(pax/asientos) requiere la capacidad por tren, no disponible en los datos.")
 
     if s == "CORTO_LAJA":
-        st.warning("Laja-Talcahuano: oferta plana (corr~0); el modo por oferta sobreestima. "
-                   "Usar la referencia estacional como base.")
+        st.warning("Laja-Talcahuano: la calibracion de mayo 2026 reduce la productividad L-V frente al modelo previo. "
+                   "Revisar escenarios expansivos con cautela.")
     if s == "LLANQUIHUE_PM":
-        st.warning("Llanquihue-PM: 13 meses, algunos meses imputados. Confianza BAJA.")
+        st.warning("Llanquihue-PM: serie corta; la normalizacion fue corregida para dias L-V. Confianza BAJA.")
     st.download_button(f"⬇ Descargar proyeccion {O.NOMBRE[s]} (CSV)", out.to_csv().encode(),
                        f"proyeccion_2027_{s}.csv", key=f"dl_{s}")
 
 
 tabs = st.tabs(["📊 Resumen"] + [O.NOMBRE[s] for s in O.SERVICIOS])
 with tabs[0]:
-    uni, serv = O.proyectar(params)
-    st.markdown("### Proyeccion 2027 — escenario base (oferta historica reciente)")
+    uni, serv = O.proyectar_conservador(params, base_servicios=base)
+    _, serv_oferta = O.proyectar(params)
+    st.markdown("### Proyeccion 2027 — escenario base conservador")
+    st.info("El escenario recomendado usa referencia estacional actualizada a mayo 2026, productividad pax/viaje calibrada por tipo de dia y respuesta parcial a la oferta. El aumento de servicios no se traduce en crecimiento proporcional de afluencia.")
+    with st.expander("Oferta vigente considerada en el escenario base"):
+        st.dataframe(O.oferta_actual_df(detalle=True), use_container_width=True)
+        st.caption("Nota: el cálculo mensual usa la excepción de Laja-Talcahuano: 10 servicios sábado y domingo en enero-febrero; 8 servicios sábado y domingo desde marzo a diciembre.")
+    with st.expander("Calibracion de productividad mayo 2026"):
+        st.dataframe(O.cargar_calibracion_productividad(), use_container_width=True)
+        st.caption("Los factores ajustan parcialmente pasajeros por viaje por tipo de dia; no reemplazan toda la historia por un solo mes.")
+    with st.expander("Metodologia del ajuste conservador"):
+        st.markdown("""
+        - **Referencia estacional:** proyeccion mensual basada en el historico disponible actualizado con mayo 2026.
+        - **Correccion de cobertura:** Llanquihue-Puerto Montt se normaliza contra dias lunes-viernes, no contra fines de semana sin oferta.
+        - **Productividad reciente:** los pasajeros por viaje se ajustan parcialmente con mayo 2026 por servicio y tipo de dia.
+        - **Respuesta conservadora a la oferta:** si la oferta entrega un resultado superior a la referencia, solo se reconoce una fraccion del diferencial; por tanto, mas servicios no generan crecimiento proporcional automatico.
+        """)
     kk = st.columns(4)
     for i, s in enumerate(O.SERVICIOS):
-        _, om, _ = ocupacion(O.UNIDADES_DE[s])
-        kk[i].metric(O.NOMBRE[s], fmt(serv[s].dropna().sum()), f"ocup. {fmt(om)} pax/viaje")
+        viajes = O.viajes_anuales(params, units=O.UNIDADES_DE[s])
+        om = serv[s].dropna().sum() / max(viajes, 1)
+        delta = serv[s].dropna().sum() - serv_oferta[s].dropna().sum()
+        kk[i].metric(O.NOMBRE[s], fmt(serv[s].dropna().sum()), f"vs oferta {fmt(delta)} pax")
     fig = go.Figure()
     for s in O.SERVICIOS:
         fig.add_trace(go.Scatter(x=list(serv.index), y=serv[s].astype(float), name=O.NOMBRE[s],
@@ -188,10 +216,14 @@ with tabs[0]:
                       hovermode="x unified", font=dict(family="Segoe UI", color="#0f2740"))
     fig.update_xaxes(showgrid=False); fig.update_yaxes(gridcolor="#eef2f7", title="pax/mes")
     st.plotly_chart(fig, use_container_width=True)
-    st.dataframe(serv, use_container_width=True)
+    resumen_comp = serv.copy()
+    for s in O.SERVICIOS:
+        resumen_comp[f"{s}_solo_oferta"] = serv_oferta[s]
+        resumen_comp[f"{s}_ref_estacional"] = base[s].values
+    st.dataframe(resumen_comp, use_container_width=True)
     cda, cdb = st.columns(2)
-    cda.download_button("⬇ Resumen por servicio (CSV)", serv.to_csv().encode(), "proyeccion_2027_resumen.csv")
-    cdb.download_button("⬇ Detalle por unidad / L1-L2 (CSV)", uni.to_csv().encode(), "proyeccion_2027_unidades.csv")
+    cda.download_button("⬇ Resumen conservador por servicio (CSV)", serv.to_csv().encode(), "proyeccion_2027_resumen_conservador.csv")
+    cdb.download_button("⬇ Detalle conservador por unidad / L1-L2 (CSV)", uni.to_csv().encode(), "proyeccion_2027_unidades_conservador.csv")
 
 for i, s in enumerate(O.SERVICIOS):
     with tabs[i + 1]:

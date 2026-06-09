@@ -1,68 +1,58 @@
-# Modelo de afluencia EFE/Fesur — proyeccion 2027
+# Modelo de predicción de afluencia EFE Sur — versión calibrada mayo 2026
 
-App Streamlit que proyecta la afluencia mensual 2027 por servicio. La **oferta de trenes
-es la variable de planificacion**, editable **por tipo de dia** (Lunes-Viernes / Sabado /
-Domingo) y mes. Base: estacionalidad (fechas) + reporte operacional (RROO). Sin clima.
+Esta versión actualiza el modelo de proyección 2027 incorporando los resultados reales de afluencia de mayo 2026 para Biotren, Laja-Talcahuano, Tren Araucanía y Llanquihue-Puerto Montt.
 
-Repo liviano, listo para GitHub y Streamlit Cloud: corre con los CSV procesados en `data/`.
+## Cambios metodológicos principales
 
-## Servicios (pestanias)
-- **Resumen** + 4 secciones: **Biotren** (oferta L1 / L2 por separado), **Laja-Talcahuano**,
-  **Tren Araucania**, **Llanquihue-Puerto Montt** (XP=La Paloma, NQ=Llanquihue, AL=Alerce, EV=Puerto Varas).
+1. **Biotren**
+   - Se corrige la lectura del archivo diario para usar la columna oficial `Afluencias + Multas +SSE`.
+   - El total mensual de mayo 2026 utilizado por el modelo es 1.039.422 pasajeros.
+   - Se calibra la productividad por viaje considerando que la mayor oferta no implica crecimiento proporcional.
 
-## Estructura
-```
-modelo_afluencia_efe/
-├── streamlit_app.py        # app (pestanias por servicio, editores por tipo de dia, Plotly, ocupacion)
-├── pipeline_afluencia.py   # ETL afluencia + pronostico estacional (referencia)
-├── oferta.py               # motor de oferta por unidad/mes/tipo-de-dia
-├── regenerar_datos.py      # reconstruye los CSV desde la base cruda (opcional)
-├── data/
-│   ├── afluencia_diaria_consolidada.csv
-│   └── oferta_params.csv
-├── .streamlit/config.toml
-├── requirements.txt        # streamlit fijado a version validada
-├── .gitignore
-└── README.md
-```
+2. **Llanquihue-Puerto Montt**
+   - Se corrige la mensualización de series incompletas: el servicio se normaliza contra días lunes-viernes, no contra fines de semana sin operación planificada.
+   - Esto evita sobreestimar meses con cobertura parcial.
 
-## Correr / desplegar
+3. **Calibración de productividad**
+   - Se crea `data/calibracion_mayo_2026.csv`.
+   - La calibración ajusta parcialmente los pasajeros por viaje por servicio y tipo de día.
+   - No reemplaza toda la historia por mayo; usa pesos y límites para mantener un resultado conservador.
+
+4. **Respuesta conservadora a la oferta**
+   - La proyección final combina referencia estacional y proyección por oferta calibrada.
+   - Si la oferta genera un resultado superior a la referencia, solo se reconoce una fracción del diferencial.
+
+## Resultados principales 2027
+
+| Servicio | Referencia estacional | Solo oferta calibrada | Escenario conservador mayo 2026 |
+|---|---:|---:|---:|
+| Biotren | 11.089.501 | 12.907.596 | 11.528.639 |
+| Laja-Talcahuano | 438.014 | 501.607 | 459.278 |
+| Llanquihue-Puerto Montt | 433.606 | 436.992 | 420.526 |
+| Tren Araucanía | 652.783 | 807.179 | 709.763 |
+
+## Archivos relevantes
+
+- `data/afluencia_diaria_consolidada.csv`: base diaria consolidada actualizada con mayo 2026.
+- `data/afluencia_mayo_2026_cargada.csv`: registros diarios incorporados desde los archivos de mayo.
+- `data/resumen_mayo_2026.csv`: control de afluencia, días y productividad de mayo 2026.
+- `data/calibracion_mayo_2026.csv`: factores de calibración de pasajeros por viaje.
+- `data/afluencia_mensual_modelo.csv`: base mensual usada por la referencia estacional.
+- `outputs/proyeccion_2027_resumen_conservador.csv`: proyección final por servicio.
+- `outputs/proyeccion_2027_unidades_conservador.csv`: detalle por unidad, incluyendo Biotren L1 y L2.
+- `outputs/comparativo_escenarios_2027.csv`: comparación entre referencia, oferta calibrada y escenario conservador.
+- `outputs/validacion_mayo_2026_vs_proyeccion.csv`: control de coherencia contra mayo 2026.
+
+## Ejecución
+
 ```bash
 pip install -r requirements.txt
 streamlit run streamlit_app.py
 ```
-GitHub: `git init && git add . && git commit -m "modelo afluencia 2027" && git push`.
-Streamlit Cloud: New app -> repo + rama main -> **Main file: streamlit_app.py** -> Deploy.
 
-## Modelo
-Por unidad (BIOTREN_L1, BIOTREN_L2, CORTO_LAJA, TREN_ARAUCANIA, LLANQUIHUE_PM), mes y tipo de dia:
+Para regenerar los datos y salidas desde los archivos de mayo dentro del entorno de trabajo:
+
+```bash
+python actualizar_mayo2026.py
 ```
-afluencia[mes] = SUMA_tipo_dia [ servicios_por_dia x n_dias_2027 x pax_por_viaje x (1 - supresion) ]
-```
-- `servicios_por_dia`: EDITABLE (default = oferta historica reciente).
-- `pax_por_viaje`: carga media por viaje operado (= "ocupacion media", pax por servicio).
-- `n_dias_2027`: dias reales de cada tipo por mes en 2027.
-- `supresion`: tasa historica del RROO + contingencia extra opcional.
 
-**Calibraciones aplicadas (v4):**
-- **Biotren x1.07**: el ETL subcontaba 7% vs el Resumen oficial (factor estable 1.070 +- 0.006);
-  se calibra al nivel oficial de "Pasajeros".
-- **Anclaje reciente (12 meses)**: servicios_dia y pax_por_viaje se estiman con los ultimos
-  12 meses, para reflejar el desempenio actual (2026) y no diluirlo con la historia mas debil.
-
-## Ocupacion media
-Cada seccion muestra los **pasajeros promedio por viaje** (carga media) por mes y por tipo de
-dia. Es un proxy de ocupacion; la ocupacion real (pax/asientos) requiere la capacidad por tren,
-no disponible en los datos.
-
-## Caveats
-- **Corto Laja**: oferta plana (corr~0); el modo por oferta sobreestima. Usar la referencia estacional.
-- **Llanquihue-PM**: 13 meses, confianza BAJA; algunos meses imputados (solape RROO delgado).
-- **Biotren**: el reparto L1/L2 (20/80) es un supuesto de matriz OD, no medicion por linea.
-
-## Verificacion (mes a mes vs ultimo actual del mismo mes)
-Biotren 1.04 · Tren Araucania 0.97 · Corto Laja 0.99 · Llanquihue-PM 1.18. El modelo
-sigue de cerca el desempenio reciente; no subestima.
-
-## Roadmap
-- v5: modelo de confiabilidad operacional (supresiones/atrasos por causa) sobre el RROO.

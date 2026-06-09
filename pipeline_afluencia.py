@@ -32,6 +32,17 @@ import openpyxl
 SVC_CODE = re.compile(r'^\d{4,6}$')      # cabecera = codigo de tren (columna de servicio)
 BT_STOP  = {'salidas', 'total', 'afluencias', 'carga', 'dif', '%', 'pm', 'pt', 'pp'}
 
+# Tipos de dia que se consideran esperados para normalizar meses incompletos.
+# Evita sobreimputar servicios que no operan fines de semana, especialmente
+# Llanquihue-Puerto Montt, cuyo itinerario informado es solo lunes-viernes.
+EXPECTED_DT_BY_SERVICE = {
+    'BIOTREN': ['LV', 'Sab', 'Dom'],
+    'CORTO_LAJA': ['LV', 'Sab', 'Dom'],
+    'TREN_ARAUCANIA': ['LV', 'Sab', 'Dom'],
+    'LLANQUIHUE_PM': ['LV'],
+}
+
+
 
 def _num(v):
     if v is None:
@@ -66,8 +77,14 @@ def _parse_matrix(path, sheet, servicio):
 
 
 def _parse_biotren(path):
-    """BIOTREN: hoja diaria con bloque de tipos de pasajero. Suma SOLO ese bloque
-    (Monedero..Multas), antes de las columnas resumen (TOTAL AFLUENCIA, CARGA $, etc.)."""
+    """BIOTREN: lee la hoja diaria.
+
+    Criterio actualizado mayo 2026:
+    - Si existe la columna "Afluencias + Multas +SSE", se usa como total oficial
+      diario, porque cuadra con el Resumen mensual de pasajeros.
+    - Si no existe, se mantiene el fallback anterior: suma del bloque de tipos de
+      pasajero antes de las columnas resumen.
+    """
     wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
     sh = [s for s in wb.sheetnames if 'diaria' in s.lower()]
     if not sh:
@@ -78,12 +95,24 @@ def _parse_biotren(path):
     if h is None:
         return []
     hdr = rows[h]
-    end = len(hdr)
-    for i in range(2, len(hdr)):
-        hl = str(hdr[i]).strip().lower() if hdr[i] is not None else ''
-        if any(hl.startswith(s) for s in BT_STOP):
-            end = i
+
+    total_col = None
+    for preferida in ['Afluencias + Multas +SSE', 'Afluencias + Multas ', 'TOTAL AFLUENCIA ']:
+        for i, v in enumerate(hdr):
+            if isinstance(v, str) and v.strip().lower() == preferida.strip().lower():
+                total_col = i
+                break
+        if total_col is not None:
             break
+
+    end = len(hdr)
+    if total_col is None:
+        for i in range(2, len(hdr)):
+            hl = str(hdr[i]).strip().lower() if hdr[i] is not None else ''
+            if any(hl.startswith(s) for s in BT_STOP):
+                end = i
+                break
+
     out = []
     for r in rows[h + 1:]:
         if not r or r[1] is None:
@@ -91,9 +120,12 @@ def _parse_biotren(path):
         f = pd.to_datetime(r[1], dayfirst=True, errors='coerce')
         if pd.isna(f) or f.year < 2020:
             continue
-        out.append(("BIOTREN", f.normalize(), sum(_num(r[i]) for i in range(2, end) if i < len(r))))
+        if total_col is not None:
+            pax = _num(r[total_col]) if total_col < len(r) else 0.0
+        else:
+            pax = sum(_num(r[i]) for i in range(2, end) if i < len(r))
+        out.append(("BIOTREN", f.normalize(), pax))
     return out
-
 
 def etl_afluencia_diaria(base_bbdd):
     """Recorre BBDD/{BT,CL,LP,TA} y devuelve df tidy: servicio, fecha, pasajeros."""
@@ -118,19 +150,41 @@ def etl_afluencia_diaria(base_bbdd):
     return df
 
 
+def _dt_label_from_date(fecha):
+    dow = fecha.dayofweek
+    return 'LV' if dow < 5 else ('Sab' if dow == 5 else 'Dom')
+
+
 def mensualizar(df_diario, cobertura_min=0.5):
-    """Agrega a mensual corrigiendo sesgo por dias faltantes:
-    pax_norm = promedio_diario * dias_calendario. Descarta meses muy incompletos."""
+    """Agrega a mensual corrigiendo sesgo por dias faltantes.
+
+    Version actualizada:
+    - Para servicios con operacion todos los dias se normaliza contra dias calendario.
+    - Para servicios solo lunes-viernes, como Llanquihue-Puerto Montt, se normaliza
+      contra dias planificados del mes, no contra fines de semana sin oferta.
+    - Retorna columnas auxiliares de cobertura para auditar meses incompletos.
+    """
     df = df_diario.copy()
+    df['fecha'] = pd.to_datetime(df['fecha'])
     df['mes'] = df['fecha'].dt.to_period('M')
+    df['dt'] = df['fecha'].apply(_dt_label_from_date)
     rows = []
     for (s, m), g in df.groupby(['servicio', 'mes']):
-        rows.append({'servicio': s, 'mes': m,
-                     'cobertura': g['fecha'].nunique() / m.days_in_month,
-                     'pax_norm': g['pasajeros'].mean() * m.days_in_month})
+        tipos_esperados = EXPECTED_DT_BY_SERVICE.get(s, ['LV', 'Sab', 'Dom'])
+        fechas_mes = pd.date_range(m.start_time, m.end_time, freq='D')
+        labels_mes = ['LV' if x.dayofweek < 5 else ('Sab' if x.dayofweek == 5 else 'Dom') for x in fechas_mes]
+        dias_esperados = sum(x in tipos_esperados for x in labels_mes)
+        gg = g[g['dt'].isin(tipos_esperados)]
+        dias_obs = gg['fecha'].nunique()
+        cobertura = dias_obs / max(dias_esperados, 1)
+        pax_norm = gg['pasajeros'].mean() * dias_esperados if dias_obs else np.nan
+        rows.append({'servicio': s, 'mes': m, 'cobertura': cobertura,
+                     'dias_obs': dias_obs, 'dias_esperados': dias_esperados,
+                     'pax_norm': pax_norm})
     mdf = pd.DataFrame(rows)
-    return mdf[mdf['cobertura'] >= cobertura_min].sort_values(['servicio', 'mes'])
-
+    if not mdf.empty:
+        mdf['mes'] = pd.PeriodIndex(mdf['mes'], freq='M')
+    return mdf[(mdf['cobertura'] >= cobertura_min) & mdf['pax_norm'].notna()].sort_values(['servicio', 'mes'])
 
 def proyectar_2027(mdf, anio=2027):
     """Descomposicion clasica multiplicativa. Tendencia amortiguada (+-2%/mes) y
