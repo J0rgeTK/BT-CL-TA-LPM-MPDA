@@ -10,7 +10,7 @@ Biotren L1 operacional total,BIOTREN_L1_TOTAL_OPERACIONAL,Dom,10.0,Enero-febrero
 Biotren L1 propia del modelo,BIOTREN_L1,LV,40.0,48 L1 operacional total - 8 Laja-Talcahuano para evitar doble conteo
 Biotren L1 propia del modelo,BIOTREN_L1,Sab,8.0,Oferta propia no contabilizada en CORTO_LAJA
 Biotren L1 propia del modelo,BIOTREN_L1,Dom,0.0,Sin oferta propia dominical; la oferta dominical del corredor se contabiliza en CORTO_LAJA
-Laja-Talcahuano,CORTO_LAJA,LV,10.0,8 servicios base + 2 cortos Hualqui-Talcamavida / Talcamavida-Hualqui
+Laja-Talcahuano,CORTO_LAJA,LV,8.0,8 servicios lunes a viernes; los 10 servicios aplican solo a fines de semana de enero-febrero
 Laja-Talcahuano,CORTO_LAJA,Sab,10.0,Enero-febrero: 10 servicios sabado
 Laja-Talcahuano,CORTO_LAJA,Dom,10.0,Enero-febrero: 10 servicios domingo
 Laja-Talcahuano,CORTO_LAJA,Sab,8.0,Marzo-diciembre: 8 servicios sabado
