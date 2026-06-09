@@ -4,9 +4,10 @@ Punto de entrada para Streamlit Cloud.  Local:  streamlit run streamlit_app.py
 
 Navegacion por pestanias (una por servicio + resumen). La OFERTA de trenes es la
 variable de planificacion, editable por TIPO DE DIA (L-V / Sabado / Domingo) y mes.
-El escenario recomendado aplica ajuste conservador y calibracion con mayo 2026:
-la demanda no crece proporcionalmente con cada servicio adicional, sino que se mezcla
-la senal por oferta con la referencia estacional observada hasta mayo 2026. Sin clima.
+El escenario recomendado aplica calibracion con mayo 2026 y usa la oferta como
+variable editable. La base 2027 mantiene la proyeccion por oferta calibrada para
+servicios regionales y ajusta Biotren a un rango prudente de 12,5-12,6 millones
+antes de simular aumentos leves de oferta futura. Sin clima.
 Biotren usa el total oficial diario con SSE; Llanquihue-PM se normaliza solo contra dias L-V.
 """
 import os
@@ -124,15 +125,14 @@ def render_servicio(s):
     ocup_proy = serv[s].dropna().sum() / max(viajes, 1)
 
     k = st.columns(4)
-    k[0].metric("Total anual 2027 conservador", fmt(serv[s].dropna().sum()))
+    k[0].metric("Total anual 2027 base ajustado", fmt(serv[s].dropna().sum()))
     k[1].metric("Referencia estacional", fmt(base[s].sum()))
     k[2].metric("Pax/viaje proyectado", fmt(ocup_proy))
     pk = serv[s].astype(float).idxmax()
     k[3].metric("Mes peak", pk, fmt(serv[s].max()))
 
     if s in O.AJUSTE_CONSERVADOR:
-        st.caption("Ajuste conservador aplicado: la proyeccion no asume que el aumento de servicios genere demanda proporcional. "
-                   "Se combina la proyeccion por oferta con la referencia estacional observada hasta 2026.")
+        st.caption("Escenario base calibrado ajustado: para Biotren se aplica una correccion prudencial; para los demas servicios se mantiene la proyeccion por oferta calibrada.")
 
     g, t = st.columns([3, 2])
     with g:
@@ -154,7 +154,7 @@ def render_servicio(s):
         out = pd.DataFrame(index=serv.index)
         if s == "BIOTREN":
             out["L1"] = uni["BIOTREN_L1"]; out["L2"] = uni["BIOTREN_L2"]
-        out["Total conservador"] = serv[s]
+        out["Total base ajustado"] = serv[s]
         out["Proy. solo oferta"] = serv_oferta[s]
         out["Ref. estac."] = base[s].values
         st.dataframe(out, use_container_width=True, height=330)
@@ -186,20 +186,20 @@ tabs = st.tabs(["📊 Resumen"] + [O.NOMBRE[s] for s in O.SERVICIOS])
 with tabs[0]:
     uni, serv = O.proyectar_conservador(params, base_servicios=base)
     _, serv_oferta = O.proyectar(params)
-    st.markdown("### Proyeccion 2027 — escenario base conservador")
-    st.info("El escenario recomendado usa referencia estacional actualizada a mayo 2026, productividad pax/viaje calibrada por tipo de dia y respuesta parcial a la oferta. El aumento de servicios no se traduce en crecimiento proporcional de afluencia.")
+    st.markdown("### Proyeccion 2027 — escenario base calibrado ajustado")
+    st.info("El escenario recomendado mantiene la proyeccion por oferta calibrada con mayo 2026 para los servicios regionales. En Biotren se aplica un ajuste prudencial para situar el resultado anual en torno a 12,5-12,6 millones antes de evaluar aumentos leves de oferta futura.")
     with st.expander("Oferta vigente considerada en el escenario base"):
         st.dataframe(O.oferta_actual_df(detalle=True), use_container_width=True)
         st.caption("Nota: el cálculo mensual usa la excepción de Laja-Talcahuano: 10 servicios sábado y domingo en enero-febrero; 8 servicios sábado y domingo desde marzo a diciembre.")
     with st.expander("Calibracion de productividad mayo 2026"):
         st.dataframe(O.cargar_calibracion_productividad(), use_container_width=True)
         st.caption("Los factores ajustan parcialmente pasajeros por viaje por tipo de dia; no reemplazan toda la historia por un solo mes.")
-    with st.expander("Metodologia del ajuste conservador"):
+    with st.expander("Metodologia del escenario base calibrado ajustado"):
         st.markdown("""
         - **Referencia estacional:** proyeccion mensual basada en el historico disponible actualizado con mayo 2026.
-        - **Correccion de cobertura:** Llanquihue-Puerto Montt se normaliza contra dias lunes-viernes, no contra fines de semana sin oferta.
-        - **Productividad reciente:** los pasajeros por viaje se ajustan parcialmente con mayo 2026 por servicio y tipo de dia.
-        - **Respuesta conservadora a la oferta:** si la oferta entrega un resultado superior a la referencia, solo se reconoce una fraccion del diferencial; por tanto, mas servicios no generan crecimiento proporcional automatico.
+        - **Oferta calibrada:** la productividad pax/viaje se calibra con mayo 2026 por servicio y tipo de dia.
+        - **Servicios regionales:** Laja-Talcahuano, Tren Araucania y Llanquihue-Puerto Montt mantienen la proyeccion por oferta calibrada, porque el resultado es coherente con la oferta vigente y la evidencia reciente.
+        - **Biotren:** se reconoce el 80% del diferencial entre oferta calibrada y referencia estacional, dejando el total en torno a 12,5-12,6 millones. Esto permite partir desde una base realista antes de simular aumentos leves de servicios.
         """)
     kk = st.columns(4)
     for i, s in enumerate(O.SERVICIOS):
@@ -222,8 +222,8 @@ with tabs[0]:
         resumen_comp[f"{s}_ref_estacional"] = base[s].values
     st.dataframe(resumen_comp, use_container_width=True)
     cda, cdb = st.columns(2)
-    cda.download_button("⬇ Resumen conservador por servicio (CSV)", serv.to_csv().encode(), "proyeccion_2027_resumen_conservador.csv")
-    cdb.download_button("⬇ Detalle conservador por unidad / L1-L2 (CSV)", uni.to_csv().encode(), "proyeccion_2027_unidades_conservador.csv")
+    cda.download_button("⬇ Resumen base ajustado por servicio (CSV)", serv.to_csv().encode(), "proyeccion_2027_resumen_base_ajustada.csv")
+    cdb.download_button("⬇ Detalle base ajustada por unidad / L1-L2 (CSV)", uni.to_csv().encode(), "proyeccion_2027_unidades_base_ajustada.csv")
 
 for i, s in enumerate(O.SERVICIOS):
     with tabs[i + 1]:

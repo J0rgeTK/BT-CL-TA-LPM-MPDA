@@ -16,7 +16,10 @@ servicios Laja-Talcahuano ya contabilizados en CORTO_LAJA.
 
 Modelo por unidad/mes:
   proy_oferta = SUMA_tipo_dia [ servicios_por_dia x n_dias_2027 x pax_por_viaje x (1-supresion) ]
-  Biotren y Tren Araucania: escenario recomendado = referencia estacional + factor parcial x (proy_oferta - referencia estacional)
+  Escenario recomendado 2027 = oferta calibrada con mayo 2026.
+  Ajuste especifico Biotren: se reconoce parcialmente el diferencial sobre la
+  referencia estacional para situar la proyeccion anual en torno a 12,5-12,6 MM
+  antes de simular aumentos leves de oferta futura.
 """
 import numpy as np
 import pandas as pd
@@ -316,14 +319,16 @@ def proyectar(params, plan=None, contingencia_extra=None, anio=2027, calibracion
 
 
 AJUSTE_CONSERVADOR = {
-    # Factores revisados con datos reales de mayo 2026.
-    # factor_alza < 1 evita traducir mecanicamente mas oferta en mas pasajeros.
-    # factor_baja suaviza caidas cuando la proyeccion por oferta queda por debajo
-    # de la referencia estacional.
-    'BIOTREN': {'factor_alza': 0.25, 'factor_baja': 0.60},
-    'CORTO_LAJA': {'factor_alza': 0.35, 'factor_baja': 0.60},
-    'TREN_ARAUCANIA': {'factor_alza': 0.40, 'factor_baja': 0.70},
-    'LLANQUIHUE_PM': {'factor_alza': 0.25, 'factor_baja': 0.60},
+    # Escenario base calibrado ajustado.
+    # Los servicios regionales mantienen la proyeccion por oferta calibrada
+    # porque los resultados se consideran coherentes con mayo 2026 y la oferta
+    # vigente. Biotren se ajusta levemente a la baja: se toma el 80% del
+    # diferencial positivo entre oferta calibrada y referencia estacional, lo
+    # que deja el total anual en torno a 12,5-12,6 millones de pasajeros.
+    'BIOTREN': {'factor_alza': 0.80, 'factor_baja': 0.80},
+    'CORTO_LAJA': {'factor_alza': 1.00, 'factor_baja': 1.00},
+    'TREN_ARAUCANIA': {'factor_alza': 1.00, 'factor_baja': 1.00},
+    'LLANQUIHUE_PM': {'factor_alza': 1.00, 'factor_baja': 1.00},
 }
 
 
@@ -382,17 +387,19 @@ def calibrar_productividad_reciente(params, calibracion=None):
 
 def proyectar_conservador(params, base_servicios, plan=None, contingencia_extra=None,
                           anio=2027, ajustes=None, calibracion_productividad=True):
-    """Proyeccion recomendada para escenario base conservador.
+    """Proyeccion recomendada para escenario base calibrado ajustado.
 
     Combina dos senales:
     1) proyeccion directa por oferta vigente/editada;
     2) referencia estacional historica, que recoge el comportamiento observado
        hasta 2026 sin asumir que mas servicios generan demanda proporcional.
 
-    Para los servicios con calibracion reciente se aplica una respuesta parcial:
-      final = referencia + factor * (oferta - referencia)
-    con factores menores a 1. El resultado conserva el efecto de la oferta,
-    pero evita incrementos mecanicos de afluencia por cada tren adicional.
+    Para Biotren se aplica una respuesta parcial:
+      final = referencia + 0,80 * (oferta - referencia)
+    cuando la oferta calibrada queda sobre la referencia estacional. Con ello se
+    conserva la señal de aumento de oferta, pero se evita partir desde una base
+    excesivamente alta antes de simular nuevas ampliaciones. Para los servicios
+    regionales se mantiene la proyeccion por oferta calibrada.
 
     `base_servicios` debe tener indice mensual YYYY-MM y columnas por servicio
     iguales a SERVICIOS, como la salida de pipeline_afluencia.proyectar_2027.

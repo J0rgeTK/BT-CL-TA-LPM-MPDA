@@ -187,15 +187,19 @@ base.to_csv(OUT / 'proyeccion_2027_referencia_estacional.csv')
 params = O.aplicar_oferta_actual(pd.read_csv(DATA / 'oferta_params.csv'))
 uni, serv = O.proyectar_conservador(params, base_servicios=base)
 _, solo_oferta = O.proyectar(params)
+# Nombres vigentes del escenario recomendado. Se mantienen tambien los archivos
+# historicos con sufijo conservador por compatibilidad con versiones previas.
+uni.to_csv(OUT / 'proyeccion_2027_unidades_base_ajustada.csv')
+serv.to_csv(OUT / 'proyeccion_2027_resumen_base_ajustada.csv')
 uni.to_csv(OUT / 'proyeccion_2027_unidades_conservador.csv')
 serv.to_csv(OUT / 'proyeccion_2027_resumen_conservador.csv')
 comp = pd.DataFrame({
     'ref_estacional': base.sum(),
     'solo_oferta_calibrada': solo_oferta.sum(),
-    'conservador_mayo2026': serv.sum(),
+    'base_calibrada_ajustada': serv.sum(),
 })
-comp['dif_vs_oferta'] = comp['conservador_mayo2026'] - comp['solo_oferta_calibrada']
-comp['dif_vs_ref'] = comp['conservador_mayo2026'] - comp['ref_estacional']
+comp['dif_vs_oferta'] = comp['base_calibrada_ajustada'] - comp['solo_oferta_calibrada']
+comp['dif_vs_ref'] = comp['base_calibrada_ajustada'] - comp['ref_estacional']
 comp.to_csv(OUT / 'comparativo_escenarios_2027.csv')
 
 validacion = resumen.merge(comp, left_on='servicio', right_index=True, how='left')
