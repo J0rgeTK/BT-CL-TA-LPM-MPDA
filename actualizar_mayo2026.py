@@ -111,7 +111,7 @@ may_days = nd_2026[nd_2026['mes'] == 5].set_index('dt')['n_dias'].to_dict()
 # Oferta programada vigente usada por modelo para mayo 2026.
 servicios_mayo_modelo = {
     'BIOTREN': may_days['LV'] * (40 + 106) + may_days['Sab'] * (8 + 53) + may_days['Dom'] * (0 + 32),
-    'CORTO_LAJA': may_days['LV'] * 10 + may_days['Sab'] * 8 + may_days['Dom'] * 8,
+    'CORTO_LAJA': may_days['LV'] * 8 + may_days['Sab'] * 8 + may_days['Dom'] * 8,
     'TREN_ARAUCANIA': may_days['LV'] * 18.6 + may_days['Sab'] * 12 + may_days['Dom'] * 6,
     'LLANQUIHUE_PM': may_days['LV'] * 20,
 }
@@ -160,7 +160,7 @@ for unit, peso in [('CORTO_LAJA', 0.60), ('TREN_ARAUCANIA', 0.70), ('LLANQUIHUE_
         if unit == 'TREN_ARAUCANIA':
             servicios = {'LV': 18.6, 'Sab': 12, 'Dom': 6}[dt] * may_days[dt]
         elif unit == 'CORTO_LAJA':
-            servicios = {'LV': 10, 'Sab': 8, 'Dom': 8}[dt] * may_days[dt]
+            servicios = {'LV': 8, 'Sab': 8, 'Dom': 8}[dt] * may_days[dt]
         else:
             servicios = g['servicios_con_afluencia'].sum()
         obs_pxv = g['pasajeros'].sum() / max(servicios, 1)
@@ -181,31 +181,46 @@ cal.to_csv(DATA / 'calibracion_mayo_2026.csv', index=False)
 # 4) Mensualizar y proyectar.
 mdf = P.mensualizar(new)
 mdf.to_csv(DATA / 'afluencia_mensual_modelo.csv', index=False)
-base, meta = P.proyectar_2027(mdf)
-base.to_csv(OUT / 'proyeccion_2027_referencia_estacional.csv')
 
 params = O.aplicar_oferta_actual(pd.read_csv(DATA / 'oferta_params.csv'))
-uni, serv = O.proyectar_conservador(params, base_servicios=base)
+uni, serv, perfiles = O.proyectar_base_ajustada(params, mdf)
 _, solo_oferta = O.proyectar(params)
-# Nombres vigentes del escenario recomendado. Se mantienen tambien los archivos
-# historicos con sufijo conservador por compatibilidad con versiones previas.
+
+# Salidas principales: solo se expone el escenario ajustado y diagnosticos de soporte.
 uni.to_csv(OUT / 'proyeccion_2027_unidades_base_ajustada.csv')
 serv.to_csv(OUT / 'proyeccion_2027_resumen_base_ajustada.csv')
+perfiles.to_csv(OUT / 'perfil_mensual_utilizado_2027.csv', index=False)
+O.analisis_mensual_historico(mdf).to_csv(OUT / 'analisis_mensual_historico_servicio.csv', index=False)
+
+ta_tramos = O.desagregar_tren_araucania_por_tramo(serv['TREN_ARAUCANIA'])
+ta_tramos.to_csv(OUT / 'proyeccion_2027_tren_araucania_tramos.csv')
+
+# Compatibilidad con nombres previos, pero con el nuevo escenario base ajustado.
 uni.to_csv(OUT / 'proyeccion_2027_unidades_conservador.csv')
 serv.to_csv(OUT / 'proyeccion_2027_resumen_conservador.csv')
+
 comp = pd.DataFrame({
-    'ref_estacional': base.sum(),
     'solo_oferta_calibrada': solo_oferta.sum(),
     'base_calibrada_ajustada': serv.sum(),
 })
-comp['dif_vs_oferta'] = comp['base_calibrada_ajustada'] - comp['solo_oferta_calibrada']
-comp['dif_vs_ref'] = comp['base_calibrada_ajustada'] - comp['ref_estacional']
+comp['ajuste_total'] = comp['base_calibrada_ajustada'] - comp['solo_oferta_calibrada']
 comp.to_csv(OUT / 'comparativo_escenarios_2027.csv')
 
 validacion = resumen.merge(comp, left_on='servicio', right_index=True, how='left')
 validacion.to_csv(OUT / 'validacion_mayo_2026_vs_proyeccion.csv', index=False)
 
+# Remover salida heredada de versiones anteriores.
+legacy_old = OUT / 'proyeccion_2027_base_historica_legacy.csv'
+if legacy_old.exists():
+    legacy_old.unlink()
+
+# 5) Respaldos de oferta vigente y tramos.
+O.oferta_actual_df(detalle=True).to_csv(DATA / 'oferta_actual_vigente.csv', index=False)
+O.oferta_actual_df(mensual=True).to_csv(DATA / 'oferta_actual_vigente_mensual.csv', index=False)
+O.oferta_tren_araucania_tramos_df(mensual=True).to_csv(DATA / 'oferta_tren_araucania_tramos_mensual.csv', index=False)
+O.oferta_tren_araucania_tramos_df(mensual=False).to_csv(DATA / 'oferta_tren_araucania_tramos_tipo.csv', index=False)
+
 print('Mayo 2026 cargado:')
 print(resumen.to_string(index=False))
-print('\nComparativo 2027:')
+print('\nProyeccion 2027:')
 print(comp.to_string())

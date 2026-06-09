@@ -6,6 +6,9 @@ La oferta de trenes es la VARIABLE de planificacion, editable por el usuario y
 diferenciada por TIPO DE DIA (Lunes-Viernes 'LV', Sabado 'Sab', Domingo 'Dom') y mes.
 
 Unidades: BIOTREN_L1, BIOTREN_L2, CORTO_LAJA, TREN_ARAUCANIA, LLANQUIHUE_PM.
+Para Tren Araucania se mantiene TREN_ARAUCANIA como unidad agregada de demanda
+y se agrega una desagregacion auxiliar de oferta por tramo: TA_TEMUCO_VICTORIA,
+TA_TEMUCO_PITRUFQUEN y TA_CLARET.
 La afluencia de Biotren se reparte 20/80 (L1/L2, matriz OD; supuesto).
 
 Estaciones Llanquihue-PM (XP-NQ): XP=La Paloma, NQ=Llanquihue, AL=Alerce, EV=Puerto Varas.
@@ -17,9 +20,9 @@ servicios Laja-Talcahuano ya contabilizados en CORTO_LAJA.
 Modelo por unidad/mes:
   proy_oferta = SUMA_tipo_dia [ servicios_por_dia x n_dias_2027 x pax_por_viaje x (1-supresion) ]
   Escenario recomendado 2027 = oferta calibrada con mayo 2026.
-  Ajuste especifico Biotren: se reconoce parcialmente el diferencial sobre la
-  referencia estacional para situar la proyeccion anual en torno a 12,5-12,6 MM
-  antes de simular aumentos leves de oferta futura.
+  Ajuste especifico Biotren: se aplica un factor anual prudencial sobre la
+  oferta calibrada para situar la proyeccion en torno a 12,5-12,6 MM antes
+  de simular aumentos leves de oferta futura.
 """
 import numpy as np
 import pandas as pd
@@ -32,6 +35,20 @@ UNIT = {'BIOTREN L1': 'BIOTREN_L1', 'BIOTREN L2': 'BIOTREN_L2', 'CORTO LJ': 'COR
 SERVICIOS = ['BIOTREN', 'CORTO_LAJA', 'TREN_ARAUCANIA', 'LLANQUIHUE_PM']
 UNIDADES_DE = {'BIOTREN': ['BIOTREN_L1', 'BIOTREN_L2'], 'CORTO_LAJA': ['CORTO_LAJA'],
                'TREN_ARAUCANIA': ['TREN_ARAUCANIA'], 'LLANQUIHUE_PM': ['LLANQUIHUE_PM']}
+
+TA_TRAMOS = ['TA_TEMUCO_VICTORIA', 'TA_TEMUCO_PITRUFQUEN', 'TA_CLARET']
+TA_TRAMO_NOMBRE = {
+    'TA_TEMUCO_VICTORIA': 'Temuco - Victoria',
+    'TA_TEMUCO_PITRUFQUEN': 'Temuco - Pitrufquen',
+    'TA_CLARET': 'Claret',
+}
+# Peso relativo de demanda: un servicio adicional en Pitrufquen o Claret no se
+# transforma en la misma demanda que un servicio adicional Victoria-Temuco.
+TA_TRAMO_PESO_DEMANDA = {
+    'TA_TEMUCO_VICTORIA': 1.00,
+    'TA_TEMUCO_PITRUFQUEN': 0.16,
+    'TA_CLARET': 0.08,
+}
 NOMBRE = {'BIOTREN': 'Biotren', 'CORTO_LAJA': 'Laja-Talcahuano',
           'TREN_ARAUCANIA': 'Tren Araucania', 'LLANQUIHUE_PM': 'Llanquihue-Puerto Montt'}
 DTYPES = ['LV', 'Sab', 'Dom']
@@ -48,16 +65,16 @@ DATA_DIR = Path(__file__).resolve().parent / 'data'
 #   Laja-Talcahuano en un mes tipo.
 # - Como CORTO_LAJA se modela por separado, BIOTREN_L1 queda sólo con la oferta
 #   propia de Biotren: 40 LV, 8 Sab, 0 Dom.
-# - CORTO_LAJA incorpora 8 servicios base y 2 cortos LV Hualqui-Talcamavida /
-#   Talcamavida-Hualqui: 10 LV. En sábado y domingo usa 8 servicios en un mes
-#   tipo, con excepción enero-febrero, donde se consideran 10 servicios.
+# - CORTO_LAJA usa 8 servicios base todos los dias. La excepcion operacional
+#   corresponde solo a sabado y domingo de enero-febrero, donde se consideran
+#   10 servicios. No se aplica 10 servicios a lunes-viernes.
 # - Tren Araucania tiene diferencias L-J / viernes; el modelo usa tipo LV, por
 #   lo que se usa promedio ponderado semanal: (4*19 + 1*17) / 5 = 18.6.
 # ---------------------------------------------------------------------------
 OFERTA_ACTUAL_MODELO = {
     'BIOTREN_L1': {'LV': 40.0, 'Sab': 8.0, 'Dom': 0.0},
     'BIOTREN_L2': {'LV': 106.0, 'Sab': 53.0, 'Dom': 32.0},
-    'CORTO_LAJA': {'LV': 10.0, 'Sab': 8.0, 'Dom': 8.0},
+    'CORTO_LAJA': {'LV': 8.0, 'Sab': 8.0, 'Dom': 8.0},
     'TREN_ARAUCANIA': {'LV': 18.6, 'Sab': 12.0, 'Dom': 6.0},
     'LLANQUIHUE_PM': {'LV': 20.0, 'Sab': 0.0, 'Dom': 0.0},
 }
@@ -99,8 +116,8 @@ OFERTA_ACTUAL_DETALLE = [
      'detalle': 'Oferta propia no contabilizada en CORTO_LAJA'},
     {'servicio': 'Biotren L1 propia del modelo', 'unit': 'BIOTREN_L1', 'dt': 'Dom', 'servicios_dia': 0.0,
      'detalle': 'Sin oferta propia dominical; la oferta dominical del corredor se contabiliza en CORTO_LAJA'},
-    {'servicio': 'Laja-Talcahuano', 'unit': 'CORTO_LAJA', 'dt': 'LV', 'servicios_dia': 10.0,
-     'detalle': '8 servicios base + 2 cortos Hualqui-Talcamavida / Talcamavida-Hualqui'},
+    {'servicio': 'Laja-Talcahuano', 'unit': 'CORTO_LAJA', 'dt': 'LV', 'servicios_dia': 8.0,
+     'detalle': '8 servicios lunes a viernes; los 10 servicios aplican solo a fines de semana de enero-febrero'},
     {'servicio': 'Laja-Talcahuano', 'unit': 'CORTO_LAJA', 'dt': 'Sab', 'servicios_dia': 10.0,
      'detalle': 'Enero-febrero: 10 servicios sabado'},
     {'servicio': 'Laja-Talcahuano', 'unit': 'CORTO_LAJA', 'dt': 'Dom', 'servicios_dia': 10.0,
@@ -317,21 +334,6 @@ def proyectar(params, plan=None, contingencia_extra=None, anio=2027, calibracion
     uni_w, serv = _agregar_servicios(p, anio=anio)
     return uni_w.round(0).astype('Int64'), serv.round(0).astype('Int64')
 
-
-AJUSTE_CONSERVADOR = {
-    # Escenario base calibrado ajustado.
-    # Los servicios regionales mantienen la proyeccion por oferta calibrada
-    # porque los resultados se consideran coherentes con mayo 2026 y la oferta
-    # vigente. Biotren se ajusta levemente a la baja: se toma el 80% del
-    # diferencial positivo entre oferta calibrada y referencia estacional, lo
-    # que deja el total anual en torno a 12,5-12,6 millones de pasajeros.
-    'BIOTREN': {'factor_alza': 0.80, 'factor_baja': 0.80},
-    'CORTO_LAJA': {'factor_alza': 1.00, 'factor_baja': 1.00},
-    'TREN_ARAUCANIA': {'factor_alza': 1.00, 'factor_baja': 1.00},
-    'LLANQUIHUE_PM': {'factor_alza': 1.00, 'factor_baja': 1.00},
-}
-
-
 def cargar_calibracion_productividad(path=None):
     """Carga factores de calibracion de pax/viaje observados en mayo 2026.
 
@@ -385,55 +387,256 @@ def calibrar_productividad_reciente(params, calibracion=None):
 
 
 
-def proyectar_conservador(params, base_servicios, plan=None, contingencia_extra=None,
-                          anio=2027, ajustes=None, calibracion_productividad=True):
-    """Proyeccion recomendada para escenario base calibrado ajustado.
+def oferta_tren_araucania_tramos_df(mensual=True):
+    """Oferta vigente de Tren Araucania desagregada por tramo.
 
-    Combina dos senales:
-    1) proyeccion directa por oferta vigente/editada;
-    2) referencia estacional historica, que recoge el comportamiento observado
-       hasta 2026 sin asumir que mas servicios generan demanda proporcional.
-
-    Para Biotren se aplica una respuesta parcial:
-      final = referencia + 0,80 * (oferta - referencia)
-    cuando la oferta calibrada queda sobre la referencia estacional. Con ello se
-    conserva la señal de aumento de oferta, pero se evita partir desde una base
-    excesivamente alta antes de simular nuevas ampliaciones. Para los servicios
-    regionales se mantiene la proyeccion por oferta calibrada.
-
-    `base_servicios` debe tener indice mensual YYYY-MM y columnas por servicio
-    iguales a SERVICIOS, como la salida de pipeline_afluencia.proyectar_2027.
+    Se mantiene el motor de demanda agregado en TREN_ARAUCANIA, pero la oferta se
+    edita por tramo para que un aumento en Pitrufquen o Claret tenga menor efecto
+    marginal que un aumento Victoria-Temuco.
     """
-    ajustes = ajustes or AJUSTE_CONSERVADOR
-    p = _aplicar_plan_y_contingencia(params, plan=plan, contingencia_extra=contingencia_extra, anio=anio, calibracion_productividad=calibracion_productividad)
-    uni_w, serv_oferta = _agregar_servicios(p, anio=anio)
+    base = {
+        # Promedio LV: lunes-jueves 9/7/3 y viernes 9/5/3.
+        'TA_TEMUCO_VICTORIA': {'LV': 9.0, 'Sab': 8.0, 'Dom': 6.0},
+        'TA_TEMUCO_PITRUFQUEN': {'LV': 6.6, 'Sab': 4.0, 'Dom': 0.0},
+        'TA_CLARET': {'LV': 3.0, 'Sab': 0.0, 'Dom': 0.0},
+    }
+    rows = []
+    for unit, vals in base.items():
+        meses = range(1, 13) if mensual else [None]
+        for mes in meses:
+            for dt, servicios_dia in vals.items():
+                row = {'unit': unit, 'dt': dt, 'servicios_dia': float(servicios_dia)}
+                if mensual:
+                    row['mes'] = mes
+                rows.append(row)
+    cols = ['unit', 'mes', 'dt', 'servicios_dia'] if mensual else ['unit', 'dt', 'servicios_dia']
+    return pd.DataFrame(rows)[cols]
 
-    serv_final = serv_oferta.copy()
-    base = base_servicios.copy()
-    base.index = serv_oferta.index
 
-    for s, cfg in ajustes.items():
-        if s not in serv_final.columns or s not in base.columns:
+def plan_tren_araucania_agregado(plan_tramos):
+    """Convierte oferta por tramo de Tren Araucania en oferta equivalente agregada.
+
+    La oferta equivalente conserva el nivel actual cuando se usan los valores base.
+    Si el usuario aumenta servicios en Victoria-Temuco, el efecto en demanda es
+    mayor que si aumenta servicios en Pitrufquen o Claret.
+    """
+    base = oferta_tren_araucania_tramos_df(mensual=True)
+    df = plan_tramos.copy()
+    df['mes'] = df['mes'].astype(int)
+    # Completar combinaciones faltantes con oferta vigente.
+    idx = base[['unit', 'mes', 'dt']].copy()
+    df = idx.merge(df[['unit', 'mes', 'dt', 'servicios_dia']], on=['unit', 'mes', 'dt'], how='left')
+    df = df.merge(base.rename(columns={'servicios_dia': 'servicios_base'}), on=['unit', 'mes', 'dt'], how='left')
+    df['servicios_dia'] = pd.to_numeric(df['servicios_dia'], errors='coerce').fillna(df['servicios_base'])
+    df['peso'] = df['unit'].map(TA_TRAMO_PESO_DEMANDA).fillna(0.0)
+    df['ponderado'] = df['servicios_dia'] * df['peso']
+    base2 = base.copy()
+    base2['peso'] = base2['unit'].map(TA_TRAMO_PESO_DEMANDA).fillna(0.0)
+    base2['ponderado_base'] = base2['servicios_dia'] * base2['peso']
+    cur = df.groupby(['mes', 'dt'])['ponderado'].sum().reset_index()
+    bas = base2.groupby(['mes', 'dt']).agg(ponderado_base=('ponderado_base', 'sum'), total_base=('servicios_dia', 'sum')).reset_index()
+    out = cur.merge(bas, on=['mes', 'dt'], how='left')
+    out['servicios_dia'] = out['total_base'] * out['ponderado'] / out['ponderado_base'].replace(0, np.nan)
+    out['servicios_dia'] = out['servicios_dia'].fillna(0.0)
+    out['unit'] = 'TREN_ARAUCANIA'
+    return out[['unit', 'mes', 'dt', 'servicios_dia']]
+
+
+def _preparar_mdf(mdf):
+    g = mdf.copy()
+    if not pd.api.types.is_period_dtype(g['mes']):
+        g['mes'] = pd.PeriodIndex(g['mes'], freq='M')
+    g['anio'] = g['mes'].dt.year
+    g['m'] = g['mes'].dt.month
+    return g
+
+
+def analisis_mensual_historico(mdf):
+    """Tabla auditable de comportamiento mensual por servicio y anio."""
+    g = _preparar_mdf(mdf)
+    rows = []
+    for (servicio, anio), d in g.groupby(['servicio', 'anio']):
+        total_obs = d['pax_norm'].sum()
+        meses_obs = d['m'].nunique()
+        media_obs = d['pax_norm'].mean()
+        for _, r in d.iterrows():
+            rows.append({
+                'servicio': servicio,
+                'anio': int(anio),
+                'mes': int(r['m']),
+                'afluencia_mensual_normalizada': round(float(r['pax_norm']), 0),
+                'meses_observados_anio': int(meses_obs),
+                'participacion_sobre_periodo_observado': float(r['pax_norm'] / total_obs) if total_obs else np.nan,
+                'indice_mensual_vs_media_observada': float(r['pax_norm'] / media_obs) if media_obs else np.nan,
+                'cobertura': float(r.get('cobertura', np.nan)),
+            })
+    return pd.DataFrame(rows).sort_values(['servicio', 'anio', 'mes']).reset_index(drop=True)
+
+
+def _share_full_years(g, servicio):
+    weights_by_service = {
+        'BIOTREN': {2024: 0.45, 2025: 0.55},
+        'CORTO_LAJA': {2024: 0.40, 2025: 0.60},
+        'TREN_ARAUCANIA': {2025: 1.00},
+        'LLANQUIHUE_PM': {2025: 1.00},
+    }
+    weights = weights_by_service.get(servicio, {})
+    out = pd.Series(0.0, index=range(1, 13), dtype=float)
+    tw = 0.0
+    for y, d in g.groupby('anio'):
+        if d['m'].nunique() >= 12:
+            sh = d.set_index('m')['pax_norm'].astype(float)
+            sh = sh / sh.sum()
+            w = float(weights.get(int(y), 1.0))
+            out = out.add(sh * w, fill_value=0.0)
+            tw += w
+    if tw > 0:
+        out = out / tw
+    else:
+        # Fallback: ultimo valor disponible por mes; meses faltantes con media.
+        piv = g.sort_values('mes').groupby('m')['pax_norm'].last()
+        mean_val = float(piv.mean()) if len(piv) else 1.0
+        out = pd.Series({m: float(piv.get(m, mean_val)) for m in range(1, 13)})
+        out = out / out.sum()
+    return out.reindex(range(1, 13)).fillna(out.mean()) / out.sum()
+
+
+def perfil_mensual_historico(mdf, servicio, total_anual=None):
+    """Perfil mensual usado para distribuir el total anual proyectado.
+
+    - Biotren: pondera 2024-2025 y refuerza enero-mayo 2026.
+    - Laja-Talcahuano: mantiene estacionalidad 2024-2025 y señal 2026 parcial.
+    - Tren Araucania: usa 2025 y refuerza enero-mayo 2026, evitando peaks no
+      sustentados por la serie mensual.
+    - Llanquihue-Puerto Montt: conserva enero-febrero 2026 como meses estivales.
+    """
+    g_all = _preparar_mdf(mdf)
+    g = g_all[g_all['servicio'] == servicio].copy()
+    if g.empty:
+        return pd.Series(1 / 12, index=[f'2027-{m:02d}' for m in range(1, 13)])
+
+    if servicio == 'LLANQUIHUE_PM':
+        # Mantener enero-febrero 2026 en niveles similares al periodo estival.
+        vals = {}
+        for m in range(1, 13):
+            d = g[g['m'] == m].sort_values('anio')
+            vals[m] = float(d.iloc[-1]['pax_norm']) if not d.empty else np.nan
+        # Si faltan meses, usar media de meses disponibles no estivales.
+        available = [v for v in vals.values() if pd.notna(v)]
+        fill = float(np.mean(available)) if available else 1.0
+        vals = {m: (fill if pd.isna(v) else v) for m, v in vals.items()}
+        if total_anual is not None and 1 in vals and 2 in vals:
+            fixed = {1: vals[1], 2: vals[2]}
+            fixed_total = sum(fixed.values())
+            # Evitar que los meses estivales absorban un porcentaje excesivo si cambia el total anual.
+            if fixed_total > float(total_anual) * 0.34:
+                esc = (float(total_anual) * 0.34) / fixed_total
+                fixed = {k: v * esc for k, v in fixed.items()}
+                fixed_total = sum(fixed.values())
+            rest_months = [m for m in range(1, 13) if m not in fixed]
+            rest_raw = pd.Series({m: vals[m] for m in rest_months}, dtype=float)
+            rest_values = rest_raw / rest_raw.sum() * max(float(total_anual) - fixed_total, 0.0)
+            final = pd.Series({**fixed, **rest_values.to_dict()}).reindex(range(1, 13))
+            share = final / final.sum()
+        else:
+            raw = pd.Series(vals, dtype=float).reindex(range(1, 13))
+            share = raw / raw.sum()
+    else:
+        share = _share_full_years(g, servicio)
+        obs26 = g[g['anio'] == 2026].set_index('m')['pax_norm'].astype(float)
+        if not obs26.empty:
+            implied = obs26.sum() / max(share.loc[obs26.index].sum(), 1e-9)
+            sh26 = obs26 / implied
+            peso_2026 = {'BIOTREN': 0.60, 'CORTO_LAJA': 0.35, 'TREN_ARAUCANIA': 0.55}.get(servicio, 0.50)
+            for m, v in sh26.items():
+                share.loc[m] = (1 - peso_2026) * share.loc[m] + peso_2026 * v
+        share = share / share.sum()
+
+    share.index = [f'2027-{m:02d}' for m in range(1, 13)]
+    return share.astype(float)
+
+
+AJUSTE_TOTAL_ANUAL = {
+    # Factor multiplicativo sobre la proyeccion por oferta calibrada.
+    # En Biotren deja el escenario base alrededor de 12,5-12,6 MM con la oferta actual.
+    'BIOTREN': 0.972,
+    'CORTO_LAJA': 1.000,
+    'TREN_ARAUCANIA': 1.000,
+    'LLANQUIHUE_PM': 1.000,
+}
+
+
+def proyectar_base_ajustada(params, mdf, plan=None, contingencia_extra=None,
+                            anio=2027, calibracion_productividad=True,
+                            factores_total=None):
+    """Escenario principal del modelo.
+
+    La demanda anual se obtiene desde la oferta calibrada y, posteriormente, se
+    distribuye por mes con perfiles historicos 2024-2026 por servicio. No expone
+    comparaciones externas; el historico se usa solo para construir
+    el patron mensual auditable.
+    """
+    factores_total = factores_total or AJUSTE_TOTAL_ANUAL
+    uni_oferta, serv_oferta = proyectar(params, plan=plan, contingencia_extra=contingencia_extra,
+                                        anio=anio, calibracion_productividad=calibracion_productividad)
+    serv_final = pd.DataFrame(index=serv_oferta.index)
+    perfiles = []
+    for s in SERVICIOS:
+        if s not in serv_oferta.columns:
             continue
-        oferta = serv_oferta[s].astype(float)
-        referencia = base[s].astype(float)
-        factor_alza = float(cfg.get('factor_alza', 1.0))
-        factor_baja = float(cfg.get('factor_baja', 1.0))
-        factor = pd.Series(np.where(oferta >= referencia, factor_alza, factor_baja), index=serv_final.index)
-        serv_final[s] = referencia + factor * (oferta - referencia)
+        total = float(serv_oferta[s].dropna().sum()) * float(factores_total.get(s, 1.0))
+        perfil = perfil_mensual_historico(mdf, s, total_anual=total)
+        perfil = perfil.reindex(serv_oferta.index).fillna(1/12)
+        valores = perfil.astype(float) * total
+        # Ajuste de redondeo para que el total anual cierre exactamente.
+        valores = valores.round(0)
+        diff = round(total) - valores.sum()
+        if len(valores) and diff:
+            valores.iloc[-1] += diff
+        serv_final[s] = valores.astype(float)
+        for idx, share in perfil.items():
+            perfiles.append({'servicio': s, 'mes': idx, 'participacion_mensual_utilizada': float(share),
+                             'total_anual_objetivo': round(total, 0), 'afluencia_proyectada_mes': float(serv_final.loc[idx, s])})
 
-        # Redistribucion a unidades: mantiene la proporcion mensual de la
-        # proyeccion por oferta. Para servicios de una unidad equivale a reemplazar
-        # directamente esa unidad.
-        unidades = [u for u in UNIDADES_DE[s] if u in uni_w.columns]
-        if unidades:
-            total_unidades = uni_w[unidades].sum(axis=1).replace(0, np.nan)
-            ratio = (serv_final[s] / total_unidades).replace([np.inf, -np.inf], np.nan).fillna(0)
-            for u in unidades:
-                uni_w[u] = uni_w[u] * ratio
+    uni_final = uni_oferta.copy().astype(float)
+    for s, unidades in UNIDADES_DE.items():
+        if s not in serv_final.columns:
+            continue
+        unidades = [u for u in unidades if u in uni_oferta.columns]
+        if not unidades:
+            continue
+        total_unidades = uni_oferta[unidades].sum(axis=1).replace(0, np.nan).astype(float)
+        ratio = (serv_final[s].astype(float) / total_unidades).replace([np.inf, -np.inf], np.nan).fillna(0.0)
+        for u in unidades:
+            uni_final[u] = uni_oferta[u].astype(float) * ratio
 
-    return uni_w.round(0).astype('Int64'), serv_final.round(0).astype('Int64')
+    return uni_final.round(0).astype('Int64'), serv_final.round(0).astype('Int64'), pd.DataFrame(perfiles)
 
+
+def desagregar_tren_araucania_por_tramo(serie_total, plan_tramos=None, anio=2027):
+    """Distribuye la proyeccion agregada de Tren Araucania por tramo."""
+    if plan_tramos is None:
+        tr = oferta_tren_araucania_tramos_df(mensual=True)
+    else:
+        base = oferta_tren_araucania_tramos_df(mensual=True)
+        tr = base[['unit', 'mes', 'dt']].merge(plan_tramos[['unit', 'mes', 'dt', 'servicios_dia']],
+                                               on=['unit', 'mes', 'dt'], how='left')
+        tr = tr.merge(base.rename(columns={'servicios_dia': 'servicios_base'}), on=['unit', 'mes', 'dt'], how='left')
+        tr['servicios_dia'] = pd.to_numeric(tr['servicios_dia'], errors='coerce').fillna(tr['servicios_base'])
+        tr = tr[['unit', 'mes', 'dt', 'servicios_dia']]
+    nd = dias_por_tipo(anio)
+    tr = tr.merge(nd, on=['mes', 'dt'], how='left')
+    tr['peso'] = tr['unit'].map(TA_TRAMO_PESO_DEMANDA).fillna(0.0)
+    tr['servicios_mes_ponderados'] = tr['servicios_dia'] * tr['n_dias'] * tr['peso']
+    w = tr.groupby(['mes', 'unit'])['servicios_mes_ponderados'].sum().reset_index()
+    total = w.groupby('mes')['servicios_mes_ponderados'].transform('sum').replace(0, np.nan)
+    w['participacion_demanda'] = (w['servicios_mes_ponderados'] / total).fillna(0.0)
+    out = w.pivot(index='mes', columns='unit', values='participacion_demanda').fillna(0.0)
+    out.index = [f'{anio}-{m:02d}' for m in out.index]
+    total_series = pd.Series(serie_total, index=out.index).astype(float)
+    for c in out.columns:
+        out[c] = out[c] * total_series
+    return out.round(0).astype('Int64')
 
 def viajes_anuales(params, plan=None, contingencia_extra=None, anio=2027, units=None):
     """Viajes operados anuales estimados, util para calcular pax/viaje proyectado."""

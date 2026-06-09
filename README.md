@@ -1,51 +1,46 @@
-# Modelo de predicción de afluencia EFE Sur — versión base calibrada ajustada
+# Modelo de prediccion de afluencia EFE Sur 2027
 
-Esta versión actualiza el modelo de proyección 2027 incorporando los resultados reales de afluencia de mayo 2026 y dejando como escenario principal una **base calibrada por oferta**, con ajuste específico para Biotren.
+Version ajustada con calibracion de mayo 2026, oferta vigente y distribucion mensual basada en comportamiento historico 2024-2026.
 
-## Criterio del escenario recomendado
+## Criterio general
 
-El resultado anterior de **solo oferta calibrada** se considera más coherente con la evolución esperada del servicio durante 2026 que el escenario conservador original. Por lo tanto, esta versión usa ese enfoque como base para los servicios regionales y aplica una corrección puntual a Biotren.
+El escenario principal del programa usa la oferta vigente como base operacional, calibra la productividad por viaje con mayo 2026 y distribuye el resultado anual mediante perfiles mensuales observados por servicio. El objetivo es evitar una proyeccion proporcional simple donde cada aumento de servicios genera el mismo crecimiento de pasajeros.
 
-- **Laja-Talcahuano:** mantiene la proyección por oferta calibrada.
-- **Tren Araucanía:** mantiene la proyección por oferta calibrada.
-- **Llanquihue-Puerto Montt:** mantiene la proyección por oferta calibrada, con la corrección metodológica de días lunes-viernes.
-- **Biotren:** se ajusta a la baja respecto de la oferta calibrada, reconociendo el 80% del diferencial entre referencia estacional y oferta calibrada. Esto deja la proyección anual en torno a 12,5-12,6 millones de pasajeros, permitiendo simular posteriormente aumentos leves de servicios sin partir desde una base excesivamente alta.
+## Ajustes principales
 
-## Resultados principales 2027
+- **Interfaz sin contraste externo:** la app muestra la proyeccion final, la oferta editable, el historico mensual y los indicadores de productividad. No se muestra una columna de contraste contra otra base de calculo.
+- **Biotren:** se mantiene un resultado anual en torno a 12,5-12,6 millones de pasajeros, pero la distribucion mensual se reajusta con el comportamiento 2024, 2025 y enero-mayo 2026. Esto evita una curva mensual poco consistente con la historia reciente.
+- **Laja-Talcahuano:** la oferta se corrige a 8 servicios por dia durante el ano, salvo sabados y domingos de enero-febrero, donde se consideran 10 servicios.
+- **Tren Araucania:** la oferta se puede editar por tramo: Temuco-Victoria, Temuco-Pitrufquen y Claret. Para demanda se usa una oferta equivalente ponderada, reconociendo que un servicio adicional en Pitrufquen o Claret no genera el mismo efecto que uno en Victoria-Temuco.
+- **Llanquihue-Puerto Montt:** enero y febrero mantienen niveles similares al comportamiento estival observado en 2026. El resto de meses se distribuye segun la serie disponible, considerando que no existen servicios planificados de fin de semana.
 
-| Servicio | Referencia estacional | Solo oferta calibrada | Escenario base calibrado ajustado |
-|---|---:|---:|---:|
-| Biotren | 11.089.501 | 12.907.596 | 12.543.975 |
-| Laja-Talcahuano | 438.014 | 501.607 | 501.607 |
-| Llanquihue-Puerto Montt | 433.606 | 436.992 | 436.992 |
-| Tren Araucanía | 652.783 | 807.179 | 807.179 |
+## Resultado anual 2027 del escenario base ajustado
 
-## Lectura técnica
+| Servicio | Pasajeros proyectados 2027 |
+|---|---:|
+| Biotren | 12.546.183 |
+| Laja-Talcahuano | 468.631 |
+| Tren Araucania | 807.179 |
+| Llanquihue-Puerto Montt | 436.992 |
+| **Total sistema modelado** | **14.258.985** |
 
-El modelo mantiene la productividad calibrada con mayo 2026, pero evita que Biotren quede completamente anclado al escenario más alto de oferta calibrada. La corrección aplicada no elimina el efecto de la mayor oferta; solo reduce el diferencial positivo frente a la referencia estacional para dejar margen a futuras simulaciones de incremento de servicios.
+## Archivos de salida principales
 
-## Archivos relevantes
+- `outputs/proyeccion_2027_resumen_base_ajustada.csv`: proyeccion mensual por servicio.
+- `outputs/proyeccion_2027_unidades_base_ajustada.csv`: detalle mensual por unidad de calculo.
+- `outputs/proyeccion_2027_tren_araucania_tramos.csv`: desagregacion mensual de Tren Araucania por tramo.
+- `outputs/perfil_mensual_utilizado_2027.csv`: participacion mensual usada para distribuir el total anual.
+- `outputs/analisis_mensual_historico_servicio.csv`: comportamiento mensual por servicio y ano.
+- `outputs/validacion_mayo_2026_vs_proyeccion.csv`: validacion de mayo 2026 y resultado anual del escenario.
 
-- `data/afluencia_diaria_consolidada.csv`: base diaria consolidada actualizada con mayo 2026.
-- `data/afluencia_mayo_2026_cargada.csv`: registros diarios incorporados desde los archivos de mayo.
-- `data/resumen_mayo_2026.csv`: control de afluencia, días y productividad de mayo 2026.
-- `data/calibracion_mayo_2026.csv`: factores de calibración de pasajeros por viaje.
-- `data/afluencia_mensual_modelo.csv`: base mensual usada por la referencia estacional.
-- `outputs/proyeccion_2027_resumen_base_ajustada.csv`: proyección final recomendada por servicio.
-- `outputs/proyeccion_2027_unidades_base_ajustada.csv`: detalle por unidad, incluyendo Biotren L1 y L2.
-- `outputs/comparativo_escenarios_2027.csv`: comparación entre referencia, oferta calibrada y escenario base ajustado.
-- `outputs/validacion_mayo_2026_vs_proyeccion.csv`: control de coherencia contra mayo 2026.
-
-Por compatibilidad con versiones previas, también se conservan los archivos `outputs/proyeccion_2027_resumen_conservador.csv` y `outputs/proyeccion_2027_unidades_conservador.csv`, con el mismo resultado del escenario base ajustado.
-
-## Ejecución
+## Uso
 
 ```bash
 pip install -r requirements.txt
 streamlit run streamlit_app.py
 ```
 
-Para regenerar los datos y salidas desde los archivos de mayo dentro del entorno de trabajo:
+Para regenerar datos y salidas:
 
 ```bash
 python actualizar_mayo2026.py
