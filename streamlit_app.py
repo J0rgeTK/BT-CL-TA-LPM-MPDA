@@ -83,7 +83,7 @@ def editor_oferta(unit, label, base_df=None):
 
 
 def editor_tren_araucania():
-    st.info("La oferta se edita por tramo. Para demanda, Victoria-Temuco tiene mayor peso relativo que Pitrufquén y Claret.")
+    st.info("La oferta se edita por tipo de servicio. Claret se considera servicio escolar y sólo opera entre marzo y diciembre; enero y febrero se fuerzan a cero.")
     base_tramos = O.oferta_tren_araucania_tramos_df(mensual=True)
     cols = st.columns(3)
     planes = []
@@ -91,11 +91,14 @@ def editor_tren_araucania():
         with cols[i]:
             planes.append(editor_oferta(unit, O.TA_TRAMO_NOMBRE[unit], base_df=base_tramos))
     plan_tramos = pd.concat(planes, ignore_index=True)
-    plan_agregado = O.plan_tren_araucania_agregado(plan_tramos)
-    with st.expander("Oferta equivalente usada en el motor de demanda"):
-        st.dataframe(plan_agregado.pivot(index="mes", columns="dt", values="servicios_dia")[O.DTYPES], use_container_width=True)
-        st.caption("Victoria-Temuco tiene peso 1,00; Pitrufquén 0,16; Claret 0,08. La equivalencia evita asumir que todos los tramos tienen igual productividad marginal.")
-    return plan_tramos, plan_agregado
+    plan_tramos.loc[(plan_tramos.unit == "TA_CLARET") & (plan_tramos.mes.isin([1, 2])), "servicios_dia"] = 0.0
+    with st.expander("Distribución histórica usada por tipo de servicio"):
+        dist = O.perfil_distribucion_tren_araucania_por_tramo()
+        piv = dist.pivot(index="mes", columns="unit", values="participacion_demanda_historica")
+        piv = piv.rename(columns=O.TA_TRAMO_NOMBRE)
+        st.dataframe((piv * 100).round(1), use_container_width=True)
+        st.caption("Participación mensual ponderada con TA-Dist.xlsx. Claret queda en 0% para enero y febrero. La respuesta ante cambios de oferta se calcula tramo por tramo, no como redistribución fija 13/87.")
+    return plan_tramos, plan_tramos
 
 
 def grafico_historico_y_proyeccion(s, serv):
@@ -148,6 +151,66 @@ def tabla_detalle_mes(detalle, s):
                           "var_demanda_pct": 1, "elasticidad_media": 2})
 
 
+
+
+def render_ecuacion_servicio(s):
+    """Muestra la ecuación específica usada por el motor para el servicio seleccionado."""
+    e = O.ELASTICIDAD_OFERTA_SERVICIO.get(s, 0.45)
+    fn = O.AJUSTE_NIVEL_SERVICIO.get(s, 1.0)
+    fe = O.FUERZA_ESTACIONALIDAD.get(s, 0.5)
+    st.markdown("#### Ecuación específica de proyección")
+
+    if s == "BIOTREN":
+        latex = r"""
+        D_{\mathrm{BT},m} =
+        \sum_{u \in \{L1,L2\}}\sum_{d \in \{LV,Sab,Dom\}}
+        \left[
+        S_{1,u,m,d}\,N_{m,d}\,(1-\tau_{u,m,d}-c_u)\,q_{u,m,d}\,FN\,F_{est,\mathrm{BT},m}
+        \left(\frac{V_{1,u,m,d}}{V_{0,u,m,d}}\right)^{EPS}
+        \right]
+        """
+        st.latex(latex.replace("FN", f"{fn:.3f}").replace("EPS", f"{e:.2f}"))
+        st.caption(f"Biotren usa elasticidad de oferta {e:.2f}, factor de nivel {fn:.3f} y fuerza estacional {fe:.2f}. La suma operacional se realiza sobre L1 y L2; Laja-Talcahuano se mantiene separado para evitar doble conteo.")
+
+    elif s == "CORTO_LAJA":
+        latex = r"""
+        D_{\mathrm{LT},m} =
+        \sum_{d \in \{LV,Sab,Dom\}}
+        \left[
+        S_{1,\mathrm{LT},m,d}\,N_{m,d}\,(1-\tau^*_{\mathrm{LT},m,d}-c)\,q_{\mathrm{LT},m,d}\,FN\,F_{est,\mathrm{LT},m}
+        \left(\frac{V_{1,\mathrm{LT},m,d}}{V_{0,\mathrm{LT},m,d}}\right)^{EPS}
+        \right]
+        """
+        st.latex(latex.replace("FN", f"{fn:.3f}").replace("EPS", f"{e:.2f}"))
+        st.latex(r"\tau^*_{\mathrm{LT},m,d}=\min(\tau_{\mathrm{LT},m,d},0.01)")
+        st.caption(f"Laja-Talcahuano incorpora recuperación de confiabilidad: supresión base acotada a 1%, mayor uso del patrón 2024 y factor de recuperación {fn:.3f}. Esto ubica el escenario anual cerca de 540 mil pasajeros, sin replicar directamente el máximo histórico 2024.")
+
+    elif s == "TREN_ARAUCANIA":
+        st.latex(r"""
+        D_{\mathrm{TA},m}=\sum_{r\in\{VT,PT,CL\}}D_{r,m}
+        """)
+        st.latex(r"""
+        D_{r,m}=D^{base}_{\mathrm{TA},m}\cdot\alpha_{r,m}^{hist}\cdot
+        \left(\frac{V_{1,r,m}}{V_{0,r,m}}\right)^{\varepsilon_r}
+        """)
+        st.latex(r"""
+        V_{r,m}=\sum_{d\in\{LV,Sab,Dom\}}S_{r,m,d}\cdot N_{m,d}\cdot(1-\tau_{\mathrm{TA},m,d}-c)
+        """)
+        st.latex(r"\alpha_{CL,m}=0\quad\text{para }m\in\{enero,febrero\}")
+        st.caption("Tren Araucanía usa distribución mensual observada por tipo de servicio desde TA-Dist.xlsx. Elasticidades por tramo: Victoria-Temuco 0,46; Pitrufquén-Temuco 0,28; Claret 0,12. Así, un aumento en Victoria-Temuco genera mayor efecto que un aumento equivalente en Pitrufquén o Claret.")
+
+    elif s == "LLANQUIHUE_PM":
+        latex = r"""
+        D_{\mathrm{LLPM},m} =
+        \sum_{d \in \{LV,Sab,Dom\}}
+        \left[
+        S_{1,\mathrm{LLPM},m,d}\,N_{m,d}\,(1-\tau_{\mathrm{LLPM},m,d}-c)\,q_{\mathrm{LLPM},m,d}\,FN\,F_{est,\mathrm{LLPM},m}
+        \left(\frac{V_{1,\mathrm{LLPM},m,d}}{V_{0,\mathrm{LLPM},m,d}}\right)^{EPS}
+        \right]
+        """
+        st.latex(latex.replace("FN", f"{fn:.3f}").replace("EPS", f"{e:.2f}"))
+        st.caption(f"Llanquihue-Puerto Montt mantiene señal estival 2026 en enero-febrero y elasticidad de oferta {e:.2f}; los días sábado y domingo quedan en cero salvo modificación explícita de oferta.")
+
 def render_metodologia():
     st.markdown("### Marco metodológico del modelo")
     st.markdown("""
@@ -184,11 +247,17 @@ Donde:
     with p2:
         st.dataframe(pd.DataFrame([{"servicio": O.NOMBRE[k], "factor_nivel": v, "fuerza_estacionalidad": O.FUERZA_ESTACIONALIDAD.get(k)} for k, v in O.AJUSTE_NIVEL_SERVICIO.items()]), use_container_width=True)
 
+    st.markdown("#### Parámetros específicos Tren Araucanía")
+    st.dataframe(pd.DataFrame([
+        {"tramo": O.TA_TRAMO_NOMBRE[k], "elasticidad_tramo": v, "restriccion": "Marzo-diciembre" if k == "TA_CLARET" else "Todo el año"}
+        for k, v in O.TA_TRAMO_ELASTICIDAD.items()
+    ]), use_container_width=True)
+
     st.markdown("#### Tratamiento por servicio")
     st.markdown("""
 - **Biotren:** se modela separando L1 y L2. El nivel anual base queda en torno a 12,5-12,6 millones, pero cada mes responde a su oferta específica.
-- **Laja-Talcahuano:** se corrige la oferta a 8 servicios todos los días; sólo sábados y domingos de enero-febrero usan 10 servicios.
-- **Tren Araucanía:** la oferta se edita por tramo. Victoria-Temuco tiene mayor peso marginal que Pitrufquén y Claret.
+- **Laja-Talcahuano:** se corrige la oferta a 8 servicios todos los días; sólo sábados y domingos de enero-febrero usan 10 servicios. Además, se incorpora recuperación parcial de confiabilidad, con mayor peso del patrón 2024, supresión base acotada a 1% y factor de recuperación calibrado para un escenario anual cercano a 540 mil pasajeros.
+- **Tren Araucanía:** la oferta se edita por tipo de servicio: Temuco-Victoria, Temuco-Pitrufquén y Claret. La demanda se calcula por tramo usando la distribución mensual observada en TA-Dist.xlsx; Claret sólo opera entre marzo y diciembre por su carácter escolar.
 - **Llanquihue-Puerto Montt:** enero y febrero conservan señal estival 2026; el resto del año se modera con el histórico disponible.
 """)
 
@@ -208,7 +277,7 @@ def render_resumen():
 
     kk = st.columns(4)
     for i, s in enumerate(O.SERVICIOS):
-        viajes = O.viajes_anuales(params, units=O.UNIDADES_DE[s])
+        viajes = detalle[detalle.servicio == s]["viajes_operados_plan"].sum()
         om = serv[s].sum() / max(viajes, 1)
         kk[i].metric(O.NOMBRE[s], fmt(serv[s].sum()), f"{fmt(om)} pax/viaje")
 
@@ -229,7 +298,7 @@ def render_resumen():
     st.markdown("#### Comportamiento histórico anual observado")
     st.dataframe(hist_anual, use_container_width=True)
 
-    tramos_ta = O.desagregar_tren_araucania_por_tramo(serv["TREN_ARAUCANIA"])
+    tramos_ta = uni[[c for c in uni.columns if str(c).startswith("TA_")]].copy()
     c1, c2, c3, c4 = st.columns(4)
     c1.download_button("⬇ Resumen por servicio", serv.to_csv().encode(), "proyeccion_2027_resumen_mensual_elastico.csv")
     c2.download_button("⬇ Detalle por unidad", uni.to_csv().encode(), "proyeccion_2027_unidades_mensual_elastico.csv")
@@ -264,7 +333,7 @@ def render_servicio(s):
             ce[u] = cc[i].number_input(f"{u} (+% supresión)", 0.0, 30.0, 0.0, 1.0, key=f"ce_{u}") / 100.0
 
     uni, serv, detalle = O.proyectar_mensual_elastico(params, mdf, plan=plan, contingencia_extra=ce, return_detalle=True)
-    viajes = O.viajes_anuales(params, plan=plan, contingencia_extra=ce, units=O.UNIDADES_DE[s])
+    viajes = detalle[detalle.servicio == s]["viajes_operados_plan"].sum()
     ocup_proy = serv[s].dropna().sum() / max(viajes, 1)
     pk = serv[s].astype(float).idxmax()
 
@@ -273,6 +342,8 @@ def render_servicio(s):
     k[1].metric("Pax/viaje proyectado", fmt(ocup_proy))
     k[2].metric("Mes peak", pk, fmt(serv[s].max()))
     k[3].metric("Mes menor", serv[s].astype(float).idxmin(), fmt(serv[s].min()))
+
+    render_ecuacion_servicio(s)
 
     g, t = st.columns([3, 2])
     with g:
@@ -285,10 +356,9 @@ def render_servicio(s):
             out["L1"] = uni.get("BIOTREN_L1")
             out["L2"] = uni.get("BIOTREN_L2")
         elif s == "TREN_ARAUCANIA":
-            tr = O.desagregar_tren_araucania_por_tramo(serv[s], plan_tramos=plan_tramos)
-            out["Temuco - Victoria"] = tr.get("TA_TEMUCO_VICTORIA")
-            out["Temuco - Pitrufquén"] = tr.get("TA_TEMUCO_PITRUFQUEN")
-            out["Claret"] = tr.get("TA_CLARET")
+            out["Temuco - Victoria"] = uni.get("TA_TEMUCO_VICTORIA")
+            out["Temuco - Pitrufquén"] = uni.get("TA_TEMUCO_PITRUFQUEN")
+            out["Claret"] = uni.get("TA_CLARET")
         out["Total proyectado"] = serv[s]
         st.dataframe(out, use_container_width=True, height=330)
 
@@ -300,7 +370,9 @@ def render_servicio(s):
     st.dataframe(tabla_historica_servicio(s), use_container_width=True)
 
     if s == "CORTO_LAJA":
-        st.warning("Oferta base: 8 servicios todos los días; sólo sábados y domingos de enero-febrero tienen 10 servicios.")
+        st.warning("Oferta base: 8 servicios todos los días; sólo sábados y domingos de enero-febrero tienen 10 servicios. El escenario incorpora recuperación parcial de confiabilidad, mayor peso del patrón 2024, supresión base acotada a 1% y nivel anual objetivo cercano a 540 mil pasajeros.")
+    if s == "TREN_ARAUCANIA":
+        st.warning("Claret se considera servicio escolar: enero y febrero quedan sin oferta ni demanda proyectada para este tipo de servicio. Las modificaciones de oferta se evalúan por tramo con elasticidad diferenciada.")
     if s == "LLANQUIHUE_PM":
         st.warning("Enero y febrero mantienen una señal estival similar a 2026; no se consideran servicios planificados de fin de semana.")
 
