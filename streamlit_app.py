@@ -4,6 +4,7 @@ streamlit_app.py -- Modelo de afluencia EFE/Fesur 2027.
 Versión metodológica mensual-elástica:
 - La oferta se edita por servicio, mes y tipo de día.
 - La demanda de cada mes se calcula de forma independiente.
+- El calendario 2027 incorpora feriados nacionales y reglas operacionales por servicio.
 - No se reparte un total anual fijo: el total anual resulta de sumar los 12 meses.
 - El cambio de oferta en un mes afecta ese mes y el total anual, no redistribuye el resto del año.
 """
@@ -59,11 +60,135 @@ except Exception as e:
     st.stop()
 
 st.markdown('<div class="hero"><h1>🚆 Modelo de afluencia 2027 — EFE/Fesur</h1>'
-            '<p>Motor mensual-elástico · oferta editable por mes y tipo de día · calibrado con mayo 2026 · histórico 2024-2026</p></div>', unsafe_allow_html=True)
+            '<p>Motor mensual-elástico · feriados 2027 · escenario 2027 actualizado · oferta editable por mes y tipo de día</p></div>', unsafe_allow_html=True)
 
 
 def fmt(n):
     return f"{int(round(float(n))):,}".replace(",", ".")
+
+
+def fmt_pct(delta):
+    if pd.isna(delta):
+        return "s/i"
+    return f"{delta:+.1f}%".replace(".", ",")
+
+
+def hist_valor(servicio, anio, meses=None):
+    h = hist[hist.servicio == servicio].copy()
+    h = h[h.anio.astype(int) == int(anio)]
+    if meses is not None:
+        h = h[h.mes.astype(int).isin([int(m) for m in meses])]
+    if h.empty:
+        return None
+    return float(h["afluencia_mensual_normalizada"].sum())
+
+
+def hist_resumen(servicio, anio):
+    h = hist_anual[(hist_anual.servicio == servicio) & (hist_anual.anio.astype(int) == int(anio))].copy()
+    if h.empty:
+        return None
+    r = h.iloc[0]
+    return {
+        "total": float(r["afluencia_observada_normalizada"]),
+        "meses": int(r["meses_observados"]),
+        "primer_mes": int(r["primer_mes"]),
+        "ultimo_mes": int(r["ultimo_mes"]),
+    }
+
+
+def var_pct(valor, base):
+    if base is None or base == 0 or pd.isna(base):
+        return None
+    return (float(valor) / float(base) - 1.0) * 100.0
+
+
+def resumen_validacion_servicio(s, serv, uni, detalle):
+    total = float(serv[s].sum())
+    viajes = float(detalle[detalle.servicio == s]["viajes_operados_plan"].sum())
+    pax_viaje = total / viajes if viajes > 0 else 0.0
+    meses = serv[s].astype(float)
+    rows = [
+        {"Indicador": "Proyección anual 2027", "Valor": fmt(total)},
+        {"Indicador": "Viajes operados proyectados", "Valor": fmt(viajes)},
+        {"Indicador": "Pasajeros por viaje proyectado", "Valor": fmt(pax_viaje)},
+        {"Indicador": "Mes de mayor afluencia", "Valor": f"{meses.idxmax()} ({fmt(meses.max())})"},
+        {"Indicador": "Mes de menor afluencia", "Valor": f"{meses.idxmin()} ({fmt(meses.min())})"},
+    ]
+    for y in [2024, 2025]:
+        hs = hist_resumen(s, y)
+        if hs is not None:
+            if hs["meses"] >= 12:
+                rows.append({"Indicador": f"Comparación anual con {y}", "Valor": f"{fmt(hs['total'])} histórico; variación {fmt_pct(var_pct(total, hs['total']))}"})
+            else:
+                rows.append({"Indicador": f"Histórico {y} observado", "Valor": f"{fmt(hs['total'])} entre meses {hs['primer_mes']:02d}-{hs['ultimo_mes']:02d}; no comparable como año completo"})
+    h26 = hist_valor(s, 2026)
+    if h26 is not None:
+        meses_obs = sorted(hist[(hist.servicio == s) & (hist.anio.astype(int) == 2026)]["mes"].astype(int).unique().tolist())
+        if meses_obs:
+            proy_mismos = float(serv.loc[[f"2027-{m:02d}" for m in meses_obs], s].sum())
+            rows.append({"Indicador": f"Comparación con 2026 observado ({min(meses_obs):02d}-{max(meses_obs):02d})", "Valor": f"{fmt(h26)} histórico parcial; 2027 mismos meses {fmt(proy_mismos)}; variación {fmt_pct(var_pct(proy_mismos, h26))}"})
+    return pd.DataFrame(rows)
+
+
+def render_justificacion_servicio(s, serv, uni, detalle):
+    total = float(serv[s].sum())
+    det_s = detalle[detalle.servicio == s].copy()
+    viajes = float(det_s["viajes_operados_plan"].sum())
+    pax_viaje = total / viajes if viajes > 0 else 0.0
+    meses = serv[s].astype(float)
+    h2024 = hist_valor(s, 2024)
+    h2025 = hist_valor(s, 2025)
+    h2026 = hist_valor(s, 2026)
+
+    with st.expander("Justificación metodológica del resultado proyectado", expanded=True):
+        st.markdown("""
+Esta sección explica por qué el resultado proyectado es coherente con los antecedentes históricos, la oferta operacional 2027 y los supuestos particulares del servicio. La validación se realiza contra los valores efectivamente calculados por el modelo vigente, no contra una referencia externa visible.
+""")
+        st.dataframe(resumen_validacion_servicio(s, serv, uni, detalle), use_container_width=True, hide_index=True)
+
+        if s == "BIOTREN":
+            l1 = float(uni["BIOTREN_L1"].sum()) if "BIOTREN_L1" in uni.columns else 0.0
+            l2 = float(uni["BIOTREN_L2"].sum()) if "BIOTREN_L2" in uni.columns else 0.0
+            janmay_2027 = float(serv.loc[["2027-01", "2027-02", "2027-03", "2027-04", "2027-05"], s].sum())
+            st.markdown(f"""
+**Lectura del resultado.** La proyección anual de Biotren alcanza **{fmt(total)} pasajeros**, compuesta por **{fmt(l1)}** en L1 y **{fmt(l2)}** en L2. El resultado se sustenta en una mejora de oferta operacional, pero con respuesta de demanda parcial: L1 opera con 48 servicios de lunes a viernes durante todo 2027 y L2 pasa de 106 a 109 servicios de lunes a viernes desde mayo. Los feriados nacionales se descuentan como días sin operación.
+
+**Coherencia histórica.** El resultado queda {fmt_pct(var_pct(total, h2024)) if h2024 else 's/i'} respecto de 2024 y {fmt_pct(var_pct(total, h2025)) if h2025 else 's/i'} respecto de 2025. Para enero-mayo, la proyección 2027 suma **{fmt(janmay_2027)} pasajeros**, comparada con **{fmt(h2026) if h2026 else 's/i'}** observados en enero-mayo 2026. Esta magnitud es consistente con un escenario de crecimiento conservador pero superior al año reciente.
+
+**Ajuste mensual específico.** Se corrigió el bloque marzo-abril porque en 2026 marzo fue levemente superior a abril. Por ello, el modelo mantiene la suma conjunta de ambos meses, pero distribuye **50,2% en marzo** y **49,8% en abril**, evitando un peak artificial de abril sin alterar el total anual.
+""")
+        elif s == "CORTO_LAJA":
+            st.markdown(f"""
+**Lectura del resultado.** La proyección anual de Laja-Talcahuano alcanza **{fmt(total)} pasajeros**, asociada a una recuperación operacional moderada. El escenario considera 8 servicios diarios como base, con excepción de sábados y domingos de enero-febrero, donde se aplican 10 servicios. Los feriados nacionales operan con oferta de fin de semana.
+
+**Coherencia histórica.** El resultado queda {fmt_pct(var_pct(total, h2024)) if h2024 else 's/i'} respecto de 2024 y {fmt_pct(var_pct(total, h2025)) if h2025 else 's/i'} respecto de 2025. Esta posición es metodológicamente consistente: mejora frente al comportamiento 2025, pero no replica completamente el nivel 2024, que se usa como patrón de recuperación y no como meta directa.
+
+**Supuesto técnico principal.** Se acota la supresión base a 1% para representar una recuperación de confiabilidad, manteniendo elasticidad parcial de oferta y mayor peso de la estacionalidad 2024. Con ello, el modelo evita castigar el servicio por afectaciones recientes que no deberían repetirse en 2027.
+""")
+        elif s == "TREN_ARAUCANIA":
+            tramos = {col: float(uni[col].sum()) for col in ["TA_TEMUCO_VICTORIA", "TA_TEMUCO_PITRUFQUEN", "TA_CLARET"] if col in uni.columns}
+            st.markdown(f"""
+**Lectura del resultado.** La proyección anual de Tren Araucanía alcanza **{fmt(total)} pasajeros**. La demanda se calcula por tipo de servicio, no con una proporción fija agregada. El tramo Temuco-Victoria tiene mayor capacidad de generación de demanda que Pitrufquén-Temuco y Claret, por lo que el aumento a 15 servicios de lunes a viernes se modela con mayor peso relativo, pero con elasticidad menor que 1 para evitar una respuesta proporcional excesiva.
+
+**Descomposición anual.** Temuco-Victoria proyecta **{fmt(tramos.get('TA_TEMUCO_VICTORIA', 0))}**, Temuco-Pitrufquén **{fmt(tramos.get('TA_TEMUCO_PITRUFQUEN', 0))}** y Claret **{fmt(tramos.get('TA_CLARET', 0))}** pasajeros. Claret se restringe a marzo-diciembre por su carácter escolar, por lo que enero y febrero no generan demanda en ese componente.
+
+**Coherencia histórica.** El resultado es superior al histórico anual 2025, pero se modera respecto de una extrapolación directa del aumento de oferta. La calibración hacia aproximadamente 950 mil pasajeros evita que el incremento Victoria-Temuco sobredimensione todo el servicio, especialmente porque Pitrufquén y Claret no tienen la misma productividad marginal.
+""")
+        elif s == "LLANQUIHUE_PM":
+            ene_feb = float(serv.loc[["2027-01", "2027-02"], s].sum())
+            st.markdown(f"""
+**Lectura del resultado.** La proyección anual de Llanquihue-Puerto Montt alcanza **{fmt(total)} pasajeros**, con **{fmt(ene_feb)}** pasajeros concentrados en enero-febrero. El modelo conserva una señal estival alta, coherente con 2026, y mantiene oferta sólo de lunes a viernes.
+
+**Coherencia operacional.** La proyección descuenta feriados nacionales como días sin operación y no incorpora servicios de fin de semana planificados. Por ello, aun cuando enero y febrero son fuertes por estacionalidad, el nivel anual queda contenido por la ausencia de operación sábado-domingo y feriados.
+
+**Criterio metodológico.** El comportamiento 2026 tiene mayor peso en este servicio porque el histórico disponible es más corto. La proyección no extrapola linealmente enero-febrero al resto del año, sino que combina estacionalidad observada, calendario operacional 2027 y productividad por servicio.
+""")
+
+        st.markdown("**Componentes que explican el resultado mensual.**")
+        tabla_comp = tabla_detalle_mes(detalle, s)
+        if not tabla_comp.empty:
+            st.dataframe(tabla_comp[["periodo", "viajes_operados_plan", "demanda_proyectada", "var_oferta_operada_pct", "var_demanda_pct", "elasticidad_media"]], use_container_width=True, hide_index=True)
+        st.caption("La elasticidad menor que 1 implica rendimiento marginal decreciente: un aumento de oferta eleva la demanda, pero no en la misma proporción que los servicios adicionales.")
 
 
 def editor_oferta(unit, label, base_df=None):
@@ -153,6 +278,28 @@ def tabla_detalle_mes(detalle, s):
 
 
 
+
+def tabla_calendario_servicio(s):
+    cal = O.calendario_operacional_resumen(2027).copy()
+    if s == "BIOTREN":
+        units = ["BIOTREN_L1", "BIOTREN_L2"]
+    elif s == "TREN_ARAUCANIA":
+        units = O.TA_TRAMOS
+    else:
+        units = O.UNIDADES_DE[s]
+    cal = cal[cal["unit"].isin(units)].copy()
+    cal["mes"] = cal["mes"].map(lambda x: f"{int(x):02d}")
+    return cal.sort_values(["unit", "mes", "dt"])
+
+
+def tabla_feriados_2027():
+    f = O.feriados_chile(2027).copy()
+    if f.empty:
+        return f
+    f["fecha"] = f["fecha"].dt.strftime("%Y-%m-%d")
+    return f.rename(columns={"dt_calendario": "tipo_dia_calendario"})
+
+
 def render_ecuacion_servicio(s):
     """Muestra la ecuación específica usada por el motor para el servicio seleccionado."""
     e = O.ELASTICIDAD_OFERTA_SERVICIO.get(s, 0.45)
@@ -165,25 +312,25 @@ def render_ecuacion_servicio(s):
         D_{\mathrm{BT},m} =
         \sum_{u \in \{L1,L2\}}\sum_{d \in \{LV,Sab,Dom\}}
         \left[
-        S_{1,u,m,d}\,N_{m,d}\,(1-\tau_{u,m,d}-c_u)\,q_{u,m,d}\,FN\,F_{est,\mathrm{BT},m}
+        S_{1,u,m,d}\,N^{op}_{u,m,d}\,(1-\tau_{u,m,d}-c_u)\,q_{u,m,d}\,FN\,F_{est,\mathrm{BT},m}
         \left(\frac{V_{1,u,m,d}}{V_{0,u,m,d}}\right)^{EPS}
         \right]
         """
         st.latex(latex.replace("FN", f"{fn:.3f}").replace("EPS", f"{e:.2f}"))
-        st.caption(f"Biotren usa elasticidad de oferta {e:.2f}, factor de nivel {fn:.3f} y fuerza estacional {fe:.2f}. La suma operacional se realiza sobre L1 y L2; Laja-Talcahuano se mantiene separado para evitar doble conteo.")
+        st.caption(f"Biotren usa días operacionales sin feriados nacionales, elasticidad de oferta {e:.2f}, factor de nivel {fn:.3f} y fuerza estacional {fe:.2f}. La suma operacional se realiza sobre L1 y L2; Laja-Talcahuano se mantiene separado para evitar doble conteo. Se agrega una corrección puntual marzo-abril: el bloque conjunto conserva su suma, pero se nivela con 50,2% para marzo y 49,8% para abril, coherente con el comportamiento 2026.")
 
     elif s == "CORTO_LAJA":
         latex = r"""
         D_{\mathrm{LT},m} =
         \sum_{d \in \{LV,Sab,Dom\}}
         \left[
-        S_{1,\mathrm{LT},m,d}\,N_{m,d}\,(1-\tau^*_{\mathrm{LT},m,d}-c)\,q_{\mathrm{LT},m,d}\,FN\,F_{est,\mathrm{LT},m}
+        S_{1,\mathrm{LT},m,d}\,N^{op}_{\mathrm{LT},m,d}\,(1-\tau^*_{\mathrm{LT},m,d}-c)\,q_{\mathrm{LT},m,d}\,FN\,F_{est,\mathrm{LT},m}
         \left(\frac{V_{1,\mathrm{LT},m,d}}{V_{0,\mathrm{LT},m,d}}\right)^{EPS}
         \right]
         """
         st.latex(latex.replace("FN", f"{fn:.3f}").replace("EPS", f"{e:.2f}"))
         st.latex(r"\tau^*_{\mathrm{LT},m,d}=\min(\tau_{\mathrm{LT},m,d},0.01)")
-        st.caption(f"Laja-Talcahuano incorpora recuperación de confiabilidad: supresión base acotada a 1%, mayor uso del patrón 2024 y factor de recuperación {fn:.3f}. Esto ubica el escenario anual cerca de 540 mil pasajeros, sin replicar directamente el máximo histórico 2024.")
+        st.caption(f"Laja-Talcahuano opera feriados con oferta de fin de semana e incorpora recuperación de confiabilidad: supresión base acotada a 1%, mayor uso del patrón 2024 y factor de recuperación {fn:.3f}. Esto ubica el escenario anual cerca de 540 mil pasajeros, sin replicar directamente el máximo histórico 2024.")
 
     elif s == "TREN_ARAUCANIA":
         st.latex(r"""
@@ -194,22 +341,22 @@ def render_ecuacion_servicio(s):
         \left(\frac{V_{1,r,m}}{V_{0,r,m}}\right)^{\varepsilon_r}
         """)
         st.latex(r"""
-        V_{r,m}=\sum_{d\in\{LV,Sab,Dom\}}S_{r,m,d}\cdot N_{m,d}\cdot(1-\tau_{\mathrm{TA},m,d}-c)
+        V_{r,m}=\sum_{d\in\{LV,Sab,Dom\}}S_{r,m,d}\cdot N^{op}_{r,m,d}\cdot(1-\tau_{\mathrm{TA},m,d}-c)
         """)
         st.latex(r"\alpha_{CL,m}=0\quad\text{para }m\in\{enero,febrero\}")
-        st.caption("Tren Araucanía usa distribución mensual observada por tipo de servicio desde TA-Dist.xlsx. Elasticidades por tramo: Victoria-Temuco 0,46; Pitrufquén-Temuco 0,28; Claret 0,12. Así, un aumento en Victoria-Temuco genera mayor efecto que un aumento equivalente en Pitrufquén o Claret.")
+        st.caption("Tren Araucanía no opera feriados nacionales en el escenario base y usa distribución mensual observada por tipo de servicio desde TA-Dist.xlsx. Escenario actualizado: Victoria-Temuco sube a 15 servicios L-V. Elasticidades por tramo: Victoria-Temuco 0,46; Pitrufquén-Temuco 0,28; Claret 0,12. Así, un aumento en Victoria-Temuco genera mayor efecto que un aumento equivalente en Pitrufquén o Claret.")
 
     elif s == "LLANQUIHUE_PM":
         latex = r"""
         D_{\mathrm{LLPM},m} =
         \sum_{d \in \{LV,Sab,Dom\}}
         \left[
-        S_{1,\mathrm{LLPM},m,d}\,N_{m,d}\,(1-\tau_{\mathrm{LLPM},m,d}-c)\,q_{\mathrm{LLPM},m,d}\,FN\,F_{est,\mathrm{LLPM},m}
+        S_{1,\mathrm{LLPM},m,d}\,N^{op}_{\mathrm{LLPM},m,d}\,(1-\tau_{\mathrm{LLPM},m,d}-c)\,q_{\mathrm{LLPM},m,d}\,FN\,F_{est,\mathrm{LLPM},m}
         \left(\frac{V_{1,\mathrm{LLPM},m,d}}{V_{0,\mathrm{LLPM},m,d}}\right)^{EPS}
         \right]
         """
         st.latex(latex.replace("FN", f"{fn:.3f}").replace("EPS", f"{e:.2f}"))
-        st.caption(f"Llanquihue-Puerto Montt mantiene señal estival 2026 en enero-febrero y elasticidad de oferta {e:.2f}; los días sábado y domingo quedan en cero salvo modificación explícita de oferta.")
+        st.caption(f"Llanquihue-Puerto Montt no opera feriados nacionales en el escenario base y mantiene señal estival 2026 en enero-febrero y elasticidad de oferta {e:.2f}; los días sábado y domingo quedan en cero salvo modificación explícita de oferta.")
 
 def render_metodologia():
     st.markdown("### Marco metodológico del modelo")
@@ -217,21 +364,21 @@ def render_metodologia():
 <div class="method">
 <b>Objetivo.</b> Estimar afluencia mensual por servicio para 2027 vinculando explícitamente la oferta programada con la demanda proyectada. El modelo evita asumir que todo servicio adicional genera pasajeros en la misma proporción que la productividad promedio histórica.
 <br><br>
-<b>Unidad de cálculo.</b> La proyección se calcula por unidad operacional, mes y tipo de día: lunes-viernes, sábado y domingo. El total mensual del servicio se obtiene sumando sus unidades operacionales.
+<b>Unidad de cálculo.</b> La proyección se calcula por unidad operacional, mes y tipo de día operacional: lunes-viernes, sábado y domingo. El total mensual del servicio se obtiene sumando sus unidades operacionales. Desde esta versión, el conteo de días usa calendario operacional 2027, descontando feriados donde no existe operación.
 <br><br>
 <b>Principio operacional.</b> Cada mes se calcula de forma independiente. Si se modifica la oferta de marzo, cambia marzo y cambia el total anual por suma; no se redistribuyen pasajeros desde o hacia otros meses.
 </div>
 """, unsafe_allow_html=True)
 
     st.markdown("#### Fórmulas utilizadas")
-    st.latex(r"V_{0,u,m,d}=S_{0,u,m,d}\cdot N_{m,d}\cdot (1-\tau_{u,m,d})")
+    st.latex(r"V_{0,u,m,d}=S_{0,u,m,d}\cdot N^{op}_{u,m,d}\cdot (1-\tau_{u,m,d})")
     st.latex(r"D_{0,u,m,d}=V_{0,u,m,d}\cdot q_{u,m,d}\cdot F_{nivel,s}\cdot F_{est,s,m}")
-    st.latex(r"V_{1,u,m,d}=S_{1,u,m,d}\cdot N_{m,d}\cdot (1-\tau_{u,m,d}-c_u)")
+    st.latex(r"V_{1,u,m,d}=S_{1,u,m,d}\cdot N^{op}_{u,m,d}\cdot (1-\tau_{u,m,d}-c_u)")
     st.latex(r"D_{1,u,m,d}=D_{0,u,m,d}\cdot \left(\frac{V_{1,u,m,d}}{V_{0,u,m,d}}\right)^{\varepsilon_s}")
     st.markdown("""
 Donde:
 - `S0` es la oferta base vigente y `S1` la oferta editada.
-- `N` corresponde a la cantidad de días del tipo respectivo en el mes.
+- `N_op` corresponde a la cantidad de días operacionales del tipo respectivo en el mes, después de aplicar feriados nacionales y reglas por servicio.
 - `τ` es la tasa de supresión histórica.
 - `q` es pasajeros promedio por servicio, calibrado con mayo 2026.
 - `F_nivel` ajusta el nivel de productividad por servicio.
@@ -239,6 +386,12 @@ Donde:
 - `ε` es la elasticidad de demanda respecto de oferta, menor que 1 para representar rendimiento marginal decreciente.
 - `c` es una contingencia adicional de supresión definida por el usuario.
 """)
+
+    st.markdown("#### Calendario operacional 2027 y feriados")
+    st.info("Para Biotren, Tren Araucanía y Llanquihue-Puerto Montt, los feriados nacionales tienen oferta cero. Para Laja-Talcahuano, los feriados operan con oferta de fin de semana; si el feriado cae lunes-viernes se imputa como domingo operacional.")
+    st.dataframe(tabla_feriados_2027(), use_container_width=True, height=260)
+    with st.expander("Resumen de días operacionales por unidad, mes y tipo de día"):
+        st.dataframe(O.calendario_operacional_resumen(2027), use_container_width=True)
 
     st.markdown("#### Parámetros actuales")
     p1, p2 = st.columns(2)
@@ -255,10 +408,10 @@ Donde:
 
     st.markdown("#### Tratamiento por servicio")
     st.markdown("""
-- **Biotren:** se modela separando L1 y L2. El nivel anual base queda en torno a 12,5-12,6 millones, pero cada mes responde a su oferta específica.
-- **Laja-Talcahuano:** se corrige la oferta a 8 servicios todos los días; sólo sábados y domingos de enero-febrero usan 10 servicios. Además, se incorpora recuperación parcial de confiabilidad, con mayor peso del patrón 2024, supresión base acotada a 1% y factor de recuperación calibrado para un escenario anual cercano a 540 mil pasajeros.
-- **Tren Araucanía:** la oferta se edita por tipo de servicio: Temuco-Victoria, Temuco-Pitrufquén y Claret. La demanda se calcula por tramo usando la distribución mensual observada en TA-Dist.xlsx; Claret sólo opera entre marzo y diciembre por su carácter escolar.
-- **Llanquihue-Puerto Montt:** enero y febrero conservan señal estival 2026; el resto del año se modera con el histórico disponible.
+- **Biotren:** se modela separando L1 y L2. El escenario actualizado considera L1 con 48 servicios L-V durante todo 2027 y L2 con 106 servicios L-V entre enero-abril y 109 desde mayo. Cada mes responde a su oferta específica y a los feriados nacionales sin operación. El nivel de productividad se recalibra con mayor peso del desempeño reciente, ubicando la proyección anual en torno a 13 millones de pasajeros. Además, se corrige puntualmente marzo-abril para que la curva no sobreestime abril frente a marzo, manteniendo constante el total anual y la suma conjunta de ambos meses.
+- **Laja-Talcahuano:** se corrige la oferta a 8 servicios todos los días; sólo sábados y domingos de enero-febrero usan 10 servicios. Los feriados operan con oferta de fin de semana. Además, se incorpora recuperación parcial de confiabilidad, con mayor peso del patrón 2024, supresión base acotada a 1% y factor de recuperación calibrado para un escenario anual cercano a 540 mil pasajeros.
+- **Tren Araucanía:** la oferta se edita por tipo de servicio y los feriados nacionales se consideran sin operación: Temuco-Victoria, Temuco-Pitrufquén y Claret. El escenario actualizado considera Temuco-Victoria con 15 servicios L-V; Pitrufquén y Claret mantienen su parametrización base. La demanda se calcula por tramo usando la distribución mensual observada en TA-Dist.xlsx; Claret sólo opera entre marzo y diciembre por su carácter escolar. El nivel anual fue recalibrado a un escenario moderado cercano a 950 mil pasajeros, evitando sobrerrespuesta ante el aumento de servicios Victoria-Temuco.
+- **Llanquihue-Puerto Montt:** enero y febrero conservan señal estival 2026; el resto del año se modera con el histórico disponible. Los feriados nacionales quedan sin operación.
 """)
 
     st.markdown("#### Bibliografía")
@@ -267,6 +420,7 @@ Donde:
 - Balcombe, R. et al. *The Demand for Public Transport: A Practical Guide*. TRL Report TRL593, 2004. https://www.trl.co.uk/uploads/trl/documents/TRL593%20-%20The%20Demand%20for%20Public%20Transport.pdf
 - Paulley, N. et al. *The demand for public transport: The effects of fares, quality of service, income and car ownership*. Transport Policy, 13(4), 295-306, 2006. https://eprints.whiterose.ac.uk/id/eprint/2034/1/ITS23_The_demand_for_public_transport_UPLOADABLE.pdf
 - Berrebi, S., Joshi, S. & Watkins, K. *On Ridership and Frequency*. Transportation Research Part A, 2021. https://doi.org/10.48550/arXiv.2002.02493
+- Feriados de Chile. *Feriados de Chile — Año 2027*. Fuente basada en Biblioteca del Congreso Nacional. https://www.feriados.cl/2027.htm
 """)
 
 
@@ -295,6 +449,9 @@ def render_resumen():
     st.markdown("#### Proyección mensual 2027")
     st.dataframe(serv, use_container_width=True)
 
+    st.markdown("#### Calendario operacional 2027 aplicado")
+    st.dataframe(O.calendario_operacional_resumen(2027), use_container_width=True, height=260)
+
     st.markdown("#### Comportamiento histórico anual observado")
     st.dataframe(hist_anual, use_container_width=True)
 
@@ -314,7 +471,7 @@ def render_servicio(s):
     ce = {}
     plan_tramos = None
     if s == "BIOTREN":
-        st.info("Biotren se edita por línea. La afluencia mensual queda vinculada al mes editado, sin repartir el total anual.")
+        st.info("Biotren se edita por línea. Escenario actualizado: L1 = 48 servicios L-V todo 2027; L2 = 106 servicios L-V entre enero-abril y 109 desde mayo. La afluencia mensual queda vinculada al mes editado, sin repartir el total anual. El nivel base fue recalibrado para un escenario anual cercano a 13 millones y el perfil marzo-abril se niveló según el comportamiento 2026.")
         c1, c2 = st.columns(2)
         with c1:
             plan_l1 = editor_oferta("BIOTREN_L1", "Línea 1")
@@ -343,6 +500,7 @@ def render_servicio(s):
     k[2].metric("Mes peak", pk, fmt(serv[s].max()))
     k[3].metric("Mes menor", serv[s].astype(float).idxmin(), fmt(serv[s].min()))
 
+    render_justificacion_servicio(s, serv, uni, detalle)
     render_ecuacion_servicio(s)
 
     g, t = st.columns([3, 2])
@@ -364,6 +522,9 @@ def render_servicio(s):
 
     st.markdown("#### Detalle mensual del cálculo oferta-demanda")
     st.dataframe(tabla_detalle_mes(detalle, s), use_container_width=True)
+
+    with st.expander("Calendario operacional aplicado al servicio"):
+        st.dataframe(tabla_calendario_servicio(s), use_container_width=True)
     st.caption("La columna impacto_mes_vs_base permite verificar que un cambio de oferta afecta el mes modificado y el total anual por suma.")
 
     st.markdown("#### Comportamiento mensual histórico por año")

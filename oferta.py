@@ -1,9 +1,9 @@
 """
-oferta.py -- motor de OFERTA del modelo de afluencia (v10, mensual-elastico + recuperacion Laja 540k).
+oferta.py -- motor de OFERTA del modelo de afluencia (v12, mensual-elastico + feriados 2027 + escenario oferta 2027 actualizado).
 
 El modelo NO usa clima. Base: fechas (estacionalidad) + reporte operacional (RROO).
 La oferta de trenes es la VARIABLE de planificacion, editable por el usuario y
-diferenciada por TIPO DE DIA (Lunes-Viernes 'LV', Sabado 'Sab', Domingo 'Dom') y mes.
+diferenciada por TIPO DE DIA (Lunes-Viernes 'LV', Sabado 'Sab', Domingo 'Dom') y mes. Desde v11 incorpora calendario operacional con feriados nacionales 2027.
 
 Unidades: BIOTREN_L1, BIOTREN_L2, CORTO_LAJA, TREN_ARAUCANIA, LLANQUIHUE_PM.
 Para Tren Araucania la demanda se calcula por tipo de servicio/tramo:
@@ -14,16 +14,16 @@ La afluencia de Biotren se reparte 20/80 (L1/L2, matriz OD; supuesto).
 
 Estaciones Llanquihue-PM (XP-NQ): XP=La Paloma, NQ=Llanquihue, AL=Alerce, EV=Puerto Varas.
 Nota operacional: los servicios Laja-Talcahuano circulan sobre el corredor de L1,
-pero se proyectan como CORTO_LAJA para no duplicar afluencia ni oferta. Por eso
-BIOTREN_L1 se parametriza como oferta propia de Biotren L1, excluyendo los
-servicios Laja-Talcahuano ya contabilizados en CORTO_LAJA.
+pero su afluencia se proyecta en CORTO_LAJA. En este escenario, por instrucción
+de planificación 2027, BIOTREN_L1 se parametriza con 48 servicios L-V para evaluar
+el crecimiento específico de Biotren.
 
 Modelo por unidad/mes:
-  proy_oferta = SUMA_tipo_dia [ servicios_por_dia x n_dias_2027 x pax_por_viaje x (1-supresion) ]
+  proy_oferta = SUMA_tipo_dia [ servicios_por_dia x n_dias_operacionales_2027 x pax_por_viaje x (1-supresion) ]
   Escenario recomendado 2027 = oferta calibrada con mayo 2026.
   Ajuste especifico Biotren: se aplica un factor anual prudencial sobre la
-  oferta calibrada para situar la proyeccion en torno a 12,5-12,6 MM antes
-  de simular aumentos leves de oferta futura.
+  oferta calibrada y el desempeño 2026 para situar la proyeccion en torno
+  a 12,9-13,1 MM en el escenario 2027 actualizado.
   Ajuste Laja-Talcahuano: se incorpora recuperacion parcial de confiabilidad
   usando mayor peso del patron 2024, sin replicar directamente su nivel anual.
 """
@@ -68,28 +68,55 @@ NOMBRE = {'BIOTREN': 'Biotren', 'CORTO_LAJA': 'Laja-Talcahuano',
 DTYPES = ['LV', 'Sab', 'Dom']
 DTNOMBRE = {'LV': 'Lunes a Viernes', 'Sab': 'Sabado', 'Dom': 'Domingo'}
 
+
+# Feriados nacionales utilizados para el calendario operacional 2027.
+# Fuente de respaldo: Feriados de Chile, Año 2027, basado en Biblioteca del Congreso Nacional.
+# Se excluyen feriados regionales/comunales para mantener un calendario común de EFE Sur.
+FERIADOS_CHILE_2027 = [
+    {'fecha': '2027-01-01', 'nombre': 'Año Nuevo'},
+    {'fecha': '2027-03-26', 'nombre': 'Viernes Santo'},
+    {'fecha': '2027-03-27', 'nombre': 'Sábado Santo'},
+    {'fecha': '2027-05-01', 'nombre': 'Día Nacional del Trabajo'},
+    {'fecha': '2027-05-21', 'nombre': 'Día de las Glorias Navales'},
+    {'fecha': '2027-06-21', 'nombre': 'Día Nacional de los Pueblos Indígenas'},
+    {'fecha': '2027-06-28', 'nombre': 'San Pedro y San Pablo'},
+    {'fecha': '2027-07-16', 'nombre': 'Día de la Virgen del Carmen'},
+    {'fecha': '2027-08-15', 'nombre': 'Asunción de la Virgen'},
+    {'fecha': '2027-09-17', 'nombre': 'Feriado Adicional Fiestas Patrias'},
+    {'fecha': '2027-09-18', 'nombre': 'Independencia Nacional'},
+    {'fecha': '2027-09-19', 'nombre': 'Día de las Glorias del Ejército'},
+    {'fecha': '2027-10-11', 'nombre': 'Encuentro de Dos Mundos'},
+    {'fecha': '2027-10-31', 'nombre': 'Día de las Iglesias Evangélicas y Protestantes'},
+    {'fecha': '2027-11-01', 'nombre': 'Día de Todos los Santos'},
+    {'fecha': '2027-12-08', 'nombre': 'Inmaculada Concepción'},
+    {'fecha': '2027-12-25', 'nombre': 'Navidad'},
+]
+
+FERIADOS_FUENTE = 'https://www.feriados.cl/2027.htm'
+
+
 DATA_DIR = Path(__file__).resolve().parent / 'data'
 
 
 # ---------------------------------------------------------------------------
 # Oferta vigente informada para el escenario base del modelo.
 #
-# Criterio de no doble conteo:
+# Criterio de planificación 2027:
 # - L1 operacional total informada: 48 LV, 16 Sab, 8 Dom, incluyendo servicios
 #   Laja-Talcahuano en un mes tipo.
-# - Como CORTO_LAJA se modela por separado, BIOTREN_L1 queda sólo con la oferta
-#   propia de Biotren: 40 LV, 8 Sab, 0 Dom.
+# - En el escenario 2027 actualizado, BIOTREN_L1 se parametriza con 48 servicios
+#   L-V durante todo el año, según instrucción de planificación.
 # - CORTO_LAJA usa 8 servicios base todos los dias. La excepcion operacional
 #   corresponde solo a sabado y domingo de enero-febrero, donde se consideran
 #   10 servicios. No se aplica 10 servicios a lunes-viernes.
-# - Tren Araucania tiene diferencias L-J / viernes; el modelo usa tipo LV, por
-#   lo que se usa promedio ponderado semanal: (4*19 + 1*17) / 5 = 18.6.
+# - Tren Araucania se representa con oferta por tramo; en el agregado LV se usa
+#   24,6 servicios/dia: 15 Victoria-Temuco + 6,6 Pitrufquen + 3 Claret.
 # ---------------------------------------------------------------------------
 OFERTA_ACTUAL_MODELO = {
-    'BIOTREN_L1': {'LV': 40.0, 'Sab': 8.0, 'Dom': 0.0},
+    'BIOTREN_L1': {'LV': 48.0, 'Sab': 8.0, 'Dom': 0.0},
     'BIOTREN_L2': {'LV': 106.0, 'Sab': 53.0, 'Dom': 32.0},
     'CORTO_LAJA': {'LV': 8.0, 'Sab': 8.0, 'Dom': 8.0},
-    'TREN_ARAUCANIA': {'LV': 18.6, 'Sab': 12.0, 'Dom': 6.0},
+    'TREN_ARAUCANIA': {'LV': 24.6, 'Sab': 12.0, 'Dom': 6.0},
     'LLANQUIHUE_PM': {'LV': 20.0, 'Sab': 0.0, 'Dom': 0.0},
 }
 
@@ -107,9 +134,19 @@ OFERTA_ACTUAL_EXCEPCIONES = [
      'detalle': 'Febrero: 10 servicios sabado y domingo en lugar de 8'},
 ]
 
+# Mejora de oferta Biotren L2 desde mayo 2027: 106 -> 109 servicios L-V.
+for _mes_l2 in range(5, 13):
+    OFERTA_ACTUAL_EXCEPCIONES.append({
+        'unit': 'BIOTREN_L2', 'mes': _mes_l2, 'dt': 'LV', 'servicios_dia': 109.0,
+        'detalle': 'Desde mayo 2027: Biotren L2 sube de 106 a 109 servicios lunes-viernes'
+    })
+del _mes_l2
+
 OFERTA_ACTUAL_DETALLE = [
     {'servicio': 'Biotren L2', 'unit': 'BIOTREN_L2', 'dt': 'LV', 'servicios_dia': 106.0,
-     'detalle': '106 servicios de lunes a viernes'},
+     'detalle': '106 servicios de lunes a viernes entre enero y abril'},
+    {'servicio': 'Biotren L2', 'unit': 'BIOTREN_L2', 'dt': 'LV', 'servicios_dia': 109.0,
+     'detalle': '109 servicios de lunes a viernes desde mayo a diciembre'},
     {'servicio': 'Biotren L2', 'unit': 'BIOTREN_L2', 'dt': 'Sab', 'servicios_dia': 53.0,
      'detalle': '53 servicios sabado'},
     {'servicio': 'Biotren L2', 'unit': 'BIOTREN_L2', 'dt': 'Dom', 'servicios_dia': 32.0,
@@ -124,12 +161,12 @@ OFERTA_ACTUAL_DETALLE = [
      'detalle': 'Enero-febrero: 8 servicios Biotren L1 propios + 10 Laja-Talcahuano'},
     {'servicio': 'Biotren L1 operacional total', 'unit': 'BIOTREN_L1_TOTAL_OPERACIONAL', 'dt': 'Dom', 'servicios_dia': 10.0,
      'detalle': 'Enero-febrero: corresponde a 10 servicios Laja-Talcahuano'},
-    {'servicio': 'Biotren L1 propia del modelo', 'unit': 'BIOTREN_L1', 'dt': 'LV', 'servicios_dia': 40.0,
-     'detalle': '48 L1 operacional total - 8 Laja-Talcahuano para evitar doble conteo'},
-    {'servicio': 'Biotren L1 propia del modelo', 'unit': 'BIOTREN_L1', 'dt': 'Sab', 'servicios_dia': 8.0,
-     'detalle': 'Oferta propia no contabilizada en CORTO_LAJA'},
-    {'servicio': 'Biotren L1 propia del modelo', 'unit': 'BIOTREN_L1', 'dt': 'Dom', 'servicios_dia': 0.0,
-     'detalle': 'Sin oferta propia dominical; la oferta dominical del corredor se contabiliza en CORTO_LAJA'},
+    {'servicio': 'Biotren L1 modelo 2027', 'unit': 'BIOTREN_L1', 'dt': 'LV', 'servicios_dia': 48.0,
+     'detalle': 'Escenario 2027 actualizado: L1 opera con 48 servicios lunes-viernes durante todo el año'},
+    {'servicio': 'Biotren L1 modelo 2027', 'unit': 'BIOTREN_L1', 'dt': 'Sab', 'servicios_dia': 8.0,
+     'detalle': 'Oferta sabado mantenida para Biotren L1 dentro del escenario base'},
+    {'servicio': 'Biotren L1 modelo 2027', 'unit': 'BIOTREN_L1', 'dt': 'Dom', 'servicios_dia': 0.0,
+     'detalle': 'Sin oferta dominical propia para Biotren L1 en el escenario base'},
     {'servicio': 'Laja-Talcahuano', 'unit': 'CORTO_LAJA', 'dt': 'LV', 'servicios_dia': 8.0,
      'detalle': '8 servicios lunes a viernes; los 10 servicios aplican solo a fines de semana de enero-febrero'},
     {'servicio': 'Laja-Talcahuano', 'unit': 'CORTO_LAJA', 'dt': 'Sab', 'servicios_dia': 10.0,
@@ -140,8 +177,8 @@ OFERTA_ACTUAL_DETALLE = [
      'detalle': 'Marzo-diciembre: 8 servicios sabado'},
     {'servicio': 'Laja-Talcahuano', 'unit': 'CORTO_LAJA', 'dt': 'Dom', 'servicios_dia': 8.0,
      'detalle': 'Marzo-diciembre: 8 servicios domingo'},
-    {'servicio': 'Tren Araucania', 'unit': 'TREN_ARAUCANIA', 'dt': 'LV', 'servicios_dia': 18.6,
-     'detalle': 'Promedio ponderado: lunes-jueves 19; viernes 17'},
+    {'servicio': 'Tren Araucania', 'unit': 'TREN_ARAUCANIA', 'dt': 'LV', 'servicios_dia': 24.6,
+     'detalle': 'Escenario 2027 actualizado: Victoria-Temuco 15 LV + Pitrufquen 6,6 LV + Claret 3 LV escolar'},
     {'servicio': 'Tren Araucania', 'unit': 'TREN_ARAUCANIA', 'dt': 'Sab', 'servicios_dia': 12.0,
      'detalle': '8 Victoria-Temuco + 4 Pitrufquen-Temuco'},
     {'servicio': 'Tren Araucania', 'unit': 'TREN_ARAUCANIA', 'dt': 'Dom', 'servicios_dia': 6.0,
@@ -293,7 +330,98 @@ def construir_parametros(rroo_path, afluencia_csv, sheet='2024-2025-Mar2026',
     return params.sort_values(['unit', 'mes', 'dt']).reset_index(drop=True)
 
 
+def feriados_chile(anio=2027):
+    """Retorna feriados nacionales usados por el modelo para el año solicitado.
+
+    Actualmente el calendario operacional se parametriza para 2027, que es el
+    horizonte del modelo. Para otro año retorna DataFrame vacío, evitando usar
+    feriados de un año incorrecto.
+    """
+    if int(anio) != 2027:
+        return pd.DataFrame(columns=['fecha', 'nombre', 'mes', 'dt_calendario'])
+    df = pd.DataFrame(FERIADOS_CHILE_2027).copy()
+    df['fecha'] = pd.to_datetime(df['fecha'])
+    df['mes'] = df['fecha'].dt.month.astype(int)
+    df['dt_calendario'] = df['fecha'].dt.dayofweek.map(_dt)
+    return df[['fecha', 'nombre', 'mes', 'dt_calendario']]
+
+
+def calendario_diario_operacional(anio=2027, units=None):
+    """Calendario diario con regla operacional de feriados por unidad.
+
+    Reglas aplicadas:
+    - Biotren, Tren Araucanía y Llanquihue-Puerto Montt: los feriados nacionales
+      no aportan días operacionales, por lo que su oferta programada efectiva es 0.
+    - Laja-Talcahuano: los feriados nacionales operan con oferta de fin de semana.
+      Si el feriado cae lunes-viernes se imputa como tipo 'Dom' para efectos de
+      oferta; si cae sábado o domingo conserva su tipo de día calendario.
+    """
+    if units is None:
+        units = list(OFERTA_ACTUAL_MODELO.keys()) + TA_TRAMOS
+    dates = pd.date_range(f'{anio}-01-01', f'{anio}-12-31', freq='D')
+    base = pd.DataFrame({'fecha': dates})
+    base['mes'] = base['fecha'].dt.month.astype(int)
+    base['dt_calendario'] = base['fecha'].dt.dayofweek.map(_dt)
+    fer = feriados_chile(anio)
+    if fer.empty:
+        base['es_feriado'] = False
+        base['feriado'] = ''
+    else:
+        base = base.merge(fer[['fecha', 'nombre']], on='fecha', how='left')
+        base['es_feriado'] = base['nombre'].notna()
+        base['feriado'] = base['nombre'].fillna('')
+        base = base.drop(columns='nombre')
+
+    rows = []
+    for unit in units:
+        x = base.copy()
+        x['unit'] = unit
+        if unit == 'CORTO_LAJA':
+            x['opera'] = True
+            x['regla_feriado'] = np.where(x['es_feriado'], 'opera_como_fin_de_semana', 'opera_normal')
+            x['dt_operacional'] = x['dt_calendario']
+            x.loc[x['es_feriado'] & x['dt_calendario'].eq('LV'), 'dt_operacional'] = 'Dom'
+        else:
+            x['opera'] = ~x['es_feriado']
+            x['regla_feriado'] = np.where(x['es_feriado'], 'sin_servicio_en_feriado', 'opera_normal')
+            x['dt_operacional'] = x['dt_calendario']
+        rows.append(x)
+    out = pd.concat(rows, ignore_index=True)
+    return out[['unit', 'fecha', 'mes', 'dt_calendario', 'dt_operacional', 'opera', 'es_feriado', 'feriado', 'regla_feriado']]
+
+
+def dias_operacionales_por_tipo(anio=2027, units=None):
+    """Cuenta días operacionales por unidad, mes y tipo de día operativo."""
+    cal = calendario_diario_operacional(anio=anio, units=units)
+    cal = cal[cal['opera']].copy()
+    g = cal.groupby(['unit', 'mes', 'dt_operacional']).size().reset_index(name='n_dias')
+    g = g.rename(columns={'dt_operacional': 'dt'})
+    if units is None:
+        units = list(OFERTA_ACTUAL_MODELO.keys()) + TA_TRAMOS
+    full = pd.MultiIndex.from_product([units, range(1, 13), DTYPES], names=['unit', 'mes', 'dt'])
+    g = g.set_index(['unit', 'mes', 'dt']).reindex(full, fill_value=0).reset_index()
+    return g
+
+
+def calendario_operacional_resumen(anio=2027):
+    """Resumen para mostrar y auditar el calendario operacional utilizado."""
+    units = list(OFERTA_ACTUAL_MODELO.keys()) + TA_TRAMOS
+    cal = calendario_diario_operacional(anio=anio, units=units)
+    g = cal.groupby(['unit', 'mes', 'dt_operacional'], as_index=False).agg(
+        n_dias_operacionales=('opera', 'sum'),
+        feriados_sin_servicio=('regla_feriado', lambda s: int((s == 'sin_servicio_en_feriado').sum())),
+        feriados_como_fin_semana=('regla_feriado', lambda s: int((s == 'opera_como_fin_de_semana').sum())),
+    ).rename(columns={'dt_operacional': 'dt'})
+    g['servicio'] = g['unit'].map(unidad_a_servicio()).fillna(g['unit'].map(lambda u: 'TREN_ARAUCANIA' if u in TA_TRAMOS else u))
+    return g[['servicio', 'unit', 'mes', 'dt', 'n_dias_operacionales', 'feriados_sin_servicio', 'feriados_como_fin_semana']]
+
+
 def dias_por_tipo(anio=2027):
+    """Conteo calendario simple, mantenido por compatibilidad.
+
+    Para la proyección principal se usa dias_operacionales_por_tipo(), porque
+    incorpora feriados y reglas por servicio.
+    """
     d = pd.date_range(f'{anio}-01-01', f'{anio}-12-31')
     df = pd.DataFrame({'mes': d.month, 'dt': d.dayofweek.map(_dt)})
     return df.groupby(['mes', 'dt']).size().reset_index(name='n_dias')
@@ -319,12 +447,13 @@ ELASTICIDAD_OFERTA_SERVICIO = {
     'LLANQUIHUE_PM': 0.35,
 }
 
-# Ajuste de nivel calibrado con mayo 2026 y revisión de coherencia histórica.
-# No es una comparación visible; funciona como calibrador de productividad base.
+# Ajuste de nivel calibrado con mayo 2026, comportamiento 2024-2026 y
+# revisión de coherencia mensual. No es una comparación visible; funciona
+# como calibrador de productividad base.
 AJUSTE_NIVEL_SERVICIO = {
-    'BIOTREN': 0.972,
+    'BIOTREN': 1.004,
     'CORTO_LAJA': 1.133,
-    'TREN_ARAUCANIA': 1.000,
+    'TREN_ARAUCANIA': 0.955,
     'LLANQUIHUE_PM': 1.000,
 }
 
@@ -345,6 +474,19 @@ FUERZA_ESTACIONALIDAD = {
     'CORTO_LAJA': 0.55,
     'TREN_ARAUCANIA': 0.50,
     'LLANQUIHUE_PM': 0.85,
+}
+
+# Ajuste puntual del perfil mensual Biotren 2027.
+# La proyección anterior heredaba un máximo excesivo en abril, pese a que en
+# 2026 marzo superó levemente a abril. Este ajuste no cambia el total anual:
+# sólo redistribuye el bloque marzo-abril para que ambos meses queden
+# prácticamente nivelados, con una leve preferencia por marzo coherente con
+# 2026.
+AJUSTE_BIOTREN_MARZO_ABRIL = {
+    'activo': True,
+    'meses': (3, 4),
+    'participacion_marzo': 0.502,
+    'criterio': 'redistribuir sólo el bloque marzo-abril de Biotren, manteniendo el total anual y la sensibilidad mensual a la oferta',
 }
 
 RAMP_NUEVA_OFERTA = {
@@ -415,8 +557,9 @@ def oferta_tren_araucania_tramos_df(mensual=True):
     edición mensual de oferta.
     """
     base = {
-        # Promedio LV: lunes-jueves 9/7/3 y viernes 9/5/3.
-        'TA_TEMUCO_VICTORIA': {'LV': 9.0, 'Sab': 8.0, 'Dom': 6.0},
+        # Escenario 2027 actualizado: Victoria-Temuco sube de 9 a 15 servicios LV.
+        # Pitrufquen mantiene promedio LV: lunes-jueves 7 y viernes 5 => 6,6. Claret 3 LV escolar.
+        'TA_TEMUCO_VICTORIA': {'LV': 15.0, 'Sab': 8.0, 'Dom': 6.0},
         'TA_TEMUCO_PITRUFQUEN': {'LV': 6.6, 'Sab': 4.0, 'Dom': 0.0},
         'TA_CLARET': {'LV': 3.0, 'Sab': 0.0, 'Dom': 0.0},
     }
@@ -763,7 +906,8 @@ def _base_detalle(params, anio=2027, calibracion_productividad=True):
     p['mes'] = p['mes'].astype(int)
     if calibracion_productividad:
         p = calibrar_productividad_reciente(p)
-    p = p.merge(dias_por_tipo(anio), on=['mes', 'dt'], how='left')
+    p = p.merge(dias_operacionales_por_tipo(anio), on=['unit', 'mes', 'dt'], how='left')
+    p['n_dias'] = pd.to_numeric(p['n_dias'], errors='coerce').fillna(0).astype(float)
     p['servicio'] = p['unit'].map(unidad_a_servicio())
     p['nivel_factor'] = p['servicio'].map(AJUSTE_NIVEL_SERVICIO).fillna(1.0)
     p['elasticidad'] = p['servicio'].map(ELASTICIDAD_OFERTA_SERVICIO).fillna(0.45)
@@ -778,12 +922,60 @@ def _base_detalle(params, anio=2027, calibracion_productividad=True):
     return p
 
 
+def _ajustar_estacionalidad_biotren_marzo_abril(factores, base_serv):
+    """Suaviza marzo-abril de Biotren sin cambiar el total anual.
+
+    El ajuste se aplica sobre los factores de estacionalidad y conserva la suma
+    proyectada del par marzo-abril. De esta forma, el total anual se mantiene,
+    pero la curva queda más coherente con 2026, donde marzo fue levemente mayor
+    que abril.
+    """
+    cfg = AJUSTE_BIOTREN_MARZO_ABRIL
+    if not cfg.get('activo', False):
+        return factores
+
+    meses = tuple(cfg.get('meses', (3, 4)))
+    if len(meses) != 2:
+        return factores
+    m3, m4 = int(meses[0]), int(meses[1])
+    peso_marzo = float(cfg.get('participacion_marzo', 0.50))
+    peso_marzo = min(max(peso_marzo, 0.0), 1.0)
+
+    f = factores.copy()
+    raw = (base_serv[base_serv['servicio'].eq('BIOTREN')]
+           .set_index('mes')['afl_base_sin_estacionalidad']
+           .astype(float))
+    if m3 not in raw.index or m4 not in raw.index:
+        return f
+
+    mask = f['servicio'].eq('BIOTREN') & f['mes'].isin([m3, m4])
+    if mask.sum() != 2:
+        return f
+
+    fac = f.loc[mask].set_index('mes')['factor_estacionalidad'].astype(float)
+    actual_m3 = float(raw.loc[m3] * fac.loc[m3])
+    actual_m4 = float(raw.loc[m4] * fac.loc[m4])
+    total_par = actual_m3 + actual_m4
+    if total_par <= 0 or raw.loc[m3] <= 0 or raw.loc[m4] <= 0:
+        return f
+
+    objetivo = {m3: total_par * peso_marzo, m4: total_par * (1.0 - peso_marzo)}
+    for mes in [m3, m4]:
+        f.loc[f['servicio'].eq('BIOTREN') & f['mes'].eq(mes), 'factor_estacionalidad'] = objetivo[mes] / float(raw.loc[mes])
+        f.loc[f['servicio'].eq('BIOTREN') & f['mes'].eq(mes), 'ajuste_biotren_marzo_abril'] = True
+    f['ajuste_biotren_marzo_abril'] = f.get('ajuste_biotren_marzo_abril', False).fillna(False)
+    return f
+
+
 def factores_estacionalidad_mensual(params, mdf, anio=2027, calibracion_productividad=True):
     """Calcula factores mensuales de productividad por servicio.
 
     El factor se obtiene comparando la proyección directa por oferta actual con
     el patrón histórico mensual. Luego se aplica con una fuerza menor o igual a 1
     y se normaliza para que el escenario base conserve el nivel anual calibrado.
+    Para Biotren se agrega un ajuste puntual marzo-abril, manteniendo el total
+    anual y el total conjunto de ambos meses, para evitar que abril quede
+    artificialmente sobrerrepresentado frente a marzo.
     """
     p0 = _base_detalle(params, anio=anio, calibracion_productividad=calibracion_productividad)
     base_serv = (p0.groupby(['servicio', 'mes'])['afl_base_sin_estacionalidad'].sum()
@@ -806,8 +998,11 @@ def factores_estacionalidad_mensual(params, mdf, anio=2027, calibracion_producti
                 'factor_estacionalidad': float(f.loc[m] * normalizador),
                 'participacion_historica_utilizada': float(hist_share.get(f'{anio}-{m:02d}', 1/12)),
                 'fuerza_estacionalidad': fuerza,
+                'ajuste_biotren_marzo_abril': False,
             })
-    return pd.DataFrame(rows)
+    out = pd.DataFrame(rows)
+    out = _ajustar_estacionalidad_biotren_marzo_abril(out, base_serv)
+    return out
 
 
 def _aplicar_plan(detalle_base, plan=None, contingencia_extra=None):
