@@ -1,0 +1,23 @@
+servicio,unit,dt,servicios_dia,detalle
+Biotren L2,BIOTREN_L2,LV,106.0,106 servicios de lunes a viernes
+Biotren L2,BIOTREN_L2,Sab,53.0,53 servicios sabado
+Biotren L2,BIOTREN_L2,Dom,32.0,32 servicios domingo
+Biotren L1 operacional total,BIOTREN_L1_TOTAL_OPERACIONAL,LV,48.0,Incluye 8 servicios Laja-Talcahuano
+Biotren L1 operacional total,BIOTREN_L1_TOTAL_OPERACIONAL,Sab,16.0,Mes tipo: 8 servicios Biotren L1 propios + 8 Laja-Talcahuano
+Biotren L1 operacional total,BIOTREN_L1_TOTAL_OPERACIONAL,Dom,8.0,Mes tipo: corresponde a 8 servicios Laja-Talcahuano
+Biotren L1 operacional total,BIOTREN_L1_TOTAL_OPERACIONAL,Sab,18.0,Enero-febrero: 8 servicios Biotren L1 propios + 10 Laja-Talcahuano
+Biotren L1 operacional total,BIOTREN_L1_TOTAL_OPERACIONAL,Dom,10.0,Enero-febrero: corresponde a 10 servicios Laja-Talcahuano
+Biotren L1 propia del modelo,BIOTREN_L1,LV,40.0,48 L1 operacional total - 8 Laja-Talcahuano para evitar doble conteo
+Biotren L1 propia del modelo,BIOTREN_L1,Sab,8.0,Oferta propia no contabilizada en CORTO_LAJA
+Biotren L1 propia del modelo,BIOTREN_L1,Dom,0.0,Sin oferta propia dominical; la oferta dominical del corredor se contabiliza en CORTO_LAJA
+Laja-Talcahuano,CORTO_LAJA,LV,10.0,8 servicios base + 2 cortos Hualqui-Talcamavida / Talcamavida-Hualqui
+Laja-Talcahuano,CORTO_LAJA,Sab,10.0,Enero-febrero: 10 servicios sabado
+Laja-Talcahuano,CORTO_LAJA,Dom,10.0,Enero-febrero: 10 servicios domingo
+Laja-Talcahuano,CORTO_LAJA,Sab,8.0,Marzo-diciembre: 8 servicios sabado
+Laja-Talcahuano,CORTO_LAJA,Dom,8.0,Marzo-diciembre: 8 servicios domingo
+Tren Araucania,TREN_ARAUCANIA,LV,18.6,Promedio ponderado: lunes-jueves 19; viernes 17
+Tren Araucania,TREN_ARAUCANIA,Sab,12.0,8 Victoria-Temuco + 4 Pitrufquen-Temuco
+Tren Araucania,TREN_ARAUCANIA,Dom,6.0,6 Victoria-Temuco
+Llanquihue-Puerto Montt,LLANQUIHUE_PM,LV,20.0,20 servicios de lunes a viernes
+Llanquihue-Puerto Montt,LLANQUIHUE_PM,Sab,0.0,Sin servicios planificados de fin de semana
+Llanquihue-Puerto Montt,LLANQUIHUE_PM,Dom,0.0,Sin servicios planificados de fin de semana
