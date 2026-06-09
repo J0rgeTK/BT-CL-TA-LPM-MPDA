@@ -285,54 +285,52 @@ def dias_por_tipo(anio=2027):
     return df.groupby(['mes', 'dt']).size().reset_index(name='n_dias')
 
 
-def _aplicar_plan_y_contingencia(params, plan=None, contingencia_extra=None, anio=2027, calibracion_productividad=True):
-    """Base comun de calculo por unidad/mes/tipo de dia.
 
-    Retorna el detalle antes de agregar por servicio. Se deja separado para que
-    el escenario conservador pueda reutilizar los viajes ofertados y ajustar la
-    respuesta de demanda sin modificar la oferta visible al usuario.
-    """
-    p = params.copy()
-    if calibracion_productividad:
-        p = calibrar_productividad_reciente(p)
-    if plan is not None:
-        pl = plan[['unit', 'mes', 'dt', 'servicios_dia']].rename(columns={'servicios_dia': 'sd_plan'})
-        pl['mes'] = pl['mes'].astype(int)
-        p = p.merge(pl, on=['unit', 'mes', 'dt'], how='left')
-        p['servicios_dia'] = pd.to_numeric(p['sd_plan'], errors='coerce').fillna(p['servicios_dia'])
-        p = p.drop(columns='sd_plan')
-    p = p.merge(dias_por_tipo(anio), on=['mes', 'dt'], how='left')
-    ce = contingencia_extra or {}
-    p['f_sup'] = (1 - p['tasa_sup'] - p['unit'].map(ce).fillna(0)).clip(0, 1)
-    p['viajes_programados_mes'] = p['servicios_dia'] * p['n_dias']
-    p['viajes_operados_mes'] = p['viajes_programados_mes'] * p['f_sup']
-    p['afl'] = p['viajes_operados_mes'] * p['pax_x_viaje']
-    return p
+def unidad_a_servicio():
+    rows = {}
+    for s, units in UNIDADES_DE.items():
+        for u in units:
+            rows[u] = s
+    return rows
 
 
-def _agregar_servicios(p, anio=2027):
-    uni = p.groupby(['unit', 'mes'])['afl'].sum().reset_index()
-    uni_w = uni.pivot(index='mes', columns='unit', values='afl')
-    uni_w.index = [f'{anio}-{m:02d}' for m in uni_w.index]
-    serv = pd.DataFrame(index=uni_w.index)
-    for s, us in UNIDADES_DE.items():
-        cols = [u for u in us if u in uni_w.columns]
-        if cols:
-            serv[s] = uni_w[cols].sum(axis=1)
-    return uni_w, serv
+# Elasticidades de respuesta de demanda ante cambios de oferta programada.
+# Se usan valores inferiores a 1 para representar rendimientos marginales decrecientes:
+# un aumento de servicios mejora accesibilidad/frecuencia, pero no genera pasajeros
+# en la misma proporción que la oferta adicional.
+ELASTICIDAD_OFERTA_SERVICIO = {
+    'BIOTREN': 0.55,
+    'CORTO_LAJA': 0.38,
+    'TREN_ARAUCANIA': 0.42,
+    'LLANQUIHUE_PM': 0.35,
+}
 
+# Ajuste de nivel calibrado con mayo 2026 y revisión de coherencia histórica.
+# No es una comparación visible; funciona como calibrador de productividad base.
+AJUSTE_NIVEL_SERVICIO = {
+    'BIOTREN': 0.972,
+    'CORTO_LAJA': 1.000,
+    'TREN_ARAUCANIA': 1.000,
+    'LLANQUIHUE_PM': 1.000,
+}
 
-def proyectar(params, plan=None, contingencia_extra=None, anio=2027, calibracion_productividad=True):
-    """Proyeccion directa por oferta.
+# Intensidad con que se corrige la productividad mensual hacia el patrón histórico.
+# 0 = sólo productividad/oferta observada; 1 = calza completamente la estacionalidad histórica.
+# Se deja por debajo de 1 para no volver a un modelo de simple distribución anual.
+FUERZA_ESTACIONALIDAD = {
+    'BIOTREN': 0.55,
+    'CORTO_LAJA': 0.45,
+    'TREN_ARAUCANIA': 0.50,
+    'LLANQUIHUE_PM': 0.85,
+}
 
-    Esta version mantiene la formula original: cada servicio adicional conserva
-    la productividad historica por viaje. Se conserva para trazabilidad y para
-    analizar escenarios expansivos, pero el escenario recomendado para Biotren
-    y Tren Araucania usa `proyectar_conservador`.
-    """
-    p = _aplicar_plan_y_contingencia(params, plan=plan, contingencia_extra=contingencia_extra, anio=anio, calibracion_productividad=calibracion_productividad)
-    uni_w, serv = _agregar_servicios(p, anio=anio)
-    return uni_w.round(0).astype('Int64'), serv.round(0).astype('Int64')
+RAMP_NUEVA_OFERTA = {
+    'BIOTREN': 0.55,
+    'CORTO_LAJA': 0.45,
+    'TREN_ARAUCANIA': 0.45,
+    'LLANQUIHUE_PM': 0.40,
+}
+
 
 def cargar_calibracion_productividad(path=None):
     """Carga factores de calibracion de pax/viaje observados en mayo 2026.
@@ -386,14 +384,8 @@ def calibrar_productividad_reciente(params, calibracion=None):
     return p
 
 
-
 def oferta_tren_araucania_tramos_df(mensual=True):
-    """Oferta vigente de Tren Araucania desagregada por tramo.
-
-    Se mantiene el motor de demanda agregado en TREN_ARAUCANIA, pero la oferta se
-    edita por tramo para que un aumento en Pitrufquen o Claret tenga menor efecto
-    marginal que un aumento Victoria-Temuco.
-    """
+    """Oferta vigente de Tren Araucania desagregada por tramo."""
     base = {
         # Promedio LV: lunes-jueves 9/7/3 y viernes 9/5/3.
         'TA_TEMUCO_VICTORIA': {'LV': 9.0, 'Sab': 8.0, 'Dom': 6.0},
@@ -423,18 +415,19 @@ def plan_tren_araucania_agregado(plan_tramos):
     base = oferta_tren_araucania_tramos_df(mensual=True)
     df = plan_tramos.copy()
     df['mes'] = df['mes'].astype(int)
-    # Completar combinaciones faltantes con oferta vigente.
     idx = base[['unit', 'mes', 'dt']].copy()
     df = idx.merge(df[['unit', 'mes', 'dt', 'servicios_dia']], on=['unit', 'mes', 'dt'], how='left')
     df = df.merge(base.rename(columns={'servicios_dia': 'servicios_base'}), on=['unit', 'mes', 'dt'], how='left')
     df['servicios_dia'] = pd.to_numeric(df['servicios_dia'], errors='coerce').fillna(df['servicios_base'])
     df['peso'] = df['unit'].map(TA_TRAMO_PESO_DEMANDA).fillna(0.0)
     df['ponderado'] = df['servicios_dia'] * df['peso']
+
     base2 = base.copy()
     base2['peso'] = base2['unit'].map(TA_TRAMO_PESO_DEMANDA).fillna(0.0)
     base2['ponderado_base'] = base2['servicios_dia'] * base2['peso']
     cur = df.groupby(['mes', 'dt'])['ponderado'].sum().reset_index()
-    bas = base2.groupby(['mes', 'dt']).agg(ponderado_base=('ponderado_base', 'sum'), total_base=('servicios_dia', 'sum')).reset_index()
+    bas = base2.groupby(['mes', 'dt']).agg(ponderado_base=('ponderado_base', 'sum'),
+                                           total_base=('servicios_dia', 'sum')).reset_index()
     out = cur.merge(bas, on=['mes', 'dt'], how='left')
     out['servicios_dia'] = out['total_base'] * out['ponderado'] / out['ponderado_base'].replace(0, np.nan)
     out['servicios_dia'] = out['servicios_dia'].fillna(0.0)
@@ -473,42 +466,67 @@ def analisis_mensual_historico(mdf):
     return pd.DataFrame(rows).sort_values(['servicio', 'anio', 'mes']).reset_index(drop=True)
 
 
+def resumen_historico_anual(mdf):
+    g = _preparar_mdf(mdf)
+    out = (g.groupby(['servicio', 'anio'])
+             .agg(meses_observados=('m', 'nunique'),
+                  afluencia_observada_normalizada=('pax_norm', 'sum'),
+                  promedio_mensual=('pax_norm', 'mean'),
+                  primer_mes=('m', 'min'), ultimo_mes=('m', 'max'))
+             .reset_index())
+    out['afluencia_observada_normalizada'] = out['afluencia_observada_normalizada'].round(0)
+    out['promedio_mensual'] = out['promedio_mensual'].round(0)
+    return out
+
+
 def _share_full_years(g, servicio):
     weights_by_service = {
-        'BIOTREN': {2024: 0.45, 2025: 0.55},
-        'CORTO_LAJA': {2024: 0.40, 2025: 0.60},
-        'TREN_ARAUCANIA': {2025: 1.00},
-        'LLANQUIHUE_PM': {2025: 1.00},
+        'BIOTREN': {2024: 0.40, 2025: 0.45, 2026: 0.15},
+        'CORTO_LAJA': {2024: 0.35, 2025: 0.45, 2026: 0.20},
+        'TREN_ARAUCANIA': {2025: 0.70, 2026: 0.30},
+        'LLANQUIHUE_PM': {2025: 0.30, 2026: 0.70},
     }
     weights = weights_by_service.get(servicio, {})
     out = pd.Series(0.0, index=range(1, 13), dtype=float)
     tw = 0.0
+
+    # Años completos: uso directo de participación anual.
     for y, d in g.groupby('anio'):
+        y = int(y)
         if d['m'].nunique() >= 12:
-            sh = d.set_index('m')['pax_norm'].astype(float)
+            sh = d.set_index('m')['pax_norm'].astype(float).reindex(range(1, 13))
             sh = sh / sh.sum()
-            w = float(weights.get(int(y), 1.0))
+            w = float(weights.get(y, 1.0))
             out = out.add(sh * w, fill_value=0.0)
             tw += w
+
     if tw > 0:
         out = out / tw
     else:
-        # Fallback: ultimo valor disponible por mes; meses faltantes con media.
         piv = g.sort_values('mes').groupby('m')['pax_norm'].last()
         mean_val = float(piv.mean()) if len(piv) else 1.0
-        out = pd.Series({m: float(piv.get(m, mean_val)) for m in range(1, 13)})
+        out = pd.Series({m: float(piv.get(m, mean_val)) for m in range(1, 13)}, dtype=float)
         out = out / out.sum()
-    return out.reindex(range(1, 13)).fillna(out.mean()) / out.sum()
+
+    # Año parcial 2026: se incorpora sólo en meses observados, sin inferir el año completo.
+    obs26 = g[g['anio'] == 2026].set_index('m')['pax_norm'].astype(float)
+    if not obs26.empty:
+        denom = max(out.loc[obs26.index].sum(), 1e-9)
+        anual_implicito = obs26.sum() / denom
+        sh26 = obs26 / anual_implicito
+        peso_2026 = {'BIOTREN': 0.45, 'CORTO_LAJA': 0.30, 'TREN_ARAUCANIA': 0.45, 'LLANQUIHUE_PM': 0.70}.get(servicio, 0.35)
+        for m, v in sh26.items():
+            out.loc[m] = (1 - peso_2026) * out.loc[m] + peso_2026 * v
+
+    out = out.reindex(range(1, 13)).fillna(out.mean())
+    return out / out.sum()
 
 
 def perfil_mensual_historico(mdf, servicio, total_anual=None):
-    """Perfil mensual usado para distribuir el total anual proyectado.
+    """Perfil mensual histórico utilizado como corrección de productividad.
 
-    - Biotren: pondera 2024-2025 y refuerza enero-mayo 2026.
-    - Laja-Talcahuano: mantiene estacionalidad 2024-2025 y señal 2026 parcial.
-    - Tren Araucania: usa 2025 y refuerza enero-mayo 2026, evitando peaks no
-      sustentados por la serie mensual.
-    - Llanquihue-Puerto Montt: conserva enero-febrero 2026 como meses estivales.
+    Este perfil NO se usa para repartir un total anual fijo. Se usa para construir
+    factores de productividad mensual que luego se aplican al cálculo mes a mes.
     """
     g_all = _preparar_mdf(mdf)
     g = g_all[g_all['servicio'] == servicio].copy()
@@ -516,105 +534,187 @@ def perfil_mensual_historico(mdf, servicio, total_anual=None):
         return pd.Series(1 / 12, index=[f'2027-{m:02d}' for m in range(1, 13)])
 
     if servicio == 'LLANQUIHUE_PM':
-        # Mantener enero-febrero 2026 en niveles similares al periodo estival.
+        # Mantener enero-febrero 2026 como señal estival cuando existen datos.
         vals = {}
         for m in range(1, 13):
             d = g[g['m'] == m].sort_values('anio')
             vals[m] = float(d.iloc[-1]['pax_norm']) if not d.empty else np.nan
-        # Si faltan meses, usar media de meses disponibles no estivales.
         available = [v for v in vals.values() if pd.notna(v)]
         fill = float(np.mean(available)) if available else 1.0
-        vals = {m: (fill if pd.isna(v) else v) for m, v in vals.items()}
-        if total_anual is not None and 1 in vals and 2 in vals:
-            fixed = {1: vals[1], 2: vals[2]}
-            fixed_total = sum(fixed.values())
-            # Evitar que los meses estivales absorban un porcentaje excesivo si cambia el total anual.
-            if fixed_total > float(total_anual) * 0.34:
-                esc = (float(total_anual) * 0.34) / fixed_total
-                fixed = {k: v * esc for k, v in fixed.items()}
-                fixed_total = sum(fixed.values())
-            rest_months = [m for m in range(1, 13) if m not in fixed]
-            rest_raw = pd.Series({m: vals[m] for m in rest_months}, dtype=float)
-            rest_values = rest_raw / rest_raw.sum() * max(float(total_anual) - fixed_total, 0.0)
-            final = pd.Series({**fixed, **rest_values.to_dict()}).reindex(range(1, 13))
-            share = final / final.sum()
-        else:
-            raw = pd.Series(vals, dtype=float).reindex(range(1, 13))
-            share = raw / raw.sum()
+        raw = pd.Series({m: (fill if pd.isna(v) else v) for m, v in vals.items()}, dtype=float).reindex(range(1, 13))
+        share = raw / raw.sum()
     else:
         share = _share_full_years(g, servicio)
-        obs26 = g[g['anio'] == 2026].set_index('m')['pax_norm'].astype(float)
-        if not obs26.empty:
-            implied = obs26.sum() / max(share.loc[obs26.index].sum(), 1e-9)
-            sh26 = obs26 / implied
-            peso_2026 = {'BIOTREN': 0.60, 'CORTO_LAJA': 0.35, 'TREN_ARAUCANIA': 0.55}.get(servicio, 0.50)
-            for m, v in sh26.items():
-                share.loc[m] = (1 - peso_2026) * share.loc[m] + peso_2026 * v
-        share = share / share.sum()
 
     share.index = [f'2027-{m:02d}' for m in range(1, 13)]
     return share.astype(float)
 
 
-AJUSTE_TOTAL_ANUAL = {
-    # Factor multiplicativo sobre la proyeccion por oferta calibrada.
-    # En Biotren deja el escenario base alrededor de 12,5-12,6 MM con la oferta actual.
-    'BIOTREN': 0.972,
-    'CORTO_LAJA': 1.000,
-    'TREN_ARAUCANIA': 1.000,
-    'LLANQUIHUE_PM': 1.000,
-}
+def _base_detalle(params, anio=2027, calibracion_productividad=True):
+    p = params.copy()
+    p['mes'] = p['mes'].astype(int)
+    if calibracion_productividad:
+        p = calibrar_productividad_reciente(p)
+    p = p.merge(dias_por_tipo(anio), on=['mes', 'dt'], how='left')
+    p['servicio'] = p['unit'].map(unidad_a_servicio())
+    p['nivel_factor'] = p['servicio'].map(AJUSTE_NIVEL_SERVICIO).fillna(1.0)
+    p['elasticidad'] = p['servicio'].map(ELASTICIDAD_OFERTA_SERVICIO).fillna(0.45)
+    p['f_sup_base'] = (1 - p['tasa_sup']).clip(0, 1)
+    p['viajes_programados_base'] = p['servicios_dia'] * p['n_dias']
+    p['viajes_operados_base'] = p['viajes_programados_base'] * p['f_sup_base']
+    p['afl_base_sin_estacionalidad'] = p['viajes_operados_base'] * p['pax_x_viaje'] * p['nivel_factor']
+    return p
+
+
+def factores_estacionalidad_mensual(params, mdf, anio=2027, calibracion_productividad=True):
+    """Calcula factores mensuales de productividad por servicio.
+
+    El factor se obtiene comparando la proyección directa por oferta actual con
+    el patrón histórico mensual. Luego se aplica con una fuerza menor o igual a 1
+    y se normaliza para que el escenario base conserve el nivel anual calibrado.
+    """
+    p0 = _base_detalle(params, anio=anio, calibracion_productividad=calibracion_productividad)
+    base_serv = (p0.groupby(['servicio', 'mes'])['afl_base_sin_estacionalidad'].sum()
+                   .reset_index())
+    rows = []
+    for s, d in base_serv.groupby('servicio'):
+        total_base = float(d['afl_base_sin_estacionalidad'].sum())
+        hist_share = perfil_mensual_historico(mdf, s)
+        raw = d.set_index('mes')['afl_base_sin_estacionalidad'].astype(float).reindex(range(1, 13)).fillna(0.0)
+        target = pd.Series({m: total_base * float(hist_share.get(f'{anio}-{m:02d}', 1/12)) for m in range(1, 13)}, dtype=float)
+        ratio = (target / raw.replace(0, np.nan)).replace([np.inf, -np.inf], np.nan).fillna(1.0)
+        fuerza = float(FUERZA_ESTACIONALIDAD.get(s, 0.5))
+        f = ratio.pow(fuerza)
+        annual_after = float((raw * f).sum())
+        normalizador = total_base / annual_after if annual_after > 0 else 1.0
+        for m in range(1, 13):
+            rows.append({
+                'servicio': s,
+                'mes': int(m),
+                'factor_estacionalidad': float(f.loc[m] * normalizador),
+                'participacion_historica_utilizada': float(hist_share.get(f'{anio}-{m:02d}', 1/12)),
+                'fuerza_estacionalidad': fuerza,
+            })
+    return pd.DataFrame(rows)
+
+
+def _aplicar_plan(detalle_base, plan=None, contingencia_extra=None):
+    p = detalle_base.copy()
+    if plan is not None:
+        pl = plan[['unit', 'mes', 'dt', 'servicios_dia']].rename(columns={'servicios_dia': 'servicios_dia_plan'})
+        pl['mes'] = pl['mes'].astype(int)
+        p = p.merge(pl, on=['unit', 'mes', 'dt'], how='left')
+        p['servicios_dia_plan'] = pd.to_numeric(p['servicios_dia_plan'], errors='coerce').fillna(p['servicios_dia'])
+    else:
+        p['servicios_dia_plan'] = p['servicios_dia']
+
+    ce = contingencia_extra or {}
+    p['f_sup_plan'] = (1 - p['tasa_sup'] - p['unit'].map(ce).fillna(0)).clip(0, 1)
+    p['viajes_programados_plan'] = p['servicios_dia_plan'] * p['n_dias']
+    p['viajes_operados_plan'] = p['viajes_programados_plan'] * p['f_sup_plan']
+    return p
+
+
+def proyectar_mensual_elastico(params, mdf, plan=None, contingencia_extra=None,
+                               anio=2027, calibracion_productividad=True,
+                               return_detalle=False):
+    """Proyección mensual oferta-demanda con elasticidad parcial.
+
+    Fórmula principal por unidad u, mes m y tipo de día d:
+      D1 = D0 * (V1 / V0) ** e
+
+    donde:
+      D0 = demanda base mensual calibrada,
+      V0 = viajes operados base,
+      V1 = viajes operados con la oferta editada,
+      e  = elasticidad de demanda respecto de oferta, con 0 < e < 1.
+
+    Si el usuario modifica la oferta de un mes, sólo cambian las filas de ese mes.
+    El total anual ya no se reparte posteriormente: resulta de sumar los meses.
+    """
+    base = _base_detalle(params, anio=anio, calibracion_productividad=calibracion_productividad)
+    fest = factores_estacionalidad_mensual(params, mdf, anio=anio,
+                                           calibracion_productividad=calibracion_productividad)
+    p = _aplicar_plan(base, plan=plan, contingencia_extra=contingencia_extra)
+    p = p.merge(fest[['servicio', 'mes', 'factor_estacionalidad', 'participacion_historica_utilizada', 'fuerza_estacionalidad']],
+                on=['servicio', 'mes'], how='left')
+    p['factor_estacionalidad'] = p['factor_estacionalidad'].fillna(1.0)
+    p['demanda_base_mensual'] = p['afl_base_sin_estacionalidad'] * p['factor_estacionalidad']
+
+    ratio = p['viajes_operados_plan'] / p['viajes_operados_base'].replace(0, np.nan)
+    p['ratio_oferta_operada'] = ratio.replace([np.inf, -np.inf], np.nan)
+    p['afl'] = p['demanda_base_mensual'] * p['ratio_oferta_operada'].pow(p['elasticidad'])
+
+    # Fallback para oferta nueva donde no existe V0: productividad base reducida por etapa de maduración.
+    m_new = p['viajes_operados_base'].le(0) & p['viajes_operados_plan'].gt(0)
+    if m_new.any():
+        ramp = p.loc[m_new, 'servicio'].map(RAMP_NUEVA_OFERTA).fillna(0.45)
+        p.loc[m_new, 'afl'] = (p.loc[m_new, 'viajes_operados_plan'] *
+                               p.loc[m_new, 'pax_x_viaje'] *
+                               p.loc[m_new, 'nivel_factor'] *
+                               p.loc[m_new, 'factor_estacionalidad'] * ramp)
+    p['afl'] = p['afl'].fillna(0.0).clip(lower=0)
+    p['pax_por_viaje_resultante'] = p['afl'] / p['viajes_operados_plan'].replace(0, np.nan)
+    p['pax_por_viaje_base'] = p['demanda_base_mensual'] / p['viajes_operados_base'].replace(0, np.nan)
+    p['variacion_servicios_dia'] = p['servicios_dia_plan'] - p['servicios_dia']
+    p['variacion_pct_oferta_operada'] = (p['viajes_operados_plan'] / p['viajes_operados_base'].replace(0, np.nan) - 1) * 100
+    p['variacion_pct_demanda'] = (p['afl'] / p['demanda_base_mensual'].replace(0, np.nan) - 1) * 100
+
+    uni = p.groupby(['unit', 'mes'])['afl'].sum().reset_index()
+    uni_w = uni.pivot(index='mes', columns='unit', values='afl').fillna(0.0)
+    uni_w.index = [f'{anio}-{m:02d}' for m in uni_w.index]
+    serv = pd.DataFrame(index=uni_w.index)
+    for s, us in UNIDADES_DE.items():
+        cols = [u for u in us if u in uni_w.columns]
+        if cols:
+            serv[s] = uni_w[cols].sum(axis=1)
+
+    uni_w = uni_w.round(0).astype('Int64')
+    serv = serv.round(0).astype('Int64')
+    detalle = p.copy()
+    detalle['periodo'] = detalle['mes'].map(lambda m: f'{anio}-{int(m):02d}')
+    if return_detalle:
+        return uni_w, serv, detalle
+    return uni_w, serv
+
+
+def proyectar(params, plan=None, contingencia_extra=None, anio=2027, calibracion_productividad=True):
+    """Compatibilidad: proyección directa mensual por oferta y productividad constante."""
+    p = _base_detalle(params, anio=anio, calibracion_productividad=calibracion_productividad)
+    p = _aplicar_plan(p, plan=plan, contingencia_extra=contingencia_extra)
+    p['afl'] = p['viajes_operados_plan'] * p['pax_x_viaje'] * p['nivel_factor']
+    uni = p.groupby(['unit', 'mes'])['afl'].sum().reset_index()
+    uni_w = uni.pivot(index='mes', columns='unit', values='afl').fillna(0.0)
+    uni_w.index = [f'{anio}-{m:02d}' for m in uni_w.index]
+    serv = pd.DataFrame(index=uni_w.index)
+    for s, us in UNIDADES_DE.items():
+        cols = [u for u in us if u in uni_w.columns]
+        if cols:
+            serv[s] = uni_w[cols].sum(axis=1)
+    return uni_w.round(0).astype('Int64'), serv.round(0).astype('Int64')
 
 
 def proyectar_base_ajustada(params, mdf, plan=None, contingencia_extra=None,
                             anio=2027, calibracion_productividad=True,
                             factores_total=None):
-    """Escenario principal del modelo.
-
-    La demanda anual se obtiene desde la oferta calibrada y, posteriormente, se
-    distribuye por mes con perfiles historicos 2024-2026 por servicio. No expone
-    comparaciones externas; el historico se usa solo para construir
-    el patron mensual auditable.
-    """
-    factores_total = factores_total or AJUSTE_TOTAL_ANUAL
-    uni_oferta, serv_oferta = proyectar(params, plan=plan, contingencia_extra=contingencia_extra,
-                                        anio=anio, calibracion_productividad=calibracion_productividad)
-    serv_final = pd.DataFrame(index=serv_oferta.index)
-    perfiles = []
-    for s in SERVICIOS:
-        if s not in serv_oferta.columns:
-            continue
-        total = float(serv_oferta[s].dropna().sum()) * float(factores_total.get(s, 1.0))
-        perfil = perfil_mensual_historico(mdf, s, total_anual=total)
-        perfil = perfil.reindex(serv_oferta.index).fillna(1/12)
-        valores = perfil.astype(float) * total
-        # Ajuste de redondeo para que el total anual cierre exactamente.
-        valores = valores.round(0)
-        diff = round(total) - valores.sum()
-        if len(valores) and diff:
-            valores.iloc[-1] += diff
-        serv_final[s] = valores.astype(float)
-        for idx, share in perfil.items():
-            perfiles.append({'servicio': s, 'mes': idx, 'participacion_mensual_utilizada': float(share),
-                             'total_anual_objetivo': round(total, 0), 'afluencia_proyectada_mes': float(serv_final.loc[idx, s])})
-
-    uni_final = uni_oferta.copy().astype(float)
-    for s, unidades in UNIDADES_DE.items():
-        if s not in serv_final.columns:
-            continue
-        unidades = [u for u in unidades if u in uni_oferta.columns]
-        if not unidades:
-            continue
-        total_unidades = uni_oferta[unidades].sum(axis=1).replace(0, np.nan).astype(float)
-        ratio = (serv_final[s].astype(float) / total_unidades).replace([np.inf, -np.inf], np.nan).fillna(0.0)
-        for u in unidades:
-            uni_final[u] = uni_oferta[u].astype(float) * ratio
-
-    return uni_final.round(0).astype('Int64'), serv_final.round(0).astype('Int64'), pd.DataFrame(perfiles)
+    """Compatibilidad: ahora usa el motor mensual elástico, no distribución anual."""
+    uni, serv, detalle = proyectar_mensual_elastico(params, mdf, plan=plan,
+                                                    contingencia_extra=contingencia_extra,
+                                                    anio=anio,
+                                                    calibracion_productividad=calibracion_productividad,
+                                                    return_detalle=True)
+    perfiles = detalle.groupby(['servicio', 'periodo']).agg(
+        afluencia_proyectada_mes=('afl', 'sum'),
+        viajes_operados_plan=('viajes_operados_plan', 'sum'),
+        viajes_operados_base=('viajes_operados_base', 'sum'),
+        ratio_oferta_operada=('ratio_oferta_operada', 'mean'),
+        elasticidad=('elasticidad', 'mean')
+    ).reset_index().rename(columns={'periodo': 'mes'})
+    return uni, serv, perfiles
 
 
 def desagregar_tren_araucania_por_tramo(serie_total, plan_tramos=None, anio=2027):
-    """Distribuye la proyeccion agregada de Tren Araucania por tramo."""
+    """Distribuye la proyeccion agregada de Tren Araucania por tramo según oferta ponderada."""
     if plan_tramos is None:
         tr = oferta_tren_araucania_tramos_df(mensual=True)
     else:
@@ -638,9 +738,36 @@ def desagregar_tren_araucania_por_tramo(serie_total, plan_tramos=None, anio=2027
         out[c] = out[c] * total_series
     return out.round(0).astype('Int64')
 
-def viajes_anuales(params, plan=None, contingencia_extra=None, anio=2027, units=None):
+
+def viajes_anuales(params, plan=None, contingencia_extra=None, anio=2027, units=None,
+                   mdf=None, usar_motor_elastico=False):
     """Viajes operados anuales estimados, util para calcular pax/viaje proyectado."""
-    p = _aplicar_plan_y_contingencia(params, plan=plan, contingencia_extra=contingencia_extra, anio=anio)
+    p = _base_detalle(params, anio=anio, calibracion_productividad=True)
+    p = _aplicar_plan(p, plan=plan, contingencia_extra=contingencia_extra)
     if units is not None:
         p = p[p['unit'].isin(units)]
-    return float(p['viajes_operados_mes'].sum())
+    return float(p['viajes_operados_plan'].sum())
+
+
+def sensibilidad_oferta_mensual(params, mdf, servicio, unit, mes, dt, delta_servicios=1.0, anio=2027):
+    """Calcula efecto marginal de cambiar la oferta de un mes/tipo de día."""
+    base_plan = oferta_actual_df(mensual=True)
+    plan = base_plan.copy()
+    m = (plan['unit'] == unit) & (plan['mes'] == mes) & (plan['dt'] == dt)
+    if not m.any():
+        return pd.DataFrame()
+    uni0, serv0 = proyectar_mensual_elastico(params, mdf, plan=base_plan, anio=anio)
+    plan.loc[m, 'servicios_dia'] = plan.loc[m, 'servicios_dia'] + float(delta_servicios)
+    uni1, serv1 = proyectar_mensual_elastico(params, mdf, plan=plan, anio=anio)
+    periodo = f'{anio}-{mes:02d}'
+    return pd.DataFrame([{
+        'servicio': servicio,
+        'unit': unit,
+        'mes': mes,
+        'dt': dt,
+        'delta_servicios_dia': delta_servicios,
+        'afluencia_base_mes': int(serv0.loc[periodo, servicio]),
+        'afluencia_con_cambio_mes': int(serv1.loc[periodo, servicio]),
+        'impacto_mes': int(serv1.loc[periodo, servicio] - serv0.loc[periodo, servicio]),
+        'impacto_anual': int(serv1[servicio].sum() - serv0[servicio].sum()),
+    }])
