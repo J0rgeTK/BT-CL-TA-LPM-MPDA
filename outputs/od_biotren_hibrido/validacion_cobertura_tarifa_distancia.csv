@@ -1,0 +1,2 @@
+tipo_pasajero,origen,destino,viajes_2027,tarifa_2026,distancia_km,observacion
+Todos,-,-,0,,,No se detectaron pares OD proyectados con tarifa o distancia faltante/no positiva.
