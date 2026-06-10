@@ -139,6 +139,22 @@ def num(x) -> float:
         return 0.0
 
 
+def writable_array(obj, dtype=float) -> np.ndarray:
+    """Devuelve una copia NumPy contigua y escribible.
+
+    Streamlit y algunos backends de Pandas/Arrow pueden entregar vistas de
+    arreglos no escribibles cuando se usan caches. El módulo OD modifica
+    matrices intermedias, por ejemplo para amortiguar la diagonal antes del
+    balance IPF; por ello se fuerza una copia editable en todos los puntos
+    críticos.
+    """
+    arr = np.array(obj, dtype=dtype, copy=True)
+    arr = np.ascontiguousarray(arr)
+    if not arr.flags.writeable:
+        arr = arr.copy()
+    return arr
+
+
 def sheet_month(name: str) -> Tuple[int, int] | None:
     kk = key(name)
     if any(bad in kk for bad in ["resumen", "hoja", "supuesto", "jun 2 0"]):
@@ -352,7 +368,7 @@ def generalized_cost(fare: pd.DataFrame, dist: pd.DataFrame, alpha: float = ALPH
     Fn = F / f_mean if f_mean and not np.isnan(f_mean) else F
     Dn = D / d_mean if d_mean and not np.isnan(d_mean) else D
     C = alpha * Fn + beta * Dn
-    arr = C.to_numpy(dtype=float)
+    arr = writable_array(C.to_numpy(dtype=float, copy=True))
     positive = arr[np.isfinite(arr) & (arr > 0)]
     minpos = float(np.nanmin(positive)) if positive.size else 1.0
     C = C.replace(0, minpos * 0.10).fillna(minpos)
@@ -360,7 +376,7 @@ def generalized_cost(fare: pd.DataFrame, dist: pd.DataFrame, alpha: float = ALPH
 
 
 def impedance(C: pd.DataFrame, lam: float = LAMBDA, kind: str = FUNCION_IMPEDANCIA) -> pd.DataFrame:
-    arr = np.maximum(C.to_numpy(dtype=float), 1e-9)
+    arr = np.maximum(writable_array(C.to_numpy(dtype=float, copy=True)), 1e-9)
     if kind == "potencial":
         out = arr ** (-lam)
     else:
@@ -371,9 +387,9 @@ def impedance(C: pd.DataFrame, lam: float = LAMBDA, kind: str = FUNCION_IMPEDANC
 def ipf(seed: pd.DataFrame | np.ndarray, row_totals, col_totals, max_iter: int = 500, tol: float = 1e-8):
     idx = seed.index if isinstance(seed, pd.DataFrame) else None
     cols = seed.columns if isinstance(seed, pd.DataFrame) else None
-    M = np.maximum(np.array(seed, dtype=float), 1e-12)
-    row = np.array(row_totals, dtype=float)
-    col = np.array(col_totals, dtype=float)
+    M = np.maximum(writable_array(seed), 1e-12)
+    row = writable_array(row_totals)
+    col = writable_array(col_totals)
     if row.sum() <= 0 or col.sum() <= 0:
         Z = np.zeros_like(M)
         return (pd.DataFrame(Z, index=idx, columns=cols) if idx is not None else Z), False, 0, np.nan
@@ -484,10 +500,10 @@ def gravity_share_for_month(tipo: str, mes: int, row_share: pd.Series, col_share
     seed = impedance(C)
     # La diagonal no se elimina porque existe en los datos; se reduce para evitar
     # que el bajo costo intrazonal concentre artificialmente el resultado.
-    arr = seed.to_numpy(dtype=float)
-    np.fill_diagonal(arr, np.diag(arr) * 0.05)
+    arr = writable_array(seed.to_numpy(dtype=float, copy=True))
+    np.fill_diagonal(arr, np.diag(arr).copy() * 0.05)
     seed = pd.DataFrame(arr, index=seed.index, columns=seed.columns)
-    G, conv, it, err = ipf(seed, row_share.to_numpy(), col_share.to_numpy())
+    G, conv, it, err = ipf(seed, row_share.to_numpy(dtype=float, copy=True), col_share.to_numpy(dtype=float, copy=True))
     total = float(G.to_numpy().sum())
     return G / total if total > 0 else G, conv, it, err
 
@@ -512,8 +528,8 @@ def distribuir_mes_tipo(total_mes: float, tipo: str, mes: int, mats: dict, fares
     G, conv_g, it_g, err_g = gravity_share_for_month(tipo, mes, row_share, col_share, costs)
     w_hist = PESO_HISTORICO[tipo]
     seed = w_hist * S + (1.0 - w_hist) * G
-    row_totals = total_tipo * row_share.to_numpy()
-    col_totals = total_tipo * col_share.to_numpy()
+    row_totals = total_tipo * row_share.to_numpy(dtype=float, copy=True)
+    col_totals = total_tipo * col_share.to_numpy(dtype=float, copy=True)
     T, conv, it, err = ipf(seed, row_totals, col_totals)
     tarifa = fares[tipo].loc[T.index, T.columns].astype(float)
     ingresos = T * tarifa
@@ -605,8 +621,8 @@ def matriz_desde_long(df: pd.DataFrame, periodo: str, tipo: str, valor: str, sta
 # ---------------------------------------------------------------------------
 
 def metrics(obs: pd.DataFrame, est: pd.DataFrame) -> dict:
-    o = obs.to_numpy(dtype=float).ravel()
-    e = est.to_numpy(dtype=float).ravel()
+    o = writable_array(obs.to_numpy(dtype=float, copy=True)).ravel()
+    e = writable_array(est.to_numpy(dtype=float, copy=True)).ravel()
     er = e - o
     ae = np.abs(er)
     ss = np.sum((o - o.mean()) ** 2)
@@ -647,7 +663,7 @@ def validar_hibrido_2026() -> pd.DataFrame:
             rows.append({"mes": mes, "tipo_pasajero": tipo, "modelo": "historico_proporcional", **metrics(obs, baseline)})
             G, _, _, _ = gravity_share_for_month(tipo, mes, row_share, col_share, costs)
             seed = PESO_HISTORICO[tipo] * S + PESO_GRAVITACIONAL[tipo] * G
-            est, _, _, _ = ipf(seed, total_obs * row_share.to_numpy(), total_obs * col_share.to_numpy())
+            est, _, _, _ = ipf(seed, total_obs * row_share.to_numpy(dtype=float, copy=True), total_obs * col_share.to_numpy(dtype=float, copy=True))
             rows.append({"mes": mes, "tipo_pasajero": tipo, "modelo": "hibrido_historico_gravitacional", **metrics(obs, est)})
     return pd.DataFrame(rows)
 

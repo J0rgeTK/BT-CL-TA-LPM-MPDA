@@ -87,7 +87,8 @@ def render_od_biotren(serv):
     try:
         serie = serv["BIOTREN"].astype(float).copy()
         resultado = calcular_od_biotren_cached(tuple(serie.index.tolist()), tuple(serie.values.tolist()))
-        station_order = resultado["station_order"]
+        # Se copian objetos recuperados desde cache para evitar vistas NumPy no escribibles en matrices OD.
+        station_order = list(resultado["station_order"])
     except Exception as e:
         st.warning(f"No fue posible calcular la distribución OD de Biotren: {e}")
         return
@@ -129,10 +130,10 @@ La tarifa utilizada corresponde a la matriz tarifaria Biotren 2026 por estación
     with csel2:
         tipo = st.selectbox("Tipo de pasajero", OD.TIPOS, key="od_biotren_tipo")
 
-    M = resultado["matrices_viajes"][(periodo, tipo)].reindex(index=station_order, columns=station_order)
-    R = resultado["matrices_ingresos"][(periodo, tipo)].reindex(index=station_order, columns=station_order)
-    viajes = float(M.to_numpy().sum())
-    ingresos = float(R.to_numpy().sum())
+    M = resultado["matrices_viajes"][(periodo, tipo)].reindex(index=station_order, columns=station_order).copy(deep=True)
+    R = resultado["matrices_ingresos"][(periodo, tipo)].reindex(index=station_order, columns=station_order).copy(deep=True)
+    viajes = float(M.to_numpy(dtype=float, copy=True).sum())
+    ingresos = float(R.to_numpy(dtype=float, copy=True).sum())
     tarifa_media = ingresos / viajes if viajes > 0 else 0.0
     total_mes = float(serie.loc[periodo])
 
@@ -144,12 +145,12 @@ La tarifa utilizada corresponde a la matriz tarifaria Biotren 2026 por estación
 
     t1, t2, t3, t4 = st.tabs(["Matriz OD viajes", "Matriz OD ingresos", "Resumen y validación", "Descargas"])
     with t1:
-        st.dataframe(M.round(0).astype(int), use_container_width=True, height=560)
+        st.dataframe(M.round(0).astype(int).copy(deep=True), use_container_width=True, height=560)
     with t2:
-        st.dataframe(R.round(0).astype(int), use_container_width=True, height=560)
+        st.dataframe(R.round(0).astype(int).copy(deep=True), use_container_width=True, height=560)
     with t3:
         st.markdown("**Resumen mensual por tipo de pasajero**")
-        st.dataframe(resultado["resumen"], use_container_width=True, height=260)
+        st.dataframe(resultado["resumen"].copy(deep=True), use_container_width=True, height=260)
         st.markdown("**Validación del enfoque híbrido contra marzo-mayo 2026**")
         try:
             st.dataframe(OD.validar_hibrido_2026(), use_container_width=True, height=260)
