@@ -1,0 +1,8 @@
+categoria,cambio
+Código,"Se incorporó validar_modelo.py con controles de compilación, ejecución mensual, sensibilidad, feriados, OD, ingresos y exportables."
+Código,Se reforzó la visualización OD para usar copias profundas y evitar vistas no editables provenientes de cache.
+App Streamlit,"Se reordenó la sección metodológica en bloques secuenciales: propósito, modelo temporal, calendario, parámetros, tratamiento por servicio, OD, validaciones y próximos pasos."
+App Streamlit,"Se simplificaron textos visibles, evitando referencias al proceso de construcción y reduciendo redundancias."
+Biotren OD,"La subsección OD muestra mes, tipo de pasajero, matriz de viajes, matriz de ingresos, resumen mensual, validación híbrida y cobertura tarifaria/distancia."
+Documentación,"README.md y metodologia_modelo.md fueron reemplazados por una explicación metodológica general, paso a paso y coherente con el funcionamiento real del modelo."
+Validación,Se corrigió la inconsistencia aritmética del total sistema documentado: la suma vigente de servicios es 14.903.113 pasajeros.

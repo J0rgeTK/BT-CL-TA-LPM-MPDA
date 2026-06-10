@@ -1,0 +1,6 @@
+bug_o_riesgo,estado,detalle
+Textos metodológicos con referencias al proceso de construcción o calibraciones particulares.,Corregido,Se reemplazaron por explicaciones generales y trazables.
+Total sistema documentado no coincidía con la suma de servicios.,Corregido,Se actualizó a 14.903.113 pasajeros.
+Subsección OD mostraba validación completa sin filtrar el mes seleccionado.,Corregido,Ahora el resumen mensual se filtra al periodo seleccionado y la validación queda como control metodológico.
+Riesgo de arreglos no editables al recuperar matrices desde cache.,Controlado,Se mantiene uso de copias profundas y se valida ejecución del módulo OD.
+Falta de validación técnica consolidada.,Corregido,Se agregó outputs/resumen_validacion_tecnica.csv generado por validar_modelo.py.
