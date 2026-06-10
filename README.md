@@ -198,3 +198,46 @@ Las justificaciones se respaldan además en `outputs/justificacion_metodologica_
 3. Paulley, N., Balcombe, R., Mackett, R., Titheridge, H., Preston, J., Wardman, M., Shires, J. & White, P. *The demand for public transport: The effects of fares, quality of service, income and car ownership*. Transport Policy, 13(4), 295-306, 2006. https://eprints.whiterose.ac.uk/id/eprint/2034/1/ITS23_The_demand_for_public_transport_UPLOADABLE.pdf
 4. Berrebi, S., Joshi, S. & Watkins, K. *On Ridership and Frequency*. Transportation Research Part A, 2021. https://doi.org/10.48550/arXiv.2002.02493
 5. Feriados de Chile. *Feriados de Chile — Año 2027*. Fuente basada en Biblioteca del Congreso Nacional. https://www.feriados.cl/2027.htm
+
+## Módulo OD gravitacional Biotren
+
+Se incorporó un módulo complementario para distribuir espacialmente la demanda mensual proyectada de Biotren entre pares origen-destino. El módulo no reemplaza el motor temporal de afluencia; utiliza la demanda mensual proyectada por el modelo principal y la asigna a una matriz OD mediante un modelo gravitacional doblemente restringido.
+
+La formulación utilizada es:
+
+`T_ij = A_i * O_i * B_j * D_j * f(C_ij)`
+
+con costo generalizado:
+
+`C_ij = alpha * Tarifa_normalizada_ij + beta * Distancia_normalizada_ij`
+
+Se comparan funciones de impedancia exponencial y potencial, con balance Furness/IPF. La calibración principal usa matrices OD históricas 2023-2025 y la validación se realiza con marzo, abril y mayo 2026. Las salidas se encuentran en `outputs/od_biotren/` y el Excel técnico principal es `modulo_gravitacional_od_biotren.xlsx`.
+
+El módulo debe interpretarse como una capa espacial condicionada por producciones, atracciones y costos generalizados. Variables como tiempos de viaje, frecuencia efectiva, atrasos, cancelaciones, confiabilidad o contingencias deben integrarse posteriormente desde el modelo temporal o desde reportes operacionales.
+
+## Actualización: distribución OD híbrida Biotren por tipo de pasajero
+
+Se incorpora un módulo complementario para distribuir la proyección mensual de Biotren por pares origen-destino y por tipo de pasajero. El módulo no reemplaza el modelo mensual de afluencia; toma la demanda mensual proyectada y la distribuye espacialmente.
+
+El enfoque implementado es híbrido: la matriz histórica OD mensual por tipo de pasajero es la base principal y el modelo gravitacional con tarifa/distancia opera como corrección parcial de sensibilidad espacial. El balance final se realiza con IPF/Furness.
+
+Tipos considerados:
+
+- Normal: `T. Monedero`.
+- Estudiante: `T. Estudiante`.
+- Adulto Mayor: `T. Tercera Edad`.
+
+Salidas principales:
+
+- `outputs/od_biotren_hibrido/od_2027_viajes_por_tipo_long.csv`
+- `outputs/od_biotren_hibrido/od_2027_ingresos_por_tipo_long.csv`
+- `outputs/od_biotren_hibrido/resumen_mensual_tipo_pasajero_ingresos.csv`
+- `outputs/od_biotren_hibrido/od_biotren_2027_hibrido_por_tipo.xlsx`
+- `outputs/od_biotren_hibrido/validacion_od_hibrida_tipo_pasajero.csv`
+- `outputs/od_biotren_hibrido/orden_estaciones_original.csv`
+
+La app Streamlit incorpora una subsección dentro de Biotren para seleccionar mes y tipo de pasajero, visualizar la matriz OD de viajes y la matriz OD de ingresos proyectados. Las matrices conservan el orden original de estaciones de los archivos OD entregados.
+
+
+Nota de cobertura tarifaria: si una estación está presente en las matrices OD originales pero no posee tarifa positiva en la matriz tarifaria 2026 por estación, el programa mantiene la estación en la salida para preservar el orden original, pero no asigna demanda ni ingresos a esos pares hasta completar la tarifa correspondiente.
+

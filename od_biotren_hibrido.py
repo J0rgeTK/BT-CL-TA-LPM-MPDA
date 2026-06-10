@@ -1,0 +1,738 @@
+"""
+od_biotren_hibrido.py
+
+Módulo de distribución espacial OD para Biotren integrado al modelo mensual de afluencia.
+
+Enfoque implementado:
+- El modelo mensual de afluencia estima la demanda total de Biotren.
+- Este módulo divide esa demanda mensual por tipo de pasajero: Normal, Estudiante y Adulto Mayor.
+- Luego distribuye cada segmento en pares Origen-Destino usando una matriz histórica OD mensual por tipo.
+- El modelo gravitacional no reemplaza la matriz histórica: se usa como corrección parcial y capa de sensibilidad espacial.
+- El balance final se realiza con IPF/Furness para conservar producciones y atracciones históricas escaladas.
+- Las matrices exportadas preservan el orden original de estaciones del archivo OD principal.
+"""
+from __future__ import annotations
+
+from functools import lru_cache
+from pathlib import Path
+import math
+import re
+import unicodedata
+from typing import Dict, Iterable, Tuple
+
+import numpy as np
+import pandas as pd
+
+BASE_DIR = Path(__file__).resolve().parent
+DATA = BASE_DIR / "data"
+OUT = BASE_DIR / "outputs"
+OD_INPUT = DATA / "od_biotren" / "input"
+OD_OUT = OUT / "od_biotren_hibrido"
+OD_OUT.mkdir(parents=True, exist_ok=True)
+
+OD_MAIN = OD_INPUT / "0. Matrices Biotren may_2026.xlsx"
+OD_MAR = OD_INPUT / "0. Matrices Biotren mar_2026.xlsx"
+OD_ABR = OD_INPUT / "0. Matrices Biotren abr_2026.xlsx"
+DIST_FILE = OD_INPUT / "Libro1.xlsx"
+FARE_FILE = OD_INPUT / "Consolidado Tarifas EFE Sur 2026.xlsx"
+
+TIPOS_BLOQUES = {
+    "Normal": "T. Monedero",
+    "Estudiante": "T. Estudiante",
+    "Adulto Mayor": "T. Tercera Edad",
+}
+BLOQUE_TOTAL = "Total Mes Tarjetas"
+TIPOS = list(TIPOS_BLOQUES.keys())
+
+# Resultado de la calibración gravitacional previa. Se mantiene como parámetro de
+# sensibilidad, no como distribuidor final puro.
+ALPHA_TARIFA = 0.75
+BETA_DISTANCIA = 0.25
+LAMBDA = 0.05
+FUNCION_IMPEDANCIA = "exponencial"
+PESO_HISTORICO = {"Normal": 0.80, "Estudiante": 0.85, "Adulto Mayor": 0.85}
+PESO_GRAVITACIONAL = {k: 1.0 - v for k, v in PESO_HISTORICO.items()}
+
+MONTHS = {
+    "ene": 1, "enero": 1, "feb": 2, "febrero": 2, "mar": 3, "marzo": 3,
+    "abr": 4, "abril": 4, "may": 5, "mayo": 5, "jun": 6, "junio": 6,
+    "jul": 7, "julio": 7, "ago": 8, "agos": 8, "agosto": 8,
+    "sep": 9, "sept": 9, "septiembre": 9, "oct": 10, "octubre": 10,
+    "nov": 11, "noviembre": 11, "dic": 12, "diciembre": 12,
+}
+
+
+# ---------------------------------------------------------------------------
+# Normalización y homologación
+# ---------------------------------------------------------------------------
+
+def strip_accents(s) -> str:
+    s = "" if s is None else str(s).strip()
+    return "".join(ch for ch in unicodedata.normalize("NFKD", s) if not unicodedata.combining(ch))
+
+
+def key(s) -> str:
+    s = strip_accents(s).lower()
+    s = re.sub(r"[^a-z0-9]+", " ", s)
+    return re.sub(r"\s+", " ", s).strip()
+
+
+MAP_ESTACIONES = {
+    "hualqui": "Hualqui",
+    "la leonera": "La Leonera",
+    "leonera": "La Leonera",
+    "valle del sol": "La Leonera",
+    "manquimavida": "Manquimávida",
+    "pedro medina": "Pedro Medina",
+    "chiguayante": "Chiguayante",
+    "concepcion": "Concepción",
+    "mall": "Concepción Centro",
+    "concepcion centro": "Concepción Centro",
+    "lorenzo arenas": "Lorenzo Arenas",
+    "utfsm": "UTFSM",
+    "los condores": "Los Cóndores",
+    "higueras": "Higueras",
+    "arenal": "El Arenal",
+    "el arenal": "El Arenal",
+    "mercado": "Mercado",
+    "mercado de thno": "Mercado",
+    "juan pablo ii": "Juan Pablo II",
+    "diagonal biobio": "Diagonal Biobío",
+    "diagonal bio bio": "Diagonal Biobío",
+    "alborada": "Alborada",
+    "costa mar": "Costa Mar",
+    "el parque": "El Parque",
+    "megacentro": "El Parque",
+    "lomas coloradas": "Lomas Coloradas",
+    "raul silva h": "C. Raúl Silva H.",
+    "c raul silva h": "C. Raúl Silva H.",
+    "hito galvarino": "Hito Galvarino",
+    "los canelos": "Los Canelos",
+    "huinca": "Huinca",
+    "cristo redentor": "Cristo Redentor",
+    "laguna quinenco": "Laguna Quiñenco",
+    "lag quinenco": "Laguna Quiñenco",
+    "lag quiñenco": "Laguna Quiñenco",
+    "lag qui nenco": "Laguna Quiñenco",
+    "intermodal coronel": "Intermodal Coronel",
+    "coronel": "Intermodal Coronel",
+    "pasajero lota": "Pasajero Lota",
+    "lota": "Pasajero Lota",
+    "total": "Total",
+    "estaciones": "Estaciones",
+}
+
+
+def canon(s) -> str:
+    kk = key(s)
+    return MAP_ESTACIONES.get(kk, str(s).strip() if s is not None and not pd.isna(s) else "")
+
+
+def num(x) -> float:
+    if pd.isna(x) or x == "":
+        return 0.0
+    if isinstance(x, (int, float, np.number)):
+        return float(x)
+    try:
+        return float(str(x).replace(".", "").replace(",", "."))
+    except Exception:
+        return 0.0
+
+
+def sheet_month(name: str) -> Tuple[int, int] | None:
+    kk = key(name)
+    if any(bad in kk for bad in ["resumen", "hoja", "supuesto", "jun 2 0"]):
+        return None
+    y = re.search(r"(20\d{2})", kk)
+    if not y:
+        return None
+    for tok, m in MONTHS.items():
+        if re.search(rf"\b{tok}\b", kk):
+            return int(y.group(1)), m
+    return None
+
+
+# ---------------------------------------------------------------------------
+# Lectura de matrices OD observadas preservando orden original
+# ---------------------------------------------------------------------------
+
+def _find_block_position(values: np.ndarray, block: str) -> tuple[int, int] | None:
+    target = key(block)
+    for r in range(values.shape[0]):
+        for c in range(min(values.shape[1], 80)):
+            if pd.notna(values[r, c]) and target in key(values[r, c]):
+                return r, c
+    return None
+
+
+def extract_od_block(df: pd.DataFrame, block: str, station_order: list[str] | None = None) -> pd.DataFrame | None:
+    vals = df.values
+    pos = _find_block_position(vals, block)
+    if not pos:
+        return None
+    header_row = station_col = None
+    for rr in range(pos[0] + 1, min(pos[0] + 8, vals.shape[0])):
+        for cc in range(vals.shape[1]):
+            if pd.notna(vals[rr, cc]) and key(vals[rr, cc]) == "estaciones":
+                header_row = rr
+                station_col = cc
+                break
+        if header_row is not None:
+            break
+    if header_row is None:
+        return None
+
+    dest, cols = [], []
+    for c in range(station_col + 1, vals.shape[1]):
+        if pd.isna(vals[header_row, c]):
+            break
+        cv = canon(vals[header_row, c])
+        if cv == "Total":
+            break
+        dest.append(cv)
+        cols.append(c)
+
+    rows, data = [], []
+    for r in range(header_row + 1, vals.shape[0]):
+        if pd.isna(vals[r, station_col]):
+            continue
+        ro = canon(vals[r, station_col])
+        if ro == "Total":
+            break
+        if ro in ["Estaciones", ""]:
+            continue
+        rows.append(ro)
+        data.append([num(vals[r, c]) for c in cols])
+
+    if not rows or not dest:
+        return None
+
+    M = pd.DataFrame(data, index=rows, columns=dest)
+    # Se preserva el primer orden observado. Si existen duplicados luego de
+    # homologar nombres, se consolidan sin reordenar alfabéticamente.
+    M = M.groupby(level=0, sort=False).sum()
+    M = M.T.groupby(level=0, sort=False).sum().T
+
+    if station_order is None:
+        order = []
+        for x in list(rows) + list(dest):
+            if x not in order and x not in ["Total", "Estaciones", ""]:
+                order.append(x)
+    else:
+        order = list(station_order)
+
+    M = M.reindex(index=order, columns=order, fill_value=0.0).astype(float)
+    return M
+
+
+def extract_original_station_order(path: Path = OD_MAIN, sheet_name: str = "Mayo 2026") -> list[str]:
+    df = pd.read_excel(path, sheet_name=sheet_name, header=None, engine="openpyxl")
+    M = extract_od_block(df, BLOQUE_TOTAL, station_order=None)
+    if M is None:
+        raise ValueError("No fue posible extraer el orden original de estaciones desde el bloque Total Mes Tarjetas.")
+    return list(M.index)
+
+
+def load_od_matrices(path: Path = OD_MAIN, blocks: Iterable[str] | None = None, station_order: list[str] | None = None):
+    if blocks is None:
+        blocks = list(TIPOS_BLOQUES.values()) + [BLOQUE_TOTAL]
+    if station_order is None:
+        station_order = extract_original_station_order(path)
+    xls = pd.ExcelFile(path)
+    mats: dict[tuple[int, int, str], pd.DataFrame] = {}
+    records = []
+    for sheet in xls.sheet_names:
+        sm = sheet_month(sheet)
+        if not sm:
+            continue
+        df = pd.read_excel(path, sheet_name=sheet, header=None, engine="openpyxl")
+        for block in blocks:
+            M = extract_od_block(df, block, station_order=station_order)
+            if M is None:
+                continue
+            mats[(sm[0], sm[1], block)] = M
+            records.append({
+                "archivo": path.name,
+                "hoja": sheet,
+                "anio": sm[0],
+                "mes": sm[1],
+                "bloque": block,
+                "n_estaciones": len(station_order),
+                "total_viajes": float(M.to_numpy().sum()),
+            })
+    return mats, pd.DataFrame(records), station_order
+
+
+# ---------------------------------------------------------------------------
+# Tarifas, distancias y costo generalizado
+# ---------------------------------------------------------------------------
+
+def _read_matrix_at(df: pd.DataFrame, title: str | None = None, sheet_kind: str = "fare", station_order: list[str] | None = None) -> pd.DataFrame:
+    vals = df.values
+    title_row = None
+    if title:
+        t = key(title)
+        for r in range(vals.shape[0]):
+            for c in range(vals.shape[1]):
+                if pd.notna(vals[r, c]) and t in key(vals[r, c]):
+                    title_row = r
+                    break
+            if title_row is not None:
+                break
+        if title_row is None:
+            raise ValueError(f"No se encontró el bloque '{title}'.")
+        search_start = title_row + 1
+    else:
+        search_start = 0
+
+    header_row = station_col = None
+    for r in range(search_start, vals.shape[0]):
+        for c in range(vals.shape[1]):
+            if pd.notna(vals[r, c]) and key(vals[r, c]) == "estaciones":
+                header_row = r
+                station_col = c
+                break
+        if header_row is not None:
+            break
+    if header_row is None:
+        raise ValueError("No se encontró fila de encabezados 'Estaciones'.")
+
+    heads, cols = [], []
+    for c in range(station_col + 1, vals.shape[1]):
+        if pd.isna(vals[header_row, c]):
+            break
+        cv = canon(vals[header_row, c])
+        if cv == "Total":
+            break
+        heads.append(cv)
+        cols.append(c)
+
+    idx, rows = [], []
+    for r in range(header_row + 1, vals.shape[0]):
+        if pd.isna(vals[r, station_col]):
+            continue
+        cv = canon(vals[r, station_col])
+        if cv == "Total":
+            break
+        if cv in ["Estaciones", ""]:
+            continue
+        idx.append(cv)
+        rows.append([num(vals[r, c]) for c in cols])
+        if len(idx) >= len(heads):
+            break
+    M = pd.DataFrame(rows, index=idx, columns=heads)
+    M = M.groupby(level=0, sort=False).mean()
+    M = M.T.groupby(level=0, sort=False).mean().T
+    if station_order is not None:
+        M = M.reindex(index=station_order, columns=station_order, fill_value=0.0)
+    return M.astype(float)
+
+
+def load_tariff_matrices(station_order: list[str]) -> dict[str, pd.DataFrame]:
+    df = pd.read_excel(FARE_FILE, sheet_name="BT-26 por Estación", header=None, engine="openpyxl")
+    matrices = {
+        "Normal": _read_matrix_at(df, "Matriz Tarifaria Adulto", station_order=station_order),
+        "Estudiante": _read_matrix_at(df, "Matriz Tarifaria Estudiante", station_order=station_order),
+        "Adulto Mayor": _read_matrix_at(df, "Matriz Tarifaria Tercera Edad", station_order=station_order),
+    }
+    return matrices
+
+
+def load_distance_matrix(station_order: list[str]) -> pd.DataFrame:
+    df = pd.read_excel(DIST_FILE, sheet_name="PAX KM BT", header=None, engine="openpyxl")
+    M = _read_matrix_at(df, None, station_order=station_order)
+    return M.astype(float)
+
+
+def generalized_cost(fare: pd.DataFrame, dist: pd.DataFrame, alpha: float = ALPHA_TARIFA, beta: float = BETA_DISTANCIA) -> pd.DataFrame:
+    F = fare.astype(float).copy()
+    D = dist.astype(float).copy()
+    f_mean = F.replace(0, np.nan).stack().mean()
+    d_mean = D.replace(0, np.nan).stack().mean()
+    Fn = F / f_mean if f_mean and not np.isnan(f_mean) else F
+    Dn = D / d_mean if d_mean and not np.isnan(d_mean) else D
+    C = alpha * Fn + beta * Dn
+    arr = C.to_numpy(dtype=float)
+    positive = arr[np.isfinite(arr) & (arr > 0)]
+    minpos = float(np.nanmin(positive)) if positive.size else 1.0
+    C = C.replace(0, minpos * 0.10).fillna(minpos)
+    return C
+
+
+def impedance(C: pd.DataFrame, lam: float = LAMBDA, kind: str = FUNCION_IMPEDANCIA) -> pd.DataFrame:
+    arr = np.maximum(C.to_numpy(dtype=float), 1e-9)
+    if kind == "potencial":
+        out = arr ** (-lam)
+    else:
+        out = np.exp(-lam * arr)
+    return pd.DataFrame(out, index=C.index, columns=C.columns)
+
+
+def ipf(seed: pd.DataFrame | np.ndarray, row_totals, col_totals, max_iter: int = 500, tol: float = 1e-8):
+    idx = seed.index if isinstance(seed, pd.DataFrame) else None
+    cols = seed.columns if isinstance(seed, pd.DataFrame) else None
+    M = np.maximum(np.array(seed, dtype=float), 1e-12)
+    row = np.array(row_totals, dtype=float)
+    col = np.array(col_totals, dtype=float)
+    if row.sum() <= 0 or col.sum() <= 0:
+        Z = np.zeros_like(M)
+        return (pd.DataFrame(Z, index=idx, columns=cols) if idx is not None else Z), False, 0, np.nan
+    col = col * (row.sum() / max(col.sum(), 1e-12))
+    for it in range(max_iter):
+        rs = M.sum(axis=1)
+        row_factor = np.divide(row, rs, out=np.zeros_like(row, dtype=float), where=rs > 0)
+        M = (M.T * row_factor).T
+        cs = M.sum(axis=0)
+        col_factor = np.divide(col, cs, out=np.zeros_like(col, dtype=float), where=cs > 0)
+        M = M * col_factor
+        if it % 5 == 0:
+            err = max(
+                np.max(np.abs(M.sum(axis=1) - row) / (row + 1e-9)),
+                np.max(np.abs(M.sum(axis=0) - col) / (col + 1e-9)),
+            )
+            if err < tol:
+                break
+    err = max(
+        np.max(np.abs(M.sum(axis=1) - row) / (row + 1e-9)),
+        np.max(np.abs(M.sum(axis=0) - col) / (col + 1e-9)),
+    )
+    return (pd.DataFrame(M, index=idx, columns=cols) if idx is not None else M), bool(err < tol), it + 1, float(err)
+
+
+# ---------------------------------------------------------------------------
+# Factores históricos por tipo y distribución OD proyectada
+# ---------------------------------------------------------------------------
+
+def year_weights_for_month(available_years: Iterable[int]) -> dict[int, float]:
+    available = set(int(y) for y in available_years)
+    if 2026 in available:
+        raw = {2026: 0.50, 2025: 0.30, 2024: 0.15, 2023: 0.05}
+    else:
+        raw = {2025: 0.50, 2024: 0.35, 2023: 0.15}
+    w = {y: v for y, v in raw.items() if y in available}
+    s = sum(w.values())
+    if s <= 0:
+        return {}
+    return {y: v / s for y, v in w.items()}
+
+
+@lru_cache(maxsize=1)
+def cargar_insumos_od():
+    mats, validation, station_order = load_od_matrices(OD_MAIN)
+    fares = load_tariff_matrices(station_order)
+    dist = load_distance_matrix(station_order)
+    costs = {tipo: generalized_cost(fares[tipo], dist) for tipo in TIPOS}
+    return mats, validation, station_order, fares, dist, costs
+
+
+def weighted_matrix_for_month(mats: dict, tipo: str, mes: int, years_allowed: Iterable[int] | None = None):
+    block = TIPOS_BLOQUES[tipo]
+    keys = [k for k in mats if k[1] == int(mes) and k[2] == block]
+    if years_allowed is not None:
+        allowed = set(int(y) for y in years_allowed)
+        keys = [k for k in keys if k[0] in allowed]
+    years = sorted({k[0] for k in keys})
+    weights = year_weights_for_month(years)
+    if not weights:
+        raise ValueError(f"No hay matrices disponibles para {tipo}, mes {mes}.")
+    result = None
+    detalle = []
+    for y, w in weights.items():
+        key_ = (y, int(mes), block)
+        if key_ not in mats:
+            continue
+        M = mats[key_].astype(float)
+        result = M * w if result is None else result + M * w
+        detalle.append({"tipo_pasajero": tipo, "mes": int(mes), "anio_base": int(y), "peso": float(w), "total_base": float(M.to_numpy().sum())})
+    return result, pd.DataFrame(detalle)
+
+
+def monthly_type_shares(mats: dict) -> pd.DataFrame:
+    rows = []
+    for mes in range(1, 13):
+        totals = {}
+        detalles = []
+        for tipo in TIPOS:
+            M, det = weighted_matrix_for_month(mats, tipo, mes)
+            totals[tipo] = float(M.to_numpy().sum())
+            detalles.append(det)
+        grand = sum(totals.values())
+        for tipo, total in totals.items():
+            rows.append({
+                "mes": mes,
+                "tipo_pasajero": tipo,
+                "participacion": total / grand if grand > 0 else 0.0,
+                "total_historico_ponderado": total,
+            })
+    return pd.DataFrame(rows)
+
+
+def historical_od_share(mats: dict, tipo: str, mes: int):
+    M, det = weighted_matrix_for_month(mats, tipo, mes)
+    total = float(M.to_numpy().sum())
+    if total <= 0:
+        S = M.copy() * 0.0
+    else:
+        S = M / total
+    row_share = S.sum(axis=1)
+    col_share = S.sum(axis=0)
+    return S, row_share, col_share, det
+
+
+def gravity_share_for_month(tipo: str, mes: int, row_share: pd.Series, col_share: pd.Series, costs: dict[str, pd.DataFrame]):
+    C = costs[tipo].loc[row_share.index, row_share.index]
+    seed = impedance(C)
+    # La diagonal no se elimina porque existe en los datos; se reduce para evitar
+    # que el bajo costo intrazonal concentre artificialmente el resultado.
+    arr = seed.to_numpy(dtype=float)
+    np.fill_diagonal(arr, np.diag(arr) * 0.05)
+    seed = pd.DataFrame(arr, index=seed.index, columns=seed.columns)
+    G, conv, it, err = ipf(seed, row_share.to_numpy(), col_share.to_numpy())
+    total = float(G.to_numpy().sum())
+    return G / total if total > 0 else G, conv, it, err
+
+
+def distribuir_mes_tipo(total_mes: float, tipo: str, mes: int, mats: dict, fares: dict, costs: dict):
+    shares = monthly_type_shares(mats)
+    part = float(shares[(shares.mes == int(mes)) & (shares.tipo_pasajero == tipo)]["participacion"].iloc[0])
+    total_tipo = float(total_mes) * part
+    S, row_share, col_share, det_hist = historical_od_share(mats, tipo, mes)
+    # Si una estación no posee cobertura tarifaria positiva en la matriz 2026 del
+    # tipo de pasajero, se conserva en el orden de salida, pero no se le asigna
+    # demanda proyectada ni ingresos. Esto evita estimar ingresos con tarifas
+    # inexistentes y deja trazable la necesidad de completar la matriz tarifaria.
+    tarifa_tipo = fares[tipo].loc[S.index, S.columns].astype(float)
+    cobertura_estacion = ((tarifa_tipo.sum(axis=1) + tarifa_tipo.sum(axis=0)) > 0).astype(float)
+    S = S.mul(cobertura_estacion, axis=0).mul(cobertura_estacion, axis=1)
+    s_total = float(S.to_numpy().sum())
+    if s_total > 0:
+        S = S / s_total
+    row_share = S.sum(axis=1)
+    col_share = S.sum(axis=0)
+    G, conv_g, it_g, err_g = gravity_share_for_month(tipo, mes, row_share, col_share, costs)
+    w_hist = PESO_HISTORICO[tipo]
+    seed = w_hist * S + (1.0 - w_hist) * G
+    row_totals = total_tipo * row_share.to_numpy()
+    col_totals = total_tipo * col_share.to_numpy()
+    T, conv, it, err = ipf(seed, row_totals, col_totals)
+    tarifa = fares[tipo].loc[T.index, T.columns].astype(float)
+    ingresos = T * tarifa
+    resumen = {
+        "mes": int(mes),
+        "tipo_pasajero": tipo,
+        "demanda_total_biotren_mes": float(total_mes),
+        "participacion_tipo": part,
+        "viajes_tipo_proyectados": float(T.to_numpy().sum()),
+        "ingresos_tipo_proyectados": float(ingresos.to_numpy().sum()),
+        "tarifa_media_tipo": float(ingresos.to_numpy().sum() / T.to_numpy().sum()) if T.to_numpy().sum() > 0 else 0.0,
+        "peso_historico": float(w_hist),
+        "peso_gravitacional": float(1.0 - w_hist),
+        "ipf_converge": bool(conv),
+        "ipf_iteraciones": int(it),
+        "ipf_error_balance": float(err),
+        "gravity_converge": bool(conv_g),
+        "gravity_iteraciones": int(it_g),
+        "gravity_error_balance": float(err_g),
+    }
+    return T, ingresos, resumen, det_hist
+
+
+def distribuir_proyeccion_biotren(serie_biotren: pd.Series | dict) -> dict:
+    mats, validation, station_order, fares, dist, costs = cargar_insumos_od()
+    if isinstance(serie_biotren, dict):
+        serie = pd.Series(serie_biotren)
+    else:
+        serie = serie_biotren.copy()
+    # índice esperado: 2027-01, 2027-02, ...
+    viajes_long, ingresos_long, resumen, det_pesos, factores = [], [], [], [], []
+    matrices_viajes, matrices_ingresos = {}, {}
+    type_shares = monthly_type_shares(mats)
+    for periodo, total_mes in serie.items():
+        mes = int(str(periodo)[-2:])
+        for tipo in TIPOS:
+            T, R, res, det_hist = distribuir_mes_tipo(float(total_mes), tipo, mes, mats, fares, costs)
+            res["periodo"] = str(periodo)
+            resumen.append(res)
+            det_hist = det_hist.copy()
+            det_hist["periodo"] = str(periodo)
+            det_pesos.append(det_hist)
+            matrices_viajes[(str(periodo), tipo)] = T
+            matrices_ingresos[(str(periodo), tipo)] = R
+            l = T.stack().reset_index()
+            l.columns = ["origen", "destino", "viajes_proyectados"]
+            l.insert(0, "periodo", str(periodo))
+            l.insert(1, "mes", mes)
+            l.insert(2, "tipo_pasajero", tipo)
+            viajes_long.append(l)
+            rr = R.stack().reset_index()
+            rr.columns = ["origen", "destino", "ingresos_proyectados"]
+            rr.insert(0, "periodo", str(periodo))
+            rr.insert(1, "mes", mes)
+            rr.insert(2, "tipo_pasajero", tipo)
+            ingresos_long.append(rr)
+            F = (T / max(T.to_numpy().sum(), 1e-12)).stack().reset_index()
+            F.columns = ["origen", "destino", "factor_od"]
+            F.insert(0, "periodo", str(periodo))
+            F.insert(1, "mes", mes)
+            F.insert(2, "tipo_pasajero", tipo)
+            factores.append(F)
+    return {
+        "station_order": station_order,
+        "viajes_long": pd.concat(viajes_long, ignore_index=True),
+        "ingresos_long": pd.concat(ingresos_long, ignore_index=True),
+        "resumen": pd.DataFrame(resumen),
+        "pesos_historicos": pd.concat(det_pesos, ignore_index=True),
+        "factores_od": pd.concat(factores, ignore_index=True),
+        "type_shares": type_shares,
+        "matrices_viajes": matrices_viajes,
+        "matrices_ingresos": matrices_ingresos,
+        "tarifas": fares,
+        "distancias": dist,
+        "validacion_datos": validation,
+    }
+
+
+def matriz_desde_long(df: pd.DataFrame, periodo: str, tipo: str, valor: str, station_order: list[str]) -> pd.DataFrame:
+    tmp = df[(df["periodo"] == periodo) & (df["tipo_pasajero"] == tipo)].copy()
+    if tmp.empty:
+        return pd.DataFrame(0.0, index=station_order, columns=station_order)
+    M = tmp.pivot_table(index="origen", columns="destino", values=valor, aggfunc="sum", fill_value=0.0)
+    return M.reindex(index=station_order, columns=station_order, fill_value=0.0)
+
+
+# ---------------------------------------------------------------------------
+# Validación del enfoque híbrido por tipo de pasajero
+# ---------------------------------------------------------------------------
+
+def metrics(obs: pd.DataFrame, est: pd.DataFrame) -> dict:
+    o = obs.to_numpy(dtype=float).ravel()
+    e = est.to_numpy(dtype=float).ravel()
+    er = e - o
+    ae = np.abs(er)
+    ss = np.sum((o - o.mean()) ** 2)
+    return {
+        "MAE": float(ae.mean()),
+        "RMSE": float(np.sqrt(np.mean(er ** 2))),
+        "MAPE_pct": float(np.nanmean(np.divide(ae, o, out=np.full_like(ae, np.nan, dtype=float), where=o > 0)) * 100),
+        "Correlacion": float(np.corrcoef(o, e)[0, 1]) if np.std(o) > 0 and np.std(e) > 0 else np.nan,
+        "R2": float(1 - np.sum(er ** 2) / ss) if ss > 0 else np.nan,
+        "CPC": float(2 * np.minimum(o, e).sum() / (o.sum() + e.sum())) if o.sum() + e.sum() > 0 else np.nan,
+        "Desviacion_abs_total": float(abs(e.sum() - o.sum())),
+        "Desviacion_pct_total": float((e.sum() - o.sum()) / (o.sum() + 1e-9) * 100),
+    }
+
+
+def validar_hibrido_2026() -> pd.DataFrame:
+    mats, validation, station_order, fares, dist, costs = cargar_insumos_od()
+    rows = []
+    for mes in [3, 4, 5]:
+        for tipo in TIPOS:
+            block = TIPOS_BLOQUES[tipo]
+            obs_key = (2026, mes, block)
+            if obs_key not in mats:
+                continue
+            obs = mats[obs_key].astype(float)
+            total_obs = float(obs.to_numpy().sum())
+            # Línea base: sólo patrón histórico proporcional sin 2026.
+            S, row_share, col_share, _ = historical_od_share_excluding_year(mats, tipo, mes, exclude_year=2026)
+            tarifa_tipo = fares[tipo].loc[S.index, S.columns].astype(float)
+            cobertura_estacion = ((tarifa_tipo.sum(axis=1) + tarifa_tipo.sum(axis=0)) > 0).astype(float)
+            S = S.mul(cobertura_estacion, axis=0).mul(cobertura_estacion, axis=1)
+            s_total = float(S.to_numpy().sum())
+            if s_total > 0:
+                S = S / s_total
+            row_share = S.sum(axis=1)
+            col_share = S.sum(axis=0)
+            baseline = S * total_obs
+            rows.append({"mes": mes, "tipo_pasajero": tipo, "modelo": "historico_proporcional", **metrics(obs, baseline)})
+            G, _, _, _ = gravity_share_for_month(tipo, mes, row_share, col_share, costs)
+            seed = PESO_HISTORICO[tipo] * S + PESO_GRAVITACIONAL[tipo] * G
+            est, _, _, _ = ipf(seed, total_obs * row_share.to_numpy(), total_obs * col_share.to_numpy())
+            rows.append({"mes": mes, "tipo_pasajero": tipo, "modelo": "hibrido_historico_gravitacional", **metrics(obs, est)})
+    return pd.DataFrame(rows)
+
+
+def historical_od_share_excluding_year(mats: dict, tipo: str, mes: int, exclude_year: int):
+    block = TIPOS_BLOQUES[tipo]
+    years = sorted(k[0] for k in mats if k[1] == int(mes) and k[2] == block and k[0] != int(exclude_year))
+    weights = year_weights_for_month(years)
+    if not weights:
+        raise ValueError(f"No hay años disponibles para validar {tipo}, mes {mes} excluyendo {exclude_year}.")
+    M = None
+    for y, w in weights.items():
+        k_ = (y, int(mes), block)
+        if k_ in mats:
+            M = mats[k_].astype(float) * w if M is None else M + mats[k_].astype(float) * w
+    total = float(M.to_numpy().sum())
+    S = M / total if total > 0 else M * 0.0
+    return S, S.sum(axis=1), S.sum(axis=0), pd.DataFrame([{"anio_base": y, "peso": w} for y, w in weights.items()])
+
+
+# ---------------------------------------------------------------------------
+# Exportación
+# ---------------------------------------------------------------------------
+
+def exportar_excel_matrices(resultado: dict, path: Path):
+    station_order = resultado["station_order"]
+    with pd.ExcelWriter(path, engine="openpyxl") as writer:
+        resultado["resumen"].to_excel(writer, sheet_name="Resumen_Mensual_Tipo", index=False)
+        resultado["type_shares"].to_excel(writer, sheet_name="Factores_Tipo_Pasajero", index=False)
+        pd.DataFrame({"orden": range(1, len(station_order) + 1), "estacion": station_order}).to_excel(writer, sheet_name="Orden_Estaciones", index=False)
+        resultado["validacion_datos"].to_excel(writer, sheet_name="Validacion_Datos", index=False)
+        validar_hibrido_2026().to_excel(writer, sheet_name="Validacion_Hibrida", index=False)
+        pd.DataFrame([
+            {"tipo_pasajero": t, "peso_historico": PESO_HISTORICO[t], "peso_gravitacional": PESO_GRAVITACIONAL[t], "alpha_tarifa": ALPHA_TARIFA, "beta_distancia": BETA_DISTANCIA, "lambda": LAMBDA, "funcion": FUNCION_IMPEDANCIA}
+            for t in TIPOS
+        ]).to_excel(writer, sheet_name="Parametros_OD", index=False)
+        # Matrices de viajes e ingresos por mes/tipo. Nombres cortos por límite de Excel.
+        for periodo in [f"2027-{m:02d}" for m in range(1, 13)]:
+            for tipo in TIPOS:
+                suf = {"Normal": "Norm", "Estudiante": "Est", "Adulto Mayor": "AM"}[tipo]
+                V = resultado["matrices_viajes"][(periodo, tipo)].reindex(index=station_order, columns=station_order)
+                R = resultado["matrices_ingresos"][(periodo, tipo)].reindex(index=station_order, columns=station_order)
+                V.to_excel(writer, sheet_name=f"{periodo[-2:]}_{suf}_Viajes")
+                R.to_excel(writer, sheet_name=f"{periodo[-2:]}_{suf}_Ingresos")
+
+
+def generar_salidas_od_2027(serie_biotren: pd.Series | None = None):
+    if serie_biotren is None:
+        proy = pd.read_csv(OUT / "proyeccion_2027_resumen_mensual_elastico.csv", index_col=0)
+        serie_biotren = proy["BIOTREN"]
+    resultado = distribuir_proyeccion_biotren(serie_biotren)
+    OD_OUT.mkdir(parents=True, exist_ok=True)
+    resultado["viajes_long"].to_csv(OD_OUT / "od_2027_viajes_por_tipo_long.csv", index=False)
+    resultado["ingresos_long"].to_csv(OD_OUT / "od_2027_ingresos_por_tipo_long.csv", index=False)
+    resultado["resumen"].to_csv(OD_OUT / "resumen_mensual_tipo_pasajero_ingresos.csv", index=False)
+    resultado["type_shares"].to_csv(OD_OUT / "factores_tipo_pasajero_mensuales.csv", index=False)
+    resultado["factores_od"].to_csv(OD_OUT / "factores_od_hibridos_mensuales.csv", index=False)
+    resultado["pesos_historicos"].to_csv(OD_OUT / "pesos_historicos_utilizados.csv", index=False)
+    validar_hibrido_2026().to_csv(OD_OUT / "validacion_od_hibrida_tipo_pasajero.csv", index=False)
+    pd.DataFrame({"orden": range(1, len(resultado["station_order"]) + 1), "estacion": resultado["station_order"]}).to_csv(OD_OUT / "orden_estaciones_original.csv", index=False)
+    # Tarifas y distancias en formato largo para auditoría.
+    for tipo, M in resultado["tarifas"].items():
+        M.stack().reset_index(name="tarifa_2026").rename(columns={"level_0": "origen", "level_1": "destino"}).to_csv(OD_OUT / f"tarifa_2026_{tipo.replace(' ', '_').lower()}.csv", index=False)
+    resultado["distancias"].stack().reset_index(name="distancia_km").rename(columns={"level_0": "origen", "level_1": "destino"}).to_csv(OD_OUT / "distancia_biotren_km_long.csv", index=False)
+
+    # Validación de cobertura de tarifa y distancia sobre pares OD proyectados.
+    val_rows = []
+    viajes_total = resultado["viajes_long"].copy()
+    for tipo, tarifa in resultado["tarifas"].items():
+        vtipo = viajes_total[viajes_total["tipo_pasajero"] == tipo].groupby(["origen", "destino"], as_index=False)["viajes_proyectados"].sum()
+        for _, row in vtipo.iterrows():
+            o, d = row["origen"], row["destino"]
+            viajes = float(row["viajes_proyectados"])
+            fare_val = float(tarifa.loc[o, d]) if o in tarifa.index and d in tarifa.columns else 0.0
+            dist_val = float(resultado["distancias"].loc[o, d]) if o in resultado["distancias"].index and d in resultado["distancias"].columns else 0.0
+            if viajes > 0 and (fare_val <= 0 or dist_val < 0):
+                val_rows.append({"tipo_pasajero": tipo, "origen": o, "destino": d, "viajes_2027": viajes, "tarifa_2026": fare_val, "distancia_km": dist_val, "observacion": "Par OD con viajes proyectados y tarifa/distancia no positiva"})
+    if not val_rows:
+        val_rows.append({"tipo_pasajero": "Todos", "origen": "-", "destino": "-", "viajes_2027": 0, "tarifa_2026": None, "distancia_km": None, "observacion": "No se detectaron pares OD proyectados con tarifa o distancia faltante/no positiva."})
+    pd.DataFrame(val_rows).to_csv(OD_OUT / "validacion_cobertura_tarifa_distancia.csv", index=False)
+
+    exportar_excel_matrices(resultado, OD_OUT / "od_biotren_2027_hibrido_por_tipo.xlsx")
+    return resultado
+
+
+if __name__ == "__main__":
+    res = generar_salidas_od_2027()
+    print(res["resumen"].groupby("tipo_pasajero")[["viajes_tipo_proyectados", "ingresos_tipo_proyectados"]].sum().round(0).to_string())

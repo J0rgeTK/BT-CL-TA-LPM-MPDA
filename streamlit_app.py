@@ -15,6 +15,7 @@ import plotly.graph_objects as go
 
 import pipeline_afluencia as P
 import oferta as O
+import od_biotren_hibrido as OD
 
 st.set_page_config(page_title="Afluencia EFE/Fesur 2027", layout="wide", page_icon="🚆")
 
@@ -71,6 +72,97 @@ def fmt_pct(delta):
     if pd.isna(delta):
         return "s/i"
     return f"{delta:+.1f}%".replace(".", ",")
+
+
+@st.cache_data(show_spinner=False)
+def calcular_od_biotren_cached(periodos, valores):
+    serie = pd.Series([float(v) for v in valores], index=list(periodos))
+    return OD.distribuir_proyeccion_biotren(serie)
+
+
+def render_od_biotren(serv):
+    st.markdown("#### Distribución OD mensual de afluencia e ingresos")
+    st.caption("Módulo híbrido por tipo de pasajero: matriz histórica OD mensual como base, componente gravitacional como corrección parcial y balance IPF/Furness. La matriz conserva el orden original de estaciones de los archivos OD entregados.")
+
+    try:
+        serie = serv["BIOTREN"].astype(float).copy()
+        resultado = calcular_od_biotren_cached(tuple(serie.index.tolist()), tuple(serie.values.tolist()))
+        station_order = resultado["station_order"]
+    except Exception as e:
+        st.warning(f"No fue posible calcular la distribución OD de Biotren: {e}")
+        return
+
+    with st.expander("Metodología de distribución OD por tipo de pasajero", expanded=False):
+        st.markdown("""
+El modelo mensual de afluencia sigue siendo responsable de estimar la demanda total mensual de Biotren. La subsección OD toma ese total mensual y lo distribuye espacialmente entre pares origen-destino y por tipo de pasajero.
+
+**Segmentación por tipo de pasajero**
+
+`Demanda_{p,m} = Demanda_{Biotren,m} × Participación_{p,m}`
+
+Las participaciones mensuales se calculan desde los bloques observados de las matrices OD: `T. Monedero` para Normal, `T. Estudiante` para Estudiante y `T. Tercera Edad` para Adulto Mayor.
+
+**Distribución OD híbrida**
+
+`K_{ij,p,m} = w_p × S_{ij,p,m} + (1 - w_p) × G_{ij,p,m}`
+
+Donde `S` es la estructura histórica OD mensual por tipo de pasajero y `G` es la estructura gravitacional construida con tarifa y distancia. Debido a que la validación mostró alta estabilidad de la matriz OD histórica, el componente histórico domina el resultado: 80% para Normal y 85% para Estudiante y Adulto Mayor.
+
+**Balance final**
+
+`T_{ij,p,m} = IPF(K_{ij,p,m}, O_{i,p,m}, D_{j,p,m})`
+
+El balance IPF/Furness asegura que la matriz final respete producciones por origen, atracciones por destino y el total mensual proyectado por tipo.
+
+**Ingresos OD**
+
+`Ingreso_{ij,p,m} = T_{ij,p,m} × Tarifa_{ij,p,2026}`
+
+La tarifa utilizada corresponde a la matriz tarifaria Biotren 2026 por estación. En esta versión se calculan ingresos por Normal, Estudiante y Adulto Mayor. La futura separación por tipo de tarjeta permitirá refinar ingresos y preparar la posterior modelación de subsidio.
+""")
+
+    periodos = list(serie.index)
+    meses_nombre = {f"2027-{m:02d}": f"{m:02d} - 2027" for m in range(1, 13)}
+    csel1, csel2 = st.columns([1, 1])
+    with csel1:
+        periodo = st.selectbox("Mes proyectado", periodos, format_func=lambda x: meses_nombre.get(x, x), key="od_biotren_periodo")
+    with csel2:
+        tipo = st.selectbox("Tipo de pasajero", OD.TIPOS, key="od_biotren_tipo")
+
+    M = resultado["matrices_viajes"][(periodo, tipo)].reindex(index=station_order, columns=station_order)
+    R = resultado["matrices_ingresos"][(periodo, tipo)].reindex(index=station_order, columns=station_order)
+    viajes = float(M.to_numpy().sum())
+    ingresos = float(R.to_numpy().sum())
+    tarifa_media = ingresos / viajes if viajes > 0 else 0.0
+    total_mes = float(serie.loc[periodo])
+
+    km = st.columns(4)
+    km[0].metric("Afluencia Biotren mes", fmt(total_mes))
+    km[1].metric(f"Viajes {tipo}", fmt(viajes), f"{viajes / total_mes * 100:.1f}%".replace(".", ",") if total_mes else "s/i")
+    km[2].metric("Ingreso proyectado", f"$ {fmt(ingresos)}")
+    km[3].metric("Tarifa media", f"$ {fmt(tarifa_media)}")
+
+    t1, t2, t3, t4 = st.tabs(["Matriz OD viajes", "Matriz OD ingresos", "Resumen y validación", "Descargas"])
+    with t1:
+        st.dataframe(M.round(0).astype(int), use_container_width=True, height=560)
+    with t2:
+        st.dataframe(R.round(0).astype(int), use_container_width=True, height=560)
+    with t3:
+        st.markdown("**Resumen mensual por tipo de pasajero**")
+        st.dataframe(resultado["resumen"], use_container_width=True, height=260)
+        st.markdown("**Validación del enfoque híbrido contra marzo-mayo 2026**")
+        try:
+            st.dataframe(OD.validar_hibrido_2026(), use_container_width=True, height=260)
+        except Exception as e:
+            st.info(f"No fue posible cargar la validación OD: {e}")
+    with t4:
+        v_csv = M.to_csv().encode("utf-8-sig")
+        r_csv = R.to_csv().encode("utf-8-sig")
+        c1, c2, c3, c4 = st.columns(4)
+        c1.download_button("⬇ Matriz viajes seleccionada", v_csv, f"OD_viajes_{periodo}_{tipo}.csv", key=f"dl_od_v_{periodo}_{tipo}")
+        c2.download_button("⬇ Matriz ingresos seleccionada", r_csv, f"OD_ingresos_{periodo}_{tipo}.csv", key=f"dl_od_i_{periodo}_{tipo}")
+        c3.download_button("⬇ Viajes OD 2027 long", resultado["viajes_long"].to_csv(index=False).encode("utf-8-sig"), "od_2027_viajes_por_tipo_long.csv", key="dl_od_v_long")
+        c4.download_button("⬇ Ingresos OD 2027 long", resultado["ingresos_long"].to_csv(index=False).encode("utf-8-sig"), "od_2027_ingresos_por_tipo_long.csv", key="dl_od_i_long")
 
 
 def hist_valor(servicio, anio, meses=None):
@@ -414,6 +506,36 @@ Donde:
 - **Llanquihue-Puerto Montt:** enero y febrero conservan señal estival 2026; el resto del año se modera con el histórico disponible. Los feriados nacionales quedan sin operación.
 """)
 
+    st.markdown("#### Módulo OD híbrido para Biotren")
+    st.markdown("""
+El módulo OD complementa el modelo temporal y se aplica sólo después de obtener la demanda mensual proyectada de Biotren. La distribución espacial no reemplaza la proyección de afluencia total.
+
+La opción metodológica adoptada es un enfoque híbrido segmentado por tipo de pasajero, debido a que la validación mostró que la matriz OD histórica proporcional tiene mejor desempeño operativo que un modelo gravitacional puro. Por ello, el modelo usa la distribución histórica mensual por tipo como componente principal y utiliza el gravitacional como corrección parcial de sensibilidad espacial ante tarifa y distancia.
+
+Fórmulas aplicadas:
+
+`Demanda_{p,m} = Demanda_{Biotren,m} × Participación_{p,m}`
+
+`C_{ij,p} = α × Tarifa_normalizada_{ij,p} + β × Distancia_normalizada_{ij}`
+
+`G_{ij,p,m} = IPF(f(C_{ij,p}), O_{i,p,m}, D_{j,p,m})`
+
+`K_{ij,p,m} = w_p × S_{ij,p,m} + (1 - w_p) × G_{ij,p,m}`
+
+`T_{ij,p,m} = IPF(K_{ij,p,m}, O_{i,p,m}, D_{j,p,m})`
+
+`Ingreso_{ij,p,m} = T_{ij,p,m} × Tarifa_{ij,p,2026}`
+
+Tipos considerados en esta versión:
+- Normal: bloque `T. Monedero`.
+- Estudiante: bloque `T. Estudiante`.
+- Adulto Mayor: bloque `T. Tercera Edad`.
+
+Los pesos actuales son 80% histórico y 20% gravitacional para Normal; 85% histórico y 15% gravitacional para Estudiante y Adulto Mayor. Esta decisión conserva el patrón OD observado y evita que tarifa/distancia, por sí solas, generen redistribuciones espaciales no observadas.
+
+Las matrices se exportan manteniendo el orden original de estaciones del archivo `0. Matrices Biotren may_2026.xlsx`. Si una estación aparece en la matriz OD original pero no tiene tarifa positiva en la matriz tarifaria 2026, se conserva en la salida para no alterar la estructura original, pero no se le asignan ingresos ni demanda proyectada hasta completar la tarifa correspondiente. Como próximo paso, se recomienda preparar matrices mensuales-anuales por tipo de tarjeta para mejorar la estimación de ingresos y habilitar posteriormente la estimación de subsidio.
+""")
+
     st.markdown("#### Bibliografía")
     st.markdown("""
 - Transportation Research Board. *TCRP Report 95, Chapter 9: Transit Scheduling and Frequency*. Washington, D.C., 2004. https://trb.org/publications/tcrp/tcrp_rpt_95c9.pdf
@@ -536,6 +658,9 @@ def render_servicio(s):
         st.warning("Claret se considera servicio escolar: enero y febrero quedan sin oferta ni demanda proyectada para este tipo de servicio. Las modificaciones de oferta se evalúan por tramo con elasticidad diferenciada.")
     if s == "LLANQUIHUE_PM":
         st.warning("Enero y febrero mantienen una señal estival similar a 2026; no se consideran servicios planificados de fin de semana.")
+
+    if s == "BIOTREN":
+        render_od_biotren(serv)
 
     st.download_button(f"⬇ Descargar proyección {O.NOMBRE[s]} (CSV)", out.to_csv().encode(),
                        f"proyeccion_2027_{s}.csv", key=f"dl_{s}")

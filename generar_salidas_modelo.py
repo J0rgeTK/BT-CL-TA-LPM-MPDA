@@ -192,3 +192,10 @@ for servicio in O.SERVICIOS:
 pd.DataFrame(just_rows).to_csv(OUT / 'justificacion_metodologica_servicios.csv', index=False)
 
 print(serv.sum().to_string())
+
+# Salidas OD híbridas Biotren por tipo de pasajero e ingresos proyectados.
+try:
+    import od_biotren_hibrido as ODH
+    ODH.generar_salidas_od_2027(serv['BIOTREN'])
+except Exception as e:
+    print(f'No fue posible generar salidas OD híbridas de Biotren: {e}')

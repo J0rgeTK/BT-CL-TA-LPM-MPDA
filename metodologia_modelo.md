@@ -197,3 +197,117 @@ Las justificaciones se respaldan además en `outputs/justificacion_metodologica_
 3. Paulley, N., Balcombe, R., Mackett, R., Titheridge, H., Preston, J., Wardman, M., Shires, J. & White, P. *The demand for public transport: The effects of fares, quality of service, income and car ownership*. Transport Policy, 13(4), 295-306, 2006. https://eprints.whiterose.ac.uk/id/eprint/2034/1/ITS23_The_demand_for_public_transport_UPLOADABLE.pdf
 4. Berrebi, S., Joshi, S. & Watkins, K. *On Ridership and Frequency*. Transportation Research Part A, 2021. https://doi.org/10.48550/arXiv.2002.02493
 5. Feriados de Chile. *Feriados de Chile — Año 2027*. Fuente basada en Biblioteca del Congreso Nacional. https://www.feriados.cl/2027.htm
+
+# Complemento metodológico: distribución OD gravitacional Biotren
+
+El modelo mensual de afluencia mantiene la responsabilidad de proyectar el total mensual de pasajeros. El módulo gravitacional incorporado agrega una segunda etapa espacial, cuyo objetivo es distribuir el total mensual de Biotren entre pares origen-destino.
+
+La formulación doblemente restringida utilizada es:
+
+`T_ij = A_i × O_i × B_j × D_j × f(C_ij)`
+
+Donde `O_i` representa producciones por estación de origen, `D_j` atracciones por estación de destino, `C_ij` el costo generalizado y `A_i`, `B_j` factores de balance. El costo generalizado se construye con tarifa y distancia normalizadas:
+
+`C_ij = α × Tarifa_norm_ij + β × Distancia_norm_ij`
+
+Se evaluaron funciones exponencial y potencial de impedancia. El procedimiento Furness/IPF ajusta iterativamente la matriz estimada para respetar los márgenes de origen y destino. La calibración se basa en matrices OD observadas 2023-2025 y se valida con marzo, abril y mayo de 2026.
+
+El módulo no debe interpretarse como un modelo causal completo, porque las matrices de entrada no contienen tiempos de viaje, frecuencia efectiva por estación, capacidad, atrasos, cancelaciones ni contingencias. Estas variables deben incorporarse desde el modelo predictivo principal o desde bases operacionales complementarias.
+
+## Módulo OD híbrido Biotren por tipo de pasajero
+
+El módulo OD de Biotren se incorpora como una capa posterior a la proyección mensual de afluencia. El modelo temporal mantiene la responsabilidad de estimar la demanda total mensual del servicio, mientras que el módulo OD distribuye esa demanda entre pares origen-destino y por tipo de pasajero.
+
+### Criterio metodológico adoptado
+
+La validación preliminar mostró que la matriz OD histórica proporcional presenta un mejor desempeño práctico que un modelo gravitacional puro. En consecuencia, el módulo implementado utiliza un enfoque híbrido:
+
+- matriz histórica OD mensual por tipo de pasajero como estructura principal;
+- modelo gravitacional como corrección parcial y control de sensibilidad espacial;
+- balance IPF/Furness para conservar producciones y atracciones.
+
+Esta decisión evita que tarifa y distancia, por sí solas, generen redistribuciones espaciales no observadas en Biotren. El modelo gravitacional se mantiene como componente metodológico de sensibilidad y no como sustituto de la estructura OD histórica.
+
+### Segmentación por tipo de pasajero
+
+La demanda mensual proyectada de Biotren se distribuye en tres segmentos:
+
+- Normal: bloque `T. Monedero`.
+- Estudiante: bloque `T. Estudiante`.
+- Adulto Mayor: bloque `T. Tercera Edad`.
+
+La participación mensual de cada tipo de pasajero se estima desde las matrices OD observadas, ponderando los años disponibles por mes. Cuando existe información 2026 para el mes, esta recibe mayor peso; para meses sin 2026 se ponderan principalmente 2025 y 2024.
+
+\[
+Demanda_{p,m}=Demanda_{Biotren,m}\times Participacion_{p,m}
+\]
+
+### Costo generalizado
+
+El costo generalizado se construye con la matriz tarifaria Biotren 2026 por estación y la matriz de distancia `PAX KM BT`:
+
+\[
+C_{ij,p}=\alpha\cdot TarifaNormalizada_{ij,p}+\beta\cdot DistanciaNormalizada_{ij}
+\]
+
+Parámetros actuales:
+
+- \(\alpha=0,75\): peso tarifario.
+- \(\beta=0,25\): peso de distancia.
+- \(\lambda=0,05\): impedancia exponencial.
+
+### Combinación histórica-gravitacional
+
+Para cada mes y tipo de pasajero, se construye una matriz histórica proporcional \(S_{ij,p,m}\) y una matriz gravitacional balanceada \(G_{ij,p,m}\). La matriz semilla final es:
+
+\[
+K_{ij,p,m}=w_p\cdot S_{ij,p,m}+(1-w_p)\cdot G_{ij,p,m}
+\]
+
+Pesos vigentes:
+
+- Normal: 80% histórico y 20% gravitacional.
+- Estudiante: 85% histórico y 15% gravitacional.
+- Adulto Mayor: 85% histórico y 15% gravitacional.
+
+### Balance final
+
+La matriz OD final se obtiene mediante IPF/Furness:
+
+\[
+T_{ij,p,m}=IPF(K_{ij,p,m},O_{i,p,m},D_{j,p,m})
+\]
+
+Esto asegura que la matriz final respete:
+
+- demanda total mensual proyectada por tipo de pasajero;
+- producciones por origen;
+- atracciones por destino;
+- estructura espacial histórica;
+- sensibilidad parcial a tarifa y distancia.
+
+### Ingresos proyectados por OD
+
+Los ingresos se estiman multiplicando la matriz OD proyectada por la matriz tarifaria 2026 correspondiente al tipo de pasajero:
+
+\[
+Ingreso_{ij,p,m}=T_{ij,p,m}\times Tarifa_{ij,p,2026}
+\]
+
+Esta estimación debe interpretarse como una primera aproximación de ingresos por OD y tipo de pasajero. En próximas iteraciones se recomienda preparar matrices OD mensuales-anuales por tipo de tarjeta para mejorar la precisión de ingresos y habilitar posteriormente la estimación de subsidio recibido.
+
+### Orden de estaciones
+
+Todas las matrices exportadas conservan el orden original de estaciones del archivo `0. Matrices Biotren may_2026.xlsx`. La homologación de nombres se utiliza sólo para cruzar matrices OD, tarifas y distancias, pero no para reordenar alfabéticamente la salida.
+
+### Limitaciones
+
+- No se incorporan aún tiempos de viaje, frecuencias por tramo, capacidad, congestión, regularidad operacional ni confiabilidad estación-tramo dentro del módulo OD.
+- La estimación de ingresos se realiza con tarifas 2026 por estación y no con una desagregación completa por tipo de tarjeta.
+- El modelo gravitacional representa distribución espacial condicionada por producciones, atracciones y costo generalizado; no debe interpretarse como un modelo causal completo de generación de demanda.
+
+
+### Cobertura tarifaria y estaciones sin tarifa explícita
+
+Cuando una estación o par OD aparece en la matriz OD original, pero no cuenta con tarifa positiva en la matriz tarifaria 2026 por estación, el programa conserva la estación en la matriz exportada para no alterar el orden ni la estructura original. Sin embargo, no asigna demanda proyectada a esos pares mientras no exista tarifa verificable. Esta regla evita estimar ingresos sobre tarifas inexistentes y deja trazable la necesidad de completar o validar la matriz tarifaria en futuras iteraciones.
+
