@@ -23,7 +23,7 @@ if __name__ == "__main__":
     diario.to_csv(AF, index=False)
     print(f"afluencia: {len(diario)} filas -> {AF} (Biotren x{CALIB_BIOTREN})")
     params = O.construir_parametros(RROO, AF, ventana_meses=VENTANA_MESES)
-    # construir_parametros ya recalibra servicios_dia a la oferta vigente informada.
+    # construir_parametros ya alinea servicios_dia con la oferta vigente informada.
     params.to_csv("data/oferta_params.csv", index=False)
     O.oferta_actual_df(detalle=True).to_csv("data/oferta_actual_vigente.csv", index=False)
     O.oferta_actual_df(mensual=True).to_csv("data/oferta_actual_vigente_mensual.csv", index=False)

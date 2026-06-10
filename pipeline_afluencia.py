@@ -79,11 +79,11 @@ def _parse_matrix(path, sheet, servicio):
 def _parse_biotren(path):
     """BIOTREN: lee la hoja diaria.
 
-    Criterio actualizado mayo 2026:
+    Criterio de lectura:
     - Si existe la columna "Afluencias + Multas +SSE", se usa como total oficial
-      diario, porque cuadra con el Resumen mensual de pasajeros.
-    - Si no existe, se mantiene el fallback anterior: suma del bloque de tipos de
-      pasajero antes de las columnas resumen.
+      diario.
+    - Si no existe, se usa como respaldo la suma del bloque de tipos de
+      pasajero ubicado antes de las columnas resumen.
     """
     wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
     sh = [s for s in wb.sheetnames if 'diaria' in s.lower()]

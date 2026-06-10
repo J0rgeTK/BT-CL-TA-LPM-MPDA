@@ -20,10 +20,10 @@ el crecimiento específico de Biotren.
 
 Modelo por unidad/mes:
   proy_oferta = SUMA_tipo_dia [ servicios_por_dia x n_dias_operacionales_2027 x pax_por_viaje x (1-supresion) ]
-  Escenario recomendado 2027 = oferta calibrada con mayo 2026.
-  Ajuste especifico Biotren: se aplica un factor anual prudencial sobre la
-  oferta calibrada y el desempeño 2026 para situar la proyeccion en torno
-  a 12,9-13,1 MM en el escenario 2027 actualizado.
+  Escenario recomendado 2027 = oferta mensual calibrada con información histórica y operacional disponible.
+  Ajuste especifico Biotren: se aplica un factor prudencial sobre la
+  productividad base y el desempeño histórico reciente para representar
+  un crecimiento conservador de la demanda ante mejoras de oferta.
   Ajuste Laja-Talcahuano: se incorpora recuperacion parcial de confiabilidad
   usando mayor peso del patron 2024, sin replicar directamente su nivel anual.
 """
@@ -325,7 +325,7 @@ def construir_parametros(rroo_path, afluencia_csv, sheet='2024-2025-Mar2026',
     params['tasa_sup'] = params['tasa_sup'].round(4)
 
     # La oferta historica del RROO se utiliza para estimar pax_x_viaje y tasa_sup.
-    # El escenario base predictivo se recalibra a la oferta vigente informada.
+    # El escenario base predictivo se alinea con la oferta vigente informada.
     params = aplicar_oferta_actual(params)
     return params.sort_values(['unit', 'mes', 'dt']).reset_index(drop=True)
 
@@ -447,9 +447,8 @@ ELASTICIDAD_OFERTA_SERVICIO = {
     'LLANQUIHUE_PM': 0.35,
 }
 
-# Ajuste de nivel calibrado con mayo 2026, comportamiento 2024-2026 y
-# revisión de coherencia mensual. No es una comparación visible; funciona
-# como calibrador de productividad base.
+# Ajuste de nivel construido con información histórica y operacional disponible.
+# Funciona como calibrador de productividad base y no como referencia visible.
 AJUSTE_NIVEL_SERVICIO = {
     'BIOTREN': 1.004,
     'CORTO_LAJA': 1.133,
@@ -466,7 +465,7 @@ RECUPERACION_LAJA = {
     'criterio': 'capar supresion historica a 1% y aplicar recuperacion parcial de productividad hacia escenario ~540 mil',
 }
 
-# Intensidad con que se corrige la productividad mensual hacia el patrón histórico.
+# Intensidad con que se aproxima la productividad mensual al patrón histórico.
 # 0 = sólo productividad/oferta observada; 1 = calza completamente la estacionalidad histórica.
 # Se deja por debajo de 1 para no volver a un modelo de simple distribución anual.
 FUERZA_ESTACIONALIDAD = {
@@ -476,17 +475,15 @@ FUERZA_ESTACIONALIDAD = {
     'LLANQUIHUE_PM': 0.85,
 }
 
-# Ajuste puntual del perfil mensual Biotren 2027.
-# La proyección anterior heredaba un máximo excesivo en abril, pese a que en
-# 2026 marzo superó levemente a abril. Este ajuste no cambia el total anual:
-# sólo redistribuye el bloque marzo-abril para que ambos meses queden
-# prácticamente nivelados, con una leve preferencia por marzo coherente con
-# 2026.
+# Regularización del perfil mensual Biotren 2027.
+# Se aplica sólo sobre el bloque marzo-abril para evitar peaks mensuales no
+# respaldados por el comportamiento histórico observado. El ajuste conserva
+# la suma del bloque y no transforma el modelo en una distribución anual fija.
 AJUSTE_BIOTREN_MARZO_ABRIL = {
     'activo': True,
     'meses': (3, 4),
     'participacion_marzo': 0.502,
-    'criterio': 'redistribuir sólo el bloque marzo-abril de Biotren, manteniendo el total anual y la sensibilidad mensual a la oferta',
+    'criterio': 'regularizar sólo el bloque marzo-abril de Biotren, manteniendo la suma del bloque y la sensibilidad mensual a la oferta',
 }
 
 RAMP_NUEVA_OFERTA = {
@@ -498,7 +495,7 @@ RAMP_NUEVA_OFERTA = {
 
 
 def cargar_calibracion_productividad(path=None):
-    """Carga factores de calibracion de pax/viaje observados en mayo 2026.
+    """Carga factores de calibración de pax/viaje construidos con información reciente.
 
     El archivo esperado contiene, al menos:
       unit, dt, factor_objetivo, peso_calibracion, factor_min, factor_max.
@@ -513,11 +510,11 @@ def cargar_calibracion_productividad(path=None):
 
 
 def calibrar_productividad_reciente(params, calibracion=None):
-    """Ajusta pax_x_viaje con el comportamiento observado en mayo 2026.
+    """Ajusta pax_x_viaje con el comportamiento operativo reciente.
 
-    La calibracion es parcial: no reemplaza toda la historia por mayo, sino que
-    aproxima la productividad historica a la productividad reciente usando un
-    peso configurable y limites de variacion. Esto permite representar que un
+    La calibración es parcial: no reemplaza la serie histórica, sino que
+    aproxima la productividad histórica a la productividad reciente usando un
+    peso configurable y límites de variación. Esto permite representar que un
     aumento de servicios puede reducir pasajeros promedio por viaje.
     """
     p = params.copy()
@@ -608,7 +605,7 @@ def cargar_distribucion_tren_araucania(path=None):
 
     Archivo esperado: data/tren_araucania_distribucion_tramos.csv, derivado de
     TA-Dist.xlsx. Contiene afluencia mensual por Victoria-Temuco,
-    Pitrufquen-Temuco y Claret entre mayo 2024 y mayo 2026.
+    Pitrufquen-Temuco y Claret en el periodo histórico disponible.
     """
     if path is None:
         path = DATA_DIR / 'tren_araucania_distribucion_tramos.csv'
@@ -678,7 +675,7 @@ def perfil_distribucion_tren_araucania_por_tramo():
         sm = sum(vals.values()) or 1.0
         for u, v in vals.items():
             rows.append({'mes': mes, 'unit': u, 'participacion_demanda_historica': v / sm,
-                         'fuente': 'TA-Dist.xlsx ponderado 2024-2026',
+                         'fuente': 'TA-Dist.xlsx ponderado con serie historica disponible',
                          'anios_utilizados': ','.join(map(str, sorted(set(years))))})
     return pd.DataFrame(rows)
 

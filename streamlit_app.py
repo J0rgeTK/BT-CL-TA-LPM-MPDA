@@ -82,44 +82,52 @@ def calcular_od_biotren_cached(periodos, valores):
 
 def render_od_biotren(serv):
     st.markdown("#### Distribución OD mensual de afluencia e ingresos")
-    st.caption("Módulo híbrido por tipo de pasajero: matriz histórica OD mensual como base, componente gravitacional como corrección parcial y balance IPF/Furness. La matriz conserva el orden original de estaciones de los archivos OD entregados.")
+    st.caption("Módulo espacial complementario: distribuye la afluencia mensual proyectada de Biotren por par origen-destino y tipo de pasajero, preservando el orden original de estaciones.")
 
     try:
         serie = serv["BIOTREN"].astype(float).copy()
         resultado = calcular_od_biotren_cached(tuple(serie.index.tolist()), tuple(serie.values.tolist()))
-        # Se copian objetos recuperados desde cache para evitar vistas NumPy no escribibles en matrices OD.
         station_order = list(resultado["station_order"])
     except Exception as e:
         st.warning(f"No fue posible calcular la distribución OD de Biotren: {e}")
         return
 
-    with st.expander("Metodología de distribución OD por tipo de pasajero", expanded=False):
+    with st.expander("Metodología de distribución OD e ingresos", expanded=False):
         st.markdown("""
-El modelo mensual de afluencia sigue siendo responsable de estimar la demanda total mensual de Biotren. La subsección OD toma ese total mensual y lo distribuye espacialmente entre pares origen-destino y por tipo de pasajero.
+El módulo OD opera después de la proyección mensual de Biotren. Su función no es proyectar demanda total, sino asignar espacialmente la demanda ya estimada entre pares origen-destino y por tipo de pasajero.
 
-**Segmentación por tipo de pasajero**
+**Flujo de cálculo**
+
+1. Se toma la afluencia mensual proyectada de Biotren.
+2. La demanda se segmenta en Normal, Estudiante y Adulto Mayor usando participaciones históricas mensuales por tipo.
+3. Para cada tipo se construye una matriz OD base con la estructura histórica mensual observada.
+4. Se incorpora un componente gravitacional parcial basado en tarifa y distancia como control de sensibilidad espacial.
+5. Se aplica balance IPF/Furness para conservar producciones por origen, atracciones por destino y total mensual por tipo.
+6. La matriz de ingresos se obtiene multiplicando viajes OD por la matriz tarifaria 2026 correspondiente.
+
+**Ecuaciones principales**
 
 `Demanda_{p,m} = Demanda_{Biotren,m} × Participación_{p,m}`
 
-Las participaciones mensuales se calculan desde los bloques observados de las matrices OD: `T. Monedero` para Normal, `T. Estudiante` para Estudiante y `T. Tercera Edad` para Adulto Mayor.
-
-**Distribución OD híbrida**
+`C_{ij,p} = α × Tarifa_normalizada_{ij,p} + β × Distancia_normalizada_{ij}`
 
 `K_{ij,p,m} = w_p × S_{ij,p,m} + (1 - w_p) × G_{ij,p,m}`
 
-Donde `S` es la estructura histórica OD mensual por tipo de pasajero y `G` es la estructura gravitacional construida con tarifa y distancia. Debido a que la validación mostró alta estabilidad de la matriz OD histórica, el componente histórico domina el resultado: 80% para Normal y 85% para Estudiante y Adulto Mayor.
-
-**Balance final**
-
 `T_{ij,p,m} = IPF(K_{ij,p,m}, O_{i,p,m}, D_{j,p,m})`
-
-El balance IPF/Furness asegura que la matriz final respete producciones por origen, atracciones por destino y el total mensual proyectado por tipo.
-
-**Ingresos OD**
 
 `Ingreso_{ij,p,m} = T_{ij,p,m} × Tarifa_{ij,p,2026}`
 
-La tarifa utilizada corresponde a la matriz tarifaria Biotren 2026 por estación. En esta versión se calculan ingresos por Normal, Estudiante y Adulto Mayor. La futura separación por tipo de tarjeta permitirá refinar ingresos y preparar la posterior modelación de subsidio.
+El componente histórico tiene mayor peso que el gravitacional, porque la matriz OD observada presenta una estructura espacial estable. El componente gravitacional se conserva como ajuste metodológico y análisis de sensibilidad ante tarifa y distancia, sin reemplazar el patrón OD observado.
+
+**Tipos de pasajero utilizados**
+
+- Normal: bloque `T. Monedero`.
+- Estudiante: bloque `T. Estudiante`.
+- Adulto Mayor: bloque `T. Tercera Edad`.
+
+Las matrices se muestran y exportan con el orden original de estaciones de las matrices fuente. La homologación de nombres se usa sólo para cruzar OD, tarifas y distancias, sin alterar la posición final de filas y columnas.
+
+La estimación de ingresos es preliminar y depende de la cobertura de la matriz tarifaria disponible. En próximas iteraciones puede reemplazarse la segmentación agregada por una matriz mensual-anual más detallada por tipo de tarjeta, permitiendo mejorar ingresos por tipo de pago y preparar una futura estimación de subsidio.
 """)
 
     periodos = list(serie.index)
@@ -143,19 +151,26 @@ La tarifa utilizada corresponde a la matriz tarifaria Biotren 2026 por estación
     km[2].metric("Ingreso proyectado", f"$ {fmt(ingresos)}")
     km[3].metric("Tarifa media", f"$ {fmt(tarifa_media)}")
 
-    t1, t2, t3, t4 = st.tabs(["Matriz OD viajes", "Matriz OD ingresos", "Resumen y validación", "Descargas"])
+    t1, t2, t3, t4 = st.tabs(["Matriz OD viajes", "Matriz OD ingresos", "Resumen y controles", "Descargas"])
     with t1:
         st.dataframe(M.round(0).astype(int).copy(deep=True), use_container_width=True, height=560)
     with t2:
         st.dataframe(R.round(0).astype(int).copy(deep=True), use_container_width=True, height=560)
     with t3:
-        st.markdown("**Resumen mensual por tipo de pasajero**")
-        st.dataframe(resultado["resumen"].copy(deep=True), use_container_width=True, height=260)
-        st.markdown("**Validación del enfoque híbrido contra marzo-mayo 2026**")
+        resumen_mes = resultado["resumen"][resultado["resumen"]["periodo"].eq(periodo)].copy(deep=True)
+        st.markdown("**Resumen del mes seleccionado por tipo de pasajero**")
+        st.dataframe(resumen_mes, use_container_width=True, height=170)
+        st.markdown("**Validación del enfoque híbrido con meses observados recientes**")
         try:
-            st.dataframe(OD.validar_hibrido_2026(), use_container_width=True, height=260)
+            st.dataframe(OD.validar_hibrido_2026(), use_container_width=True, height=230)
         except Exception as e:
             st.info(f"No fue posible cargar la validación OD: {e}")
+        try:
+            cobertura = pd.read_csv(OD.OD_OUT / "validacion_cobertura_tarifa_distancia.csv")
+            st.markdown("**Cobertura de tarifa y distancia**")
+            st.dataframe(cobertura, use_container_width=True, height=140)
+        except Exception:
+            pass
     with t4:
         v_csv = M.to_csv().encode("utf-8-sig")
         r_csv = R.to_csv().encode("utf-8-sig")
@@ -164,7 +179,6 @@ La tarifa utilizada corresponde a la matriz tarifaria Biotren 2026 por estación
         c2.download_button("⬇ Matriz ingresos seleccionada", r_csv, f"OD_ingresos_{periodo}_{tipo}.csv", key=f"dl_od_i_{periodo}_{tipo}")
         c3.download_button("⬇ Viajes OD 2027 long", resultado["viajes_long"].to_csv(index=False).encode("utf-8-sig"), "od_2027_viajes_por_tipo_long.csv", key="dl_od_v_long")
         c4.download_button("⬇ Ingresos OD 2027 long", resultado["ingresos_long"].to_csv(index=False).encode("utf-8-sig"), "od_2027_ingresos_por_tipo_long.csv", key="dl_od_i_long")
-
 
 def hist_valor(servicio, anio, meses=None):
     h = hist[hist.servicio == servicio].copy()
@@ -246,17 +260,17 @@ Esta sección explica por qué el resultado proyectado es coherente con los ante
             st.markdown(f"""
 **Lectura del resultado.** La proyección anual de Biotren alcanza **{fmt(total)} pasajeros**, compuesta por **{fmt(l1)}** en L1 y **{fmt(l2)}** en L2. El resultado se sustenta en una mejora de oferta operacional, pero con respuesta de demanda parcial: L1 opera con 48 servicios de lunes a viernes durante todo 2027 y L2 pasa de 106 a 109 servicios de lunes a viernes desde mayo. Los feriados nacionales se descuentan como días sin operación.
 
-**Coherencia histórica.** El resultado queda {fmt_pct(var_pct(total, h2024)) if h2024 else 's/i'} respecto de 2024 y {fmt_pct(var_pct(total, h2025)) if h2025 else 's/i'} respecto de 2025. Para enero-mayo, la proyección 2027 suma **{fmt(janmay_2027)} pasajeros**, comparada con **{fmt(h2026) if h2026 else 's/i'}** observados en enero-mayo 2026. Esta magnitud es consistente con un escenario de crecimiento conservador pero superior al año reciente.
+**Coherencia histórica.** El resultado queda {fmt_pct(var_pct(total, h2024)) if h2024 else 's/i'} respecto de 2024 y {fmt_pct(var_pct(total, h2025)) if h2025 else 's/i'} respecto de 2025. Para los meses observados del año reciente, la proyección 2027 suma **{fmt(janmay_2027)} pasajeros**, comparada con **{fmt(h2026) if h2026 else 's/i'}** del mismo bloque mensual. Esta magnitud es consistente con un escenario de crecimiento conservador y con la oferta considerada.
 
-**Ajuste mensual específico.** Se corrigió el bloque marzo-abril porque en 2026 marzo fue levemente superior a abril. Por ello, el modelo mantiene la suma conjunta de ambos meses, pero distribuye **50,2% en marzo** y **49,8% en abril**, evitando un peak artificial de abril sin alterar el total anual.
+**Perfil mensual.** El bloque marzo-abril se regulariza para evitar una concentración artificial en abril. La suma conjunta se conserva y la distribución mensual queda prácticamente nivelada, con una leve mayor participación de marzo según la evidencia histórica disponible.
 """)
         elif s == "CORTO_LAJA":
             st.markdown(f"""
 **Lectura del resultado.** La proyección anual de Laja-Talcahuano alcanza **{fmt(total)} pasajeros**, asociada a una recuperación operacional moderada. El escenario considera 8 servicios diarios como base, con excepción de sábados y domingos de enero-febrero, donde se aplican 10 servicios. Los feriados nacionales operan con oferta de fin de semana.
 
-**Coherencia histórica.** El resultado queda {fmt_pct(var_pct(total, h2024)) if h2024 else 's/i'} respecto de 2024 y {fmt_pct(var_pct(total, h2025)) if h2025 else 's/i'} respecto de 2025. Esta posición es metodológicamente consistente: mejora frente al comportamiento 2025, pero no replica completamente el nivel 2024, que se usa como patrón de recuperación y no como meta directa.
+**Coherencia histórica.** El resultado queda {fmt_pct(var_pct(total, h2024)) if h2024 else 's/i'} respecto de 2024 y {fmt_pct(var_pct(total, h2025)) if h2025 else 's/i'} respecto de 2025. Esta posición es metodológicamente consistente: incorpora recuperación frente a un escenario de menor confiabilidad, pero no replica completamente el año de mejor desempeño disponible.
 
-**Supuesto técnico principal.** Se acota la supresión base a 1% para representar una recuperación de confiabilidad, manteniendo elasticidad parcial de oferta y mayor peso de la estacionalidad 2024. Con ello, el modelo evita castigar el servicio por afectaciones recientes que no deberían repetirse en 2027.
+**Supuesto técnico principal.** La supresión base se acota para representar una mejora de confiabilidad, manteniendo elasticidad parcial de oferta y mayor peso de la estacionalidad histórica de mejor desempeño. Con ello, el modelo evita prolongar afectaciones operacionales recientes como si fueran permanentes.
 """)
         elif s == "TREN_ARAUCANIA":
             tramos = {col: float(uni[col].sum()) for col in ["TA_TEMUCO_VICTORIA", "TA_TEMUCO_PITRUFQUEN", "TA_CLARET"] if col in uni.columns}
@@ -410,7 +424,7 @@ def render_ecuacion_servicio(s):
         \right]
         """
         st.latex(latex.replace("FN", f"{fn:.3f}").replace("EPS", f"{e:.2f}"))
-        st.caption(f"Biotren usa días operacionales sin feriados nacionales, elasticidad de oferta {e:.2f}, factor de nivel {fn:.3f} y fuerza estacional {fe:.2f}. La suma operacional se realiza sobre L1 y L2; Laja-Talcahuano se mantiene separado para evitar doble conteo. Se agrega una corrección puntual marzo-abril: el bloque conjunto conserva su suma, pero se nivela con 50,2% para marzo y 49,8% para abril, coherente con el comportamiento 2026.")
+        st.caption(f"Biotren usa días operacionales sin feriados nacionales, elasticidad de oferta {e:.2f}, factor de nivel {fn:.3f} y fuerza estacional {fe:.2f}. La suma operacional se realiza sobre L1 y L2; Laja-Talcahuano se mantiene separado para evitar doble conteo. El perfil mensual incorpora una regularización estacional del bloque marzo-abril para evitar peaks no respaldados por el comportamiento observado.")
 
     elif s == "CORTO_LAJA":
         latex = r"""
@@ -423,7 +437,7 @@ def render_ecuacion_servicio(s):
         """
         st.latex(latex.replace("FN", f"{fn:.3f}").replace("EPS", f"{e:.2f}"))
         st.latex(r"\tau^*_{\mathrm{LT},m,d}=\min(\tau_{\mathrm{LT},m,d},0.01)")
-        st.caption(f"Laja-Talcahuano opera feriados con oferta de fin de semana e incorpora recuperación de confiabilidad: supresión base acotada a 1%, mayor uso del patrón 2024 y factor de recuperación {fn:.3f}. Esto ubica el escenario anual cerca de 540 mil pasajeros, sin replicar directamente el máximo histórico 2024.")
+        st.caption(f"Laja-Talcahuano opera feriados con oferta de fin de semana e incorpora recuperación de confiabilidad: supresión base acotada a 1%, mayor peso del patrón histórico de mejor desempeño y factor de recuperación {fn:.3f}. Esto permite representar una recuperación operacional parcial sin asumir el máximo histórico como meta directa.")
 
     elif s == "TREN_ARAUCANIA":
         st.latex(r"""
@@ -437,7 +451,7 @@ def render_ecuacion_servicio(s):
         V_{r,m}=\sum_{d\in\{LV,Sab,Dom\}}S_{r,m,d}\cdot N^{op}_{r,m,d}\cdot(1-\tau_{\mathrm{TA},m,d}-c)
         """)
         st.latex(r"\alpha_{CL,m}=0\quad\text{para }m\in\{enero,febrero\}")
-        st.caption("Tren Araucanía no opera feriados nacionales en el escenario base y usa distribución mensual observada por tipo de servicio desde TA-Dist.xlsx. Escenario actualizado: Victoria-Temuco sube a 15 servicios L-V. Elasticidades por tramo: Victoria-Temuco 0,46; Pitrufquén-Temuco 0,28; Claret 0,12. Así, un aumento en Victoria-Temuco genera mayor efecto que un aumento equivalente en Pitrufquén o Claret.")
+        st.caption("Tren Araucanía no opera feriados nacionales en el escenario base y usa distribución mensual observada por tipo de servicio. La oferta se edita por tramo y cada tramo tiene elasticidad diferenciada: Victoria-Temuco 0,46; Pitrufquén-Temuco 0,28; Claret 0,12. Así, un aumento en Victoria-Temuco genera mayor efecto que un aumento equivalente en Pitrufquén o Claret.")
 
     elif s == "LLANQUIHUE_PM":
         latex = r"""
@@ -449,77 +463,79 @@ def render_ecuacion_servicio(s):
         \right]
         """
         st.latex(latex.replace("FN", f"{fn:.3f}").replace("EPS", f"{e:.2f}"))
-        st.caption(f"Llanquihue-Puerto Montt no opera feriados nacionales en el escenario base y mantiene señal estival 2026 en enero-febrero y elasticidad de oferta {e:.2f}; los días sábado y domingo quedan en cero salvo modificación explícita de oferta.")
+        st.caption(f"Llanquihue-Puerto Montt no opera feriados nacionales en el escenario base y conserva una señal estival en enero-febrero. Se aplica elasticidad de oferta {e:.2f}; los días sábado y domingo quedan en cero salvo modificación explícita de oferta.")
 
 def render_metodologia():
     st.markdown("### Marco metodológico del modelo")
     st.markdown("""
 <div class="method">
-<b>Objetivo.</b> Estimar afluencia mensual por servicio para 2027 vinculando explícitamente la oferta programada con la demanda proyectada. El modelo evita asumir que todo servicio adicional genera pasajeros en la misma proporción que la productividad promedio histórica.
+<b>Propósito.</b> El modelo estima la afluencia mensual proyectada por servicio para 2027. Para Biotren incorpora además una capa espacial OD por tipo de pasajero y una estimación preliminar de ingresos por par origen-destino.
 <br><br>
-<b>Unidad de cálculo.</b> La proyección se calcula por unidad operacional, mes y tipo de día operacional: lunes-viernes, sábado y domingo. El total mensual del servicio se obtiene sumando sus unidades operacionales. Desde esta versión, el conteo de días usa calendario operacional 2027, descontando feriados donde no existe operación.
+<b>Separación metodológica.</b> El programa distingue tres componentes: (i) modelo temporal de afluencia mensual, (ii) módulo espacial OD para Biotren y (iii) módulo preliminar de ingresos OD. El módulo OD no reemplaza la proyección temporal: distribuye espacialmente la demanda mensual que ya fue estimada.
 <br><br>
-<b>Principio operacional.</b> Cada mes se calcula de forma independiente. Si se modifica la oferta de marzo, cambia marzo y cambia el total anual por suma; no se redistribuyen pasajeros desde o hacia otros meses.
+<b>Principio de cálculo.</b> Cada mes se calcula de forma independiente. Si se modifica la oferta de un mes, cambia la afluencia de ese mes y el total anual cambia por suma; no se redistribuye un total anual fijo.
 </div>
 """, unsafe_allow_html=True)
 
-    st.markdown("#### Fórmulas utilizadas")
-    st.latex(r"V_{0,u,m,d}=S_{0,u,m,d}\cdot N^{op}_{u,m,d}\cdot (1-\tau_{u,m,d})")
-    st.latex(r"D_{0,u,m,d}=V_{0,u,m,d}\cdot q_{u,m,d}\cdot F_{nivel,s}\cdot F_{est,s,m}")
-    st.latex(r"V_{1,u,m,d}=S_{1,u,m,d}\cdot N^{op}_{u,m,d}\cdot (1-\tau_{u,m,d}-c_u)")
-    st.latex(r"D_{1,u,m,d}=D_{0,u,m,d}\cdot \left(\frac{V_{1,u,m,d}}{V_{0,u,m,d}}\right)^{\varepsilon_s}")
-    st.markdown("""
-Donde:
-- `S0` es la oferta base vigente y `S1` la oferta editada.
-- `N_op` corresponde a la cantidad de días operacionales del tipo respectivo en el mes, después de aplicar feriados nacionales y reglas por servicio.
-- `τ` es la tasa de supresión histórica.
-- `q` es pasajeros promedio por servicio, calibrado con mayo 2026.
-- `F_nivel` ajusta el nivel de productividad por servicio.
-- `F_est` corrige productividad mensual con el comportamiento histórico 2024, 2025 y 2026.
-- `ε` es la elasticidad de demanda respecto de oferta, menor que 1 para representar rendimiento marginal decreciente.
+    with st.expander("1. Modelo temporal de afluencia mensual", expanded=True):
+        st.markdown("""
+El cálculo se realiza por unidad operacional, mes y tipo de día: lunes-viernes, sábado y domingo. La demanda base se obtiene combinando viajes operados esperados, productividad por viaje, factores de nivel, estacionalidad mensual y elasticidad parcial frente a variaciones de oferta.
+""")
+        st.latex(r"V_{0,u,m,d}=S_{0,u,m,d}\cdot N^{op}_{u,m,d}\cdot (1-\tau_{u,m,d})")
+        st.latex(r"D_{0,u,m,d}=V_{0,u,m,d}\cdot q_{u,m,d}\cdot F_{nivel,s}\cdot F_{est,s,m}")
+        st.latex(r"V_{1,u,m,d}=S_{1,u,m,d}\cdot N^{op}_{u,m,d}\cdot (1-\tau_{u,m,d}-c_u)")
+        st.latex(r"D_{1,u,m,d}=D_{0,u,m,d}\cdot \left(\frac{V_{1,u,m,d}}{V_{0,u,m,d}}\right)^{\varepsilon_s}")
+        st.markdown("""
+- `S0` corresponde a la oferta base del escenario.
+- `S1` corresponde a la oferta editada en la aplicación.
+- `N_op` corresponde a días operacionales efectivos, después de aplicar feriados y reglas por servicio.
+- `τ` representa la supresión histórica incorporada al cálculo.
+- `q` representa la productividad media por servicio, construida a partir de los datos históricos disponibles.
+- `F_nivel` ajusta el nivel general del servicio.
+- `F_est` incorpora el comportamiento mensual observado.
+- `ε` es la elasticidad de demanda respecto de oferta; al ser menor que 1 evita asumir que más servicios producen demanda proporcional.
 - `c` es una contingencia adicional de supresión definida por el usuario.
 """)
 
-    st.markdown("#### Calendario operacional 2027 y feriados")
-    st.info("Para Biotren, Tren Araucanía y Llanquihue-Puerto Montt, los feriados nacionales tienen oferta cero. Para Laja-Talcahuano, los feriados operan con oferta de fin de semana; si el feriado cae lunes-viernes se imputa como domingo operacional.")
-    st.dataframe(tabla_feriados_2027(), use_container_width=True, height=260)
-    with st.expander("Resumen de días operacionales por unidad, mes y tipo de día"):
-        st.dataframe(O.calendario_operacional_resumen(2027), use_container_width=True)
+    with st.expander("2. Calendario operacional y feriados", expanded=False):
+        st.info("Para Biotren, Tren Araucanía y Llanquihue-Puerto Montt, los feriados nacionales tienen oferta efectiva cero. Para Laja-Talcahuano, los feriados operan con oferta de fin de semana; si el feriado cae lunes-viernes se imputa como domingo operacional.")
+        st.dataframe(tabla_feriados_2027(), use_container_width=True, height=240)
+        st.markdown("**Resumen de días operacionales por unidad, mes y tipo de día**")
+        st.dataframe(O.calendario_operacional_resumen(2027), use_container_width=True, height=280)
 
-    st.markdown("#### Parámetros actuales")
-    p1, p2 = st.columns(2)
-    with p1:
-        st.dataframe(pd.DataFrame([{"servicio": O.NOMBRE[k], "elasticidad_oferta": v} for k, v in O.ELASTICIDAD_OFERTA_SERVICIO.items()]), use_container_width=True)
-    with p2:
-        st.dataframe(pd.DataFrame([{"servicio": O.NOMBRE[k], "factor_nivel": v, "fuerza_estacionalidad": O.FUERZA_ESTACIONALIDAD.get(k)} for k, v in O.AJUSTE_NIVEL_SERVICIO.items()]), use_container_width=True)
+    with st.expander("3. Parámetros del modelo", expanded=False):
+        p1, p2 = st.columns(2)
+        with p1:
+            st.dataframe(pd.DataFrame([{"servicio": O.NOMBRE[k], "elasticidad_oferta": v} for k, v in O.ELASTICIDAD_OFERTA_SERVICIO.items()]), use_container_width=True)
+        with p2:
+            st.dataframe(pd.DataFrame([{"servicio": O.NOMBRE[k], "factor_nivel": v, "fuerza_estacionalidad": O.FUERZA_ESTACIONALIDAD.get(k)} for k, v in O.AJUSTE_NIVEL_SERVICIO.items()]), use_container_width=True)
+        st.markdown("**Parámetros por tramo de Tren Araucanía**")
+        st.dataframe(pd.DataFrame([
+            {"tramo": O.TA_TRAMO_NOMBRE[k], "elasticidad_tramo": v, "restriccion": "Marzo-diciembre" if k == "TA_CLARET" else "Todo el año"}
+            for k, v in O.TA_TRAMO_ELASTICIDAD.items()
+        ]), use_container_width=True)
 
-    st.markdown("#### Parámetros específicos Tren Araucanía")
-    st.dataframe(pd.DataFrame([
-        {"tramo": O.TA_TRAMO_NOMBRE[k], "elasticidad_tramo": v, "restriccion": "Marzo-diciembre" if k == "TA_CLARET" else "Todo el año"}
-        for k, v in O.TA_TRAMO_ELASTICIDAD.items()
-    ]), use_container_width=True)
-
-    st.markdown("#### Tratamiento por servicio")
-    st.markdown("""
-- **Biotren:** se modela separando L1 y L2. El escenario actualizado considera L1 con 48 servicios L-V durante todo 2027 y L2 con 106 servicios L-V entre enero-abril y 109 desde mayo. Cada mes responde a su oferta específica y a los feriados nacionales sin operación. El nivel de productividad se recalibra con mayor peso del desempeño reciente, ubicando la proyección anual en torno a 13 millones de pasajeros. Además, se corrige puntualmente marzo-abril para que la curva no sobreestime abril frente a marzo, manteniendo constante el total anual y la suma conjunta de ambos meses.
-- **Laja-Talcahuano:** se corrige la oferta a 8 servicios todos los días; sólo sábados y domingos de enero-febrero usan 10 servicios. Los feriados operan con oferta de fin de semana. Además, se incorpora recuperación parcial de confiabilidad, con mayor peso del patrón 2024, supresión base acotada a 1% y factor de recuperación calibrado para un escenario anual cercano a 540 mil pasajeros.
-- **Tren Araucanía:** la oferta se edita por tipo de servicio y los feriados nacionales se consideran sin operación: Temuco-Victoria, Temuco-Pitrufquén y Claret. El escenario actualizado considera Temuco-Victoria con 15 servicios L-V; Pitrufquén y Claret mantienen su parametrización base. La demanda se calcula por tramo usando la distribución mensual observada en TA-Dist.xlsx; Claret sólo opera entre marzo y diciembre por su carácter escolar. El nivel anual fue recalibrado a un escenario moderado cercano a 950 mil pasajeros, evitando sobrerrespuesta ante el aumento de servicios Victoria-Temuco.
-- **Llanquihue-Puerto Montt:** enero y febrero conservan señal estival 2026; el resto del año se modera con el histórico disponible. Los feriados nacionales quedan sin operación.
+    with st.expander("4. Tratamiento por servicio", expanded=False):
+        st.markdown("""
+- **Biotren:** se modela separando L1 y L2. La oferta se edita por línea, mes y tipo de día. La curva mensual se apoya en comportamiento histórico, calendario operacional, feriados y respuesta parcial a cambios de oferta. Laja-Talcahuano se mantiene como servicio separado para evitar doble conteo.
+- **Laja-Talcahuano:** se calcula como servicio propio, con regla especial de operación en feriados y una hipótesis de recuperación de confiabilidad. La oferta base considera 8 servicios diarios, salvo fines de semana de enero y febrero con 10 servicios.
+- **Tren Araucanía:** se calcula por tipo de servicio: Temuco-Victoria, Temuco-Pitrufquén y Claret. Cada tramo tiene elasticidad diferenciada y Claret se restringe a meses lectivos.
+- **Llanquihue-Puerto Montt:** se modela con operación de lunes a viernes, sin fines de semana ni feriados nacionales en el escenario base. Enero y febrero conservan una señal estival dentro del perfil mensual.
 """)
 
-    st.markdown("#### Módulo OD híbrido para Biotren")
-    st.markdown("""
-El módulo OD complementa el modelo temporal y se aplica sólo después de obtener la demanda mensual proyectada de Biotren. La distribución espacial no reemplaza la proyección de afluencia total.
+    with st.expander("5. Módulo OD híbrido de Biotren", expanded=False):
+        st.markdown("""
+El módulo OD distribuye la demanda mensual proyectada de Biotren entre pares origen-destino y por tipo de pasajero. Su objetivo es generar una salida espacial trazable, no reemplazar el modelo temporal.
 
-La opción metodológica adoptada es un enfoque híbrido segmentado por tipo de pasajero, debido a que la validación mostró que la matriz OD histórica proporcional tiene mejor desempeño operativo que un modelo gravitacional puro. Por ello, el modelo usa la distribución histórica mensual por tipo como componente principal y utiliza el gravitacional como corrección parcial de sensibilidad espacial ante tarifa y distancia.
+**Flujo metodológico**
 
-Fórmulas aplicadas:
+`Proyección mensual Biotren → segmentación por tipo de pasajero → matriz OD histórica mensual → ajuste gravitacional parcial → balance IPF/Furness → matriz OD proyectada → ingresos OD preliminares`
+
+**Fórmulas**
 
 `Demanda_{p,m} = Demanda_{Biotren,m} × Participación_{p,m}`
 
 `C_{ij,p} = α × Tarifa_normalizada_{ij,p} + β × Distancia_normalizada_{ij}`
-
-`G_{ij,p,m} = IPF(f(C_{ij,p}), O_{i,p,m}, D_{j,p,m})`
 
 `K_{ij,p,m} = w_p × S_{ij,p,m} + (1 - w_p) × G_{ij,p,m}`
 
@@ -527,14 +543,32 @@ Fórmulas aplicadas:
 
 `Ingreso_{ij,p,m} = T_{ij,p,m} × Tarifa_{ij,p,2026}`
 
-Tipos considerados en esta versión:
-- Normal: bloque `T. Monedero`.
-- Estudiante: bloque `T. Estudiante`.
-- Adulto Mayor: bloque `T. Tercera Edad`.
+La matriz histórica mensual por tipo es el componente principal, mientras que el gravitacional se usa como ajuste parcial de sensibilidad espacial. Las matrices se exportan manteniendo el orden original de estaciones.
+""")
 
-Los pesos actuales son 80% histórico y 20% gravitacional para Normal; 85% histórico y 15% gravitacional para Estudiante y Adulto Mayor. Esta decisión conserva el patrón OD observado y evita que tarifa/distancia, por sí solas, generen redistribuciones espaciales no observadas.
+    with st.expander("6. Validaciones, limitaciones y próximos pasos", expanded=False):
+        st.markdown("""
+**Validaciones incorporadas**
+- Consistencia entre totales mensuales proyectados y matrices OD por tipo.
+- Cobertura de tarifas y distancias para pares OD con viajes proyectados.
+- Conservación del orden original de estaciones.
+- Sensibilidad de la demanda al cambio de oferta mensual.
+- Aplicación de feriados según regla operacional por servicio.
+- Generación de salidas CSV y Excel.
 
-Las matrices se exportan manteniendo el orden original de estaciones del archivo `0. Matrices Biotren may_2026.xlsx`. Si una estación aparece en la matriz OD original pero no tiene tarifa positiva en la matriz tarifaria 2026, se conserva en la salida para no alterar la estructura original, pero no se le asignan ingresos ni demanda proyectada hasta completar la tarifa correspondiente. Como próximo paso, se recomienda preparar matrices mensuales-anuales por tipo de tarjeta para mejorar la estimación de ingresos y habilitar posteriormente la estimación de subsidio.
+**Limitaciones**
+- El modelo no es causal completo; representa una proyección operacional y espacial condicionada por los datos disponibles.
+- Tarifa y distancia no capturan todos los determinantes de movilidad.
+- Los ingresos OD son preliminares si no existe una matriz tarifaria completamente desagregada por tipo de tarjeta.
+- El subsidio no está incorporado en esta versión.
+- Variables como tiempos de viaje, capacidad, atrasos, cancelaciones y contingencias deben incorporarse desde bases operacionales complementarias.
+
+**Próximos pasos**
+- Construir matrices OD mensuales-anuales por tipo de tarjeta.
+- Mejorar ingresos por tipo de pago y descuento.
+- Incorporar estimación de subsidio.
+- Agregar tiempos de viaje, capacidad y ocupación.
+- Validar resultados con datos reales futuros.
 """)
 
     st.markdown("#### Bibliografía")
@@ -545,7 +579,6 @@ Las matrices se exportan manteniendo el orden original de estaciones del archivo
 - Berrebi, S., Joshi, S. & Watkins, K. *On Ridership and Frequency*. Transportation Research Part A, 2021. https://doi.org/10.48550/arXiv.2002.02493
 - Feriados de Chile. *Feriados de Chile — Año 2027*. Fuente basada en Biblioteca del Congreso Nacional. https://www.feriados.cl/2027.htm
 """)
-
 
 def render_resumen():
     uni, serv, detalle = O.proyectar_mensual_elastico(params, mdf, return_detalle=True)
@@ -594,7 +627,7 @@ def render_servicio(s):
     ce = {}
     plan_tramos = None
     if s == "BIOTREN":
-        st.info("Biotren se edita por línea. Escenario actualizado: L1 = 48 servicios L-V todo 2027; L2 = 106 servicios L-V entre enero-abril y 109 desde mayo. La afluencia mensual queda vinculada al mes editado, sin repartir el total anual. El nivel base fue recalibrado para un escenario anual cercano a 13 millones y el perfil marzo-abril se niveló según el comportamiento 2026.")
+        st.info("Biotren se edita por línea. L1 considera 48 servicios L-V durante todo 2027; L2 considera 106 servicios L-V entre enero-abril y 109 desde mayo. La afluencia mensual queda vinculada al mes editado, sin repartir un total anual fijo.")
         c1, c2 = st.columns(2)
         with c1:
             plan_l1 = editor_oferta("BIOTREN_L1", "Línea 1")
@@ -648,17 +681,17 @@ def render_servicio(s):
 
     with st.expander("Calendario operacional aplicado al servicio"):
         st.dataframe(tabla_calendario_servicio(s), use_container_width=True)
-    st.caption("La columna impacto_mes_vs_base permite verificar que un cambio de oferta afecta el mes modificado y el total anual por suma.")
+    st.caption("La columna impacto_mes_vs_base permite verificar que un cambio de oferta afecta el mes modificado y que el total anual resulta de la suma mensual.")
 
     st.markdown("#### Comportamiento mensual histórico por año")
     st.dataframe(tabla_historica_servicio(s), use_container_width=True)
 
     if s == "CORTO_LAJA":
-        st.warning("Oferta base: 8 servicios todos los días; sólo sábados y domingos de enero-febrero tienen 10 servicios. El escenario incorpora recuperación parcial de confiabilidad, mayor peso del patrón 2024, supresión base acotada a 1% y nivel anual objetivo cercano a 540 mil pasajeros.")
+        st.warning("Oferta base: 8 servicios todos los días; sólo sábados y domingos de enero-febrero tienen 10 servicios. El escenario incorpora recuperación parcial de confiabilidad, supresión base acotada y mayor peso del patrón histórico de mejor desempeño.")
     if s == "TREN_ARAUCANIA":
         st.warning("Claret se considera servicio escolar: enero y febrero quedan sin oferta ni demanda proyectada para este tipo de servicio. Las modificaciones de oferta se evalúan por tramo con elasticidad diferenciada.")
     if s == "LLANQUIHUE_PM":
-        st.warning("Enero y febrero mantienen una señal estival similar a 2026; no se consideran servicios planificados de fin de semana.")
+        st.warning("Enero y febrero mantienen una señal estival dentro del perfil mensual; no se consideran servicios planificados de fin de semana.")
 
     if s == "BIOTREN":
         render_od_biotren(serv)

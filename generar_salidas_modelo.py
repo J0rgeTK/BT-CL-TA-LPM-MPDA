@@ -199,3 +199,10 @@ try:
     ODH.generar_salidas_od_2027(serv['BIOTREN'])
 except Exception as e:
     print(f'No fue posible generar salidas OD híbridas de Biotren: {e}')
+
+# Validación técnica final del modelo.
+try:
+    import validar_modelo as VM
+    VM.ejecutar_validacion()
+except Exception as e:
+    print(f'No fue posible ejecutar la validación técnica final: {e}')
