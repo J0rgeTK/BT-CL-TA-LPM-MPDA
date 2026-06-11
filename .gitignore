@@ -216,3 +216,17 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Generated caches and binary artifacts
+__pycache__/
+_Pycache_/
+*.pyc
+*.pyo
+*.pyd
+*.zip
+*.xlsx
+*.xlsm
+*.xls
+.streamlit/cache/
+outputs/**/*.xlsx
+outputs/**/*.zip
