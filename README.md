@@ -221,3 +221,41 @@ El modelo genera salidas de validación para revisar:
 5. Wilson, A. G. *Entropy in Urban and Regional Modelling*. Pion, 1970.
 6. Ortúzar, J. de D. & Willumsen, L. G. *Modelling Transport*. 4th edition. Wiley, 2011.
 7. Feriados de Chile. *Feriados de Chile — Año 2027*. Fuente basada en Biblioteca del Congreso Nacional. https://www.feriados.cl/2027.htm
+
+## 11. Insumos OD Biotren sin binarios versionados
+
+El módulo OD híbrido de Biotren se ejecuta por defecto desde CSV procesados versionados en `data/od_biotren/processed/`. Esto permite usar la app y las validaciones sin mantener archivos Excel binarios dentro del repositorio.
+
+### Archivos obligatorios versionados
+
+Para ejecutar `od_biotren_hibrido.py`, `streamlit_app.py` y `validar_modelo.py` deben existir los siguientes CSV procesados:
+
+- `data/od_biotren/processed/orden_estaciones_original.csv`.
+- `data/od_biotren/processed/od_historica_por_tipo_long.csv`.
+- `data/od_biotren/processed/tarifas_2026_por_tipo_long.csv`.
+- `data/od_biotren/processed/distancia_biotren_km_long.csv`.
+- `data/od_biotren/processed/validacion_extraccion_od.csv`.
+
+Estos archivos contienen el orden original de estaciones, las matrices OD históricas por bloque/tipo de pasajero en formato largo, las tarifas 2026 por tipo, la distancia Biotren y la validación de extracción/homologación.
+
+### Archivos externos opcionales
+
+Los Excel originales se consideran insumos externos y están ignorados por Git. Sólo se necesitan para regenerar los CSV procesados:
+
+- `data/od_biotren/input/0. Matrices Biotren may_2026.xlsx`.
+- `data/od_biotren/input/Consolidado Tarifas EFE Sur 2026.xlsx`.
+- `data/od_biotren/input/Libro1.xlsx`.
+
+La regla general es: los Excel originales no se versionan; los CSV procesados sí se versionan cuando son necesarios para reproducir la ejecución del módulo OD.
+
+### Regeneración de insumos OD
+
+Si se actualizan los Excel originales o faltan los CSV procesados, ejecutar:
+
+```bash
+python preparar_insumos_od_biotren.py
+```
+
+El script lee los Excel disponibles en `data/od_biotren/input/`, homologa estaciones con la misma lógica del módulo OD y vuelve a generar los CSV en `data/od_biotren/processed/`.
+
+Si los CSV procesados faltan, `od_biotren_hibrido.py` muestra un error claro indicando que se debe ejecutar `python preparar_insumos_od_biotren.py` con los Excel originales disponibles.

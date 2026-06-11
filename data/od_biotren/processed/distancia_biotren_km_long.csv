@@ -1,0 +1,730 @@
+origen,destino,distancia_km
+Hualqui,Hualqui,0.0
+Hualqui,La Leonera,8.8
+Hualqui,Manquimávida,10.3
+Hualqui,Pedro Medina,12.3
+Hualqui,Chiguayante,13.4
+Hualqui,Concepción,23.5
+Hualqui,Lorenzo Arenas,26.5
+Hualqui,UTFSM,29.4
+Hualqui,Los Cóndores,31.4
+Hualqui,Higueras,33.4
+Hualqui,El Arenal,36.6
+Hualqui,Mercado,38.0
+Hualqui,Juan Pablo II,26.5
+Hualqui,Diagonal Biobío,28.5
+Hualqui,Alborada,30.7
+Hualqui,Costa Mar,31.5
+Hualqui,El Parque,33.15
+Hualqui,Lomas Coloradas,34.8
+Hualqui,C. Raúl Silva H.,36.775
+Hualqui,Hito Galvarino,43.055
+Hualqui,Los Canelos,46.015
+Hualqui,Huinca,46.879999999999995
+Hualqui,Cristo Redentor,48.05
+Hualqui,Laguna Quiñenco,49.64
+Hualqui,Intermodal Coronel,50.78
+Hualqui,Pasajero Lota,50.78
+Hualqui,Concepción Centro,23.5
+La Leonera,Hualqui,8.8
+La Leonera,La Leonera,0.0
+La Leonera,Manquimávida,1.5
+La Leonera,Pedro Medina,4.4
+La Leonera,Chiguayante,5.5
+La Leonera,Concepción,15.6
+La Leonera,Lorenzo Arenas,18.6
+La Leonera,UTFSM,21.5
+La Leonera,Los Cóndores,23.5
+La Leonera,Higueras,25.5
+La Leonera,El Arenal,28.7
+La Leonera,Mercado,30.1
+La Leonera,Juan Pablo II,18.6
+La Leonera,Diagonal Biobío,20.6
+La Leonera,Alborada,22.8
+La Leonera,Costa Mar,23.6
+La Leonera,El Parque,25.25
+La Leonera,Lomas Coloradas,26.9
+La Leonera,C. Raúl Silva H.,28.875
+La Leonera,Hito Galvarino,35.155
+La Leonera,Los Canelos,38.115
+La Leonera,Huinca,38.98
+La Leonera,Cristo Redentor,40.15
+La Leonera,Laguna Quiñenco,41.74
+La Leonera,Intermodal Coronel,42.88
+La Leonera,Pasajero Lota,42.88
+La Leonera,Concepción Centro,15.6
+Manquimávida,Hualqui,10.3
+Manquimávida,La Leonera,1.5
+Manquimávida,Manquimávida,0.0
+Manquimávida,Pedro Medina,1.8
+Manquimávida,Chiguayante,3.1
+Manquimávida,Concepción,13.2
+Manquimávida,Lorenzo Arenas,16.2
+Manquimávida,UTFSM,19.1
+Manquimávida,Los Cóndores,21.1
+Manquimávida,Higueras,23.1
+Manquimávida,El Arenal,26.3
+Manquimávida,Mercado,27.7
+Manquimávida,Juan Pablo II,16.2
+Manquimávida,Diagonal Biobío,18.2
+Manquimávida,Alborada,20.4
+Manquimávida,Costa Mar,21.2
+Manquimávida,El Parque,22.849999999999998
+Manquimávida,Lomas Coloradas,24.499999999999996
+Manquimávida,C. Raúl Silva H.,26.474999999999998
+Manquimávida,Hito Galvarino,32.754999999999995
+Manquimávida,Los Canelos,35.714999999999996
+Manquimávida,Huinca,36.57999999999999
+Manquimávida,Cristo Redentor,37.74999999999999
+Manquimávida,Laguna Quiñenco,39.339999999999996
+Manquimávida,Intermodal Coronel,40.48
+Manquimávida,Pasajero Lota,40.48
+Manquimávida,Concepción Centro,13.2
+Pedro Medina,Hualqui,12.3
+Pedro Medina,La Leonera,4.4
+Pedro Medina,Manquimávida,1.8
+Pedro Medina,Pedro Medina,0.0
+Pedro Medina,Chiguayante,1.4
+Pedro Medina,Concepción,11.5
+Pedro Medina,Lorenzo Arenas,14.5
+Pedro Medina,UTFSM,17.400000000000002
+Pedro Medina,Los Cóndores,19.400000000000002
+Pedro Medina,Higueras,21.400000000000002
+Pedro Medina,El Arenal,24.6
+Pedro Medina,Mercado,26.0
+Pedro Medina,Juan Pablo II,14.5
+Pedro Medina,Diagonal Biobío,16.5
+Pedro Medina,Alborada,18.7
+Pedro Medina,Costa Mar,19.5
+Pedro Medina,El Parque,21.15
+Pedro Medina,Lomas Coloradas,22.799999999999997
+Pedro Medina,C. Raúl Silva H.,24.775
+Pedro Medina,Hito Galvarino,31.055
+Pedro Medina,Los Canelos,34.015
+Pedro Medina,Huinca,34.879999999999995
+Pedro Medina,Cristo Redentor,36.05
+Pedro Medina,Laguna Quiñenco,37.64
+Pedro Medina,Intermodal Coronel,38.78
+Pedro Medina,Pasajero Lota,38.78
+Pedro Medina,Concepción Centro,11.5
+Chiguayante,Hualqui,13.4
+Chiguayante,La Leonera,5.5
+Chiguayante,Manquimávida,3.1
+Chiguayante,Pedro Medina,1.4
+Chiguayante,Chiguayante,0.0
+Chiguayante,Concepción,10.1
+Chiguayante,Lorenzo Arenas,13.1
+Chiguayante,UTFSM,16.0
+Chiguayante,Los Cóndores,18.0
+Chiguayante,Higueras,20.0
+Chiguayante,El Arenal,23.3
+Chiguayante,Mercado,24.700000000000003
+Chiguayante,Juan Pablo II,13.1
+Chiguayante,Diagonal Biobío,15.1
+Chiguayante,Alborada,17.299999999999997
+Chiguayante,Costa Mar,18.099999999999998
+Chiguayante,El Parque,19.749999999999996
+Chiguayante,Lomas Coloradas,21.399999999999995
+Chiguayante,C. Raúl Silva H.,23.374999999999996
+Chiguayante,Hito Galvarino,29.654999999999998
+Chiguayante,Los Canelos,32.614999999999995
+Chiguayante,Huinca,33.47999999999999
+Chiguayante,Cristo Redentor,34.64999999999999
+Chiguayante,Laguna Quiñenco,36.239999999999995
+Chiguayante,Intermodal Coronel,37.379999999999995
+Chiguayante,Pasajero Lota,37.379999999999995
+Chiguayante,Concepción Centro,10.1
+Concepción,Hualqui,23.5
+Concepción,La Leonera,15.6
+Concepción,Manquimávida,13.2
+Concepción,Pedro Medina,11.5
+Concepción,Chiguayante,10.1
+Concepción,Concepción,0.0
+Concepción,Lorenzo Arenas,3.0
+Concepción,UTFSM,5.9
+Concepción,Los Cóndores,7.9
+Concepción,Higueras,9.9
+Concepción,El Arenal,13.1
+Concepción,Mercado,14.5
+Concepción,Juan Pablo II,3.0
+Concepción,Diagonal Biobío,5.0
+Concepción,Alborada,7.199999999999999
+Concepción,Costa Mar,8.0
+Concepción,El Parque,9.649999999999999
+Concepción,Lomas Coloradas,11.299999999999997
+Concepción,C. Raúl Silva H.,13.274999999999999
+Concepción,Hito Galvarino,19.555
+Concepción,Los Canelos,22.515
+Concepción,Huinca,23.379999999999995
+Concepción,Cristo Redentor,24.549999999999997
+Concepción,Laguna Quiñenco,26.14
+Concepción,Intermodal Coronel,27.28
+Concepción,Pasajero Lota,27.28
+Concepción,Concepción Centro,0.0
+Lorenzo Arenas,Hualqui,26.5
+Lorenzo Arenas,La Leonera,18.6
+Lorenzo Arenas,Manquimávida,16.2
+Lorenzo Arenas,Pedro Medina,14.5
+Lorenzo Arenas,Chiguayante,13.1
+Lorenzo Arenas,Concepción,3.0
+Lorenzo Arenas,Lorenzo Arenas,0.0
+Lorenzo Arenas,UTFSM,2.9000000000000004
+Lorenzo Arenas,Los Cóndores,4.9
+Lorenzo Arenas,Higueras,6.9
+Lorenzo Arenas,El Arenal,10.1
+Lorenzo Arenas,Mercado,11.5
+Lorenzo Arenas,Juan Pablo II,6.0
+Lorenzo Arenas,Diagonal Biobío,8.0
+Lorenzo Arenas,Alborada,10.2
+Lorenzo Arenas,Costa Mar,11.0
+Lorenzo Arenas,El Parque,12.649999999999999
+Lorenzo Arenas,Lomas Coloradas,14.299999999999997
+Lorenzo Arenas,C. Raúl Silva H.,16.275
+Lorenzo Arenas,Hito Galvarino,22.555
+Lorenzo Arenas,Los Canelos,25.515
+Lorenzo Arenas,Huinca,26.379999999999995
+Lorenzo Arenas,Cristo Redentor,27.549999999999997
+Lorenzo Arenas,Laguna Quiñenco,29.14
+Lorenzo Arenas,Intermodal Coronel,30.28
+Lorenzo Arenas,Pasajero Lota,30.28
+Lorenzo Arenas,Concepción Centro,3.0
+UTFSM,Hualqui,29.4
+UTFSM,La Leonera,21.5
+UTFSM,Manquimávida,19.1
+UTFSM,Pedro Medina,17.400000000000002
+UTFSM,Chiguayante,16.0
+UTFSM,Concepción,5.9
+UTFSM,Lorenzo Arenas,2.9000000000000004
+UTFSM,UTFSM,0.0
+UTFSM,Los Cóndores,2.0
+UTFSM,Higueras,4.0
+UTFSM,El Arenal,7.2
+UTFSM,Mercado,8.6
+UTFSM,Juan Pablo II,8.9
+UTFSM,Diagonal Biobío,10.9
+UTFSM,Alborada,13.1
+UTFSM,Costa Mar,13.9
+UTFSM,El Parque,15.549999999999999
+UTFSM,Lomas Coloradas,17.199999999999996
+UTFSM,C. Raúl Silva H.,19.174999999999997
+UTFSM,Hito Galvarino,25.455
+UTFSM,Los Canelos,28.415
+UTFSM,Huinca,29.279999999999994
+UTFSM,Cristo Redentor,30.449999999999996
+UTFSM,Laguna Quiñenco,32.04
+UTFSM,Intermodal Coronel,33.18
+UTFSM,Pasajero Lota,33.18
+UTFSM,Concepción Centro,5.9
+Los Cóndores,Hualqui,31.4
+Los Cóndores,La Leonera,23.5
+Los Cóndores,Manquimávida,21.1
+Los Cóndores,Pedro Medina,19.400000000000002
+Los Cóndores,Chiguayante,18.0
+Los Cóndores,Concepción,7.9
+Los Cóndores,Lorenzo Arenas,4.9
+Los Cóndores,UTFSM,2.0
+Los Cóndores,Los Cóndores,0.0
+Los Cóndores,Higueras,2.0
+Los Cóndores,El Arenal,5.2
+Los Cóndores,Mercado,6.6
+Los Cóndores,Juan Pablo II,10.9
+Los Cóndores,Diagonal Biobío,12.9
+Los Cóndores,Alborada,15.1
+Los Cóndores,Costa Mar,15.9
+Los Cóndores,El Parque,17.549999999999997
+Los Cóndores,Lomas Coloradas,19.199999999999996
+Los Cóndores,C. Raúl Silva H.,21.174999999999997
+Los Cóndores,Hito Galvarino,27.455
+Los Cóndores,Los Canelos,30.415
+Los Cóndores,Huinca,31.279999999999994
+Los Cóndores,Cristo Redentor,32.449999999999996
+Los Cóndores,Laguna Quiñenco,34.04
+Los Cóndores,Intermodal Coronel,35.18
+Los Cóndores,Pasajero Lota,35.18
+Los Cóndores,Concepción Centro,7.9
+Higueras,Hualqui,33.4
+Higueras,La Leonera,25.5
+Higueras,Manquimávida,23.1
+Higueras,Pedro Medina,21.400000000000002
+Higueras,Chiguayante,20.0
+Higueras,Concepción,9.9
+Higueras,Lorenzo Arenas,6.9
+Higueras,UTFSM,4.0
+Higueras,Los Cóndores,2.0
+Higueras,Higueras,0.0
+Higueras,El Arenal,3.2
+Higueras,Mercado,4.6
+Higueras,Juan Pablo II,12.9
+Higueras,Diagonal Biobío,14.9
+Higueras,Alborada,17.1
+Higueras,Costa Mar,17.900000000000002
+Higueras,El Parque,19.55
+Higueras,Lomas Coloradas,21.2
+Higueras,C. Raúl Silva H.,23.175
+Higueras,Hito Galvarino,29.455000000000002
+Higueras,Los Canelos,32.415000000000006
+Higueras,Huinca,33.28
+Higueras,Cristo Redentor,34.45
+Higueras,Laguna Quiñenco,36.040000000000006
+Higueras,Intermodal Coronel,37.18000000000001
+Higueras,Pasajero Lota,37.18000000000001
+Higueras,Concepción Centro,9.9
+El Arenal,Hualqui,36.6
+El Arenal,La Leonera,28.7
+El Arenal,Manquimávida,26.3
+El Arenal,Pedro Medina,24.6
+El Arenal,Chiguayante,23.3
+El Arenal,Concepción,13.1
+El Arenal,Lorenzo Arenas,10.1
+El Arenal,UTFSM,7.2
+El Arenal,Los Cóndores,5.2
+El Arenal,Higueras,3.2
+El Arenal,El Arenal,0.0
+El Arenal,Mercado,1.3999999999999986
+El Arenal,Juan Pablo II,16.1
+El Arenal,Diagonal Biobío,18.1
+El Arenal,Alborada,20.3
+El Arenal,Costa Mar,21.1
+El Arenal,El Parque,22.75
+El Arenal,Lomas Coloradas,24.4
+El Arenal,C. Raúl Silva H.,26.375
+El Arenal,Hito Galvarino,32.655
+El Arenal,Los Canelos,35.615
+El Arenal,Huinca,36.48
+El Arenal,Cristo Redentor,37.65
+El Arenal,Laguna Quiñenco,39.24
+El Arenal,Intermodal Coronel,40.38
+El Arenal,Pasajero Lota,40.38
+El Arenal,Concepción Centro,13.1
+Mercado,Hualqui,38.0
+Mercado,La Leonera,30.1
+Mercado,Manquimávida,27.7
+Mercado,Pedro Medina,26.0
+Mercado,Chiguayante,24.700000000000003
+Mercado,Concepción,14.5
+Mercado,Lorenzo Arenas,11.5
+Mercado,UTFSM,8.6
+Mercado,Los Cóndores,6.6
+Mercado,Higueras,4.6
+Mercado,El Arenal,1.3999999999999986
+Mercado,Mercado,0.0
+Mercado,Juan Pablo II,17.5
+Mercado,Diagonal Biobío,19.5
+Mercado,Alborada,21.7
+Mercado,Costa Mar,22.5
+Mercado,El Parque,24.15
+Mercado,Lomas Coloradas,25.799999999999997
+Mercado,C. Raúl Silva H.,27.775
+Mercado,Hito Galvarino,34.055
+Mercado,Los Canelos,37.015
+Mercado,Huinca,37.879999999999995
+Mercado,Cristo Redentor,39.05
+Mercado,Laguna Quiñenco,40.64
+Mercado,Intermodal Coronel,41.78
+Mercado,Pasajero Lota,41.78
+Mercado,Concepción Centro,14.5
+Juan Pablo II,Hualqui,26.5
+Juan Pablo II,La Leonera,18.6
+Juan Pablo II,Manquimávida,16.2
+Juan Pablo II,Pedro Medina,14.5
+Juan Pablo II,Chiguayante,13.1
+Juan Pablo II,Concepción,3.0
+Juan Pablo II,Lorenzo Arenas,6.0
+Juan Pablo II,UTFSM,8.9
+Juan Pablo II,Los Cóndores,10.9
+Juan Pablo II,Higueras,12.9
+Juan Pablo II,El Arenal,16.1
+Juan Pablo II,Mercado,17.5
+Juan Pablo II,Juan Pablo II,0.0
+Juan Pablo II,Diagonal Biobío,2.0
+Juan Pablo II,Alborada,4.199999999999999
+Juan Pablo II,Costa Mar,5.0
+Juan Pablo II,El Parque,6.649999999999999
+Juan Pablo II,Lomas Coloradas,8.299999999999997
+Juan Pablo II,C. Raúl Silva H.,10.274999999999999
+Juan Pablo II,Hito Galvarino,16.555
+Juan Pablo II,Los Canelos,19.515
+Juan Pablo II,Huinca,20.379999999999995
+Juan Pablo II,Cristo Redentor,21.549999999999997
+Juan Pablo II,Laguna Quiñenco,23.14
+Juan Pablo II,Intermodal Coronel,24.28
+Juan Pablo II,Pasajero Lota,24.28
+Juan Pablo II,Concepción Centro,3.0
+Diagonal Biobío,Hualqui,28.5
+Diagonal Biobío,La Leonera,20.6
+Diagonal Biobío,Manquimávida,18.2
+Diagonal Biobío,Pedro Medina,16.5
+Diagonal Biobío,Chiguayante,15.1
+Diagonal Biobío,Concepción,5.0
+Diagonal Biobío,Lorenzo Arenas,8.0
+Diagonal Biobío,UTFSM,10.9
+Diagonal Biobío,Los Cóndores,12.9
+Diagonal Biobío,Higueras,14.9
+Diagonal Biobío,El Arenal,18.1
+Diagonal Biobío,Mercado,19.5
+Diagonal Biobío,Juan Pablo II,2.0
+Diagonal Biobío,Diagonal Biobío,0.0
+Diagonal Biobío,Alborada,2.1999999999999993
+Diagonal Biobío,Costa Mar,3.0
+Diagonal Biobío,El Parque,4.649999999999999
+Diagonal Biobío,Lomas Coloradas,6.299999999999997
+Diagonal Biobío,C. Raúl Silva H.,8.274999999999999
+Diagonal Biobío,Hito Galvarino,14.555
+Diagonal Biobío,Los Canelos,17.515
+Diagonal Biobío,Huinca,18.379999999999995
+Diagonal Biobío,Cristo Redentor,19.549999999999997
+Diagonal Biobío,Laguna Quiñenco,21.14
+Diagonal Biobío,Intermodal Coronel,22.28
+Diagonal Biobío,Pasajero Lota,22.28
+Diagonal Biobío,Concepción Centro,5.0
+Alborada,Hualqui,30.7
+Alborada,La Leonera,22.8
+Alborada,Manquimávida,20.4
+Alborada,Pedro Medina,18.7
+Alborada,Chiguayante,17.299999999999997
+Alborada,Concepción,7.199999999999999
+Alborada,Lorenzo Arenas,10.2
+Alborada,UTFSM,13.1
+Alborada,Los Cóndores,15.1
+Alborada,Higueras,17.1
+Alborada,El Arenal,20.3
+Alborada,Mercado,21.7
+Alborada,Juan Pablo II,4.199999999999999
+Alborada,Diagonal Biobío,2.1999999999999993
+Alborada,Alborada,0.0
+Alborada,Costa Mar,0.8000000000000007
+Alborada,El Parque,2.4499999999999993
+Alborada,Lomas Coloradas,4.099999999999998
+Alborada,C. Raúl Silva H.,6.074999999999999
+Alborada,Hito Galvarino,12.355
+Alborada,Los Canelos,15.315000000000001
+Alborada,Huinca,16.179999999999996
+Alborada,Cristo Redentor,17.349999999999998
+Alborada,Laguna Quiñenco,18.94
+Alborada,Intermodal Coronel,20.080000000000002
+Alborada,Pasajero Lota,20.080000000000002
+Alborada,Concepción Centro,7.199999999999999
+Costa Mar,Hualqui,31.5
+Costa Mar,La Leonera,23.6
+Costa Mar,Manquimávida,21.2
+Costa Mar,Pedro Medina,19.5
+Costa Mar,Chiguayante,18.099999999999998
+Costa Mar,Concepción,8.0
+Costa Mar,Lorenzo Arenas,11.0
+Costa Mar,UTFSM,13.9
+Costa Mar,Los Cóndores,15.9
+Costa Mar,Higueras,17.900000000000002
+Costa Mar,El Arenal,21.1
+Costa Mar,Mercado,22.5
+Costa Mar,Juan Pablo II,5.0
+Costa Mar,Diagonal Biobío,3.0
+Costa Mar,Alborada,0.8000000000000007
+Costa Mar,Costa Mar,0.0
+Costa Mar,El Parque,1.6499999999999986
+Costa Mar,Lomas Coloradas,3.299999999999997
+Costa Mar,C. Raúl Silva H.,5.274999999999999
+Costa Mar,Hito Galvarino,11.555
+Costa Mar,Los Canelos,14.515
+Costa Mar,Huinca,15.379999999999995
+Costa Mar,Cristo Redentor,16.549999999999997
+Costa Mar,Laguna Quiñenco,18.14
+Costa Mar,Intermodal Coronel,19.28
+Costa Mar,Pasajero Lota,19.28
+Costa Mar,Concepción Centro,8.0
+El Parque,Hualqui,33.15
+El Parque,La Leonera,25.25
+El Parque,Manquimávida,22.849999999999998
+El Parque,Pedro Medina,21.15
+El Parque,Chiguayante,19.749999999999996
+El Parque,Concepción,9.649999999999999
+El Parque,Lorenzo Arenas,12.649999999999999
+El Parque,UTFSM,15.549999999999999
+El Parque,Los Cóndores,17.549999999999997
+El Parque,Higueras,19.55
+El Parque,El Arenal,22.75
+El Parque,Mercado,24.15
+El Parque,Juan Pablo II,6.649999999999999
+El Parque,Diagonal Biobío,4.649999999999999
+El Parque,Alborada,2.4499999999999993
+El Parque,Costa Mar,1.6499999999999986
+El Parque,El Parque,0.0
+El Parque,Lomas Coloradas,1.6499999999999986
+El Parque,C. Raúl Silva H.,3.625
+El Parque,Hito Galvarino,9.905000000000001
+El Parque,Los Canelos,12.865000000000002
+El Parque,Huinca,13.729999999999997
+El Parque,Cristo Redentor,14.899999999999999
+El Parque,Laguna Quiñenco,16.490000000000002
+El Parque,Intermodal Coronel,17.630000000000003
+El Parque,Pasajero Lota,17.630000000000003
+El Parque,Concepción Centro,9.649999999999999
+Lomas Coloradas,Hualqui,34.8
+Lomas Coloradas,La Leonera,26.9
+Lomas Coloradas,Manquimávida,24.499999999999996
+Lomas Coloradas,Pedro Medina,22.799999999999997
+Lomas Coloradas,Chiguayante,21.399999999999995
+Lomas Coloradas,Concepción,11.299999999999997
+Lomas Coloradas,Lorenzo Arenas,14.299999999999997
+Lomas Coloradas,UTFSM,17.199999999999996
+Lomas Coloradas,Los Cóndores,19.199999999999996
+Lomas Coloradas,Higueras,21.2
+Lomas Coloradas,El Arenal,24.4
+Lomas Coloradas,Mercado,25.799999999999997
+Lomas Coloradas,Juan Pablo II,8.299999999999997
+Lomas Coloradas,Diagonal Biobío,6.299999999999997
+Lomas Coloradas,Alborada,4.099999999999998
+Lomas Coloradas,Costa Mar,3.299999999999997
+Lomas Coloradas,El Parque,1.6499999999999986
+Lomas Coloradas,Lomas Coloradas,0.0
+Lomas Coloradas,C. Raúl Silva H.,1.9750000000000014
+Lomas Coloradas,Hito Galvarino,8.255000000000003
+Lomas Coloradas,Los Canelos,11.215000000000003
+Lomas Coloradas,Huinca,12.079999999999998
+Lomas Coloradas,Cristo Redentor,13.25
+Lomas Coloradas,Laguna Quiñenco,14.840000000000003
+Lomas Coloradas,Intermodal Coronel,15.980000000000004
+Lomas Coloradas,Pasajero Lota,15.980000000000004
+Lomas Coloradas,Concepción Centro,11.299999999999997
+C. Raúl Silva H.,Hualqui,36.775
+C. Raúl Silva H.,La Leonera,28.875
+C. Raúl Silva H.,Manquimávida,26.474999999999998
+C. Raúl Silva H.,Pedro Medina,24.775
+C. Raúl Silva H.,Chiguayante,23.374999999999996
+C. Raúl Silva H.,Concepción,13.274999999999999
+C. Raúl Silva H.,Lorenzo Arenas,16.275
+C. Raúl Silva H.,UTFSM,19.174999999999997
+C. Raúl Silva H.,Los Cóndores,21.174999999999997
+C. Raúl Silva H.,Higueras,23.175
+C. Raúl Silva H.,El Arenal,26.375
+C. Raúl Silva H.,Mercado,27.775
+C. Raúl Silva H.,Juan Pablo II,10.274999999999999
+C. Raúl Silva H.,Diagonal Biobío,8.274999999999999
+C. Raúl Silva H.,Alborada,6.074999999999999
+C. Raúl Silva H.,Costa Mar,5.274999999999999
+C. Raúl Silva H.,El Parque,3.625
+C. Raúl Silva H.,Lomas Coloradas,1.9750000000000014
+C. Raúl Silva H.,C. Raúl Silva H.,0.0
+C. Raúl Silva H.,Hito Galvarino,6.280000000000001
+C. Raúl Silva H.,Los Canelos,9.240000000000002
+C. Raúl Silva H.,Huinca,10.104999999999997
+C. Raúl Silva H.,Cristo Redentor,11.274999999999999
+C. Raúl Silva H.,Laguna Quiñenco,12.865000000000002
+C. Raúl Silva H.,Intermodal Coronel,14.005000000000003
+C. Raúl Silva H.,Pasajero Lota,14.005000000000003
+C. Raúl Silva H.,Concepción Centro,13.274999999999999
+Hito Galvarino,Hualqui,43.055
+Hito Galvarino,La Leonera,35.155
+Hito Galvarino,Manquimávida,32.754999999999995
+Hito Galvarino,Pedro Medina,31.055
+Hito Galvarino,Chiguayante,29.654999999999998
+Hito Galvarino,Concepción,19.555
+Hito Galvarino,Lorenzo Arenas,22.555
+Hito Galvarino,UTFSM,25.455
+Hito Galvarino,Los Cóndores,27.455
+Hito Galvarino,Higueras,29.455000000000002
+Hito Galvarino,El Arenal,32.655
+Hito Galvarino,Mercado,34.055
+Hito Galvarino,Juan Pablo II,16.555
+Hito Galvarino,Diagonal Biobío,14.555
+Hito Galvarino,Alborada,12.355
+Hito Galvarino,Costa Mar,11.555
+Hito Galvarino,El Parque,9.905000000000001
+Hito Galvarino,Lomas Coloradas,8.255000000000003
+Hito Galvarino,C. Raúl Silva H.,6.280000000000001
+Hito Galvarino,Hito Galvarino,0.0
+Hito Galvarino,Los Canelos,2.960000000000001
+Hito Galvarino,Huinca,3.8249999999999957
+Hito Galvarino,Cristo Redentor,4.994999999999997
+Hito Galvarino,Laguna Quiñenco,6.585000000000001
+Hito Galvarino,Intermodal Coronel,7.725000000000001
+Hito Galvarino,Pasajero Lota,7.725000000000001
+Hito Galvarino,Concepción Centro,19.555
+Los Canelos,Hualqui,46.015
+Los Canelos,La Leonera,38.115
+Los Canelos,Manquimávida,35.714999999999996
+Los Canelos,Pedro Medina,34.015
+Los Canelos,Chiguayante,32.614999999999995
+Los Canelos,Concepción,22.515
+Los Canelos,Lorenzo Arenas,25.515
+Los Canelos,UTFSM,28.415
+Los Canelos,Los Cóndores,30.415
+Los Canelos,Higueras,32.415000000000006
+Los Canelos,El Arenal,35.615
+Los Canelos,Mercado,37.015
+Los Canelos,Juan Pablo II,19.515
+Los Canelos,Diagonal Biobío,17.515
+Los Canelos,Alborada,15.315000000000001
+Los Canelos,Costa Mar,14.515
+Los Canelos,El Parque,12.865000000000002
+Los Canelos,Lomas Coloradas,11.215000000000003
+Los Canelos,C. Raúl Silva H.,9.240000000000002
+Los Canelos,Hito Galvarino,2.960000000000001
+Los Canelos,Los Canelos,0.0
+Los Canelos,Huinca,0.8649999999999949
+Los Canelos,Cristo Redentor,2.0349999999999966
+Los Canelos,Laguna Quiñenco,3.625
+Los Canelos,Intermodal Coronel,4.765000000000001
+Los Canelos,Pasajero Lota,4.765000000000001
+Los Canelos,Concepción Centro,22.515
+Huinca,Hualqui,46.879999999999995
+Huinca,La Leonera,38.98
+Huinca,Manquimávida,36.57999999999999
+Huinca,Pedro Medina,34.879999999999995
+Huinca,Chiguayante,33.47999999999999
+Huinca,Concepción,23.379999999999995
+Huinca,Lorenzo Arenas,26.379999999999995
+Huinca,UTFSM,29.279999999999994
+Huinca,Los Cóndores,31.279999999999994
+Huinca,Higueras,33.28
+Huinca,El Arenal,36.48
+Huinca,Mercado,37.879999999999995
+Huinca,Juan Pablo II,20.379999999999995
+Huinca,Diagonal Biobío,18.379999999999995
+Huinca,Alborada,16.179999999999996
+Huinca,Costa Mar,15.379999999999995
+Huinca,El Parque,13.729999999999997
+Huinca,Lomas Coloradas,12.079999999999998
+Huinca,C. Raúl Silva H.,10.104999999999997
+Huinca,Hito Galvarino,3.8249999999999957
+Huinca,Los Canelos,0.8649999999999949
+Huinca,Huinca,0.0
+Huinca,Cristo Redentor,1.1700000000000017
+Huinca,Laguna Quiñenco,2.760000000000005
+Huinca,Intermodal Coronel,3.9000000000000057
+Huinca,Pasajero Lota,3.9000000000000057
+Huinca,Concepción Centro,23.379999999999995
+Cristo Redentor,Hualqui,48.05
+Cristo Redentor,La Leonera,40.15
+Cristo Redentor,Manquimávida,37.74999999999999
+Cristo Redentor,Pedro Medina,36.05
+Cristo Redentor,Chiguayante,34.64999999999999
+Cristo Redentor,Concepción,24.549999999999997
+Cristo Redentor,Lorenzo Arenas,27.549999999999997
+Cristo Redentor,UTFSM,30.449999999999996
+Cristo Redentor,Los Cóndores,32.449999999999996
+Cristo Redentor,Higueras,34.45
+Cristo Redentor,El Arenal,37.65
+Cristo Redentor,Mercado,39.05
+Cristo Redentor,Juan Pablo II,21.549999999999997
+Cristo Redentor,Diagonal Biobío,19.549999999999997
+Cristo Redentor,Alborada,17.349999999999998
+Cristo Redentor,Costa Mar,16.549999999999997
+Cristo Redentor,El Parque,14.899999999999999
+Cristo Redentor,Lomas Coloradas,13.25
+Cristo Redentor,C. Raúl Silva H.,11.274999999999999
+Cristo Redentor,Hito Galvarino,4.994999999999997
+Cristo Redentor,Los Canelos,2.0349999999999966
+Cristo Redentor,Huinca,1.1700000000000017
+Cristo Redentor,Cristo Redentor,0.0
+Cristo Redentor,Laguna Quiñenco,1.5900000000000034
+Cristo Redentor,Intermodal Coronel,2.730000000000004
+Cristo Redentor,Pasajero Lota,2.730000000000004
+Cristo Redentor,Concepción Centro,24.549999999999997
+Laguna Quiñenco,Hualqui,49.64
+Laguna Quiñenco,La Leonera,41.74
+Laguna Quiñenco,Manquimávida,39.339999999999996
+Laguna Quiñenco,Pedro Medina,37.64
+Laguna Quiñenco,Chiguayante,36.239999999999995
+Laguna Quiñenco,Concepción,26.14
+Laguna Quiñenco,Lorenzo Arenas,29.14
+Laguna Quiñenco,UTFSM,32.04
+Laguna Quiñenco,Los Cóndores,34.04
+Laguna Quiñenco,Higueras,36.040000000000006
+Laguna Quiñenco,El Arenal,39.24
+Laguna Quiñenco,Mercado,40.64
+Laguna Quiñenco,Juan Pablo II,23.14
+Laguna Quiñenco,Diagonal Biobío,21.14
+Laguna Quiñenco,Alborada,18.94
+Laguna Quiñenco,Costa Mar,18.14
+Laguna Quiñenco,El Parque,16.490000000000002
+Laguna Quiñenco,Lomas Coloradas,14.840000000000003
+Laguna Quiñenco,C. Raúl Silva H.,12.865000000000002
+Laguna Quiñenco,Hito Galvarino,6.585000000000001
+Laguna Quiñenco,Los Canelos,3.625
+Laguna Quiñenco,Huinca,2.760000000000005
+Laguna Quiñenco,Cristo Redentor,1.5900000000000034
+Laguna Quiñenco,Laguna Quiñenco,0.0
+Laguna Quiñenco,Intermodal Coronel,1.1400000000000006
+Laguna Quiñenco,Pasajero Lota,1.1400000000000006
+Laguna Quiñenco,Concepción Centro,26.14
+Intermodal Coronel,Hualqui,50.78
+Intermodal Coronel,La Leonera,42.88
+Intermodal Coronel,Manquimávida,40.48
+Intermodal Coronel,Pedro Medina,38.78
+Intermodal Coronel,Chiguayante,37.379999999999995
+Intermodal Coronel,Concepción,27.28
+Intermodal Coronel,Lorenzo Arenas,30.28
+Intermodal Coronel,UTFSM,33.18
+Intermodal Coronel,Los Cóndores,35.18
+Intermodal Coronel,Higueras,37.18000000000001
+Intermodal Coronel,El Arenal,40.38
+Intermodal Coronel,Mercado,41.78
+Intermodal Coronel,Juan Pablo II,24.28
+Intermodal Coronel,Diagonal Biobío,22.28
+Intermodal Coronel,Alborada,20.080000000000002
+Intermodal Coronel,Costa Mar,19.28
+Intermodal Coronel,El Parque,17.630000000000003
+Intermodal Coronel,Lomas Coloradas,15.980000000000004
+Intermodal Coronel,C. Raúl Silva H.,14.005000000000003
+Intermodal Coronel,Hito Galvarino,7.725000000000001
+Intermodal Coronel,Los Canelos,4.765000000000001
+Intermodal Coronel,Huinca,3.9000000000000057
+Intermodal Coronel,Cristo Redentor,2.730000000000004
+Intermodal Coronel,Laguna Quiñenco,1.1400000000000006
+Intermodal Coronel,Intermodal Coronel,0.0
+Intermodal Coronel,Pasajero Lota,0.0
+Intermodal Coronel,Concepción Centro,27.28
+Pasajero Lota,Hualqui,50.78
+Pasajero Lota,La Leonera,42.88
+Pasajero Lota,Manquimávida,40.48
+Pasajero Lota,Pedro Medina,38.78
+Pasajero Lota,Chiguayante,37.379999999999995
+Pasajero Lota,Concepción,27.28
+Pasajero Lota,Lorenzo Arenas,30.28
+Pasajero Lota,UTFSM,33.18
+Pasajero Lota,Los Cóndores,35.18
+Pasajero Lota,Higueras,37.18000000000001
+Pasajero Lota,El Arenal,40.38
+Pasajero Lota,Mercado,41.78
+Pasajero Lota,Juan Pablo II,24.28
+Pasajero Lota,Diagonal Biobío,22.28
+Pasajero Lota,Alborada,20.080000000000002
+Pasajero Lota,Costa Mar,19.28
+Pasajero Lota,El Parque,17.630000000000003
+Pasajero Lota,Lomas Coloradas,15.980000000000004
+Pasajero Lota,C. Raúl Silva H.,14.005000000000003
+Pasajero Lota,Hito Galvarino,7.725000000000001
+Pasajero Lota,Los Canelos,4.765000000000001
+Pasajero Lota,Huinca,3.9000000000000057
+Pasajero Lota,Cristo Redentor,2.730000000000004
+Pasajero Lota,Laguna Quiñenco,1.1400000000000006
+Pasajero Lota,Intermodal Coronel,0.0
+Pasajero Lota,Pasajero Lota,0.0
+Pasajero Lota,Concepción Centro,27.28
+Concepción Centro,Hualqui,23.5
+Concepción Centro,La Leonera,15.6
+Concepción Centro,Manquimávida,13.2
+Concepción Centro,Pedro Medina,11.5
+Concepción Centro,Chiguayante,10.1
+Concepción Centro,Concepción,0.0
+Concepción Centro,Lorenzo Arenas,3.0
+Concepción Centro,UTFSM,5.9
+Concepción Centro,Los Cóndores,7.9
+Concepción Centro,Higueras,9.9
+Concepción Centro,El Arenal,13.1
+Concepción Centro,Mercado,14.5
+Concepción Centro,Juan Pablo II,3.0
+Concepción Centro,Diagonal Biobío,5.0
+Concepción Centro,Alborada,7.199999999999999
+Concepción Centro,Costa Mar,8.0
+Concepción Centro,El Parque,9.649999999999999
+Concepción Centro,Lomas Coloradas,11.299999999999997
+Concepción Centro,C. Raúl Silva H.,13.274999999999999
+Concepción Centro,Hito Galvarino,19.555
+Concepción Centro,Los Canelos,22.515
+Concepción Centro,Huinca,23.379999999999995
+Concepción Centro,Cristo Redentor,24.549999999999997
+Concepción Centro,Laguna Quiñenco,26.14
+Concepción Centro,Intermodal Coronel,27.28
+Concepción Centro,Pasajero Lota,27.28
+Concepción Centro,Concepción Centro,0.0

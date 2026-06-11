@@ -139,7 +139,11 @@ def ejecutar_validacion() -> pd.DataFrame:
         OUT / "detalle_calculo_mensual_elastico.csv",
         OD_OUT / "od_2027_viajes_por_tipo_long.csv",
         OD_OUT / "od_2027_ingresos_por_tipo_long.csv",
-        OD_OUT / "od_biotren_2027_hibrido_por_tipo.xlsx",
+        ODH.PROCESSED_FILES["orden_estaciones"],
+        ODH.PROCESSED_FILES["od_historica"],
+        ODH.PROCESSED_FILES["tarifas"],
+        ODH.PROCESSED_FILES["distancias"],
+        ODH.PROCESSED_FILES["validacion"],
     ]
     missing = [p.name for p in expected if not p.exists()]
     rows.append(_ok("Archivos de salida principales", len(missing) == 0, "Faltantes: " + (", ".join(missing) if missing else "ninguno")))

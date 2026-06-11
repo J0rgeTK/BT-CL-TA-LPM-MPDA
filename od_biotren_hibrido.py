@@ -27,6 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent
 DATA = BASE_DIR / "data"
 OUT = BASE_DIR / "outputs"
 OD_INPUT = DATA / "od_biotren" / "input"
+OD_PROCESSED = DATA / "od_biotren" / "processed"
 OD_OUT = OUT / "od_biotren_hibrido"
 OD_OUT.mkdir(parents=True, exist_ok=True)
 
@@ -35,6 +36,14 @@ OD_MAR = OD_INPUT / "0. Matrices Biotren mar_2026.xlsx"
 OD_ABR = OD_INPUT / "0. Matrices Biotren abr_2026.xlsx"
 DIST_FILE = OD_INPUT / "Libro1.xlsx"
 FARE_FILE = OD_INPUT / "Consolidado Tarifas EFE Sur 2026.xlsx"
+
+PROCESSED_FILES = {
+    "orden_estaciones": OD_PROCESSED / "orden_estaciones_original.csv",
+    "od_historica": OD_PROCESSED / "od_historica_por_tipo_long.csv",
+    "tarifas": OD_PROCESSED / "tarifas_2026_por_tipo_long.csv",
+    "distancias": OD_PROCESSED / "distancia_biotren_km_long.csv",
+    "validacion": OD_PROCESSED / "validacion_extraccion_od.csv",
+}
 
 TIPOS_BLOQUES = {
     "Normal": "T. Monedero",
@@ -280,6 +289,59 @@ def load_od_matrices(path: Path = OD_MAIN, blocks: Iterable[str] | None = None, 
 
 
 # ---------------------------------------------------------------------------
+# Lectura de insumos CSV procesados
+# ---------------------------------------------------------------------------
+
+def insumos_procesados_faltantes() -> list[Path]:
+    return [path for path in PROCESSED_FILES.values() if not path.exists()]
+
+
+def _error_insumos_procesados(faltantes: list[Path]) -> FileNotFoundError:
+    rel = [str(p.relative_to(BASE_DIR)) for p in faltantes]
+    return FileNotFoundError(
+        "Faltan insumos OD Biotren procesados en CSV: "
+        + ", ".join(rel)
+        + ". Ejecute `python preparar_insumos_od_biotren.py` con los Excel originales "
+        + "disponibles en data/od_biotren/input/. Los Excel son insumos externos "
+        + "opcionales y no se versionan."
+    )
+
+
+def _matrix_from_long(df: pd.DataFrame, value_col: str, station_order: list[str]) -> pd.DataFrame:
+    M = df.pivot_table(index="origen", columns="destino", values=value_col, aggfunc="sum", fill_value=0.0)
+    return M.reindex(index=station_order, columns=station_order, fill_value=0.0).astype(float)
+
+
+def load_processed_inputs():
+    faltantes = insumos_procesados_faltantes()
+    if faltantes:
+        raise _error_insumos_procesados(faltantes)
+
+    orden = pd.read_csv(PROCESSED_FILES["orden_estaciones"])
+    orden = orden.sort_values("orden")
+    station_order = orden["estacion"].astype(str).tolist()
+
+    od_long = pd.read_csv(PROCESSED_FILES["od_historica"])
+    mats: dict[tuple[int, int, str], pd.DataFrame] = {}
+    for (anio, mes, bloque), g in od_long.groupby(["anio", "mes", "bloque"], sort=False):
+        mats[(int(anio), int(mes), str(bloque))] = _matrix_from_long(g, "viajes", station_order)
+
+    tarifas_long = pd.read_csv(PROCESSED_FILES["tarifas"])
+    fares = {
+        str(tipo): _matrix_from_long(g, "tarifa_2026", station_order)
+        for tipo, g in tarifas_long.groupby("tipo_pasajero", sort=False)
+    }
+    missing_fares = [tipo for tipo in TIPOS if tipo not in fares]
+    if missing_fares:
+        raise ValueError(f"Faltan tarifas procesadas para tipos de pasajero: {missing_fares}")
+
+    dist_long = pd.read_csv(PROCESSED_FILES["distancias"])
+    dist = _matrix_from_long(dist_long, "distancia_km", station_order)
+    validation = pd.read_csv(PROCESSED_FILES["validacion"])
+    return mats, validation, station_order, fares, dist
+
+
+# ---------------------------------------------------------------------------
 # Tarifas, distancias y costo generalizado
 # ---------------------------------------------------------------------------
 
@@ -434,9 +496,7 @@ def year_weights_for_month(available_years: Iterable[int]) -> dict[int, float]:
 
 @lru_cache(maxsize=1)
 def cargar_insumos_od():
-    mats, validation, station_order = load_od_matrices(OD_MAIN)
-    fares = load_tariff_matrices(station_order)
-    dist = load_distance_matrix(station_order)
+    mats, validation, station_order, fares, dist = load_processed_inputs()
     costs = {tipo: generalized_cost(fares[tipo], dist) for tipo in TIPOS}
     return mats, validation, station_order, fares, dist, costs
 
