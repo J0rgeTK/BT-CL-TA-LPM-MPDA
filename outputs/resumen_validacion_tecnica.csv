@@ -1,7 +1,6 @@
 control,estado,detalle
 Compilación Python del proyecto,OK,compileall sobre el directorio del modelo
 Sin binarios/cache versionados,OK,Faltantes: ninguno
-Insumos OD procesados CSV,OK,Faltantes: ninguno
 Ejecución del motor mensual-elástico,OK,"Total sistema: 14,903,113"
 Consistencia mensual/anual del motor,OK,Diferencia mensual máxima: 0.494399; anual máxima: 1.625558
 Sensibilidad mensual por oferta,OK,Meses con cambio: ['2027-03']

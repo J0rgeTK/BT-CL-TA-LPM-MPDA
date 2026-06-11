@@ -507,11 +507,8 @@ El cálculo se realiza por unidad operacional `u`, mes `m` y tipo de día `d` �
 - `c` corresponde a una contingencia adicional de supresión definida para análisis de sensibilidad.
 """)
 
-    with st.expander("3. Calendario operacional y feriados", expanded=False):
-        st.markdown("""
-El calendario transforma los días calendario de 2027 en días operacionales efectivos por servicio, mes y tipo de día. La regla implementada diferencia servicios con feriados sin operación y Laja-Talcahuano con operación tipo fin de semana.
-""")
-        st.info("Biotren, Tren Araucanía y Llanquihue-Puerto Montt consideran oferta efectiva cero en feriados nacionales. Laja-Talcahuano opera feriados con oferta de fin de semana; si el feriado cae lunes-viernes, se imputa como domingo operacional.")
+    with st.expander("2. Calendario operacional y feriados", expanded=False):
+        st.info("Para Biotren, Tren Araucanía y Llanquihue-Puerto Montt, los feriados nacionales tienen oferta efectiva cero. Para Laja-Talcahuano, los feriados operan con oferta de fin de semana; si el feriado cae lunes-viernes se imputa como domingo operacional.")
         st.dataframe(tabla_feriados_2027(), width="stretch", height=240)
         st.markdown("**Resumen de días operacionales por unidad, mes y tipo de día**")
         st.dataframe(O.calendario_operacional_resumen(2027), width="stretch", height=280)
@@ -536,6 +533,14 @@ El calendario transforma los días calendario de 2027 en días operacionales efe
             {"tramo": O.TA_TRAMO_NOMBRE[k], "elasticidad_tramo": v, "restriccion": "Marzo-diciembre" if k == "TA_CLARET" else "Todo el año"}
             for k, v in O.TA_TRAMO_ELASTICIDAD.items()
         ]), width="stretch")
+
+    with st.expander("4. Tratamiento por servicio", expanded=False):
+        st.markdown("""
+- **Biotren:** se modela separando L1 y L2. La oferta se edita por línea, mes y tipo de día. La curva mensual se apoya en comportamiento histórico, calendario operacional, feriados y respuesta parcial a cambios de oferta. Laja-Talcahuano se mantiene como servicio separado para evitar doble conteo.
+- **Laja-Talcahuano:** se calcula como servicio propio, con regla especial de operación en feriados y una hipótesis de recuperación de confiabilidad. La oferta base considera 8 servicios diarios, salvo fines de semana de enero y febrero con 10 servicios.
+- **Tren Araucanía:** se calcula por tipo de servicio: Temuco-Victoria, Temuco-Pitrufquén y Claret. Cada tramo tiene elasticidad diferenciada y Claret se restringe a meses lectivos.
+- **Llanquihue-Puerto Montt:** se modela con operación de lunes a viernes, sin fines de semana ni feriados nacionales en el escenario base. Enero y febrero conservan una señal estival dentro del perfil mensual.
+""")
 
     with st.expander("6. Módulo OD híbrido de Biotren", expanded=False):
         st.markdown("""
