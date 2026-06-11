@@ -153,22 +153,22 @@ La estimación de ingresos es preliminar y depende de la cobertura de la matriz 
 
     t1, t2, t3, t4 = st.tabs(["Matriz OD viajes", "Matriz OD ingresos", "Resumen y controles", "Descargas"])
     with t1:
-        st.dataframe(M.round(0).astype(int).copy(deep=True), use_container_width=True, height=560)
+        st.dataframe(M.round(0).astype(int).copy(deep=True), width="stretch", height=560)
     with t2:
-        st.dataframe(R.round(0).astype(int).copy(deep=True), use_container_width=True, height=560)
+        st.dataframe(R.round(0).astype(int).copy(deep=True), width="stretch", height=560)
     with t3:
         resumen_mes = resultado["resumen"][resultado["resumen"]["periodo"].eq(periodo)].copy(deep=True)
         st.markdown("**Resumen del mes seleccionado por tipo de pasajero**")
-        st.dataframe(resumen_mes, use_container_width=True, height=170)
+        st.dataframe(resumen_mes, width="stretch", height=170)
         st.markdown("**Validación del enfoque híbrido con meses observados recientes**")
         try:
-            st.dataframe(OD.validar_hibrido_2026(), use_container_width=True, height=230)
+            st.dataframe(OD.validar_hibrido_2026(), width="stretch", height=230)
         except Exception as e:
             st.info(f"No fue posible cargar la validación OD: {e}")
         try:
             cobertura = pd.read_csv(OD.OD_OUT / "validacion_cobertura_tarifa_distancia.csv")
             st.markdown("**Cobertura de tarifa y distancia**")
-            st.dataframe(cobertura, use_container_width=True, height=140)
+            st.dataframe(cobertura, width="stretch", height=140)
         except Exception:
             pass
     with t4:
@@ -251,7 +251,7 @@ def render_justificacion_servicio(s, serv, uni, detalle):
         st.markdown("""
 Esta sección explica por qué el resultado proyectado es coherente con los antecedentes históricos, la oferta operacional 2027 y los supuestos particulares del servicio. La validación se realiza contra los valores efectivamente calculados por el modelo vigente, no contra una referencia externa visible.
 """)
-        st.dataframe(resumen_validacion_servicio(s, serv, uni, detalle), use_container_width=True, hide_index=True)
+        st.dataframe(resumen_validacion_servicio(s, serv, uni, detalle), width="stretch", hide_index=True)
 
         if s == "BIOTREN":
             l1 = float(uni["BIOTREN_L1"].sum()) if "BIOTREN_L1" in uni.columns else 0.0
@@ -294,7 +294,7 @@ Esta sección explica por qué el resultado proyectado es coherente con los ante
         st.markdown("**Componentes que explican el resultado mensual.**")
         tabla_comp = tabla_detalle_mes(detalle, s)
         if not tabla_comp.empty:
-            st.dataframe(tabla_comp[["periodo", "viajes_operados_plan", "demanda_proyectada", "var_oferta_operada_pct", "var_demanda_pct", "elasticidad_media"]], use_container_width=True, hide_index=True)
+            st.dataframe(tabla_comp[["periodo", "viajes_operados_plan", "demanda_proyectada", "var_oferta_operada_pct", "var_demanda_pct", "elasticidad_media"]], width="stretch", hide_index=True)
         st.caption("La elasticidad menor que 1 implica rendimiento marginal decreciente: un aumento de oferta eleva la demanda, pero no en la misma proporción que los servicios adicionales.")
 
 
@@ -306,7 +306,7 @@ def editor_oferta(unit, label, base_df=None):
     sub.index.name = "Mes"
     st.caption(f"**{label}** — servicios por día. Cada modificación impacta directamente el mes editado.")
     cfg = {dt: st.column_config.NumberColumn(O.DTNOMBRE[dt], min_value=0.0, step=1.0, format="%.1f") for dt in O.DTYPES}
-    ed = st.data_editor(sub, use_container_width=True, key=f"of_{unit}", column_config=cfg)
+    ed = st.data_editor(sub, width="stretch", key=f"of_{unit}", column_config=cfg)
     plan = ed.reset_index().melt(id_vars="Mes", var_name="dt", value_name="servicios_dia").rename(columns={"Mes": "mes"})
     plan["unit"] = unit
     plan["mes"] = plan["mes"].astype(int)
@@ -328,7 +328,7 @@ def editor_tren_araucania():
         dist = O.perfil_distribucion_tren_araucania_por_tramo()
         piv = dist.pivot(index="mes", columns="unit", values="participacion_demanda_historica")
         piv = piv.rename(columns=O.TA_TRAMO_NOMBRE)
-        st.dataframe((piv * 100).round(1), use_container_width=True)
+        st.dataframe((piv * 100).round(1), width="stretch")
         st.caption("Participación mensual ponderada con TA-Dist.xlsx. Claret queda en 0% para enero y febrero. La respuesta ante cambios de oferta se calcula tramo por tramo, no como redistribución fija 13/87.")
     return plan_tramos, plan_tramos
 
@@ -346,7 +346,7 @@ def grafico_historico_y_proyeccion(s, serv):
                       hovermode="x unified", font=dict(family="Segoe UI", color="#0f2740"))
     fig.update_xaxes(showgrid=False)
     fig.update_yaxes(gridcolor="#eef2f7", title="pax/mes")
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 
 def tabla_historica_servicio(s):
@@ -499,21 +499,21 @@ El cálculo se realiza por unidad operacional, mes y tipo de día: lunes-viernes
 
     with st.expander("2. Calendario operacional y feriados", expanded=False):
         st.info("Para Biotren, Tren Araucanía y Llanquihue-Puerto Montt, los feriados nacionales tienen oferta efectiva cero. Para Laja-Talcahuano, los feriados operan con oferta de fin de semana; si el feriado cae lunes-viernes se imputa como domingo operacional.")
-        st.dataframe(tabla_feriados_2027(), use_container_width=True, height=240)
+        st.dataframe(tabla_feriados_2027(), width="stretch", height=240)
         st.markdown("**Resumen de días operacionales por unidad, mes y tipo de día**")
-        st.dataframe(O.calendario_operacional_resumen(2027), use_container_width=True, height=280)
+        st.dataframe(O.calendario_operacional_resumen(2027), width="stretch", height=280)
 
     with st.expander("3. Parámetros del modelo", expanded=False):
         p1, p2 = st.columns(2)
         with p1:
-            st.dataframe(pd.DataFrame([{"servicio": O.NOMBRE[k], "elasticidad_oferta": v} for k, v in O.ELASTICIDAD_OFERTA_SERVICIO.items()]), use_container_width=True)
+            st.dataframe(pd.DataFrame([{"servicio": O.NOMBRE[k], "elasticidad_oferta": v} for k, v in O.ELASTICIDAD_OFERTA_SERVICIO.items()]), width="stretch")
         with p2:
-            st.dataframe(pd.DataFrame([{"servicio": O.NOMBRE[k], "factor_nivel": v, "fuerza_estacionalidad": O.FUERZA_ESTACIONALIDAD.get(k)} for k, v in O.AJUSTE_NIVEL_SERVICIO.items()]), use_container_width=True)
+            st.dataframe(pd.DataFrame([{"servicio": O.NOMBRE[k], "factor_nivel": v, "fuerza_estacionalidad": O.FUERZA_ESTACIONALIDAD.get(k)} for k, v in O.AJUSTE_NIVEL_SERVICIO.items()]), width="stretch")
         st.markdown("**Parámetros por tramo de Tren Araucanía**")
         st.dataframe(pd.DataFrame([
             {"tramo": O.TA_TRAMO_NOMBRE[k], "elasticidad_tramo": v, "restriccion": "Marzo-diciembre" if k == "TA_CLARET" else "Todo el año"}
             for k, v in O.TA_TRAMO_ELASTICIDAD.items()
-        ]), use_container_width=True)
+        ]), width="stretch")
 
     with st.expander("4. Tratamiento por servicio", expanded=False):
         st.markdown("""
@@ -600,16 +600,16 @@ def render_resumen():
                       hovermode="x unified", font=dict(family="Segoe UI", color="#0f2740"))
     fig.update_xaxes(showgrid=False)
     fig.update_yaxes(gridcolor="#eef2f7", title="pax/mes")
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     st.markdown("#### Proyección mensual 2027")
-    st.dataframe(serv, use_container_width=True)
+    st.dataframe(serv, width="stretch")
 
     st.markdown("#### Calendario operacional 2027 aplicado")
-    st.dataframe(O.calendario_operacional_resumen(2027), use_container_width=True, height=260)
+    st.dataframe(O.calendario_operacional_resumen(2027), width="stretch", height=260)
 
     st.markdown("#### Comportamiento histórico anual observado")
-    st.dataframe(hist_anual, use_container_width=True)
+    st.dataframe(hist_anual, width="stretch")
 
     tramos_ta = uni[[c for c in uni.columns if str(c).startswith("TA_")]].copy()
     c1, c2, c3, c4 = st.columns(4)
@@ -674,17 +674,17 @@ def render_servicio(s):
             out["Temuco - Pitrufquén"] = uni.get("TA_TEMUCO_PITRUFQUEN")
             out["Claret"] = uni.get("TA_CLARET")
         out["Total proyectado"] = serv[s]
-        st.dataframe(out, use_container_width=True, height=330)
+        st.dataframe(out, width="stretch", height=330)
 
     st.markdown("#### Detalle mensual del cálculo oferta-demanda")
-    st.dataframe(tabla_detalle_mes(detalle, s), use_container_width=True)
+    st.dataframe(tabla_detalle_mes(detalle, s), width="stretch")
 
     with st.expander("Calendario operacional aplicado al servicio"):
-        st.dataframe(tabla_calendario_servicio(s), use_container_width=True)
+        st.dataframe(tabla_calendario_servicio(s), width="stretch")
     st.caption("La columna impacto_mes_vs_base permite verificar que un cambio de oferta afecta el mes modificado y que el total anual resulta de la suma mensual.")
 
     st.markdown("#### Comportamiento mensual histórico por año")
-    st.dataframe(tabla_historica_servicio(s), use_container_width=True)
+    st.dataframe(tabla_historica_servicio(s), width="stretch")
 
     if s == "CORTO_LAJA":
         st.warning("Oferta base: 8 servicios todos los días; sólo sábados y domingos de enero-febrero tienen 10 servicios. El escenario incorpora recuperación parcial de confiabilidad, supresión base acotada y mayor peso del patrón histórico de mejor desempeño.")

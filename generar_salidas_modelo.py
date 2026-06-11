@@ -3,6 +3,8 @@ from pathlib import Path
 import pandas as pd
 import pipeline_afluencia as P
 import oferta as O
+import od_biotren_hibrido as ODH
+import validar_modelo as VM
 
 BASE = Path(__file__).resolve().parent
 DATA = BASE / "data"
@@ -194,15 +196,7 @@ pd.DataFrame(just_rows).to_csv(OUT / 'justificacion_metodologica_servicios.csv',
 print(serv.sum().to_string())
 
 # Salidas OD híbridas Biotren por tipo de pasajero e ingresos proyectados.
-try:
-    import od_biotren_hibrido as ODH
-    ODH.generar_salidas_od_2027(serv['BIOTREN'])
-except Exception as e:
-    print(f'No fue posible generar salidas OD híbridas de Biotren: {e}')
+ODH.generar_salidas_od_2027(serv['BIOTREN'])
 
 # Validación técnica final del modelo.
-try:
-    import validar_modelo as VM
-    VM.ejecutar_validacion()
-except Exception as e:
-    print(f'No fue posible ejecutar la validación técnica final: {e}')
+VM.ejecutar_validacion()
