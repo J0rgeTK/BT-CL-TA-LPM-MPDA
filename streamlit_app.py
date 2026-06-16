@@ -75,110 +75,92 @@ def fmt_pct(delta):
 
 
 @st.cache_data(show_spinner=False)
-def calcular_od_biotren_cached(periodos, valores):
-    serie = pd.Series([float(v) for v in valores], index=list(periodos))
-    return OD.distribuir_proyeccion_biotren(serie)
+def calcular_od_biotren_tarjeta_mes_cached(periodo, valor):
+    serie = pd.Series([float(valor)], index=[periodo])
+    return OD.distribuir_proyeccion_biotren_por_tipo_tarjeta(serie)
+
+
+def _matriz_tarjeta(df, tipo_tarjeta, valor):
+    tmp = df[df["tipo_tarjeta"].eq(tipo_tarjeta)]
+    estaciones = list(dict.fromkeys(pd.concat([tmp["origen"], tmp["destino"]]).astype(str)))
+    M = tmp.pivot_table(index="origen", columns="destino", values=valor, aggfunc="sum", fill_value=0.0)
+    return M.reindex(index=estaciones, columns=estaciones, fill_value=0.0)
 
 
 def render_od_biotren(serv):
-    st.markdown("#### Distribución OD mensual de afluencia e ingresos")
-    st.caption("Módulo espacial complementario: distribuye la afluencia mensual proyectada de Biotren por par origen-destino y tipo de pasajero, preservando el orden original de estaciones.")
+    st.markdown("#### Distribución OD Biotren por tipo de tarjeta")
+    st.caption("Vista mínima en memoria: muestra sólo el mes y tipo de tarjeta seleccionados, sin generar CSV long ni modificar datos procesados.")
 
-    try:
-        serie = serv["BIOTREN"].astype(float).copy()
-        resultado = calcular_od_biotren_cached(tuple(serie.index.tolist()), tuple(serie.values.tolist()))
-        station_order = list(resultado["station_order"])
-    except Exception as e:
-        st.warning(f"No fue posible calcular la distribución OD de Biotren: {e}")
-        return
-
-    with st.expander("Metodología de distribución OD e ingresos", expanded=False):
-        st.markdown("""
-El módulo OD se aplica después del modelo temporal de Biotren. Su alcance es distribuir espacialmente la demanda mensual proyectada entre pares origen-destino y tipos de pasajero; no estima una demanda mensual alternativa.
-
-**Flujo implementado**
-
-1. Toma como insumo la afluencia mensual proyectada de Biotren.
-2. Segmenta la demanda en Normal, Estudiante y Adulto Mayor según participaciones históricas mensuales.
-3. Construye una matriz OD base para cada mes y tipo de pasajero a partir de patrones históricos homologados.
-4. Incorpora una señal gravitacional parcial basada en tarifa y distancia como control de sensibilidad espacial.
-5. Aplica balance IPF/Furness para conservar producciones, atracciones y total mensual por tipo de pasajero.
-6. Calcula ingresos preliminares multiplicando viajes OD por la matriz tarifaria disponible para 2026.
-
-**Ecuaciones principales**
-
-`Demanda_{p,m} = Demanda_{Biotren,m} × Participación_{p,m}`
-
-`C_{ij,p} = α × Tarifa_normalizada_{ij,p} + β × Distancia_normalizada_{ij}`
-
-`K_{ij,p,m} = w_p × S_{ij,p,m} + (1 - w_p) × G_{ij,p,m}`
-
-`T_{ij,p,m} = IPF(K_{ij,p,m}, O_{i,p,m}, D_{j,p,m})`
-
-`Ingreso_{ij,p,m} = T_{ij,p,m} × Tarifa_{ij,p,2026}`
-
-El componente histórico es dominante porque representa la estructura espacial observada. El componente gravitacional cumple un rol complementario de sensibilidad ante tarifa y distancia, sin reemplazar el patrón OD base.
-
-**Tipos de pasajero utilizados**
-
-- Normal: bloque `T. Monedero`.
-- Estudiante: bloque `T. Estudiante`.
-- Adulto Mayor: bloque `T. Tercera Edad`.
-
-Las matrices se muestran y exportan con el orden original de estaciones. La homologación de nombres se utiliza para integrar OD, tarifas y distancias, sin alterar la posición final de filas y columnas.
-
-La estimación de ingresos es preliminar: depende de la matriz tarifaria disponible y no incorpora subsidios, reglas comerciales adicionales ni validación contable.
-""")
-
+    serie = serv["BIOTREN"].astype(float).copy()
     periodos = list(serie.index)
     meses_nombre = {f"2027-{m:02d}": f"{m:02d} - 2027" for m in range(1, 13)}
     csel1, csel2 = st.columns([1, 1])
     with csel1:
         periodo = st.selectbox("Mes proyectado", periodos, format_func=lambda x: meses_nombre.get(x, x), key="od_biotren_periodo")
     with csel2:
-        tipo = st.selectbox("Tipo de pasajero", OD.TIPOS, key="od_biotren_tipo")
+        tipo_tarjeta = st.selectbox("Tipo de tarjeta", OD.TIPOS_TARJETA_ESPERADOS, key="od_biotren_tipo_tarjeta")
 
-    M = resultado["matrices_viajes"][(periodo, tipo)].reindex(index=station_order, columns=station_order).copy(deep=True)
-    R = resultado["matrices_ingresos"][(periodo, tipo)].reindex(index=station_order, columns=station_order).copy(deep=True)
-    viajes = float(M.to_numpy(dtype=float, copy=True).sum())
-    ingresos = float(R.to_numpy(dtype=float, copy=True).sum())
+    try:
+        resultado = calcular_od_biotren_tarjeta_mes_cached(periodo, float(serie.loc[periodo]))
+    except Exception as e:
+        st.warning(f"No fue posible calcular la distribución OD de Biotren por tipo de tarjeta: {e}")
+        return
+
+    with st.expander("Alcance de esta vista", expanded=False):
+        st.markdown("""
+Esta subsección separa tres conceptos:
+
+- **Distribución de afluencia:** reparte la proyección mensual total de Biotren entre tipos de tarjeta y pares origen-destino con participaciones históricas.
+- **Ingresos tarifarios preliminares:** aplica tarifa Normal a `monedero`, tarifa Estudiante a `media_superior`, tarifa Adulto Mayor a `adulto_mayor` y tarifa cero al resto.
+- **Base referencial para subsidio futuro:** muestra viajes observados base por grupo referencial; no calcula montos de subsidio ni implementa una liquidación.
+
+La proyección mensual total de Biotren no se recalcula en esta vista; sólo se distribuye el mes seleccionado.
+""")
+
+    viajes_long = resultado["viajes_tipo_tarjeta_long"]
+    resumen_mes = resultado["resumen_tipo_tarjeta"].copy()
+    M = _matriz_tarjeta(viajes_long, tipo_tarjeta, "viajes_proyectados")
+    R = _matriz_tarjeta(viajes_long, tipo_tarjeta, "ingresos_tarifarios_proyectados")
+    fila_tipo = resumen_mes[resumen_mes["tipo_tarjeta"].eq(tipo_tarjeta)]
+    viajes = float(fila_tipo["viajes_proyectados"].sum())
+    ingresos = float(fila_tipo["ingresos_tarifarios_proyectados"].sum())
     tarifa_media = ingresos / viajes if viajes > 0 else 0.0
     total_mes = float(serie.loc[periodo])
+    suma_tipos = float(resumen_mes["viajes_proyectados"].sum())
+    dif_total = abs(suma_tipos - total_mes)
+    tarifa_nombre = fila_tipo["tipo_pasajero_tarifa"].iloc[0] if not fila_tipo.empty else "Sin ingreso tarifario"
 
     km = st.columns(4)
     km[0].metric("Afluencia Biotren mes", fmt(total_mes))
-    km[1].metric(f"Viajes {tipo}", fmt(viajes), f"{viajes / total_mes * 100:.1f}%".replace(".", ",") if total_mes else "s/i")
-    km[2].metric("Ingreso proyectado", f"$ {fmt(ingresos)}")
-    km[3].metric("Tarifa media", f"$ {fmt(tarifa_media)}")
+    km[1].metric(f"Viajes {tipo_tarjeta}", fmt(viajes), f"{viajes / total_mes * 100:.1f}%".replace(".", ",") if total_mes else "s/i")
+    km[2].metric("Ingreso tarifario preliminar", f"$ {fmt(ingresos)}")
+    km[3].metric("Tarifa media preliminar", f"$ {fmt(tarifa_media)}")
 
-    t1, t2, t3, t4 = st.tabs(["Matriz OD viajes", "Matriz OD ingresos", "Resumen y controles", "Descargas"])
+    if tarifa_nombre == "Sin ingreso tarifario":
+        st.warning("Este tipo de tarjeta tiene tarifa 0 en esta etapa: se distribuye afluencia, pero no se calcula ingreso tarifario directo.")
+
+    if dif_total < 1e-5:
+        st.success(f"Validación mensual: la suma de tipos de tarjeta coincide con Biotren ({fmt(suma_tipos)} viajes).")
+    else:
+        st.error(f"Validación mensual: diferencia de {dif_total:,.6f} viajes entre tipos de tarjeta y Biotren.")
+
+    t1, t2, t3, t4 = st.tabs(["Matriz OD viajes", "Matriz OD ingresos", "Resumen mensual", "Base subsidio futura"])
     with t1:
-        st.dataframe(M.round(0).astype(int).copy(deep=True), width="stretch", height=560)
+        st.markdown("**Distribución de afluencia OD para el mes y tipo de tarjeta seleccionados**")
+        st.dataframe(M.round(0).astype(int).copy(deep=True), width="stretch", height=520)
     with t2:
-        st.dataframe(R.round(0).astype(int).copy(deep=True), width="stretch", height=560)
+        st.markdown("**Ingresos tarifarios preliminares OD para el mes y tipo de tarjeta seleccionados**")
+        st.dataframe(R.round(0).astype(int).copy(deep=True), width="stretch", height=520)
     with t3:
-        resumen_mes = resultado["resumen"][resultado["resumen"]["periodo"].eq(periodo)].copy(deep=True)
-        st.markdown("**Resumen del mes seleccionado por tipo de pasajero**")
-        st.dataframe(resumen_mes, width="stretch", height=170)
-        st.markdown("**Validación del enfoque híbrido con meses observados recientes**")
-        try:
-            st.dataframe(OD.validar_hibrido_2026(), width="stretch", height=230)
-        except Exception as e:
-            st.info(f"No fue posible cargar la validación OD: {e}")
-        try:
-            cobertura = pd.read_csv(OD.OD_OUT / "validacion_cobertura_tarifa_distancia.csv")
-            st.markdown("**Cobertura de tarifa y distancia**")
-            st.dataframe(cobertura, width="stretch", height=140)
-        except Exception:
-            pass
+        st.markdown("**Resumen agregado del mes por tipo de tarjeta**")
+        cols = ["tipo_tarjeta", "nombre_visual", "tipo_pasajero_tarifa", "viajes_proyectados", "ingresos_tarifarios_proyectados", "tarifa_media_proyectada"]
+        st.dataframe(resumen_mes[cols].round(2), width="stretch", height=260)
     with t4:
-        v_csv = M.to_csv().encode("utf-8-sig")
-        r_csv = R.to_csv().encode("utf-8-sig")
-        c1, c2, c3, c4 = st.columns(4)
-        c1.download_button("⬇ Matriz viajes seleccionada", v_csv, f"OD_viajes_{periodo}_{tipo}.csv", key=f"dl_od_v_{periodo}_{tipo}")
-        c2.download_button("⬇ Matriz ingresos seleccionada", r_csv, f"OD_ingresos_{periodo}_{tipo}.csv", key=f"dl_od_i_{periodo}_{tipo}")
-        c3.download_button("⬇ Viajes OD 2027 long", resultado["viajes_long"].to_csv(index=False).encode("utf-8-sig"), "od_2027_viajes_por_tipo_long.csv", key="dl_od_v_long")
-        c4.download_button("⬇ Ingresos OD 2027 long", resultado["ingresos_long"].to_csv(index=False).encode("utf-8-sig"), "od_2027_ingresos_por_tipo_long.csv", key="dl_od_i_long")
+        st.markdown("**Base referencial para subsidio futuro — sin cálculo de montos**")
+        subsidio = resultado["subsidio_referencial_base"]
+        subsidio_mes = subsidio[subsidio["mes"].astype(int).eq(int(str(periodo)[-2:]))].copy()
+        st.info("Estos viajes observados son una base de referencia para una etapa posterior; no representan subsidios calculados.")
+        st.dataframe(subsidio_mes, width="stretch", height=180)
 
 def hist_valor(servicio, anio, meses=None):
     h = hist[hist.servicio == servicio].copy()
