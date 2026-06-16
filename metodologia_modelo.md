@@ -56,9 +56,17 @@ El calendario 2027 se transforma en días operacionales efectivos por servicio, 
 
 Los feriados nacionales utilizados se encuentran en `data/feriados_chile_2027.csv`. El conteo operacional resultante se exporta en `data/calendario_operacional_2027.csv` y `outputs/calendario_operacional_2027.csv`.
 
-## 6. Tratamiento por servicio
+## 6. Proyección por servicio
 
-Cada servicio se proyecta de manera independiente dentro del motor mensual. La estructura metodológica común considera alcance, insumos, base histórica, calendario/oferta/feriados, ajustes específicos, resultado proyectado, validaciones y limitaciones. Los módulos OD, tipo de tarjeta, ingresos preliminares y subsidio referencial aplican sólo a Biotren.
+### 6.1 Biotren
+
+Biotren se modela separando L1 y L2. La oferta se edita por línea, mes y tipo de día. El escenario base considera L1 con 48 servicios lunes-viernes durante 2027 y L2 con 106 servicios lunes-viernes entre enero y abril, aumentando a 109 servicios lunes-viernes desde mayo.
+
+La proyección mensual utiliza días operacionales efectivos, feriados sin operación, productividad histórica, estacionalidad mensual y elasticidad parcial de oferta. Laja-Talcahuano se mantiene como servicio independiente para evitar doble conteo dentro del corredor L1.
+
+El bloque marzo-abril incorpora un tratamiento estacional para mantener una trayectoria mensual consistente con la evidencia histórica disponible, sin transformar el modelo en una distribución anual fija.
+
+### 6.2 Laja-Talcahuano
 
 ### 6.1 Biotren
 
@@ -71,7 +79,7 @@ Cada servicio se proyecta de manera independiente dentro del motor mensual. La e
 - **Validaciones aplicadas:** consistencia mensual/anual del motor, sensibilidad ante cambios de oferta, regla de feriados, conservación del total al distribuir por línea MOD y por tipo de tarjeta.
 - **Limitaciones:** la MOD no genera el total de Biotren; sólo distribuye la demanda ya proyectada. Los módulos OD, ingresos preliminares y subsidio referencial son específicos de Biotren.
 
-### 6.2 Laja-Talcahuano / Corto Laja
+### 6.3 Tren Araucanía
 
 - **Alcance:** servicio regional propio, independiente de Biotren y de sus módulos OD.
 - **Insumos utilizados:** afluencia histórica del servicio, oferta operacional, calendario 2027, feriados nacionales, productividad, estacionalidad y elasticidad.
@@ -82,18 +90,27 @@ Cada servicio se proyecta de manera independiente dentro del motor mensual. La e
 - **Validaciones aplicadas:** regla de feriados de fin de semana, consistencia del motor mensual y sensibilidad ante cambios de oferta.
 - **Limitaciones:** no usa distribución OD Biotren, clasificación L1/L2/L1-L2, tipo de tarjeta Biotren, ingresos OD ni base de subsidio Biotren.
 
-### 6.3 Tren Araucanía
+- Temuco - Victoria.
+- Temuco - Pitrufquén.
+- Claret.
 
-- **Alcance:** servicio independiente proyectado por componentes operacionales internos.
-- **Insumos utilizados:** afluencia histórica, oferta por tramo, calendario operacional 2027, feriados nacionales, productividad histórica, estacionalidad y elasticidades diferenciadas.
-- **Base histórica o patrón de referencia:** distribución interna por Temuco-Victoria, Temuco-Pitrufquén y Claret, tratada como estructura operacional propia del servicio y no como MOD OD.
-- **Calendario, oferta y feriados:** los feriados nacionales se modelan sin operación. La oferta se edita por tramo y mes.
-- **Ajustes específicos:** Temuco-Victoria tiene mayor respuesta marginal esperada que Pitrufquén y Claret. Claret se restringe a marzo-diciembre por su carácter escolar; enero y febrero no generan oferta ni demanda para este componente.
-- **Resultado proyectado:** el total anual vigente de Tren Araucanía es 950.258 viajes.
-- **Validaciones aplicadas:** sensibilidad mensual ante cambios de oferta, aplicación de feriados y coherencia de la restricción de Claret como componente escolar.
-- **Limitaciones:** no utiliza MOD OD Biotren, distribución por línea Biotren, tipo de tarjeta Biotren, ingresos OD Biotren ni base de subsidio Biotren.
+Cada tramo responde a su propia oferta y elasticidad. Temuco-Victoria tiene mayor respuesta marginal esperada que Pitrufquén y Claret. Claret se restringe a marzo-diciembre por su carácter escolar, por lo que enero y febrero no generan oferta ni demanda para este componente.
 
 ### 6.4 Llanquihue-Puerto Montt
+
+Llanquihue-Puerto Montt se modela con operación de lunes a viernes. En el escenario base no se consideran servicios planificados de fin de semana ni operación en feriados nacionales. Enero y febrero conservan una señal estival dentro del perfil mensual.
+
+## 7. Biotren: proyección total mensual
+
+El modelo mensual estima la demanda total de Biotren y, posteriormente, el módulo OD distribuye dicha demanda según estructura histórica de viajes. La MOD no genera el total mensual de Biotren; se usa para distribuir espacialmente o por línea la demanda total proyectada.
+
+## 8. Biotren: distribución OD por tipo de tarjeta
+
+El modelo mensual estima la demanda total de Biotren y, posteriormente, el módulo OD distribuye dicha demanda según estructura histórica de viajes. La MOD no genera el total mensual de Biotren; se usa para distribuir espacialmente o por línea la demanda total proyectada.
+
+## 8. Biotren: distribución por línea OD basada en MOD
+
+### 8.1 Tipos de tarjeta
 
 - **Alcance:** servicio independiente proyectado con su propia base histórica y patrón operacional.
 - **Insumos utilizados:** afluencia histórica del servicio, oferta programada, calendario operacional 2027, feriados nacionales, productividad histórica, estacionalidad y elasticidad.
@@ -106,9 +123,34 @@ Cada servicio se proyecta de manera independiente dentro del motor mensual. La e
 
 ## 7. Biotren: proyección total mensual
 
-El modelo mensual estima la demanda total de Biotren y, posteriormente, el módulo OD distribuye dicha demanda según estructura histórica de viajes. La MOD no genera el total mensual de Biotren; se usa para distribuir espacialmente o por línea la demanda total proyectada.
+Se consideran ocho tipos de tarjeta:
+
+| Tipo de tarjeta | Regla de ingreso tarifario preliminar |
+|---|---|
+| `monedero` | Usa tarifa normal/adulto. |
+| `media_superior` | Usa tarifa estudiante. |
+| `adulto_mayor` | Usa tarifa adulto mayor. |
+| `estudiante_basica` | Tarifa 0. |
+| `discapacitado` | Tarifa 0. |
+| `funcionario_normal` | Tarifa 0. |
+| `funcionario_especial` | Tarifa 0. |
+| `convenio_colectivo` | Tarifa 0. |
+
+Los tipos con tarifa 0 conservan viajes proyectados en la distribución de afluencia, pero no generan ingreso tarifario directo.
+
+### 8.2 Distribución OD por tipo de tarjeta
+
+Para cada mes y tipo de tarjeta se utiliza la participación OD histórica del mismo segmento para asignar viajes a pares origen-destino:
+
+```text
+Viajes_ij,t,m = Demanda(t,m) × ParticipaciónOD_ij,t,m
+```
+
+La suma de todos los tipos de tarjeta conserva la demanda mensual total de Biotren. La vista de la aplicación está acotada al mes y tipo seleccionados para evitar cargar o producir matrices long completas.
 
 ## 8. Biotren: distribución por línea OD basada en MOD
+
+## 9. Biotren: distribución por línea OD basada en MOD
 
 Como criterio estándar, la distribución mensual de Biotren por línea OD se prepara a partir de MOD histórica atribuible por línea OD. El supuesto fijo 80/20 fue reemplazado como criterio estándar por esta distribución basada en MOD histórica atribuible y no modifica la proyección mensual total de Biotren calculada por el motor mensual-elástico.
 
@@ -133,7 +175,7 @@ El `No clasificado` se reporta como control diagnóstico histórico y no recibe 
 
 Con la proyección vigente, la distribución anual resultante es: `L1`: 1.503.779 viajes (11,5754%); `L2`: 10.496.944 viajes (80,8007%); `L1-L2`: 990.437 viajes (7,6239%); Total Biotren: 12.991.160 viajes.
 
-### 8.1 Costo generalizado e impedancia
+### 9.1 Costo generalizado e impedancia
 
 El costo generalizado se calcula con tarifa y distancia normalizadas:
 
@@ -147,7 +189,7 @@ Luego se aplica función de impedancia exponencial:
 f(C_ij,p) = exp(-lambda × C_ij,p)
 ```
 
-### 8.2 Balance IPF/Furness
+### 9.2 Balance IPF/Furness
 
 La matriz final se balancea para conservar producciones por origen, atracciones por destino y total mensual por tipo:
 
@@ -157,56 +199,9 @@ T_ij,p,m = IPF(K_ij,p,m, O_i,p,m, D_j,p,m)
 
 Este procedimiento mantiene consistencia entre la demanda mensual proyectada y la estructura espacial utilizada.
 
-### 8.3 Orden de estaciones
+### 9.3 Orden de estaciones
 
 Las matrices OD visualizadas y exportadas conservan el orden original de estaciones de los insumos procesados. La homologación de nombres se utiliza para integrar OD, tarifas y distancias, sin ordenar estaciones alfabéticamente.
-
-## 9. Biotren: distribución OD por tipo de tarjeta
-
-El modelo temporal mensual sigue proyectando la demanda total de Biotren. El módulo OD no modifica esa proyección: distribuye la demanda mensual ya estimada entre tipos de tarjeta y pares origen-destino. La estructura implementada es:
-
-```text
-Proyección mensual Biotren
-→ distribución por tipo de tarjeta
-→ patrón OD histórico mensual por tarjeta
-→ matriz OD de viajes por mes y tipo de tarjeta
-→ ingreso tarifario preliminar según tarifa aplicable
-→ base referencial de subsidio futuro, sin cálculo de montos
-```
-
-### 9.1 Tipos de tarjeta
-
-La segmentación mensual se calcula con participaciones históricas por tipo de tarjeta:
-
-```text
-Demanda(t,m) = Demanda(Biotren,m) × Participación(t,m)
-```
-
-Se consideran ocho tipos de tarjeta:
-
-| Tipo de tarjeta | Regla de ingreso tarifario preliminar |
-|---|---|
-| `monedero` | Usa tarifa normal/adulto. |
-| `media_superior` | Usa tarifa estudiante. |
-| `adulto_mayor` | Usa tarifa adulto mayor. |
-| `estudiante_basica` | Tarifa 0. |
-| `discapacitado` | Tarifa 0. |
-| `funcionario_normal` | Tarifa 0. |
-| `funcionario_especial` | Tarifa 0. |
-| `convenio_colectivo` | Tarifa 0. |
-
-Los tipos con tarifa 0 conservan viajes proyectados en la distribución de afluencia, pero no generan ingreso tarifario directo.
-
-### 9.2 Distribución OD por tipo de tarjeta
-
-Para cada mes y tipo de tarjeta se utiliza la participación OD histórica del mismo segmento para asignar viajes a pares origen-destino:
-
-```text
-Viajes_ij,t,m = Demanda(t,m) × ParticipaciónOD_ij,t,m
-```
-
-La suma de todos los tipos de tarjeta conserva la demanda mensual total de Biotren. La vista de la aplicación está acotada al mes y tipo seleccionados para evitar cargar o producir matrices long completas.
-
 
 ## 10. Ingresos tarifarios preliminares
 

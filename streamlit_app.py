@@ -587,29 +587,12 @@ La elasticidad menor que 1 evita respuestas proporcionales automáticas. El cont
 
     with st.expander("5. Tratamiento por servicio", expanded=False):
         st.markdown("""
-Cada servicio se proyecta de manera independiente dentro del motor mensual. La explicación por servicio separa alcance, insumos, patrón histórico, calendario/oferta/feriados, ajustes específicos, resultado, validaciones y limitaciones.
-
-**Biotren**
-- **Alcance e insumos:** servicio urbano modelado por L1 y L2 con afluencia histórica, oferta por línea, calendario, feriados, estacionalidad y elasticidad.
-- **Tratamiento:** primero se proyecta el total mensual; los módulos OD se aplican después sólo para distribuir esa demanda.
-- **Resultado y controles:** 12.991.160 viajes anuales; validación de feriados sin operación, sensibilidad de oferta y conservación de total al distribuir por línea MOD y tipo de tarjeta.
-
-**Laja-Talcahuano / Corto Laja**
-- **Alcance e insumos:** servicio regional propio, independiente de Biotren, con afluencia histórica, oferta operacional, calendario, productividad y elasticidad.
-- **Tratamiento:** 8 servicios diarios base, salvo fines de semana de enero-febrero con 10; feriados con regla de fin de semana y recuperación operacional parcial.
-- **Resultado y controles:** 540.842 viajes anuales; no usa MOD, L1/L2, tipo de tarjeta, ingresos ni subsidio Biotren.
-
-**Tren Araucanía**
-- **Alcance e insumos:** servicio independiente por Temuco-Victoria, Temuco-Pitrufquén y Claret, con oferta por tramo y elasticidades diferenciadas.
-- **Tratamiento:** feriados sin operación; Claret se trata como componente escolar marzo-diciembre, no como regla general del modelo.
-- **Resultado y controles:** 950.258 viajes anuales; la distribución interna por tramo no corresponde a MOD OD Biotren.
-
-**Llanquihue-Puerto Montt**
-- **Alcance e insumos:** servicio independiente con base histórica propia, oferta programada, calendario, feriados, estacionalidad y elasticidad.
-- **Tratamiento:** operación lunes-viernes; sin fines de semana ni feriados nacionales en el escenario base; enero-febrero conservan señal estival.
-- **Resultado y controles:** 420.853 viajes anuales; no usa módulos OD ni reglas de línea o tarjeta de Biotren.
+- **Biotren:** se proyecta separando L1 y L2 en el motor temporal. Laja-Talcahuano se mantiene como servicio separado para evitar doble conteo en el corredor.
+- **Laja-Talcahuano:** se calcula como servicio propio, con regla especial de operación en feriados y recuperación operacional parcial.
+- **Tren Araucanía:** se calcula por Temuco-Victoria, Temuco-Pitrufquén y Claret. Cada tramo tiene elasticidad diferenciada; Claret opera sólo en meses lectivos.
+- **Llanquihue-Puerto Montt:** se modela con operación de lunes a viernes, sin fines de semana ni feriados nacionales en el escenario base.
 """)
-        st.markdown("**Parámetros de escenario usados por el motor temporal**")
+        st.markdown("**Parámetros de escenario**")
         p1, p2 = st.columns(2)
         with p1:
             st.dataframe(pd.DataFrame([{"servicio": O.NOMBRE[k], "elasticidad_oferta": v} for k, v in O.ELASTICIDAD_OFERTA_SERVICIO.items()]), width="stretch")
