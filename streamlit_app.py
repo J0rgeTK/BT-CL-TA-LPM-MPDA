@@ -400,7 +400,7 @@ def editor_tren_araucania():
         piv = dist.pivot(index="mes", columns="unit", values="participacion_demanda_historica")
         piv = piv.rename(columns=O.TA_TRAMO_NOMBRE)
         st.dataframe((piv * 100).round(1), width="stretch")
-        st.caption("Participación mensual ponderada con TA-Dist.xlsx. Claret queda en 0% para enero y febrero. La respuesta ante cambios de oferta se calcula tramo por tramo, no como redistribución fija 13/87.")
+        st.caption("Participación mensual ponderada con TA-Dist.xlsx. Claret queda en 0% para enero y febrero. La respuesta ante cambios de oferta se calcula tramo por tramo, no como redistribución estática 13/87.")
     return plan_tramos, plan_tramos
 
 
