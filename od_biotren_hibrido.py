@@ -478,6 +478,97 @@ def validar_insumos_tipo_tarjeta(tol: float = 1e-8) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def _tarifa_por_tipo_tarjeta(tipo_tarjeta: str, mapeo: pd.DataFrame) -> str | None:
+    """Devuelve el tipo de tarifa aplicable para un tipo de tarjeta."""
+    fila = mapeo[mapeo["tipo_tarjeta"].astype(str) == str(tipo_tarjeta)]
+    if fila.empty:
+        return None
+    tarifa_aplicable = str(fila["tarifa_aplicable"].iloc[0])
+    return TARIFA_APLICABLE_A_TIPO_PASAJERO.get(tarifa_aplicable)
+
+
+def distribuir_proyeccion_biotren_por_tipo_tarjeta(serie_biotren: pd.Series | dict) -> dict[str, pd.DataFrame]:
+    """Distribuye la proyección mensual Biotren por tipo de tarjeta en memoria.
+
+    La demanda mensual se reparte con las participaciones mensuales históricas
+    por tipo de tarjeta y con las participaciones OD de cada tipo/mes. El
+    ingreso tarifario preliminar se calcula sólo para las tarjetas con tarifa
+    directa: monedero usa tarifa Normal, media_superior usa tarifa Estudiante y
+    adulto_mayor usa tarifa Adulto Mayor. El resto conserva viajes proyectados
+    con ingreso cero.
+
+    No exporta matrices ni archivos; devuelve resúmenes agregados y una base
+    referencial de subsidio sólo para trazabilidad, sin cálculo de montos.
+    """
+    insumos = load_card_type_processed_inputs()
+    station_order = list(insumos["station_order"])
+    pm = insumos["participacion_mensual_tipo_tarjeta"].copy()
+    pod = insumos["participacion_od_tipo_tarjeta"].copy()
+    mapeo = insumos["mapeo_tipo_tarjeta"].copy()
+    tarifas = insumos["tarifas"].copy()
+    base_subsidio = insumos["base_subsidio_referencial"].copy()
+
+    serie = pd.Series(serie_biotren, dtype=float) if isinstance(serie_biotren, dict) else serie_biotren.astype(float).copy()
+    tarifa_mats = {
+        str(tipo): _matrix_from_long(g, "tarifa_2026", station_order)
+        for tipo, g in tarifas.groupby("tipo_pasajero", sort=False)
+    }
+
+    rows = []
+    for periodo, total_mes in serie.items():
+        mes = int(str(periodo)[-2:])
+        pm_mes = pm[pm["mes"].astype(int) == mes]
+        pod_mes = pod[pod["mes"].astype(int) == mes]
+        for _, part_row in pm_mes.iterrows():
+            tipo_tarjeta = str(part_row["tipo_tarjeta"])
+            total_tipo = float(total_mes) * float(part_row["participacion_tipo_mes"])
+            od_tipo = pod_mes[pod_mes["tipo_tarjeta"].astype(str) == tipo_tarjeta].copy()
+            if od_tipo.empty:
+                continue
+            od_tipo["viajes_proyectados"] = total_tipo * od_tipo["participacion_od_tipo_mes"].astype(float)
+            tipo_tarifa = _tarifa_por_tipo_tarjeta(tipo_tarjeta, mapeo)
+            if tipo_tarifa is None:
+                od_tipo["ingresos_tarifarios_proyectados"] = 0.0
+            else:
+                tarifa = tarifa_mats[tipo_tarifa]
+                od_tipo["ingresos_tarifarios_proyectados"] = [
+                    float(v) * float(tarifa.loc[canon(o), canon(d)])
+                    if canon(o) in tarifa.index and canon(d) in tarifa.columns else 0.0
+                    for o, d, v in zip(od_tipo["origen"], od_tipo["destino"], od_tipo["viajes_proyectados"])
+                ]
+            od_tipo.insert(0, "periodo", str(periodo))
+            od_tipo["tipo_pasajero_tarifa"] = tipo_tarifa if tipo_tarifa is not None else "Sin ingreso tarifario"
+            rows.append(od_tipo[[
+                "periodo", "mes", "tipo_tarjeta", "nombre_visual", "origen", "destino",
+                "tipo_pasajero_tarifa", "viajes_proyectados", "ingresos_tarifarios_proyectados",
+            ]])
+
+    viajes_tarjeta_long = pd.concat(rows, ignore_index=True) if rows else pd.DataFrame()
+    resumen = viajes_tarjeta_long.groupby(
+        ["periodo", "mes", "tipo_tarjeta", "nombre_visual", "tipo_pasajero_tarifa"],
+        as_index=False,
+    ).agg(
+        viajes_proyectados=("viajes_proyectados", "sum"),
+        ingresos_tarifarios_proyectados=("ingresos_tarifarios_proyectados", "sum"),
+    )
+    resumen["tarifa_media_proyectada"] = np.where(
+        resumen["viajes_proyectados"] > 0,
+        resumen["ingresos_tarifarios_proyectados"] / resumen["viajes_proyectados"],
+        0.0,
+    )
+
+    subsidio_referencial = base_subsidio.groupby(
+        ["mes", "grupo_subsidio_referencial"], as_index=False
+    )["viajes_observados_base_referencial"].sum()
+
+    return {
+        "resumen_tipo_tarjeta": resumen,
+        "viajes_tipo_tarjeta_long": viajes_tarjeta_long,
+        "subsidio_referencial_base": subsidio_referencial,
+        "mapeo_tipo_tarjeta": mapeo,
+    }
+
+
 # ---------------------------------------------------------------------------
 # Tarifas, distancias y costo generalizado
 # ---------------------------------------------------------------------------
