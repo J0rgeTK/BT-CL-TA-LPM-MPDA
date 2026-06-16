@@ -84,48 +84,49 @@ Llanquihue-Puerto Montt se modela con operación de lunes a viernes. En el escen
 
 ## 6. Módulo OD híbrido de Biotren
 
-El módulo OD distribuye la demanda mensual proyectada de Biotren entre pares origen-destino y tipos de pasajero. La estructura implementada es:
+El modelo temporal mensual sigue proyectando la demanda total de Biotren. El módulo OD no modifica esa proyección: distribuye la demanda mensual ya estimada entre tipos de tarjeta y pares origen-destino. La estructura implementada es:
 
 ```text
 Proyección mensual Biotren
-→ segmentación por tipo de pasajero
-→ patrón OD histórico mensual
-→ componente gravitacional parcial
-→ balance IPF/Furness
-→ matriz OD proyectada
+→ distribución por tipo de tarjeta
+→ patrón OD histórico mensual por tarjeta
+→ matriz OD de viajes por mes y tipo de tarjeta
+→ ingreso tarifario preliminar según tarifa aplicable
+→ base referencial de subsidio futuro, sin cálculo de montos
 ```
 
-### 6.1 Tipos de pasajero
+### 6.1 Tipos de tarjeta
 
-Se consideran tres segmentos:
+La segmentación mensual se calcula con participaciones históricas por tipo de tarjeta:
 
-| Tipo final | Bloque OD utilizado |
+```text
+Demanda(t,m) = Demanda(Biotren,m) × Participación(t,m)
+```
+
+Se consideran ocho tipos de tarjeta:
+
+| Tipo de tarjeta | Regla de ingreso tarifario preliminar |
 |---|---|
-| Normal | T. Monedero |
-| Estudiante | T. Estudiante |
-| Adulto Mayor | T. Tercera Edad |
+| `monedero` | Usa tarifa normal/adulto. |
+| `media_superior` | Usa tarifa estudiante. |
+| `adulto_mayor` | Usa tarifa adulto mayor. |
+| `estudiante_basica` | Tarifa 0. |
+| `discapacitado` | Tarifa 0. |
+| `funcionario_normal` | Tarifa 0. |
+| `funcionario_especial` | Tarifa 0. |
+| `convenio_colectivo` | Tarifa 0. |
 
-La segmentación mensual se calcula con participaciones históricas por tipo de pasajero:
+Los tipos con tarifa 0 conservan viajes proyectados en la distribución de afluencia, pero no generan ingreso tarifario directo.
+
+### 6.2 Distribución OD por tipo de tarjeta
+
+Para cada mes y tipo de tarjeta se utiliza la participación OD histórica del mismo segmento para asignar viajes a pares origen-destino:
 
 ```text
-Demanda(p,m) = Demanda(Biotren,m) × Participación(p,m)
+Viajes_ij,t,m = Demanda(t,m) × ParticipaciónOD_ij,t,m
 ```
 
-### 6.2 Distribución OD híbrida
-
-Para cada mes y tipo de pasajero se construye una matriz base histórica `S_ij,p,m` y una matriz gravitacional `G_ij,p,m`. La matriz semilla combina ambos componentes:
-
-```text
-K_ij,p,m = w_p × S_ij,p,m + (1 - w_p) × G_ij,p,m
-```
-
-Donde:
-
-- `S_ij,p,m` es la estructura OD histórica mensual por tipo de pasajero.
-- `G_ij,p,m` es la estructura gravitacional estimada con tarifa y distancia.
-- `w_p` es el peso asignado a la matriz histórica.
-
-La matriz histórica tiene mayor peso porque representa la estructura espacial observada. El componente gravitacional se utiliza como ajuste parcial de sensibilidad, no como distribuidor final autónomo.
+La suma de todos los tipos de tarjeta conserva la demanda mensual total de Biotren. La vista de la aplicación está acotada al mes y tipo seleccionados para evitar cargar o producir matrices long completas.
 
 ### 6.3 Costo generalizado e impedancia
 
@@ -157,21 +158,25 @@ Las matrices OD visualizadas y exportadas conservan el orden original de estacio
 
 ## 7. Ingresos OD preliminares
 
-Los ingresos OD se calculan multiplicando la matriz de viajes por la matriz tarifaria disponible:
+Los ingresos OD preliminares se calculan en memoria multiplicando la matriz de viajes por la tarifa aplicable a cada tipo de tarjeta:
 
 ```text
-Ingreso_ij,p,m = T_ij,p,m × Tarifa_ij,p,2026
+Ingreso_ij,t,m = Viajes_ij,t,m × Tarifa_ij,t
 ```
 
-Los ingresos deben interpretarse como una estimación preliminar. No incorporan subsidios, ajustes contables, evasión, reglas comerciales adicionales ni variación tarifaria dinámica por periodo.
+Las reglas aplicadas son: `monedero` usa tarifa normal/adulto; `media_superior` usa tarifa estudiante; `adulto_mayor` usa tarifa adulto mayor; `estudiante_basica`, `discapacitado`, `funcionario_normal`, `funcionario_especial` y `convenio_colectivo` usan tarifa 0. Los ingresos deben interpretarse como una estimación preliminar. No incorporan subsidios, ajustes contables, evasión, reglas comerciales adicionales ni variación tarifaria dinámica por periodo.
+
+### 7.1 Base referencial para subsidio futuro
+
+La base referencial de subsidio se prepara para trazabilidad metodológica, sin calcular montos. El grupo `subsidio_normal_base` agrupa todas las matrices OD excepto `media_superior` y `adulto_mayor`; `subsidio_estudiante_media_superior` considera sólo `media_superior`; y `adulto_mayor` no considera subsidio referencial. Esta base no debe interpretarse como liquidación, compensación ni estimación monetaria implementada.
 
 ## 8. Validaciones implementadas
 
 El modelo genera controles para revisar:
 
 - consistencia entre totales mensuales proyectados y matrices OD por tipo;
-- suma de Normal, Estudiante y Adulto Mayor respecto del total Biotren distribuido;
-- cobertura de tarifas y distancias;
+- suma de tipos de tarjeta respecto del total mensual Biotren distribuido;
+- cobertura de tarifas para tipos con ingreso tarifario directo;
 - conservación del orden original de estaciones;
 - igualdad de dimensión y orden entre matrices de viajes e ingresos;
 - sensibilidad de demanda ante cambios de oferta mensual;
@@ -186,12 +191,14 @@ El modelo genera controles para revisar:
 - Las elasticidades son agregadas por servicio o tramo y no capturan heterogeneidad individual.
 - Tarifa y distancia no representan todos los determinantes de movilidad.
 - Los ingresos OD son preliminares y dependen de la cobertura tarifaria disponible.
-- No se incorporan subsidios, capacidad máxima, ocupación, tiempos de viaje, regularidad diaria ni confiabilidad operacional detallada.
+- Los tipos con tarifa 0 conservan viajes proyectados, pero no generan ingreso tarifario directo en esta etapa.
+- No se calculan montos de subsidio.
+- No se incorporan capacidad máxima, ocupación, tiempos de viaje, regularidad diaria ni confiabilidad operacional detallada.
 - Los resultados están condicionados por la calidad, cobertura y consistencia de los datos históricos disponibles.
 
 ## 10. Próximos pasos recomendados
 
-- Incorporar matrices OD mensuales más completas por tipo de tarjeta y periodo.
+- Profundizar la formulación de subsidios a partir de la base referencial preparada.
 - Integrar tiempos de viaje, capacidad, ocupación y regularidad operacional.
 - Mejorar el módulo de ingresos con reglas tarifarias, descuentos, subsidios y validación contable.
 - Incorporar variables operacionales complementarias, como atrasos, cancelaciones y niveles de servicio.
@@ -207,21 +214,28 @@ Para ejecutar `od_biotren_hibrido.py`, `streamlit_app.py` y `validar_modelo.py` 
 
 - `data/od_biotren/processed/orden_estaciones_original.csv`.
 - `data/od_biotren/processed/od_historica_por_tipo_long.csv`.
+- `data/od_biotren/processed/od_historica_tipo_tarjeta_long.csv`.
+- `data/od_biotren/processed/participacion_mensual_tipo_tarjeta.csv`.
+- `data/od_biotren/processed/participacion_od_tipo_tarjeta_mensual.csv`.
+- `data/od_biotren/processed/mapeo_tipo_tarjeta.csv`.
+- `data/od_biotren/processed/base_subsidio_referencial_historica_long.csv`.
 - `data/od_biotren/processed/tarifas_2026_por_tipo_long.csv`.
 - `data/od_biotren/processed/distancia_biotren_km_long.csv`.
 - `data/od_biotren/processed/validacion_extraccion_od.csv`.
 
-Estos archivos contienen el orden original de estaciones, las matrices OD históricas por tipo de pasajero en formato largo, las tarifas 2026 por tipo, la distancia Biotren y la validación de extracción/homologación.
+Estos archivos contienen el orden original de estaciones, matrices OD históricas, participaciones por tipo de tarjeta, mapeos tarifarios, base referencial de subsidio futuro, tarifas 2026 por tipo, distancia Biotren y validación de extracción/homologación.
 
 ### 11.2 Archivos externos opcionales
 
-Los Excel originales son insumos externos y están ignorados por Git. Sólo se necesitan para regenerar los CSV procesados:
+Los Excel originales son insumos externos opcionales y están ignorados por Git. Sólo se necesitan para regenerar los CSV procesados:
 
 - `data/od_biotren/input/0. Matrices Biotren may_2026.xlsx`.
+- `data/od_biotren/input/0. Matrices Biotren mar_2026.xlsx`.
+- `data/od_biotren/input/0. Matrices Biotren abr_2026.xlsx`.
 - `data/od_biotren/input/Consolidado Tarifas EFE Sur 2026.xlsx`.
 - `data/od_biotren/input/Libro1.xlsx`.
 
-La regla general es: los Excel originales no se versionan; los CSV procesados sí se versionan cuando son necesarios para reproducir la ejecución del módulo OD.
+La regla general es: los Excel originales no se versionan; los CSV procesados sí se versionan cuando son necesarios para reproducir la ejecución del módulo OD. La aplicación muestra matrices por mes y tipo de tarjeta seleccionados, evitando cargar o producir matrices long completas en la visualización.
 
 ### 11.3 Regeneración de insumos OD
 
@@ -255,21 +269,28 @@ Para ejecutar `od_biotren_hibrido.py`, `streamlit_app.py` y `validar_modelo.py` 
 
 - `data/od_biotren/processed/orden_estaciones_original.csv`.
 - `data/od_biotren/processed/od_historica_por_tipo_long.csv`.
+- `data/od_biotren/processed/od_historica_tipo_tarjeta_long.csv`.
+- `data/od_biotren/processed/participacion_mensual_tipo_tarjeta.csv`.
+- `data/od_biotren/processed/participacion_od_tipo_tarjeta_mensual.csv`.
+- `data/od_biotren/processed/mapeo_tipo_tarjeta.csv`.
+- `data/od_biotren/processed/base_subsidio_referencial_historica_long.csv`.
 - `data/od_biotren/processed/tarifas_2026_por_tipo_long.csv`.
 - `data/od_biotren/processed/distancia_biotren_km_long.csv`.
 - `data/od_biotren/processed/validacion_extraccion_od.csv`.
 
-Estos archivos contienen el orden original de estaciones, las matrices OD históricas por bloque/tipo de pasajero en formato largo, las tarifas 2026 por tipo, la distancia Biotren y la validación de extracción/homologación.
+Estos archivos contienen el orden original de estaciones, matrices OD históricas, participaciones por tipo de tarjeta, mapeos tarifarios, base referencial de subsidio futuro, tarifas 2026 por tipo, distancia Biotren y validación de extracción/homologación.
 
 ### Archivos externos opcionales
 
-Los Excel originales se consideran insumos externos y están ignorados por Git. Sólo se necesitan para regenerar los CSV procesados:
+Los Excel originales se consideran insumos externos opcionales y están ignorados por Git. Sólo se necesitan para regenerar los CSV procesados:
 
 - `data/od_biotren/input/0. Matrices Biotren may_2026.xlsx`.
+- `data/od_biotren/input/0. Matrices Biotren mar_2026.xlsx`.
+- `data/od_biotren/input/0. Matrices Biotren abr_2026.xlsx`.
 - `data/od_biotren/input/Consolidado Tarifas EFE Sur 2026.xlsx`.
 - `data/od_biotren/input/Libro1.xlsx`.
 
-La regla general es: los Excel originales no se versionan; los CSV procesados sí se versionan cuando son necesarios para reproducir la ejecución del módulo OD.
+La regla general es: los Excel originales no se versionan; los CSV procesados sí se versionan cuando son necesarios para reproducir la ejecución del módulo OD. La aplicación muestra matrices por mes y tipo de tarjeta seleccionados, evitando cargar o producir matrices long completas en la visualización.
 
 ### Regeneración de insumos OD
 
