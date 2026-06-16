@@ -569,6 +569,72 @@ def distribuir_proyeccion_biotren_por_tipo_tarjeta(serie_biotren: pd.Series | di
     }
 
 
+def exportar_salidas_tipo_tarjeta(
+    serie_biotren: pd.Series | dict,
+    output_dir: Path | str | None = None,
+    *,
+    meses: list[int] | tuple[int, ...] | set[int] | None = None,
+    tipos_tarjeta: list[str] | tuple[str, ...] | set[str] | None = None,
+    escribir_archivos: bool = True,
+) -> dict[str, pd.DataFrame | Path | dict[str, Path]]:
+    """Prepara y opcionalmente exporta salidas OD Biotren por tipo de tarjeta.
+
+    La función reutiliza el motor en memoria y no cambia los cálculos ni la
+    proyección mensual total. En modo validación puede filtrar un mes/tipo y
+    omitir la escritura de archivos (`escribir_archivos=False`). En modo
+    exportación escribe archivos CSV long completos sólo en una carpeta local
+    ignorada por Git.
+    """
+    resultado = distribuir_proyeccion_biotren_por_tipo_tarjeta(serie_biotren)
+    viajes = resultado["viajes_tipo_tarjeta_long"].copy()
+    resumen = resultado["resumen_tipo_tarjeta"].copy()
+    base_subsidio_long = load_card_type_processed_inputs()["base_subsidio_referencial"].copy()
+
+    if meses is not None:
+        meses_set = {int(m) for m in meses}
+        viajes = viajes[viajes["mes"].astype(int).isin(meses_set)].copy()
+        resumen = resumen[resumen["mes"].astype(int).isin(meses_set)].copy()
+        base_subsidio_long = base_subsidio_long[base_subsidio_long["mes"].astype(int).isin(meses_set)].copy()
+
+    if tipos_tarjeta is not None:
+        tipos_set = {str(t) for t in tipos_tarjeta}
+        viajes = viajes[viajes["tipo_tarjeta"].astype(str).isin(tipos_set)].copy()
+        resumen = resumen[resumen["tipo_tarjeta"].astype(str).isin(tipos_set)].copy()
+
+    ingresos = viajes[[
+        "periodo", "mes", "tipo_tarjeta", "nombre_visual", "origen", "destino",
+        "tipo_pasajero_tarifa", "ingresos_tarifarios_proyectados",
+    ]].copy()
+    viajes = viajes[[
+        "periodo", "mes", "tipo_tarjeta", "nombre_visual", "origen", "destino",
+        "viajes_proyectados",
+    ]].copy()
+
+    archivos: dict[str, Path] = {}
+    destino = Path(output_dir) if output_dir is not None else OUT / "od_biotren_tipo_tarjeta"
+    if escribir_archivos:
+        destino.mkdir(parents=True, exist_ok=True)
+        archivos = {
+            "viajes": destino / "od_2027_tipo_tarjeta_long.csv",
+            "ingresos": destino / "ingresos_tipo_tarjeta_long.csv",
+            "base_subsidio": destino / "base_subsidio_referencial_long.csv",
+            "resumen": destino / "resumen_mensual_tipo_tarjeta.csv",
+        }
+        viajes.to_csv(archivos["viajes"], index=False)
+        ingresos.to_csv(archivos["ingresos"], index=False)
+        base_subsidio_long.to_csv(archivos["base_subsidio"], index=False)
+        resumen.to_csv(archivos["resumen"], index=False)
+
+    return {
+        "viajes_tipo_tarjeta_long": viajes,
+        "ingresos_tipo_tarjeta_long": ingresos,
+        "base_subsidio_referencial_long": base_subsidio_long,
+        "resumen_tipo_tarjeta": resumen,
+        "output_dir": destino,
+        "archivos": archivos,
+    }
+
+
 # ---------------------------------------------------------------------------
 # Tarifas, distancias y costo generalizado
 # ---------------------------------------------------------------------------

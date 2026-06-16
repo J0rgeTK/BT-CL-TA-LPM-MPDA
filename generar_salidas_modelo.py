@@ -198,5 +198,10 @@ print(serv.sum().to_string())
 # Salidas OD híbridas Biotren por tipo de pasajero e ingresos proyectados.
 ODH.generar_salidas_od_2027(serv['BIOTREN'])
 
+# Exportación local controlada OD Biotren por tipo de tarjeta.
+# Los CSV long completos se escriben en una carpeta ignorada por Git.
+export_tarjetas = ODH.exportar_salidas_tipo_tarjeta(serv['BIOTREN'])
+print(f"Salidas OD por tipo de tarjeta exportadas localmente en: {export_tarjetas['output_dir']}")
+
 # Validación técnica final del modelo.
 VM.ejecutar_validacion()
