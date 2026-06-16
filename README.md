@@ -105,37 +105,46 @@ Proyección mensual Biotren
 
 ### 8.1 Tipos de tarjeta
 
-La segmentación mensual se calcula con participaciones históricas por tipo de tarjeta:
+### 6.1 Biotren
 
-```text
-Demanda(t,m) = Demanda(Biotren,m) × Participación(t,m)
-```
+- **Alcance:** servicio urbano Biotren, modelado en el motor temporal por L1 y L2 para obtener primero la demanda mensual total.
+- **Insumos utilizados:** afluencia histórica, oferta por línea, calendario operacional 2027, feriados nacionales, productividad histórica, estacionalidad y parámetros de elasticidad.
+- **Base histórica o patrón de referencia:** comportamiento mensual observado por línea y nivel de servicio; Laja-Talcahuano se mantiene como servicio independiente para evitar doble conteo dentro del corredor.
+- **Calendario, oferta y feriados:** la oferta se edita por línea, mes y tipo de día. El escenario base considera L1 con 48 servicios lunes-viernes durante 2027 y L2 con 106 servicios lunes-viernes entre enero y abril, aumentando a 109 desde mayo. Los feriados nacionales se modelan sin operación.
+- **Ajustes específicos:** se aplica elasticidad parcial de oferta, estacionalidad mensual y tratamiento marzo-abril para mantener una trayectoria consistente con evidencia histórica, sin transformar el resultado en una distribución anual fija.
+- **Resultado proyectado:** el total anual vigente de Biotren es 12.991.160 viajes; ese total se obtiene antes de aplicar la distribución OD.
+- **Validaciones aplicadas:** consistencia mensual/anual del motor, sensibilidad ante cambios de oferta, regla de feriados, conservación del total al distribuir por línea MOD y por tipo de tarjeta.
+- **Limitaciones:** la MOD no genera el total de Biotren; sólo distribuye la demanda ya proyectada. Los módulos OD, ingresos preliminares y subsidio referencial son específicos de Biotren.
 
-Se consideran ocho tipos de tarjeta:
+### 6.2 Laja-Talcahuano / Corto Laja
 
-| Tipo de tarjeta | Regla de ingreso tarifario preliminar |
-|---|---|
-| `monedero` | Usa tarifa normal/adulto. |
-| `media_superior` | Usa tarifa estudiante. |
-| `adulto_mayor` | Usa tarifa adulto mayor. |
-| `estudiante_basica` | Tarifa 0. |
-| `discapacitado` | Tarifa 0. |
-| `funcionario_normal` | Tarifa 0. |
-| `funcionario_especial` | Tarifa 0. |
-| `convenio_colectivo` | Tarifa 0. |
+- **Alcance:** servicio regional propio, independiente de Biotren y de sus módulos OD.
+- **Insumos utilizados:** afluencia histórica del servicio, oferta operacional, calendario 2027, feriados nacionales, productividad, estacionalidad y elasticidad.
+- **Base histórica o patrón de referencia:** patrón histórico de desempeño del servicio y señal de recuperación operacional considerada en el escenario.
+- **Calendario, oferta y feriados:** la oferta base considera 8 servicios diarios durante el año, salvo sábados y domingos de enero y febrero con 10 servicios. Los feriados nacionales se modelan con oferta de fin de semana; si el feriado cae lunes-viernes, se imputa como domingo operacional.
+- **Ajustes específicos:** se representa recuperación operacional parcial mediante supresión acotada, elasticidad parcial de oferta y mayor peso del patrón histórico de mejor desempeño.
+- **Resultado proyectado:** el total anual vigente de Laja-Talcahuano es 540.842 viajes.
+- **Validaciones aplicadas:** regla de feriados de fin de semana, consistencia del motor mensual y sensibilidad ante cambios de oferta.
+- **Limitaciones:** no usa distribución OD Biotren, clasificación L1/L2/L1-L2, tipo de tarjeta Biotren, ingresos OD ni base de subsidio Biotren.
 
 El modelo mensual estima la demanda total de Biotren y, posteriormente, el módulo OD distribuye dicha demanda según estructura histórica de viajes. La MOD no genera el total mensual de Biotren; se usa para distribuir espacialmente o por línea la demanda total proyectada.
 
 ### 8.2 Distribución OD por tipo de tarjeta
 
-Para cada mes y tipo de tarjeta se utiliza la participación OD histórica del mismo segmento para asignar viajes a pares origen-destino:
+### 6.4 Llanquihue-Puerto Montt
 
-```text
-Viajes_ij,t,m = Demanda(t,m) × ParticipaciónOD_ij,t,m
-```
+- **Alcance:** servicio independiente proyectado con su propia base histórica y patrón operacional.
+- **Insumos utilizados:** afluencia histórica del servicio, oferta programada, calendario operacional 2027, feriados nacionales, productividad histórica, estacionalidad y elasticidad.
+- **Base histórica o patrón de referencia:** perfil mensual observado, incluyendo señal estival en enero y febrero.
+- **Calendario, oferta y feriados:** se modela con operación de lunes a viernes. En el escenario base no se consideran servicios planificados de fin de semana ni operación en feriados nacionales.
+- **Ajustes específicos:** enero y febrero conservan señal estival dentro del perfil mensual, sin extrapolar linealmente esa condición al resto del año.
+- **Resultado proyectado:** el total anual vigente de Llanquihue-Puerto Montt es 420.853 viajes.
+- **Validaciones aplicadas:** regla de feriados sin operación, calendario lunes-viernes y consistencia mensual/anual del motor.
+- **Limitaciones:** no utiliza módulos OD Biotren, distribución L1/L2/L1-L2, tipo de tarjeta Biotren, ingresos OD Biotren ni base de subsidio Biotren.
 
-La suma de todos los tipos de tarjeta conserva la demanda mensual total de Biotren. La vista de la aplicación está acotada al mes y tipo seleccionados para evitar cargar o producir matrices long completas.
+## 7. Biotren: proyección total mensual
 
+El modelo mensual estima la demanda total de Biotren y, posteriormente, el módulo OD distribuye dicha demanda según estructura histórica de viajes. La MOD no genera el total mensual de Biotren; se usa para distribuir espacialmente o por línea la demanda total proyectada.
 
 ## 9. Biotren: distribución por línea OD basada en MOD
 

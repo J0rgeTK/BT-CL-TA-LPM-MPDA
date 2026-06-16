@@ -68,13 +68,27 @@ El bloque marzo-abril incorpora un tratamiento estacional para mantener una tray
 
 ### 6.2 Laja-Talcahuano
 
-Laja-Talcahuano se proyecta como servicio propio. La oferta base considera 8 servicios diarios durante el año, con excepción de sábados y domingos de enero y febrero, donde se consideran 10 servicios. Los feriados nacionales se modelan con oferta de fin de semana.
+### 6.1 Biotren
 
-El escenario representa una recuperación operacional parcial mediante supresión acotada, elasticidad parcial de oferta y mayor peso del patrón histórico de mejor desempeño.
+- **Alcance:** servicio urbano Biotren, modelado en el motor temporal por L1 y L2 para obtener primero la demanda mensual total.
+- **Insumos utilizados:** afluencia histórica, oferta por línea, calendario operacional 2027, feriados nacionales, productividad histórica, estacionalidad y parámetros de elasticidad.
+- **Base histórica o patrón de referencia:** comportamiento mensual observado por línea y nivel de servicio; Laja-Talcahuano se mantiene como servicio independiente para evitar doble conteo dentro del corredor.
+- **Calendario, oferta y feriados:** la oferta se edita por línea, mes y tipo de día. El escenario base considera L1 con 48 servicios lunes-viernes durante 2027 y L2 con 106 servicios lunes-viernes entre enero y abril, aumentando a 109 desde mayo. Los feriados nacionales se modelan sin operación.
+- **Ajustes específicos:** se aplica elasticidad parcial de oferta, estacionalidad mensual y tratamiento marzo-abril para mantener una trayectoria consistente con evidencia histórica, sin transformar el resultado en una distribución anual fija.
+- **Resultado proyectado:** el total anual vigente de Biotren es 12.991.160 viajes; ese total se obtiene antes de aplicar la distribución OD.
+- **Validaciones aplicadas:** consistencia mensual/anual del motor, sensibilidad ante cambios de oferta, regla de feriados, conservación del total al distribuir por línea MOD y por tipo de tarjeta.
+- **Limitaciones:** la MOD no genera el total de Biotren; sólo distribuye la demanda ya proyectada. Los módulos OD, ingresos preliminares y subsidio referencial son específicos de Biotren.
 
 ### 6.3 Tren Araucanía
 
-Tren Araucanía se modela por tipo de servicio:
+- **Alcance:** servicio regional propio, independiente de Biotren y de sus módulos OD.
+- **Insumos utilizados:** afluencia histórica del servicio, oferta operacional, calendario 2027, feriados nacionales, productividad, estacionalidad y elasticidad.
+- **Base histórica o patrón de referencia:** patrón histórico de desempeño del servicio y señal de recuperación operacional considerada en el escenario.
+- **Calendario, oferta y feriados:** la oferta base considera 8 servicios diarios durante el año, salvo sábados y domingos de enero y febrero con 10 servicios. Los feriados nacionales se modelan con oferta de fin de semana; si el feriado cae lunes-viernes, se imputa como domingo operacional.
+- **Ajustes específicos:** se representa recuperación operacional parcial mediante supresión acotada, elasticidad parcial de oferta y mayor peso del patrón histórico de mejor desempeño.
+- **Resultado proyectado:** el total anual vigente de Laja-Talcahuano es 540.842 viajes.
+- **Validaciones aplicadas:** regla de feriados de fin de semana, consistencia del motor mensual y sensibilidad ante cambios de oferta.
+- **Limitaciones:** no usa distribución OD Biotren, clasificación L1/L2/L1-L2, tipo de tarjeta Biotren, ingresos OD ni base de subsidio Biotren.
 
 - Temuco - Victoria.
 - Temuco - Pitrufquén.
@@ -98,11 +112,16 @@ El modelo mensual estima la demanda total de Biotren y, posteriormente, el módu
 
 ### 8.1 Tipos de tarjeta
 
-La segmentación mensual se calcula con participaciones históricas por tipo de tarjeta:
+- **Alcance:** servicio independiente proyectado con su propia base histórica y patrón operacional.
+- **Insumos utilizados:** afluencia histórica del servicio, oferta programada, calendario operacional 2027, feriados nacionales, productividad histórica, estacionalidad y elasticidad.
+- **Base histórica o patrón de referencia:** perfil mensual observado, incluyendo señal estival en enero y febrero.
+- **Calendario, oferta y feriados:** se modela con operación de lunes a viernes. En el escenario base no se consideran servicios planificados de fin de semana ni operación en feriados nacionales.
+- **Ajustes específicos:** enero y febrero conservan señal estival dentro del perfil mensual, sin extrapolar linealmente esa condición al resto del año.
+- **Resultado proyectado:** el total anual vigente de Llanquihue-Puerto Montt es 420.853 viajes.
+- **Validaciones aplicadas:** regla de feriados sin operación, calendario lunes-viernes y consistencia mensual/anual del motor.
+- **Limitaciones:** no utiliza módulos OD Biotren, distribución L1/L2/L1-L2, tipo de tarjeta Biotren, ingresos OD Biotren ni base de subsidio Biotren.
 
-```text
-Demanda(t,m) = Demanda(Biotren,m) × Participación(t,m)
-```
+## 7. Biotren: proyección total mensual
 
 Se consideran ocho tipos de tarjeta:
 
@@ -129,6 +148,7 @@ Viajes_ij,t,m = Demanda(t,m) × ParticipaciónOD_ij,t,m
 
 La suma de todos los tipos de tarjeta conserva la demanda mensual total de Biotren. La vista de la aplicación está acotada al mes y tipo seleccionados para evitar cargar o producir matrices long completas.
 
+## 8. Biotren: distribución por línea OD basada en MOD
 
 ## 9. Biotren: distribución por línea OD basada en MOD
 
