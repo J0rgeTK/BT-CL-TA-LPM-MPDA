@@ -127,12 +127,17 @@ def ejecutar_validacion() -> pd.DataFrame:
     readonly_ok = bool(conv_ro and np.isfinite(err_ro) and np.allclose(M_ro.sum(axis=1), [30.0, 70.0]) and np.allclose(M_ro.sum(axis=0), [45.0, 55.0]))
     rows.append(_ok("OD compatible con arreglos read-only", readonly_ok, f"Converge: {conv_ro}; error: {err_ro:.2e}"))
 
-    # 11. Carga real de Streamlit mediante AppTest.
+    # 11. Insumos OD por tipo de tarjeta: estructura y consistencia.
+    val_tipo_tarjeta = ODH.validar_insumos_tipo_tarjeta()
+    for _, row in val_tipo_tarjeta.iterrows():
+        rows.append(_ok(str(row["control"]), row["estado"] == "OK", str(row["detalle"])))
+
+    # 12. Carga real de Streamlit mediante AppTest.
     app = AppTest.from_file(str(BASE / "streamlit_app.py"), default_timeout=30)
     app.run()
     rows.append(_ok("Carga de Streamlit", len(app.exception) == 0, f"Excepciones detectadas: {len(app.exception)}"))
 
-    # 12. Cobertura de archivos exportados.
+    # 13. Cobertura de archivos exportados.
     expected = [
         OUT / "proyeccion_2027_resumen_mensual_elastico.csv",
         OUT / "proyeccion_2027_unidades_mensual_elastico.csv",
@@ -144,6 +149,11 @@ def ejecutar_validacion() -> pd.DataFrame:
         ODH.PROCESSED_FILES["tarifas"],
         ODH.PROCESSED_FILES["distancias"],
         ODH.PROCESSED_FILES["validacion"],
+        ODH.PROCESSED_FILES["od_historica_tipo_tarjeta"],
+        ODH.PROCESSED_FILES["participacion_mensual_tipo_tarjeta"],
+        ODH.PROCESSED_FILES["participacion_od_tipo_tarjeta"],
+        ODH.PROCESSED_FILES["mapeo_tipo_tarjeta"],
+        ODH.PROCESSED_FILES["base_subsidio_referencial"],
     ]
     missing = [p.name for p in expected if not p.exists()]
     rows.append(_ok("Archivos de salida principales", len(missing) == 0, "Faltantes: " + (", ".join(missing) if missing else "ninguno")))

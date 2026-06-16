@@ -40,6 +40,11 @@ FARE_FILE = OD_INPUT / "Consolidado Tarifas EFE Sur 2026.xlsx"
 PROCESSED_FILES = {
     "orden_estaciones": OD_PROCESSED / "orden_estaciones_original.csv",
     "od_historica": OD_PROCESSED / "od_historica_por_tipo_long.csv",
+    "od_historica_tipo_tarjeta": OD_PROCESSED / "od_historica_tipo_tarjeta_long.csv",
+    "participacion_mensual_tipo_tarjeta": OD_PROCESSED / "participacion_mensual_tipo_tarjeta.csv",
+    "participacion_od_tipo_tarjeta": OD_PROCESSED / "participacion_od_tipo_tarjeta_mensual.csv",
+    "mapeo_tipo_tarjeta": OD_PROCESSED / "mapeo_tipo_tarjeta.csv",
+    "base_subsidio_referencial": OD_PROCESSED / "base_subsidio_referencial_historica_long.csv",
     "tarifas": OD_PROCESSED / "tarifas_2026_por_tipo_long.csv",
     "distancias": OD_PROCESSED / "distancia_biotren_km_long.csv",
     "validacion": OD_PROCESSED / "validacion_extraccion_od.csv",
@@ -52,6 +57,22 @@ TIPOS_BLOQUES = {
 }
 BLOQUE_TOTAL = "Total Mes Tarjetas"
 TIPOS = list(TIPOS_BLOQUES.keys())
+TIPOS_TARJETA_ESPERADOS = [
+    "monedero",
+    "media_superior",
+    "adulto_mayor",
+    "estudiante_basica",
+    "discapacitado",
+    "funcionario_normal",
+    "funcionario_especial",
+    "convenio_colectivo",
+]
+TARIFA_APLICABLE_A_TIPO_PASAJERO = {
+    "normal_adulto": "Normal",
+    "estudiante": "Estudiante",
+    "adulto_mayor": "Adulto Mayor",
+    "cero": None,
+}
 
 # Resultado de la calibración gravitacional previa. Se mantiene como parámetro de
 # sensibilidad, no como distribuidor final puro.
@@ -339,6 +360,122 @@ def load_processed_inputs():
     dist = _matrix_from_long(dist_long, "distancia_km", station_order)
     validation = pd.read_csv(PROCESSED_FILES["validacion"])
     return mats, validation, station_order, fares, dist
+
+
+def load_card_type_processed_inputs() -> dict[str, pd.DataFrame | list[str]]:
+    """Carga los CSV procesados de OD Biotren por tipo de tarjeta.
+
+    Esta función sólo expone y valida la nueva estructura granular de insumos.
+    No participa aún en la distribución OD final ni modifica la proyección
+    mensual total de Biotren.
+    """
+    required = [
+        "orden_estaciones",
+        "od_historica_tipo_tarjeta",
+        "participacion_mensual_tipo_tarjeta",
+        "participacion_od_tipo_tarjeta",
+        "mapeo_tipo_tarjeta",
+        "tarifas",
+        "base_subsidio_referencial",
+    ]
+    faltantes = [PROCESSED_FILES[k] for k in required if not PROCESSED_FILES[k].exists()]
+    if faltantes:
+        raise _error_insumos_procesados(faltantes)
+
+    orden = pd.read_csv(PROCESSED_FILES["orden_estaciones"]).sort_values("orden")
+    station_order = orden["estacion"].astype(str).tolist()
+    return {
+        "station_order": station_order,
+        "orden_estaciones": orden,
+        "od_historica_tipo_tarjeta": pd.read_csv(PROCESSED_FILES["od_historica_tipo_tarjeta"]),
+        "participacion_mensual_tipo_tarjeta": pd.read_csv(PROCESSED_FILES["participacion_mensual_tipo_tarjeta"]),
+        "participacion_od_tipo_tarjeta": pd.read_csv(PROCESSED_FILES["participacion_od_tipo_tarjeta"]),
+        "mapeo_tipo_tarjeta": pd.read_csv(PROCESSED_FILES["mapeo_tipo_tarjeta"]),
+        "tarifas": pd.read_csv(PROCESSED_FILES["tarifas"]),
+        "base_subsidio_referencial": pd.read_csv(PROCESSED_FILES["base_subsidio_referencial"]),
+    }
+
+
+def columnas_insumos_tipo_tarjeta() -> pd.DataFrame:
+    insumos = load_card_type_processed_inputs()
+    rows = []
+    for nombre, df in insumos.items():
+        if isinstance(df, pd.DataFrame):
+            rows.append({"insumo": nombre, "columnas": ", ".join(df.columns), "filas": len(df)})
+    return pd.DataFrame(rows)
+
+
+def validar_insumos_tipo_tarjeta(tol: float = 1e-8) -> pd.DataFrame:
+    insumos = load_card_type_processed_inputs()
+    station_order = list(insumos["station_order"])
+    od = insumos["od_historica_tipo_tarjeta"]
+    pm = insumos["participacion_mensual_tipo_tarjeta"]
+    pod = insumos["participacion_od_tipo_tarjeta"]
+    mapeo = insumos["mapeo_tipo_tarjeta"]
+    tarifas = insumos["tarifas"]
+    base_subsidio = insumos["base_subsidio_referencial"]
+
+    def row(control: str, ok: bool, detalle: str) -> dict:
+        return {"control": control, "estado": "OK" if ok else "REVISAR", "detalle": detalle}
+
+    rows = []
+    expected = set(TIPOS_TARJETA_ESPERADOS)
+    tipos_por_insumo = {
+        "mapeo": set(mapeo["tipo_tarjeta"].astype(str)),
+        "od_historica": set(od["tipo_tarjeta"].astype(str)),
+        "participacion_mensual": set(pm["tipo_tarjeta"].astype(str)),
+        "participacion_od": set(pod["tipo_tarjeta"].astype(str)),
+    }
+    faltantes = {k: sorted(expected - v) for k, v in tipos_por_insumo.items()}
+    sobrantes = {k: sorted(v - expected) for k, v in tipos_por_insumo.items()}
+    tipos_ok = all(not v for v in faltantes.values()) and all(not v for v in sobrantes.values())
+    rows.append(row("Tipos de tarjeta esperados", tipos_ok, f"Esperados: {len(expected)}; faltantes: {faltantes}; sobrantes: {sobrantes}"))
+
+    meses = set(range(1, 13))
+    meses_tipo = pm.groupby("tipo_tarjeta")["mes"].apply(lambda s: set(s.astype(int))).to_dict()
+    meses_faltantes = {t: sorted(meses - meses_tipo.get(t, set())) for t in TIPOS_TARJETA_ESPERADOS}
+    meses_extra = {t: sorted(meses_tipo.get(t, set()) - meses) for t in TIPOS_TARJETA_ESPERADOS}
+    meses_ok = all(not v for v in meses_faltantes.values()) and all(not v for v in meses_extra.values()) and len(pm) == 12 * len(expected)
+    rows.append(row("Doce meses por tipo de tarjeta", meses_ok, f"Filas participación mensual: {len(pm)}; faltantes: {meses_faltantes}; extra: {meses_extra}"))
+
+    estaciones_od = list(dict.fromkeys(pd.concat([od["origen"], od["destino"]]).astype(str)))
+    estaciones_ok = estaciones_od == station_order
+    rows.append(row("Orden original de estaciones preservado", estaciones_ok, f"Orden CSV: {len(station_order)} estaciones; orden OD coincide: {estaciones_ok}"))
+
+    sums_pm = pm.groupby("mes")["participacion_tipo_mes"].sum()
+    max_diff_pm = float((sums_pm - 1.0).abs().max())
+    rows.append(row("Participaciones mensuales por tipo suman 1", max_diff_pm <= tol, f"Diferencia máxima: {max_diff_pm:.12f}"))
+
+    sums_pod = pod.groupby(["tipo_tarjeta", "mes"], as_index=False).agg(
+        participacion=("participacion_od_tipo_mes", "sum"),
+        viajes=("viajes_observados_tipo_mes", "max"),
+    )
+    mask_con_viajes = sums_pod["viajes"] > 0
+    max_diff_pod = float((sums_pod.loc[mask_con_viajes, "participacion"] - 1.0).abs().max()) if mask_con_viajes.any() else 0.0
+    sin_viajes_ok = bool((sums_pod.loc[~mask_con_viajes, "participacion"].abs() <= tol).all())
+    rows.append(row("Participaciones OD por tipo/mes suman 1", max_diff_pod <= tol and sin_viajes_ok, f"Diferencia máxima con viajes: {max_diff_pod:.12f}; casos sin viajes OK: {sin_viajes_ok}"))
+
+    required_fare_cols = {"tipo_pasajero", "origen", "destino", "tarifa_2026"}
+    tarifa_cols_ok = required_fare_cols.issubset(tarifas.columns)
+    tarifa_tipos = set(tarifas["tipo_pasajero"].astype(str))
+    tarifa_tipos_ok = set(TIPOS).issubset(tarifa_tipos)
+    tarifa_estaciones = set(pd.concat([tarifas["origen"], tarifas["destino"]]).map(canon).astype(str))
+    tarifa_estaciones_ok = {canon(e) for e in station_order}.issubset(tarifa_estaciones)
+    tarifa_mapeo_ok = set(mapeo["tarifa_aplicable"].dropna().astype(str)).issubset(TARIFA_APLICABLE_A_TIPO_PASAJERO)
+    rows.append(row(
+        "Estructura de tarifas para ingresos preliminares",
+        tarifa_cols_ok and tarifa_tipos_ok and tarifa_estaciones_ok and tarifa_mapeo_ok,
+        f"Columnas OK: {tarifa_cols_ok}; tipos tarifa: {sorted(tarifa_tipos)}; estaciones cubiertas: {tarifa_estaciones_ok}; mapeo tarifa OK: {tarifa_mapeo_ok}",
+    ))
+
+    required_subsidio_cols = {"mes", "mes_nombre", "grupo_subsidio_referencial", "origen", "destino", "viajes_observados_base_referencial"}
+    rows.append(row(
+        "Estructura de base referencial de subsidio",
+        required_subsidio_cols.issubset(base_subsidio.columns),
+        f"Columnas detectadas: {list(base_subsidio.columns)}",
+    ))
+
+    return pd.DataFrame(rows)
 
 
 # ---------------------------------------------------------------------------
