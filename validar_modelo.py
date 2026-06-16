@@ -132,12 +132,32 @@ def ejecutar_validacion() -> pd.DataFrame:
     for _, row in val_tipo_tarjeta.iterrows():
         rows.append(_ok(str(row["control"]), row["estado"] == "OK", str(row["detalle"])))
 
-    # 12. Carga real de Streamlit mediante AppTest.
+    # 12. Paso 2B mínimo: distribución por tipo de tarjeta e ingresos agregados en memoria.
+    resultado_tarjetas = ODH.distribuir_proyeccion_biotren_por_tipo_tarjeta(serv["BIOTREN"].astype(float))
+    resumen_tarjetas = resultado_tarjetas["resumen_tipo_tarjeta"]
+    total_tarjetas_mes = resumen_tarjetas.groupby("periodo")["viajes_proyectados"].sum()
+    dif_tarjetas = total_tarjetas_mes.sub(serv["BIOTREN"].astype(float), fill_value=0).abs().max()
+    rows.append(_ok("Consistencia tarjeta mensual vs Biotren", dif_tarjetas < 1e-5, f"Diferencia máxima: {dif_tarjetas:.8f}"))
+
+    ingresos_por_tarifa = resumen_tarjetas.groupby("tipo_pasajero_tarifa")["ingresos_tarifarios_proyectados"].sum()
+    ingresos_con_tarifa_ok = bool((ingresos_por_tarifa.drop(labels=["Sin ingreso tarifario"], errors="ignore") > 0).all())
+    ingreso_cero_ok = bool(ingresos_por_tarifa.get("Sin ingreso tarifario", 0.0) == 0.0)
+    rows.append(_ok(
+        "Ingreso tarifario agregado por tipo de tarjeta",
+        ingresos_con_tarifa_ok and ingreso_cero_ok,
+        "; ".join(f"{k}: {v:,.0f}" for k, v in ingresos_por_tarifa.items()),
+    ))
+
+    subsidio_ref = resultado_tarjetas["subsidio_referencial_base"]
+    subsidio_ok = bool({"mes", "grupo_subsidio_referencial", "viajes_observados_base_referencial"}.issubset(subsidio_ref.columns) and len(subsidio_ref) > 0)
+    rows.append(_ok("Base referencial de subsidio en memoria", subsidio_ok, f"Filas agregadas: {len(subsidio_ref)}; sin cálculo de montos"))
+
+    # 13. Carga real de Streamlit mediante AppTest.
     app = AppTest.from_file(str(BASE / "streamlit_app.py"), default_timeout=30)
     app.run()
     rows.append(_ok("Carga de Streamlit", len(app.exception) == 0, f"Excepciones detectadas: {len(app.exception)}"))
 
-    # 13. Cobertura de archivos exportados.
+    # 14. Cobertura de archivos exportados.
     expected = [
         OUT / "proyeccion_2027_resumen_mensual_elastico.csv",
         OUT / "proyeccion_2027_unidades_mensual_elastico.csv",
