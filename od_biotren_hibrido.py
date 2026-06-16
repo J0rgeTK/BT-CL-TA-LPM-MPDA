@@ -27,6 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent
 DATA = BASE_DIR / "data"
 OUT = BASE_DIR / "outputs"
 OD_INPUT = DATA / "od_biotren" / "input"
+OD_PROCESSED = DATA / "od_biotren" / "processed"
 OD_OUT = OUT / "od_biotren_hibrido"
 OD_OUT.mkdir(parents=True, exist_ok=True)
 
@@ -36,6 +37,19 @@ OD_ABR = OD_INPUT / "0. Matrices Biotren abr_2026.xlsx"
 DIST_FILE = OD_INPUT / "Libro1.xlsx"
 FARE_FILE = OD_INPUT / "Consolidado Tarifas EFE Sur 2026.xlsx"
 
+PROCESSED_FILES = {
+    "orden_estaciones": OD_PROCESSED / "orden_estaciones_original.csv",
+    "od_historica": OD_PROCESSED / "od_historica_por_tipo_long.csv",
+    "od_historica_tipo_tarjeta": OD_PROCESSED / "od_historica_tipo_tarjeta_long.csv",
+    "participacion_mensual_tipo_tarjeta": OD_PROCESSED / "participacion_mensual_tipo_tarjeta.csv",
+    "participacion_od_tipo_tarjeta": OD_PROCESSED / "participacion_od_tipo_tarjeta_mensual.csv",
+    "mapeo_tipo_tarjeta": OD_PROCESSED / "mapeo_tipo_tarjeta.csv",
+    "base_subsidio_referencial": OD_PROCESSED / "base_subsidio_referencial_historica_long.csv",
+    "tarifas": OD_PROCESSED / "tarifas_2026_por_tipo_long.csv",
+    "distancias": OD_PROCESSED / "distancia_biotren_km_long.csv",
+    "validacion": OD_PROCESSED / "validacion_extraccion_od.csv",
+}
+
 TIPOS_BLOQUES = {
     "Normal": "T. Monedero",
     "Estudiante": "T. Estudiante",
@@ -43,6 +57,22 @@ TIPOS_BLOQUES = {
 }
 BLOQUE_TOTAL = "Total Mes Tarjetas"
 TIPOS = list(TIPOS_BLOQUES.keys())
+TIPOS_TARJETA_ESPERADOS = [
+    "monedero",
+    "media_superior",
+    "adulto_mayor",
+    "estudiante_basica",
+    "discapacitado",
+    "funcionario_normal",
+    "funcionario_especial",
+    "convenio_colectivo",
+]
+TARIFA_APLICABLE_A_TIPO_PASAJERO = {
+    "normal_adulto": "Normal",
+    "estudiante": "Estudiante",
+    "adulto_mayor": "Adulto Mayor",
+    "cero": None,
+}
 
 # Resultado de la calibración gravitacional previa. Se mantiene como parámetro de
 # sensibilidad, no como distribuidor final puro.
@@ -280,6 +310,332 @@ def load_od_matrices(path: Path = OD_MAIN, blocks: Iterable[str] | None = None, 
 
 
 # ---------------------------------------------------------------------------
+# Lectura de insumos CSV procesados
+# ---------------------------------------------------------------------------
+
+def insumos_procesados_faltantes() -> list[Path]:
+    return [path for path in PROCESSED_FILES.values() if not path.exists()]
+
+
+def _error_insumos_procesados(faltantes: list[Path]) -> FileNotFoundError:
+    rel = [str(p.relative_to(BASE_DIR)) for p in faltantes]
+    return FileNotFoundError(
+        "Faltan insumos OD Biotren procesados en CSV: "
+        + ", ".join(rel)
+        + ". Ejecute `python preparar_insumos_od_biotren.py` con los Excel originales "
+        + "disponibles en data/od_biotren/input/. Los Excel son insumos externos "
+        + "opcionales y no se versionan."
+    )
+
+
+def _matrix_from_long(df: pd.DataFrame, value_col: str, station_order: list[str]) -> pd.DataFrame:
+    M = df.pivot_table(index="origen", columns="destino", values=value_col, aggfunc="sum", fill_value=0.0)
+    return M.reindex(index=station_order, columns=station_order, fill_value=0.0).astype(float)
+
+
+def load_processed_inputs():
+    faltantes = insumos_procesados_faltantes()
+    if faltantes:
+        raise _error_insumos_procesados(faltantes)
+
+    orden = pd.read_csv(PROCESSED_FILES["orden_estaciones"])
+    orden = orden.sort_values("orden")
+    station_order = orden["estacion"].astype(str).tolist()
+
+    od_long = pd.read_csv(PROCESSED_FILES["od_historica"])
+    mats: dict[tuple[int, int, str], pd.DataFrame] = {}
+    for (anio, mes, bloque), g in od_long.groupby(["anio", "mes", "bloque"], sort=False):
+        mats[(int(anio), int(mes), str(bloque))] = _matrix_from_long(g, "viajes", station_order)
+
+    tarifas_long = pd.read_csv(PROCESSED_FILES["tarifas"])
+    fares = {
+        str(tipo): _matrix_from_long(g, "tarifa_2026", station_order)
+        for tipo, g in tarifas_long.groupby("tipo_pasajero", sort=False)
+    }
+    missing_fares = [tipo for tipo in TIPOS if tipo not in fares]
+    if missing_fares:
+        raise ValueError(f"Faltan tarifas procesadas para tipos de pasajero: {missing_fares}")
+
+    dist_long = pd.read_csv(PROCESSED_FILES["distancias"])
+    dist = _matrix_from_long(dist_long, "distancia_km", station_order)
+    validation = pd.read_csv(PROCESSED_FILES["validacion"])
+    return mats, validation, station_order, fares, dist
+
+
+def load_card_type_processed_inputs() -> dict[str, pd.DataFrame | list[str]]:
+    """Carga los CSV procesados de OD Biotren por tipo de tarjeta.
+
+    Esta función sólo expone y valida la nueva estructura granular de insumos.
+    No participa aún en la distribución OD final ni modifica la proyección
+    mensual total de Biotren.
+    """
+    required = [
+        "orden_estaciones",
+        "od_historica_tipo_tarjeta",
+        "participacion_mensual_tipo_tarjeta",
+        "participacion_od_tipo_tarjeta",
+        "mapeo_tipo_tarjeta",
+        "tarifas",
+        "base_subsidio_referencial",
+    ]
+    faltantes = [PROCESSED_FILES[k] for k in required if not PROCESSED_FILES[k].exists()]
+    if faltantes:
+        raise _error_insumos_procesados(faltantes)
+
+    orden = pd.read_csv(PROCESSED_FILES["orden_estaciones"]).sort_values("orden")
+    station_order = orden["estacion"].astype(str).tolist()
+    return {
+        "station_order": station_order,
+        "orden_estaciones": orden,
+        "od_historica_tipo_tarjeta": pd.read_csv(PROCESSED_FILES["od_historica_tipo_tarjeta"]),
+        "participacion_mensual_tipo_tarjeta": pd.read_csv(PROCESSED_FILES["participacion_mensual_tipo_tarjeta"]),
+        "participacion_od_tipo_tarjeta": pd.read_csv(PROCESSED_FILES["participacion_od_tipo_tarjeta"]),
+        "mapeo_tipo_tarjeta": pd.read_csv(PROCESSED_FILES["mapeo_tipo_tarjeta"]),
+        "tarifas": pd.read_csv(PROCESSED_FILES["tarifas"]),
+        "base_subsidio_referencial": pd.read_csv(PROCESSED_FILES["base_subsidio_referencial"]),
+    }
+
+
+def columnas_insumos_tipo_tarjeta() -> pd.DataFrame:
+    insumos = load_card_type_processed_inputs()
+    rows = []
+    for nombre, df in insumos.items():
+        if isinstance(df, pd.DataFrame):
+            rows.append({"insumo": nombre, "columnas": ", ".join(df.columns), "filas": len(df)})
+    return pd.DataFrame(rows)
+
+
+def validar_insumos_tipo_tarjeta(tol: float = 1e-8) -> pd.DataFrame:
+    insumos = load_card_type_processed_inputs()
+    station_order = list(insumos["station_order"])
+    od = insumos["od_historica_tipo_tarjeta"]
+    pm = insumos["participacion_mensual_tipo_tarjeta"]
+    pod = insumos["participacion_od_tipo_tarjeta"]
+    mapeo = insumos["mapeo_tipo_tarjeta"]
+    tarifas = insumos["tarifas"]
+    base_subsidio = insumos["base_subsidio_referencial"]
+
+    def row(control: str, ok: bool, detalle: str) -> dict:
+        return {"control": control, "estado": "OK" if ok else "REVISAR", "detalle": detalle}
+
+    rows = []
+    expected = set(TIPOS_TARJETA_ESPERADOS)
+    tipos_por_insumo = {
+        "mapeo": set(mapeo["tipo_tarjeta"].astype(str)),
+        "od_historica": set(od["tipo_tarjeta"].astype(str)),
+        "participacion_mensual": set(pm["tipo_tarjeta"].astype(str)),
+        "participacion_od": set(pod["tipo_tarjeta"].astype(str)),
+    }
+    faltantes = {k: sorted(expected - v) for k, v in tipos_por_insumo.items()}
+    sobrantes = {k: sorted(v - expected) for k, v in tipos_por_insumo.items()}
+    tipos_ok = all(not v for v in faltantes.values()) and all(not v for v in sobrantes.values())
+    rows.append(row("Tipos de tarjeta esperados", tipos_ok, f"Esperados: {len(expected)}; faltantes: {faltantes}; sobrantes: {sobrantes}"))
+
+    meses = set(range(1, 13))
+    meses_tipo = pm.groupby("tipo_tarjeta")["mes"].apply(lambda s: set(s.astype(int))).to_dict()
+    meses_faltantes = {t: sorted(meses - meses_tipo.get(t, set())) for t in TIPOS_TARJETA_ESPERADOS}
+    meses_extra = {t: sorted(meses_tipo.get(t, set()) - meses) for t in TIPOS_TARJETA_ESPERADOS}
+    meses_ok = all(not v for v in meses_faltantes.values()) and all(not v for v in meses_extra.values()) and len(pm) == 12 * len(expected)
+    rows.append(row("Doce meses por tipo de tarjeta", meses_ok, f"Filas participación mensual: {len(pm)}; faltantes: {meses_faltantes}; extra: {meses_extra}"))
+
+    estaciones_od = list(dict.fromkeys(pd.concat([od["origen"], od["destino"]]).astype(str)))
+    estaciones_ok = estaciones_od == station_order
+    rows.append(row("Orden original de estaciones preservado", estaciones_ok, f"Orden CSV: {len(station_order)} estaciones; orden OD coincide: {estaciones_ok}"))
+
+    sums_pm = pm.groupby("mes")["participacion_tipo_mes"].sum()
+    max_diff_pm = float((sums_pm - 1.0).abs().max())
+    rows.append(row("Participaciones mensuales por tipo suman 1", max_diff_pm <= tol, f"Diferencia máxima: {max_diff_pm:.12f}"))
+
+    sums_pod = pod.groupby(["tipo_tarjeta", "mes"], as_index=False).agg(
+        participacion=("participacion_od_tipo_mes", "sum"),
+        viajes=("viajes_observados_tipo_mes", "max"),
+    )
+    mask_con_viajes = sums_pod["viajes"] > 0
+    max_diff_pod = float((sums_pod.loc[mask_con_viajes, "participacion"] - 1.0).abs().max()) if mask_con_viajes.any() else 0.0
+    sin_viajes_ok = bool((sums_pod.loc[~mask_con_viajes, "participacion"].abs() <= tol).all())
+    rows.append(row("Participaciones OD por tipo/mes suman 1", max_diff_pod <= tol and sin_viajes_ok, f"Diferencia máxima con viajes: {max_diff_pod:.12f}; casos sin viajes OK: {sin_viajes_ok}"))
+
+    required_fare_cols = {"tipo_pasajero", "origen", "destino", "tarifa_2026"}
+    tarifa_cols_ok = required_fare_cols.issubset(tarifas.columns)
+    tarifa_tipos = set(tarifas["tipo_pasajero"].astype(str))
+    tarifa_tipos_ok = set(TIPOS).issubset(tarifa_tipos)
+    tarifa_estaciones = set(pd.concat([tarifas["origen"], tarifas["destino"]]).map(canon).astype(str))
+    tarifa_estaciones_ok = {canon(e) for e in station_order}.issubset(tarifa_estaciones)
+    tarifa_mapeo_ok = set(mapeo["tarifa_aplicable"].dropna().astype(str)).issubset(TARIFA_APLICABLE_A_TIPO_PASAJERO)
+    rows.append(row(
+        "Estructura de tarifas para ingresos preliminares",
+        tarifa_cols_ok and tarifa_tipos_ok and tarifa_estaciones_ok and tarifa_mapeo_ok,
+        f"Columnas OK: {tarifa_cols_ok}; tipos tarifa: {sorted(tarifa_tipos)}; estaciones cubiertas: {tarifa_estaciones_ok}; mapeo tarifa OK: {tarifa_mapeo_ok}",
+    ))
+
+    required_subsidio_cols = {"mes", "mes_nombre", "grupo_subsidio_referencial", "origen", "destino", "viajes_observados_base_referencial"}
+    rows.append(row(
+        "Estructura de base referencial de subsidio",
+        required_subsidio_cols.issubset(base_subsidio.columns),
+        f"Columnas detectadas: {list(base_subsidio.columns)}",
+    ))
+
+    return pd.DataFrame(rows)
+
+
+def _tarifa_por_tipo_tarjeta(tipo_tarjeta: str, mapeo: pd.DataFrame) -> str | None:
+    """Devuelve el tipo de tarifa aplicable para un tipo de tarjeta."""
+    fila = mapeo[mapeo["tipo_tarjeta"].astype(str) == str(tipo_tarjeta)]
+    if fila.empty:
+        return None
+    tarifa_aplicable = str(fila["tarifa_aplicable"].iloc[0])
+    return TARIFA_APLICABLE_A_TIPO_PASAJERO.get(tarifa_aplicable)
+
+
+def distribuir_proyeccion_biotren_por_tipo_tarjeta(serie_biotren: pd.Series | dict) -> dict[str, pd.DataFrame]:
+    """Distribuye la proyección mensual Biotren por tipo de tarjeta en memoria.
+
+    La demanda mensual se reparte con las participaciones mensuales históricas
+    por tipo de tarjeta y con las participaciones OD de cada tipo/mes. El
+    ingreso tarifario preliminar se calcula sólo para las tarjetas con tarifa
+    directa: monedero usa tarifa Normal, media_superior usa tarifa Estudiante y
+    adulto_mayor usa tarifa Adulto Mayor. El resto conserva viajes proyectados
+    con ingreso cero.
+
+    No exporta matrices ni archivos; devuelve resúmenes agregados y una base
+    referencial de subsidio sólo para trazabilidad, sin cálculo de montos.
+    """
+    insumos = load_card_type_processed_inputs()
+    station_order = list(insumos["station_order"])
+    pm = insumos["participacion_mensual_tipo_tarjeta"].copy()
+    pod = insumos["participacion_od_tipo_tarjeta"].copy()
+    mapeo = insumos["mapeo_tipo_tarjeta"].copy()
+    tarifas = insumos["tarifas"].copy()
+    base_subsidio = insumos["base_subsidio_referencial"].copy()
+
+    serie = pd.Series(serie_biotren, dtype=float) if isinstance(serie_biotren, dict) else serie_biotren.astype(float).copy()
+    tarifa_mats = {
+        str(tipo): _matrix_from_long(g, "tarifa_2026", station_order)
+        for tipo, g in tarifas.groupby("tipo_pasajero", sort=False)
+    }
+
+    rows = []
+    for periodo, total_mes in serie.items():
+        mes = int(str(periodo)[-2:])
+        pm_mes = pm[pm["mes"].astype(int) == mes]
+        pod_mes = pod[pod["mes"].astype(int) == mes]
+        for _, part_row in pm_mes.iterrows():
+            tipo_tarjeta = str(part_row["tipo_tarjeta"])
+            total_tipo = float(total_mes) * float(part_row["participacion_tipo_mes"])
+            od_tipo = pod_mes[pod_mes["tipo_tarjeta"].astype(str) == tipo_tarjeta].copy()
+            if od_tipo.empty:
+                continue
+            od_tipo["viajes_proyectados"] = total_tipo * od_tipo["participacion_od_tipo_mes"].astype(float)
+            tipo_tarifa = _tarifa_por_tipo_tarjeta(tipo_tarjeta, mapeo)
+            if tipo_tarifa is None:
+                od_tipo["ingresos_tarifarios_proyectados"] = 0.0
+            else:
+                tarifa = tarifa_mats[tipo_tarifa]
+                od_tipo["ingresos_tarifarios_proyectados"] = [
+                    float(v) * float(tarifa.loc[canon(o), canon(d)])
+                    if canon(o) in tarifa.index and canon(d) in tarifa.columns else 0.0
+                    for o, d, v in zip(od_tipo["origen"], od_tipo["destino"], od_tipo["viajes_proyectados"])
+                ]
+            od_tipo.insert(0, "periodo", str(periodo))
+            od_tipo["tipo_pasajero_tarifa"] = tipo_tarifa if tipo_tarifa is not None else "Sin ingreso tarifario"
+            rows.append(od_tipo[[
+                "periodo", "mes", "tipo_tarjeta", "nombre_visual", "origen", "destino",
+                "tipo_pasajero_tarifa", "viajes_proyectados", "ingresos_tarifarios_proyectados",
+            ]])
+
+    viajes_tarjeta_long = pd.concat(rows, ignore_index=True) if rows else pd.DataFrame()
+    resumen = viajes_tarjeta_long.groupby(
+        ["periodo", "mes", "tipo_tarjeta", "nombre_visual", "tipo_pasajero_tarifa"],
+        as_index=False,
+    ).agg(
+        viajes_proyectados=("viajes_proyectados", "sum"),
+        ingresos_tarifarios_proyectados=("ingresos_tarifarios_proyectados", "sum"),
+    )
+    resumen["tarifa_media_proyectada"] = np.where(
+        resumen["viajes_proyectados"] > 0,
+        resumen["ingresos_tarifarios_proyectados"] / resumen["viajes_proyectados"],
+        0.0,
+    )
+
+    subsidio_referencial = base_subsidio.groupby(
+        ["mes", "grupo_subsidio_referencial"], as_index=False
+    )["viajes_observados_base_referencial"].sum()
+
+    return {
+        "resumen_tipo_tarjeta": resumen,
+        "viajes_tipo_tarjeta_long": viajes_tarjeta_long,
+        "subsidio_referencial_base": subsidio_referencial,
+        "mapeo_tipo_tarjeta": mapeo,
+    }
+
+
+def exportar_salidas_tipo_tarjeta(
+    serie_biotren: pd.Series | dict,
+    output_dir: Path | str | None = None,
+    *,
+    meses: list[int] | tuple[int, ...] | set[int] | None = None,
+    tipos_tarjeta: list[str] | tuple[str, ...] | set[str] | None = None,
+    escribir_archivos: bool = True,
+) -> dict[str, pd.DataFrame | Path | dict[str, Path]]:
+    """Prepara y opcionalmente exporta salidas OD Biotren por tipo de tarjeta.
+
+    La función reutiliza el motor en memoria y no cambia los cálculos ni la
+    proyección mensual total. En modo validación puede filtrar un mes/tipo y
+    omitir la escritura de archivos (`escribir_archivos=False`). En modo
+    exportación escribe archivos CSV long completos sólo en una carpeta local
+    ignorada por Git.
+    """
+    resultado = distribuir_proyeccion_biotren_por_tipo_tarjeta(serie_biotren)
+    viajes = resultado["viajes_tipo_tarjeta_long"].copy()
+    resumen = resultado["resumen_tipo_tarjeta"].copy()
+    base_subsidio_long = load_card_type_processed_inputs()["base_subsidio_referencial"].copy()
+
+    if meses is not None:
+        meses_set = {int(m) for m in meses}
+        viajes = viajes[viajes["mes"].astype(int).isin(meses_set)].copy()
+        resumen = resumen[resumen["mes"].astype(int).isin(meses_set)].copy()
+        base_subsidio_long = base_subsidio_long[base_subsidio_long["mes"].astype(int).isin(meses_set)].copy()
+
+    if tipos_tarjeta is not None:
+        tipos_set = {str(t) for t in tipos_tarjeta}
+        viajes = viajes[viajes["tipo_tarjeta"].astype(str).isin(tipos_set)].copy()
+        resumen = resumen[resumen["tipo_tarjeta"].astype(str).isin(tipos_set)].copy()
+
+    ingresos = viajes[[
+        "periodo", "mes", "tipo_tarjeta", "nombre_visual", "origen", "destino",
+        "tipo_pasajero_tarifa", "ingresos_tarifarios_proyectados",
+    ]].copy()
+    viajes = viajes[[
+        "periodo", "mes", "tipo_tarjeta", "nombre_visual", "origen", "destino",
+        "viajes_proyectados",
+    ]].copy()
+
+    archivos: dict[str, Path] = {}
+    destino = Path(output_dir) if output_dir is not None else OUT / "od_biotren_tipo_tarjeta"
+    if escribir_archivos:
+        destino.mkdir(parents=True, exist_ok=True)
+        archivos = {
+            "viajes": destino / "od_2027_tipo_tarjeta_long.csv",
+            "ingresos": destino / "ingresos_tipo_tarjeta_long.csv",
+            "base_subsidio": destino / "base_subsidio_referencial_long.csv",
+            "resumen": destino / "resumen_mensual_tipo_tarjeta.csv",
+        }
+        viajes.to_csv(archivos["viajes"], index=False)
+        ingresos.to_csv(archivos["ingresos"], index=False)
+        base_subsidio_long.to_csv(archivos["base_subsidio"], index=False)
+        resumen.to_csv(archivos["resumen"], index=False)
+
+    return {
+        "viajes_tipo_tarjeta_long": viajes,
+        "ingresos_tipo_tarjeta_long": ingresos,
+        "base_subsidio_referencial_long": base_subsidio_long,
+        "resumen_tipo_tarjeta": resumen,
+        "output_dir": destino,
+        "archivos": archivos,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Tarifas, distancias y costo generalizado
 # ---------------------------------------------------------------------------
 
@@ -434,9 +790,7 @@ def year_weights_for_month(available_years: Iterable[int]) -> dict[int, float]:
 
 @lru_cache(maxsize=1)
 def cargar_insumos_od():
-    mats, validation, station_order = load_od_matrices(OD_MAIN)
-    fares = load_tariff_matrices(station_order)
-    dist = load_distance_matrix(station_order)
+    mats, validation, station_order, fares, dist = load_processed_inputs()
     costs = {tipo: generalized_cost(fares[tipo], dist) for tipo in TIPOS}
     return mats, validation, station_order, fares, dist, costs
 

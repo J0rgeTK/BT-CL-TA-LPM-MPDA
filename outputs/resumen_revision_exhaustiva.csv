@@ -6,3 +6,8 @@ App Streamlit,"Se simplificaron textos visibles, evitando referencias al proceso
 Biotren OD,"La subsección OD muestra mes, tipo de pasajero, matriz de viajes, matriz de ingresos, resumen mensual, validación híbrida y cobertura tarifaria/distancia."
 Documentación,"README.md y metodologia_modelo.md fueron reemplazados por una explicación metodológica general, paso a paso y coherente con el funcionamiento real del modelo."
 Validación,Se corrigió la inconsistencia aritmética del total sistema documentado: la suma vigente de servicios es 14.903.113 pasajeros.
+Código,"Se reemplazó el uso de use_container_width por width=""stretch"" para compatibilidad con Streamlit 1.58 sin alterar el contenido de la app."
+Código,Se eliminó la captura silenciosa de errores al importar/generar OD y validación final en generar_salidas_modelo.py.
+Validación,"Se ampliaron los controles con consistencia mensual/anual, carga AppTest de Streamlit y prueba explícita de IPF con arreglos NumPy read-only."
+Outputs,"Se regeneraron las salidas mensuales y OD híbridas 2027 manteniendo calendario, oferta editable, orden de estaciones y dimensiones viaje/ingreso."
+Versionamiento,"Se retiraron del control de versiones los artefactos binarios y caches generados (.xlsx, .pyc y _Pycache_) y se agregó .gitignore para excluirlos."

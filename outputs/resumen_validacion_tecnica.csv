@@ -1,6 +1,8 @@
 control,estado,detalle
 Compilación Python del proyecto,OK,compileall sobre el directorio del modelo
+Sin binarios/cache versionados,OK,Faltantes: ninguno
 Ejecución del motor mensual-elástico,OK,"Total sistema: 14,903,113"
+Consistencia mensual/anual del motor,OK,Diferencia mensual máxima: 0.494399; anual máxima: 1.625558
 Sensibilidad mensual por oferta,OK,Meses con cambio: ['2027-03']
 Regla de feriados Biotren,OK,Biotren queda sin operación en feriados nacionales
 Regla de feriados Laja-Talcahuano,OK,Laja-Talcahuano opera feriados con regla fin de semana
@@ -8,4 +10,13 @@ Consistencia OD mensual vs Biotren,OK,Diferencia máxima: 0.00000000
 Orden original de estaciones en matrices OD,OK,Estaciones: 27
 Dimensión matriz ingresos vs viajes,OK,"Índices, columnas y dimensiones coinciden"
 Viajes proyectados con ingreso no positivo,OK,Pares detectados: 0
+OD compatible con arreglos read-only,OK,Converge: True; error: 5.54e-13
+Tipos de tarjeta esperados,OK,"Esperados: 8; faltantes: {'mapeo': [], 'od_historica': [], 'participacion_mensual': [], 'participacion_od': []}; sobrantes: {'mapeo': [], 'od_historica': [], 'participacion_mensual': [], 'participacion_od': []}"
+Doce meses por tipo de tarjeta,OK,"Filas participación mensual: 96; faltantes: {'monedero': [], 'media_superior': [], 'adulto_mayor': [], 'estudiante_basica': [], 'discapacitado': [], 'funcionario_normal': [], 'funcionario_especial': [], 'convenio_colectivo': []}; extra: {'monedero': [], 'media_superior': [], 'adulto_mayor': [], 'estudiante_basica': [], 'discapacitado': [], 'funcionario_normal': [], 'funcionario_especial': [], 'convenio_colectivo': []}"
+Orden original de estaciones preservado,OK,Orden CSV: 27 estaciones; orden OD coincide: True
+Participaciones mensuales por tipo suman 1,OK,Diferencia máxima: 0.000000000000
+Participaciones OD por tipo/mes suman 1,OK,Diferencia máxima con viajes: 0.000000000000; casos sin viajes OK: True
+Estructura de tarifas para ingresos preliminares,OK,"Columnas OK: True; tipos tarifa: ['Adulto Mayor', 'Estudiante', 'Normal']; estaciones cubiertas: True; mapeo tarifa OK: True"
+Estructura de base referencial de subsidio,OK,"Columnas detectadas: ['mes', 'mes_nombre', 'grupo_subsidio_referencial', 'origen', 'destino', 'viajes_observados_base_referencial']"
+Carga de Streamlit,OK,Excepciones detectadas: 0
 Archivos de salida principales,OK,Faltantes: ninguno

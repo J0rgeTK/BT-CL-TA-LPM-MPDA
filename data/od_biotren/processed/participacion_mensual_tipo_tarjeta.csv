@@ -1,0 +1,97 @@
+﻿mes,mes_nombre,tipo_tarjeta,nombre_visual,viajes_observados_tipo_mes,viajes_observados_total_mes,participacion_tipo_mes
+1,Enero,adulto_mayor,Adulto Mayor,55024.0,732720.0,0.07509553444699203
+1,Enero,convenio_colectivo,Convenio Colectivo,2690.0,732720.0,0.003671252320122284
+1,Enero,discapacitado,Discapacitado,20510.0,732720.0,0.0279915929686647
+1,Enero,estudiante_basica,Estudiante Básica,11024.0,732720.0,0.015045310623430506
+1,Enero,funcionario_especial,Funcionario Especial,389.0,732720.0,0.0005308985697128507
+1,Enero,funcionario_normal,Funcionario Normal,10166.0,732720.0,0.013874331258871055
+1,Enero,media_superior,Media Superior,110094.0,732720.0,0.15025384867343597
+1,Enero,monedero,Monedero,522823.0,732720.0,0.7135372311387707
+2,Febrero,adulto_mayor,Adulto Mayor,51413.0,697970.0,0.07366075905841225
+2,Febrero,convenio_colectivo,Convenio Colectivo,2452.0,697970.0,0.003513044973279654
+2,Febrero,discapacitado,Discapacitado,19749.0,697970.0,0.028294912388784618
+2,Febrero,estudiante_basica,Estudiante Básica,11450.0,697970.0,0.01640471653509463
+2,Febrero,funcionario_especial,Funcionario Especial,504.0,697970.0,0.0007220940728111523
+2,Febrero,funcionario_normal,Funcionario Normal,8419.0,697970.0,0.012062123013883118
+2,Febrero,media_superior,Media Superior,97504.0,697970.0,0.13969654856225913
+2,Febrero,monedero,Monedero,506479.0,697970.0,0.7256458013954754
+3,Marzo,adulto_mayor,Adulto Mayor,70766.0,1102599.0,0.06418108487310437
+3,Marzo,convenio_colectivo,Convenio Colectivo,3575.0,1102599.0,0.003242339236658114
+3,Marzo,discapacitado,Discapacitado,30807.0,1102599.0,0.027940348213629798
+3,Marzo,estudiante_basica,Estudiante Básica,20244.0,1102599.0,0.018360256085848074
+3,Marzo,funcionario_especial,Funcionario Especial,533.0,1102599.0,0.00048340330437448247
+3,Marzo,funcionario_normal,Funcionario Normal,11365.0,1102599.0,0.010307464454439011
+3,Marzo,media_superior,Media Superior,247021.0,1102599.0,0.2240352113506361
+3,Marzo,monedero,Monedero,718288.0,1102599.0,0.65144989248131
+4,Abril,adulto_mayor,Adulto Mayor,69985.0,1097727.0,0.06375446718537486
+4,Abril,convenio_colectivo,Convenio Colectivo,3719.0,1097727.0,0.003387909744408218
+4,Abril,discapacitado,Discapacitado,31347.0,1097727.0,0.02855628038665351
+4,Abril,estudiante_basica,Estudiante Básica,19535.0,1097727.0,0.017795863634583096
+4,Abril,funcionario_especial,Funcionario Especial,531.0,1097727.0,0.00048372682825511263
+4,Abril,funcionario_normal,Funcionario Normal,9918.0,1097727.0,0.00903503330062939
+4,Abril,media_superior,Media Superior,280477.0,1097727.0,0.25550706140962187
+4,Abril,monedero,Monedero,682215.0,1097727.0,0.621479657510474
+5,Mayo,adulto_mayor,Adulto Mayor,64694.0,982067.0,0.06587534251736389
+5,Mayo,convenio_colectivo,Convenio Colectivo,3436.0,982067.0,0.0034987429574560593
+5,Mayo,discapacitado,Discapacitado,29653.0,982067.0,0.030194477566194568
+5,Mayo,estudiante_basica,Estudiante Básica,17880.0,982067.0,0.01820649711272245
+5,Mayo,funcionario_especial,Funcionario Especial,460.0,982067.0,0.000468399813861987
+5,Mayo,funcionario_normal,Funcionario Normal,8388.0,982067.0,0.008541168779726842
+5,Mayo,media_superior,Media Superior,242373.0,982067.0,0.24679884366341603
+5,Mayo,monedero,Monedero,615183.0,982067.0,0.6264165275892581
+6,Junio,adulto_mayor,Adulto Mayor,35014.0,683952.0,0.0511936510164456
+6,Junio,convenio_colectivo,Convenio Colectivo,1913.0,683952.0,0.002796979905022575
+6,Junio,discapacitado,Discapacitado,10462.0,683952.0,0.015296395068659789
+6,Junio,estudiante_basica,Estudiante Básica,4711.0,683952.0,0.006887910262708494
+6,Junio,funcionario_especial,Funcionario Especial,579.0,683952.0,0.00084655063513229
+6,Junio,funcionario_normal,Funcionario Normal,11692.0,683952.0,0.017094766884225794
+6,Junio,media_superior,Media Superior,146278.0,683952.0,0.21387173368891385
+6,Junio,monedero,Monedero,473303.0,683952.0,0.6920120125388917
+7,Julio,adulto_mayor,Adulto Mayor,19346.0,803666.0,0.024072189193022973
+7,Julio,convenio_colectivo,Convenio Colectivo,2662.0,803666.0,0.003312321287699119
+7,Julio,discapacitado,Discapacitado,15294.0,803666.0,0.019030293679214997
+7,Julio,estudiante_basica,Estudiante Básica,7844.0,803666.0,0.009760273546473287
+7,Julio,funcionario_especial,Funcionario Especial,1058.0,803666.0,0.0013164672886497625
+7,Julio,funcionario_normal,Funcionario Normal,16756.0,803666.0,0.020849457361640282
+7,Julio,media_superior,Media Superior,61511.0,803666.0,0.07653801454833227
+7,Julio,monedero,Monedero,679195.0,803666.0,0.8451209830949673
+8,Agosto,adulto_mayor,Adulto Mayor,48335.0,880975.0,0.054865348051874346
+8,Agosto,convenio_colectivo,Convenio Colectivo,2679.0,880975.0,0.003040948948608076
+8,Agosto,discapacitado,Discapacitado,15189.0,880975.0,0.017241124890036607
+8,Agosto,estudiante_basica,Estudiante Básica,7757.0,880975.0,0.008805017168478107
+8,Agosto,funcionario_especial,Funcionario Especial,867.0,880975.0,0.000984136893782457
+8,Agosto,funcionario_normal,Funcionario Normal,15041.0,880975.0,0.017073129203439372
+8,Agosto,media_superior,Media Superior,203746.0,880975.0,0.2312733051448679
+8,Agosto,monedero,Monedero,587361.0,880975.0,0.6667169896989131
+9,Septiembre,adulto_mayor,Adulto Mayor,48113.0,858936.0,0.05601465068410219
+9,Septiembre,convenio_colectivo,Convenio Colectivo,2660.0,858936.0,0.003096854713273166
+9,Septiembre,discapacitado,Discapacitado,12831.0,858936.0,0.014938249182709772
+9,Septiembre,estudiante_basica,Estudiante Básica,1028.0,858936.0,0.0011968295658815091
+9,Septiembre,funcionario_especial,Funcionario Especial,743.0,858936.0,0.0008650237037450986
+9,Septiembre,funcionario_normal,Funcionario Normal,14579.0,858936.0,0.016973325137146424
+9,Septiembre,media_superior,Media Superior,202882.0,858936.0,0.23620153305950617
+9,Septiembre,monedero,Monedero,576100.0,858936.0,0.6707135339536356
+10,Octubre,adulto_mayor,Adulto Mayor,60113.0,1070826.0,0.05613703813691487
+10,Octubre,convenio_colectivo,Convenio Colectivo,3654.0,1070826.0,0.0034123190882552347
+10,Octubre,discapacitado,Discapacitado,16699.0,1070826.0,0.015594503682204205
+10,Octubre,estudiante_basica,Estudiante Básica,4005.0,1070826.0,0.003740103434171378
+10,Octubre,funcionario_especial,Funcionario Especial,739.0,1070826.0,0.0006901214576411107
+10,Octubre,funcionario_normal,Funcionario Normal,18302.0,1070826.0,0.01709147891440813
+10,Octubre,media_superior,Media Superior,259547.0,1070826.0,0.2423801812806189
+10,Octubre,monedero,Monedero,707767.0,1070826.0,0.6609542540057862
+11,Noviembre,adulto_mayor,Adulto Mayor,58441.0,1000846.0,0.05839160070580289
+11,Noviembre,convenio_colectivo,Convenio Colectivo,3662.0,1000846.0,0.003658904566736541
+11,Noviembre,discapacitado,Discapacitado,16951.0,1000846.0,0.016936671575846832
+11,Noviembre,estudiante_basica,Estudiante Básica,5713.0,1000846.0,0.0057081708874292345
+11,Noviembre,funcionario_especial,Funcionario Especial,856.0,1000846.0,0.0008552764361350298
+11,Noviembre,funcionario_normal,Funcionario Normal,18420.0,1000846.0,0.018404429852344917
+11,Noviembre,media_superior,Media Superior,231817.0,1000846.0,0.23162104859289043
+11,Noviembre,monedero,Monedero,664986.0,1000846.0,0.6644238973828142
+12,Diciembre,adulto_mayor,Adulto Mayor,59817.0,922227.0,0.06486147119960704
+12,Diciembre,convenio_colectivo,Convenio Colectivo,3166.0,922227.0,0.003432994262800807
+12,Diciembre,discapacitado,Discapacitado,15878.0,922227.0,0.017217019237129254
+12,Diciembre,estudiante_basica,Estudiante Básica,5517.0,922227.0,0.005982258164204691
+12,Diciembre,funcionario_especial,Funcionario Especial,633.0,922227.0,0.0006863819862138064
+12,Diciembre,funcionario_normal,Funcionario Normal,18841.0,922227.0,0.02042989415837966
+12,Diciembre,media_superior,Media Superior,154332.0,922227.0,0.1673470848283557
+12,Diciembre,monedero,Monedero,664043.0,922227.0,0.7200428961633091
