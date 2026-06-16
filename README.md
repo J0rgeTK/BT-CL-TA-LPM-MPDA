@@ -11,7 +11,7 @@ Para Biotren, el modelo incorpora además una capa espacial origen-destino (OD) 
 La metodología se organiza en tres componentes complementarios:
 
 1. **Modelo temporal de afluencia mensual:** estima la demanda mensual total por servicio.
-2. **Módulo espacial OD de Biotren:** asigna la demanda mensual de Biotren a pares origen-destino y tipos de pasajero.
+2. **Módulo espacial OD de Biotren:** asigna la demanda mensual de Biotren a pares origen-destino y tipos de tarjeta.
 3. **Módulo preliminar de ingresos OD:** calcula ingresos referenciales multiplicando viajes OD por tarifas disponibles.
 
 El módulo OD no reemplaza el modelo temporal. La demanda total mensual se calcula primero y luego se distribuye espacialmente.
@@ -124,7 +124,7 @@ Se consideran ocho tipos de tarjeta:
 | `funcionario_especial` | Tarifa 0. |
 | `convenio_colectivo` | Tarifa 0. |
 
-Los tipos con tarifa 0 conservan viajes proyectados en la distribución de afluencia, pero no generan ingreso tarifario directo.
+El modelo mensual estima la demanda total de Biotren y, posteriormente, el módulo OD distribuye dicha demanda según estructura histórica de viajes. La MOD no genera el total mensual de Biotren; se usa para distribuir espacialmente o por línea la demanda total proyectada.
 
 ### 8.2 Distribución OD por tipo de tarjeta
 
