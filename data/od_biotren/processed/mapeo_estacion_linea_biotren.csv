@@ -1,0 +1,28 @@
+estacion,linea_base,es_estacion_comun,observacion
+Hualqui,L1,0,Estación Línea 1 según mapeo oficial
+La Leonera,L1,0,Estación Línea 1 según mapeo oficial
+Manquimávida,L1,0,Estación Línea 1 según mapeo oficial
+Pedro Medina,L1,0,Estación Línea 1 según mapeo oficial
+Chiguayante,L1,0,Estación Línea 1 según mapeo oficial
+Concepción,L1_L2,1,Estación común/intercambio entre Línea 1 y Línea 2
+Lorenzo Arenas,L1,0,Estación Línea 1 según mapeo oficial
+UTFSM,L1,0,Estación Línea 1 según mapeo oficial
+Los Cóndores,L1,0,Estación Línea 1 según mapeo oficial
+Higueras,L1,0,Estación Línea 1 según mapeo oficial
+El Arenal,L1,0,Estación Línea 1 según mapeo oficial
+Mercado,L1,0,Estación Línea 1 según mapeo oficial
+Juan Pablo II,L2,0,Estación Línea 2 según mapeo oficial
+Diagonal Biobío,L2,0,Estación Línea 2 según mapeo oficial
+Alborada,L2,0,Estación Línea 2 según mapeo oficial
+Costa Mar,L2,0,Estación Línea 2 según mapeo oficial
+El Parque,L2,0,Estación Línea 2 según mapeo oficial
+Lomas Coloradas,L2,0,Estación Línea 2 según mapeo oficial
+C. Raúl Silva H.,L2,0,Estación Línea 2 según mapeo oficial
+Hito Galvarino,L2,0,Estación Línea 2 según mapeo oficial
+Los Canelos,L2,0,Estación Línea 2 según mapeo oficial
+Huinca,L2,0,Estación Línea 2 según mapeo oficial
+Cristo Redentor,L2,0,Estación Línea 2 según mapeo oficial
+Laguna Quiñenco,L2,0,Estación Línea 2 según mapeo oficial
+Intermodal Coronel,L2,0,Estación Línea 2 según mapeo oficial
+Pasajero Lota,SIN_CLASIFICAR,0,Mantener SIN_CLASIFICAR: no corresponde a diferencia evidente de escritura del listado oficial y no registra viajes OD históricos.
+Concepcion Centro,SIN_CLASIFICAR,0,Mantener SIN_CLASIFICAR: no corresponde a diferencia evidente de escritura de Concepción; estación distinta en orden original y sin viajes OD históricos.
