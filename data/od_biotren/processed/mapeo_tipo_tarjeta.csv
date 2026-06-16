@@ -1,0 +1,9 @@
+﻿tipo_tarjeta,nombre_visual,archivo_origen,grupo_ingreso_tarifario,tarifa_aplicable,genera_ingreso_tarifario,grupo_subsidio_referencial,observacion
+monedero,Monedero,monedero_ano_tipo.xlsx,tarifa_normal_adulto,normal_adulto,True,subsidio_normal_base,Usa tarifa adulto/normal para ingreso tarifario preliminar.
+media_superior,Media Superior,media-superior_ano_tipo.xlsx,tarifa_estudiante,estudiante,True,subsidio_estudiante_media_superior,Usa tarifa estudiante para ingreso tarifario preliminar; subsidio debe formularse en iteración posterior.
+adulto_mayor,Adulto Mayor,adulto-mayor_ano_tipo.xlsx,tarifa_adulto_mayor,adulto_mayor,True,sin_subsidio_adulto_mayor,Usa tarifa adulto mayor para ingreso tarifario preliminar; no se considera subsidio referencial.
+estudiante_basica,Estudiante Básica,estudiante-basica_ano_tipo.xlsx,tarifa_cero,cero,False,subsidio_normal_base,"Se distribuye afluencia OD, pero no genera ingreso tarifario directo en esta etapa."
+discapacitado,Discapacitado,discapacitado_ano_tipo.xlsx,tarifa_cero,cero,False,subsidio_normal_base,"Se distribuye afluencia OD, pero no genera ingreso tarifario directo en esta etapa."
+funcionario_normal,Funcionario Normal,funcionario-normal_ano_tipo.xlsx,tarifa_cero,cero,False,subsidio_normal_base,"Se distribuye afluencia OD, pero no genera ingreso tarifario directo en esta etapa."
+funcionario_especial,Funcionario Especial,funcionario-especial_ano_tipo.xlsx,tarifa_cero,cero,False,subsidio_normal_base,"Se distribuye afluencia OD, pero no genera ingreso tarifario directo en esta etapa."
+convenio_colectivo,Convenio Colectivo,convenio-colectivo_ano_tipo.xlsx,tarifa_cero,cero,False,subsidio_normal_base,"Se distribuye afluencia OD, pero no genera ingreso tarifario directo en esta etapa."
