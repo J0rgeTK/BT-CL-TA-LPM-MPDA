@@ -132,6 +132,133 @@ def ejecutar_validacion() -> pd.DataFrame:
     for _, row in val_tipo_tarjeta.iterrows():
         rows.append(_ok(str(row["control"]), row["estado"] == "OK", str(row["detalle"])))
 
+    # 11A. Clasificación OD por línea Biotren preparada para análisis MOD.
+    mapeo_linea = ODH.cargar_mapeo_estacion_linea()
+    od_historica_tarjeta = pd.read_csv(ODH.PROCESSED_FILES["od_historica_tipo_tarjeta"])
+    estaciones_sin_mapeo = ODH.validar_estaciones_od_en_mapeo(od_historica_tarjeta, mapeo_linea)
+    rows.append(_ok(
+        "Estaciones OD con registro en mapeo línea",
+        len(estaciones_sin_mapeo) == 0,
+        "Sin registro: " + (", ".join(estaciones_sin_mapeo) if estaciones_sin_mapeo else "ninguna"),
+    ))
+    duplicadas_mapeo = mapeo_linea[mapeo_linea["estacion"].duplicated(keep=False)]["estacion"].tolist()
+    rows.append(_ok(
+        "Mapeo estación-línea sin duplicados",
+        len(duplicadas_mapeo) == 0,
+        "Duplicadas: " + (", ".join(duplicadas_mapeo) if duplicadas_mapeo else "ninguna"),
+    ))
+    lineas_invalidas = sorted(set(mapeo_linea["linea_base"].astype(str)) - ODH.LINEAS_BASE_BIOTREN_VALIDAS)
+    rows.append(_ok(
+        "Valores válidos de linea_base",
+        len(lineas_invalidas) == 0,
+        "Inválidos: " + (", ".join(lineas_invalidas) if lineas_invalidas else "ninguno"),
+    ))
+    concepcion = mapeo_linea[mapeo_linea["estacion"].map(ODH.canon) == "Concepción"]
+    concepcion_ok = bool(
+        len(concepcion) == 1
+        and concepcion.iloc[0]["linea_base"] == "L1_L2"
+        and int(concepcion.iloc[0]["es_estacion_comun"]) == 1
+    )
+    rows.append(_ok(
+        "Concepción marcada como estación común/intercambio",
+        concepcion_ok,
+        "Registro: " + (concepcion[["estacion", "linea_base", "es_estacion_comun"]].to_dict("records").__str__() if len(concepcion) else "no encontrado"),
+    ))
+    conteo_lineas = mapeo_linea["linea_base"].value_counts().reindex(sorted(ODH.LINEAS_BASE_BIOTREN_VALIDAS), fill_value=0)
+    rows.append(_ok(
+        "Cantidad de estaciones por línea base",
+        True,
+        "; ".join(f"{k}: {int(v)}" for k, v in conteo_lineas.items()),
+    ))
+    od_clasificada = ODH.clasificar_od_por_linea(od_historica_tarjeta, mapeo_linea)
+    viajes_col = "viajes_observados"
+    total_original = float(od_historica_tarjeta[viajes_col].sum())
+    total_clasificado = float(od_clasificada[viajes_col].sum())
+    no_clasificados = float(od_clasificada.loc[od_clasificada["clasificacion_linea_od"] == "No clasificado", viajes_col].sum())
+    pct_no_clasificado = no_clasificados / total_clasificado if total_clasificado else 0.0
+    rows.append(_ok(
+        "Proporción de viajes OD No clasificado",
+        True,
+        f"Viajes No clasificado: {no_clasificados:,.0f}; proporción: {pct_no_clasificado:.4%}",
+    ))
+    rows.append(_ok(
+        "Clasificación OD por línea conserva total observado",
+        abs(total_original - total_clasificado) <= 1e-8,
+        f"Original: {total_original:,.0f}; clasificado: {total_clasificado:,.0f}; diferencia: {total_clasificado - total_original:.8f}",
+    ))
+    resumen_no_clasificado = ODH.resumir_od_no_clasificada(od_historica_tarjeta, mapeo_linea)
+    top_no_clasificado = resumen_no_clasificado[resumen_no_clasificado["viajes_observados_totales"] > 0].head(20)
+    pares_cero_no_clasificado = int((resumen_no_clasificado["viajes_observados_totales"] == 0).sum())
+    motivos_no_clasificado = resumen_no_clasificado.groupby("motivo_probable")["viajes_observados_totales"].sum().sort_values(ascending=False)
+    rows.append(_ok(
+        "Top pares OD No clasificado por motivo probable",
+        True,
+        (
+            "Motivos: "
+            + "; ".join(f"{k}: {v:,.0f}" for k, v in motivos_no_clasificado.items())
+            + f". Pares No clasificado sin viajes observados: {pares_cero_no_clasificado}"
+            + ". Top: "
+            + "; ".join(
+                (
+                    f"{r.origen}->{r.destino}: {r.viajes_observados_totales:,.0f} "
+                    f"({r.porcentaje_sobre_total_no_clasificado:.4%} No clas.; "
+                    f"{r.porcentaje_sobre_total_od_historico:.4%} total; {r.motivo_probable})"
+                )
+                for r in top_no_clasificado.itertuples(index=False)
+            )
+        ),
+    ))
+    positivos_no_clasificado = resumen_no_clasificado[resumen_no_clasificado["viajes_observados_totales"] > 0]
+    no_clasificado_concepcion_ok = bool(
+        len(positivos_no_clasificado) == 1
+        and positivos_no_clasificado.iloc[0]["origen"] == "Concepción"
+        and positivos_no_clasificado.iloc[0]["destino"] == "Concepción"
+    )
+    rows.append(_ok(
+        "No clasificado positivo corresponde a Concepción-Concepción",
+        no_clasificado_concepcion_ok,
+        positivos_no_clasificado[["origen", "destino", "viajes_observados_totales", "motivo_probable"]].to_dict("records").__str__(),
+    ))
+    participacion_linea_mod = ODH.calcular_participacion_mensual_linea_mod(od_historica_tarjeta, mapeo_linea)
+    suma_participacion_linea = participacion_linea_mod.groupby("mes")["participacion_mod"].sum()
+    max_diff_participacion = float((suma_participacion_linea - 1.0).abs().max())
+    meses_sin_atribuibles = participacion_linea_mod.loc[
+        participacion_linea_mod["viajes_atribuibles_mes"] <= 0, "mes"
+    ].astype(int).unique().tolist()
+    rows.append(_ok(
+        "Participaciones MOD L1/L2/L1-L2 suman 1",
+        max_diff_participacion <= 1e-10,
+        f"Diferencia máxima: {max_diff_participacion:.12f}",
+    ))
+    rows.append(_ok(
+        "Meses con viajes OD atribuibles por línea",
+        len(meses_sin_atribuibles) == 0,
+        "Meses sin atribuibles: " + (", ".join(map(str, meses_sin_atribuibles)) if meses_sin_atribuibles else "ninguno"),
+    ))
+    proyeccion_linea_mod = ODH.distribuir_proyeccion_biotren_por_linea_mod(
+        serv["BIOTREN"].astype(float),
+        participacion_linea_mod,
+    )
+    total_linea_mes = proyeccion_linea_mod.groupby("periodo")["viajes_proyectados"].sum()
+    dif_linea_mod = total_linea_mes.sub(serv["BIOTREN"].astype(float), fill_value=0).abs()
+    lineas_estandar = set(proyeccion_linea_mod["linea_od"].astype(str))
+    fuente_usa_8020 = proyeccion_linea_mod["fuente_distribucion"].astype(str).str.contains("80/20|8020|0.8|0.2", regex=True).any()
+    rows.append(_ok(
+        "Distribución mensual MOD por línea conserva Biotren",
+        float(dif_linea_mod.max()) <= 1e-5,
+        f"Diferencia máxima mensual por redondeo: {float(dif_linea_mod.max()):.8f}",
+    ))
+    rows.append(_ok(
+        "No clasificado no recibe proyección estándar",
+        "No clasificado" not in lineas_estandar,
+        f"Líneas proyectadas: {sorted(lineas_estandar)}",
+    ))
+    rows.append(_ok(
+        "Distribución estándar por línea no usa 80/20",
+        not bool(fuente_usa_8020),
+        "Fuentes: " + ", ".join(sorted(proyeccion_linea_mod["fuente_distribucion"].astype(str).unique())),
+    ))
+
     # 12. Paso 2B mínimo: distribución por tipo de tarjeta e ingresos agregados en memoria.
     resultado_tarjetas = ODH.distribuir_proyeccion_biotren_por_tipo_tarjeta(serv["BIOTREN"].astype(float))
     resumen_tarjetas = resultado_tarjetas["resumen_tipo_tarjeta"]

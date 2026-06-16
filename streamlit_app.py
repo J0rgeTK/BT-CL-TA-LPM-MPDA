@@ -74,10 +74,22 @@ def fmt_pct(delta):
     return f"{delta:+.1f}%".replace(".", ",")
 
 
+def fmt_share(x):
+    if pd.isna(x):
+        return "s/i"
+    return f"{float(x) * 100:.4f}%".replace(".", ",")
+
+
 @st.cache_data(show_spinner=False)
 def calcular_od_biotren_tarjeta_mes_cached(periodo, valor):
     serie = pd.Series([float(valor)], index=[periodo])
     return OD.distribuir_proyeccion_biotren_por_tipo_tarjeta(serie)
+
+
+@st.cache_data(show_spinner=False)
+def calcular_distribucion_biotren_linea_mod_cached(serie_dict):
+    serie = pd.Series(serie_dict, dtype=float)
+    return OD.distribuir_proyeccion_biotren_por_linea_mod(serie)
 
 
 def _matriz_tarjeta(df, tipo_tarjeta, valor):
@@ -85,6 +97,83 @@ def _matriz_tarjeta(df, tipo_tarjeta, valor):
     estaciones = list(dict.fromkeys(pd.concat([tmp["origen"], tmp["destino"]]).astype(str)))
     M = tmp.pivot_table(index="origen", columns="destino", values=valor, aggfunc="sum", fill_value=0.0)
     return M.reindex(index=estaciones, columns=estaciones, fill_value=0.0)
+
+
+def render_distribucion_biotren_linea_mod(serv):
+    st.markdown("#### Distribución Biotren por línea OD basada en MOD")
+    serie = serv["BIOTREN"].astype(float).copy()
+    try:
+        dist_linea = calcular_distribucion_biotren_linea_mod_cached(serie.to_dict())
+    except Exception as e:
+        st.warning(f"No fue posible calcular la distribución Biotren por línea OD basada en MOD: {e}")
+        return
+
+    mensual = dist_linea.pivot_table(
+        index="periodo",
+        columns="linea_od",
+        values="viajes_proyectados",
+        aggfunc="sum",
+        fill_value=0.0,
+    ).reindex(columns=["L1", "L2", "L1-L2"], fill_value=0.0)
+    mensual["Total líneas OD"] = mensual[["L1", "L2", "L1-L2"]].sum(axis=1)
+    mensual["Total Biotren"] = serie.reindex(mensual.index).astype(float)
+    mensual["Diferencia"] = mensual["Total líneas OD"] - mensual["Total Biotren"]
+
+    anual = dist_linea.groupby("linea_od", as_index=False).agg(viajes_proyectados=("viajes_proyectados", "sum"))
+    total_anual = float(anual["viajes_proyectados"].sum())
+    anual["participacion_anual"] = anual["viajes_proyectados"] / total_anual if total_anual else 0.0
+    anual = anual.set_index("linea_od").reindex(["L1", "L2", "L1-L2"]).reset_index()
+
+    dif_max = float(mensual["Diferencia"].abs().max())
+    control = dist_linea.drop_duplicates("mes")
+    viajes_no_clasificados = float(control["viajes_observados_no_clasificados_mes"].sum())
+    viajes_atribuibles = float(dist_linea.groupby("mes")["viajes_observados_base"].sum().sum())
+    pct_no_clasificado = viajes_no_clasificados / (viajes_no_clasificados + viajes_atribuibles) if (viajes_no_clasificados + viajes_atribuibles) else 0.0
+
+    k = st.columns(3)
+    k[0].metric("Total Biotren conservado", fmt(total_anual))
+    k[1].metric("Diferencia máxima mensual", f"{dif_max:,.6f}".replace(",", "X").replace(".", ",").replace("X", "."))
+    k[2].metric("No clasificado histórico control", fmt_share(pct_no_clasificado))
+
+    st.dataframe(
+        mensual.reset_index().rename(columns={"periodo": "Periodo"}).style.format({
+            "L1": "{:,.0f}",
+            "L2": "{:,.0f}",
+            "L1-L2": "{:,.0f}",
+            "Total líneas OD": "{:,.0f}",
+            "Total Biotren": "{:,.0f}",
+            "Diferencia": "{:,.6f}",
+        }),
+        width="stretch",
+        height=260,
+    )
+    st.markdown("##### Resumen anual por línea OD")
+    st.dataframe(
+        anual.style.format({
+            "viajes_proyectados": "{:,.0f}",
+            "participacion_anual": "{:.4%}",
+        }),
+        width="stretch",
+        hide_index=True,
+    )
+    if dif_max <= 1e-5:
+        st.success("Validación: la suma mensual L1 + L2 + L1-L2 coincide con el total mensual Biotren.")
+    else:
+        st.error(f"Validación: diferencia mensual máxima de {dif_max:,.6f} viajes.")
+    st.info(
+        "El No clasificado histórico corresponde al control Concepción→Concepción y no recibe proyección estándar. "
+        "La fuente estándar es MOD_OD_historica_atribuible, no el supuesto fijo 80/20."
+    )
+    with st.expander("Criterio metodológico de distribución por línea OD", expanded=False):
+        st.markdown("""
+- La distribución por línea se calcula desde las matrices OD históricas procesadas.
+- Cada par OD se clasifica según la línea de origen y destino usando el mapeo estación-línea.
+- Concepción se trata como estación común/intercambio.
+- `L1-L2` representa viajes entre corredores o viajes que implican combinación entre líneas.
+- El total mensual Biotren no cambia: sólo se distribuye entre `L1`, `L2` y `L1-L2`.
+- `No clasificado` se conserva como control diagnóstico y no se proyecta como línea estándar.
+- El supuesto fijo 80/20 deja de ser la distribución estándar de demanda por línea OD.
+""")
 
 
 def render_od_biotren(serv):
@@ -706,6 +795,7 @@ def render_servicio(s):
         st.warning("Enero y febrero mantienen una señal estival dentro del perfil mensual; no se consideran servicios planificados de fin de semana.")
 
     if s == "BIOTREN":
+        render_distribucion_biotren_linea_mod(serv)
         render_od_biotren(serv)
 
     st.download_button(f"⬇ Descargar proyección {O.NOMBRE[s]} (CSV)", out.to_csv().encode(),

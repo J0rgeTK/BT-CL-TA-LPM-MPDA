@@ -43,6 +43,7 @@ PROCESSED_FILES = {
     "od_historica_tipo_tarjeta": OD_PROCESSED / "od_historica_tipo_tarjeta_long.csv",
     "participacion_mensual_tipo_tarjeta": OD_PROCESSED / "participacion_mensual_tipo_tarjeta.csv",
     "participacion_od_tipo_tarjeta": OD_PROCESSED / "participacion_od_tipo_tarjeta_mensual.csv",
+    "mapeo_estacion_linea_biotren": OD_PROCESSED / "mapeo_estacion_linea_biotren.csv",
     "mapeo_tipo_tarjeta": OD_PROCESSED / "mapeo_tipo_tarjeta.csv",
     "base_subsidio_referencial": OD_PROCESSED / "base_subsidio_referencial_historica_long.csv",
     "tarifas": OD_PROCESSED / "tarifas_2026_por_tipo_long.csv",
@@ -67,6 +68,9 @@ TIPOS_TARJETA_ESPERADOS = [
     "funcionario_especial",
     "convenio_colectivo",
 ]
+
+LINEAS_BASE_BIOTREN_VALIDAS = {"L1", "L2", "L1_L2", "SIN_CLASIFICAR"}
+CLASIFICACIONES_OD_LINEA_VALIDAS = {"L1", "L2", "L1-L2", "No clasificado"}
 TARIFA_APLICABLE_A_TIPO_PASAJERO = {
     "normal_adulto": "Normal",
     "estudiante": "Estudiante",
@@ -394,6 +398,193 @@ def load_card_type_processed_inputs() -> dict[str, pd.DataFrame | list[str]]:
         "tarifas": pd.read_csv(PROCESSED_FILES["tarifas"]),
         "base_subsidio_referencial": pd.read_csv(PROCESSED_FILES["base_subsidio_referencial"]),
     }
+
+
+def cargar_mapeo_estacion_linea(path: Path | None = None) -> pd.DataFrame:
+    """Carga el mapeo versionado de estaciones Biotren a línea base."""
+    mapeo_path = path if path is not None else PROCESSED_FILES["mapeo_estacion_linea_biotren"]
+    mapeo = pd.read_csv(mapeo_path)
+    required = {"estacion", "linea_base", "es_estacion_comun", "observacion"}
+    faltantes = required - set(mapeo.columns)
+    if faltantes:
+        raise ValueError(f"Faltan columnas en mapeo estación-línea: {sorted(faltantes)}")
+    mapeo = mapeo.copy()
+    mapeo["estacion"] = mapeo["estacion"].astype(str)
+    mapeo["estacion_canon"] = mapeo["estacion"].map(canon)
+    mapeo["linea_base"] = mapeo["linea_base"].astype(str)
+    mapeo["es_estacion_comun"] = mapeo["es_estacion_comun"].astype(int)
+    return mapeo
+
+
+def validar_estaciones_od_en_mapeo(od: pd.DataFrame, mapeo: pd.DataFrame | None = None) -> list[str]:
+    """Retorna estaciones OD sin registro en el mapeo estación-línea."""
+    mapeo = cargar_mapeo_estacion_linea() if mapeo is None else mapeo.copy()
+    estaciones_mapeo = set(mapeo["estacion_canon"] if "estacion_canon" in mapeo.columns else mapeo["estacion"].map(canon))
+    estaciones_od = set(pd.concat([od["origen"], od["destino"]]).map(canon).astype(str))
+    return sorted(estaciones_od - estaciones_mapeo)
+
+
+def clasificar_par_od_linea(origen_linea: str, destino_linea: str) -> str:
+    """Clasifica un par OD según la línea base de origen y destino."""
+    if "SIN_CLASIFICAR" in {origen_linea, destino_linea}:
+        return "No clasificado"
+    if origen_linea == "L1_L2" and destino_linea == "L1_L2":
+        return "No clasificado"
+    if origen_linea == destino_linea:
+        return origen_linea if origen_linea in {"L1", "L2"} else "No clasificado"
+    if origen_linea == "L1_L2" and destino_linea in {"L1", "L2"}:
+        return destino_linea
+    if destino_linea == "L1_L2" and origen_linea in {"L1", "L2"}:
+        return origen_linea
+    if {origen_linea, destino_linea} == {"L1", "L2"}:
+        return "L1-L2"
+    return "No clasificado"
+
+
+def clasificar_od_por_linea(od: pd.DataFrame, mapeo: pd.DataFrame | None = None) -> pd.DataFrame:
+    """Agrega la clasificación L1/L2/L1-L2 a cada registro OD sin alterar viajes."""
+    mapeo = cargar_mapeo_estacion_linea() if mapeo is None else mapeo.copy()
+    if "estacion_canon" not in mapeo.columns:
+        mapeo["estacion_canon"] = mapeo["estacion"].map(canon)
+    faltantes = validar_estaciones_od_en_mapeo(od, mapeo)
+    if faltantes:
+        raise ValueError(f"Estaciones OD sin registro en mapeo estación-línea: {faltantes}")
+    linea_por_estacion = mapeo.set_index("estacion_canon")["linea_base"].to_dict()
+    out = od.copy()
+    out["origen_canon"] = out["origen"].map(canon)
+    out["destino_canon"] = out["destino"].map(canon)
+    out["linea_origen"] = out["origen_canon"].map(linea_por_estacion).fillna("SIN_CLASIFICAR")
+    out["linea_destino"] = out["destino_canon"].map(linea_por_estacion).fillna("SIN_CLASIFICAR")
+    out["clasificacion_linea_od"] = [
+        clasificar_par_od_linea(o, d)
+        for o, d in zip(out["linea_origen"], out["linea_destino"])
+    ]
+    return out
+
+
+def motivo_no_clasificado_od(linea_origen: str, linea_destino: str, origen: str, destino: str) -> str:
+    """Identifica el motivo probable de un par OD No clasificado."""
+    if "SIN_CLASIFICAR" in {linea_origen, linea_destino}:
+        return "estacion_sin_clasificar"
+    if linea_origen == "L1_L2" and linea_destino == "L1_L2":
+        return "estacion_comun_a_estacion_comun"
+    if canon(origen) == canon(destino):
+        return "diagonal"
+    if clasificar_par_od_linea(linea_origen, linea_destino) == "No clasificado":
+        return "regla_no_definida"
+    return "otro"
+
+
+def resumir_od_no_clasificada(od: pd.DataFrame, mapeo: pd.DataFrame | None = None) -> pd.DataFrame:
+    """Resume pares OD clasificados como No clasificado, agregados por origen-destino."""
+    clasificada = clasificar_od_por_linea(od, mapeo)
+    no_clasificada = clasificada[clasificada["clasificacion_linea_od"] == "No clasificado"].copy()
+    total_od = float(clasificada["viajes_observados"].sum())
+    total_no_clasificado = float(no_clasificada["viajes_observados"].sum())
+    if no_clasificada.empty:
+        return pd.DataFrame(columns=[
+            "origen",
+            "destino",
+            "viajes_observados_totales",
+            "porcentaje_sobre_total_no_clasificado",
+            "porcentaje_sobre_total_od_historico",
+            "motivo_probable",
+        ])
+    no_clasificada["motivo_probable"] = [
+        motivo_no_clasificado_od(lo, ld, o, d)
+        for lo, ld, o, d in zip(
+            no_clasificada["linea_origen"],
+            no_clasificada["linea_destino"],
+            no_clasificada["origen"],
+            no_clasificada["destino"],
+        )
+    ]
+    resumen = no_clasificada.groupby(["origen", "destino", "motivo_probable"], as_index=False).agg(
+        viajes_observados_totales=("viajes_observados", "sum"),
+    )
+    resumen["porcentaje_sobre_total_no_clasificado"] = (
+        resumen["viajes_observados_totales"] / total_no_clasificado if total_no_clasificado else 0.0
+    )
+    resumen["porcentaje_sobre_total_od_historico"] = (
+        resumen["viajes_observados_totales"] / total_od if total_od else 0.0
+    )
+    return resumen.sort_values("viajes_observados_totales", ascending=False).reset_index(drop=True)
+
+
+def calcular_participacion_mensual_linea_mod(
+    od: pd.DataFrame | None = None,
+    mapeo: pd.DataFrame | None = None,
+) -> pd.DataFrame:
+    """Calcula participaciones mensuales MOD para líneas OD atribuibles."""
+    od = pd.read_csv(PROCESSED_FILES["od_historica_tipo_tarjeta"]) if od is None else od.copy()
+    clasificada = clasificar_od_por_linea(od, mapeo)
+    mensual = clasificada.groupby(["mes", "clasificacion_linea_od"], as_index=False).agg(
+        viajes_observados_base=("viajes_observados", "sum"),
+    )
+    all_index = pd.MultiIndex.from_product(
+        [sorted(clasificada["mes"].astype(int).unique()), ["L1", "L2", "L1-L2", "No clasificado"]],
+        names=["mes", "clasificacion_linea_od"],
+    )
+    mensual = (
+        mensual.set_index(["mes", "clasificacion_linea_od"])
+        .reindex(all_index, fill_value=0.0)
+        .reset_index()
+    )
+    atribuible = mensual[mensual["clasificacion_linea_od"].isin(["L1", "L2", "L1-L2"])]
+    total_atribuible_mes = atribuible.groupby("mes")["viajes_observados_base"].sum()
+    total_no_clasificado_mes = (
+        mensual[mensual["clasificacion_linea_od"] == "No clasificado"]
+        .set_index("mes")["viajes_observados_base"]
+    )
+    total_mes = total_atribuible_mes.add(total_no_clasificado_mes, fill_value=0.0)
+    out = atribuible.rename(columns={"clasificacion_linea_od": "linea_od"}).copy()
+    out["viajes_atribuibles_mes"] = out["mes"].map(total_atribuible_mes).astype(float)
+    out["viajes_observados_no_clasificados_mes"] = out["mes"].map(total_no_clasificado_mes).fillna(0.0).astype(float)
+    out["porcentaje_no_clasificado_mes"] = [
+        nc / total_mes.get(mes, 0.0) if total_mes.get(mes, 0.0) else 0.0
+        for mes, nc in zip(out["mes"], out["viajes_observados_no_clasificados_mes"])
+    ]
+    out["participacion_mod"] = [
+        viajes / denom if denom else 0.0
+        for viajes, denom in zip(out["viajes_observados_base"], out["viajes_atribuibles_mes"])
+    ]
+    out["fuente_distribucion"] = "MOD_OD_historica_atribuible"
+    return out[[
+        "mes",
+        "linea_od",
+        "viajes_observados_base",
+        "viajes_atribuibles_mes",
+        "viajes_observados_no_clasificados_mes",
+        "porcentaje_no_clasificado_mes",
+        "participacion_mod",
+        "fuente_distribucion",
+    ]]
+
+
+def distribuir_proyeccion_biotren_por_linea_mod(
+    serie_biotren: pd.Series,
+    participaciones: pd.DataFrame | None = None,
+) -> pd.DataFrame:
+    """Distribuye la proyección mensual Biotren por línea OD con participación MOD."""
+    participaciones = calcular_participacion_mensual_linea_mod() if participaciones is None else participaciones.copy()
+    rows = []
+    for periodo, total_mes in serie_biotren.astype(float).items():
+        mes = int(pd.Period(str(periodo), freq="M").month)
+        p_mes = participaciones[participaciones["mes"].astype(int) == mes].copy()
+        for _, row in p_mes.iterrows():
+            rows.append({
+                "periodo": str(periodo),
+                "mes": mes,
+                "linea_od": row["linea_od"],
+                "viajes_proyectados": float(total_mes) * float(row["participacion_mod"]),
+                "participacion_mod": float(row["participacion_mod"]),
+                "total_biotren_mes": float(total_mes),
+                "viajes_observados_base": float(row["viajes_observados_base"]),
+                "viajes_observados_no_clasificados_mes": float(row["viajes_observados_no_clasificados_mes"]),
+                "porcentaje_no_clasificado_mes": float(row["porcentaje_no_clasificado_mes"]),
+                "fuente_distribucion": row["fuente_distribucion"],
+            })
+    return pd.DataFrame(rows)
 
 
 def columnas_insumos_tipo_tarjeta() -> pd.DataFrame:

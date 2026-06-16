@@ -128,7 +128,31 @@ Viajes_ij,t,m = Demanda(t,m) × ParticipaciónOD_ij,t,m
 
 La suma de todos los tipos de tarjeta conserva la demanda mensual total de Biotren. La vista de la aplicación está acotada al mes y tipo seleccionados para evitar cargar o producir matrices long completas.
 
-### 6.3 Costo generalizado e impedancia
+
+### 6.3 Distribución Biotren por línea OD basada en MOD
+
+Además de la distribución por tipo de tarjeta y par OD, el modelo prepara una distribución mensual de Biotren por línea OD a partir de las matrices OD históricas procesadas. Esta distribución reemplaza como criterio estándar el supuesto fijo 80/20 y no modifica la proyección mensual total de Biotren calculada por el motor mensual-elástico.
+
+Cada par origen-destino se clasifica con el mapeo estación-línea versionado en `data/od_biotren/processed/mapeo_estacion_linea_biotren.csv`. Las categorías estándar proyectadas son:
+
+| Categoría OD | Interpretación |
+|---|---|
+| `L1` | Origen y destino atribuibles al corredor L1, incluyendo viajes desde/hacia estación común cuando el otro extremo es L1. |
+| `L2` | Origen y destino atribuibles al corredor L2, incluyendo viajes desde/hacia estación común cuando el otro extremo es L2. |
+| `L1-L2` | Viajes entre corredores o que implican combinación entre líneas. |
+
+Concepción se marca como estación común/intercambio (`L1_L2`). El par `Concepción → Concepción` se mantiene como control `No clasificado`, porque corresponde a diagonal común-común y no debe asignarse artificialmente a L1, L2 ni L1-L2. Las estaciones `SIN_CLASIFICAR` no registran viajes observados históricos asociados en el diagnóstico vigente.
+
+Para cada mes, las participaciones se calculan sólo sobre viajes atribuibles:
+
+```text
+Participación_linea_m = Viajes_observados_linea_m / (Viajes_L1_m + Viajes_L2_m + Viajes_L1-L2_m)
+Proyección_linea_m = Proyección_Biotren_m × Participación_linea_m
+```
+
+El `No clasificado` se reporta como control diagnóstico histórico y no recibe proyección estándar. La suma mensual `L1 + L2 + L1-L2` conserva el total mensual de Biotren, salvo diferencias numéricas de redondeo.
+
+### 6.4 Costo generalizado e impedancia
 
 El costo generalizado se calcula con tarifa y distancia normalizadas:
 
@@ -142,7 +166,7 @@ Luego se aplica función de impedancia exponencial:
 f(C_ij,p) = exp(-lambda × C_ij,p)
 ```
 
-### 6.4 Balance IPF/Furness
+### 6.5 Balance IPF/Furness
 
 La matriz final se balancea para conservar producciones por origen, atracciones por destino y total mensual por tipo:
 
@@ -152,7 +176,7 @@ T_ij,p,m = IPF(K_ij,p,m, O_i,p,m, D_j,p,m)
 
 Este procedimiento mantiene consistencia entre la demanda mensual proyectada y la estructura espacial utilizada.
 
-### 6.5 Orden de estaciones
+### 6.6 Orden de estaciones
 
 Las matrices OD visualizadas y exportadas conservan el orden original de estaciones de los insumos procesados. La homologación de nombres se utiliza para integrar OD, tarifas y distancias, sin ordenar estaciones alfabéticamente.
 
@@ -176,6 +200,9 @@ El modelo genera controles para revisar:
 
 - consistencia entre totales mensuales proyectados y matrices OD por tipo;
 - suma de tipos de tarjeta respecto del total mensual Biotren distribuido;
+- participaciones mensuales MOD por línea OD atribuible (`L1`, `L2`, `L1-L2`) suman 1;
+- conservación del total mensual Biotren al distribuir por línea OD;
+- reporte de `No clasificado` como control sin proyección estándar;
 - cobertura de tarifas para tipos con ingreso tarifario directo;
 - conservación del orden original de estaciones;
 - igualdad de dimensión y orden entre matrices de viajes e ingresos;
@@ -218,6 +245,7 @@ Para ejecutar `od_biotren_hibrido.py`, `streamlit_app.py` y `validar_modelo.py` 
 - `data/od_biotren/processed/participacion_mensual_tipo_tarjeta.csv`.
 - `data/od_biotren/processed/participacion_od_tipo_tarjeta_mensual.csv`.
 - `data/od_biotren/processed/mapeo_tipo_tarjeta.csv`.
+- `data/od_biotren/processed/mapeo_estacion_linea_biotren.csv`.
 - `data/od_biotren/processed/base_subsidio_referencial_historica_long.csv`.
 - `data/od_biotren/processed/tarifas_2026_por_tipo_long.csv`.
 - `data/od_biotren/processed/distancia_biotren_km_long.csv`.
