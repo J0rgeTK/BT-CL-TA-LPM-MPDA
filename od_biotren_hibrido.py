@@ -5,8 +5,8 @@ Módulo de distribución espacial OD para Biotren integrado al modelo mensual de
 
 Enfoque implementado:
 - El modelo mensual de afluencia estima la demanda total de Biotren.
-- Este módulo divide esa demanda mensual por tipo de pasajero: Normal, Estudiante y Adulto Mayor.
-- Luego distribuye cada segmento en pares Origen-Destino usando una matriz histórica OD mensual por tipo.
+- Este módulo distribuye esa demanda mensual por tipo de tarjeta y pares Origen-Destino usando matrices históricas mensuales.
+- La distribución por línea OD usa MOD histórica atribuible para `L1`, `L2` y `L1-L2`, manteniendo `No clasificado` como control.
 - El modelo gravitacional no reemplaza la matriz histórica: se usa como corrección parcial y capa de sensibilidad espacial.
 - El balance final se realiza con IPF/Furness para conservar producciones y atracciones históricas escaladas.
 - Las matrices exportadas preservan el orden original de estaciones del archivo OD principal.
@@ -509,6 +509,56 @@ def resumir_od_no_clasificada(od: pd.DataFrame, mapeo: pd.DataFrame | None = Non
         resumen["viajes_observados_totales"] / total_od if total_od else 0.0
     )
     return resumen.sort_values("viajes_observados_totales", ascending=False).reset_index(drop=True)
+
+
+def distribuir_proyeccion_biotren_por_linea_mod(serie_biotren: pd.Series | dict) -> pd.DataFrame:
+    """Distribuye la proyección mensual total de Biotren por línea OD atribuible.
+
+    El total mensual proviene del modelo temporal. La MOD histórica sólo aporta
+    participaciones mensuales para las categorías estándar `L1`, `L2` y
+    `L1-L2`; los viajes `No clasificado` se mantienen como control diagnóstico
+    y no reciben proyección estándar.
+    """
+    serie = pd.Series(serie_biotren, dtype=float) if isinstance(serie_biotren, dict) else serie_biotren.astype(float).copy()
+    od = pd.read_csv(PROCESSED_FILES["od_historica_tipo_tarjeta"])
+    clasificada = clasificar_od_por_linea(od, cargar_mapeo_estacion_linea())
+    viajes_col = "viajes_observados"
+
+    base = clasificada.groupby(["mes", "clasificacion_linea_od"], as_index=False)[viajes_col].sum()
+    atribuible = base[base["clasificacion_linea_od"].isin(["L1", "L2", "L1-L2"])].copy()
+    no_clasificado = (
+        base[base["clasificacion_linea_od"].eq("No clasificado")]
+        .set_index("mes")[viajes_col]
+        .to_dict()
+    )
+    total_atribuible_mes = atribuible.groupby("mes")[viajes_col].sum().rename("total_atribuible_mes")
+    atribuible = atribuible.merge(total_atribuible_mes, on="mes", how="left")
+    atribuible["participacion_linea_mes"] = np.where(
+        atribuible["total_atribuible_mes"] > 0,
+        atribuible[viajes_col] / atribuible["total_atribuible_mes"],
+        0.0,
+    )
+
+    rows = []
+    for periodo, total_mes in serie.items():
+        mes = int(str(periodo)[-2:])
+        mes_base = atribuible[atribuible["mes"].astype(int).eq(mes)].copy()
+        for linea in ["L1", "L2", "L1-L2"]:
+            fila = mes_base[mes_base["clasificacion_linea_od"].eq(linea)]
+            participacion = float(fila["participacion_linea_mes"].sum()) if not fila.empty else 0.0
+            viajes_obs = float(fila[viajes_col].sum()) if not fila.empty else 0.0
+            total_atribuible = float(fila["total_atribuible_mes"].max()) if not fila.empty else 0.0
+            rows.append({
+                "periodo": str(periodo),
+                "mes": mes,
+                "linea_od": linea,
+                "viajes_observados_base": viajes_obs,
+                "viajes_observados_atribuibles_mes": total_atribuible,
+                "viajes_observados_no_clasificados_mes": float(no_clasificado.get(mes, 0.0)),
+                "participacion_linea_mes": participacion,
+                "viajes_proyectados": float(total_mes) * participacion,
+            })
+    return pd.DataFrame(rows)
 
 
 def columnas_insumos_tipo_tarjeta() -> pd.DataFrame:

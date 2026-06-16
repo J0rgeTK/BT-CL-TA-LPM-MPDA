@@ -209,6 +209,23 @@ def ejecutar_validacion() -> pd.DataFrame:
         ),
     ))
 
+    dist_linea = ODH.distribuir_proyeccion_biotren_por_linea_mod(serv["BIOTREN"].astype(float))
+    total_linea_mes = dist_linea.groupby("periodo")["viajes_proyectados"].sum()
+    dif_linea_mod = total_linea_mes.sub(serv["BIOTREN"].astype(float), fill_value=0).abs().max()
+    participacion_linea = dist_linea.groupby("periodo")["participacion_linea_mes"].sum()
+    dif_part_linea = float((participacion_linea - 1.0).abs().max())
+    lineas_std_ok = set(dist_linea["linea_od"].astype(str)) == {"L1", "L2", "L1-L2"}
+    rows.append(_ok(
+        "Distribución por línea MOD conserva total Biotren",
+        bool(dif_linea_mod < 1e-5 and dif_part_linea < 1e-10 and lineas_std_ok),
+        f"Diferencia máxima: {dif_linea_mod:.8f}; diferencia participación: {dif_part_linea:.12f}; categorías estándar: {sorted(dist_linea['linea_od'].unique())}",
+    ))
+    rows.append(_ok(
+        "No clasificado sin proyección estándar",
+        bool("No clasificado" not in set(dist_linea["linea_od"].astype(str))),
+        "Concepción→Concepción queda como control diagnóstico histórico y no se incluye en líneas proyectadas",
+    ))
+
     # 12. Paso 2B mínimo: distribución por tipo de tarjeta e ingresos agregados en memoria.
     resultado_tarjetas = ODH.distribuir_proyeccion_biotren_por_tipo_tarjeta(serv["BIOTREN"].astype(float))
     resumen_tarjetas = resultado_tarjetas["resumen_tipo_tarjeta"]
@@ -223,6 +240,16 @@ def ejecutar_validacion() -> pd.DataFrame:
         "Ingreso tarifario agregado por tipo de tarjeta",
         ingresos_con_tarifa_ok and ingreso_cero_ok,
         "; ".join(f"{k}: {v:,.0f}" for k, v in ingresos_por_tarifa.items()),
+    ))
+
+    tipos_con_tarifa = {"monedero", "media_superior", "adulto_mayor"}
+    ingreso_tipo = resumen_tarjetas.groupby("tipo_tarjeta")["ingresos_tarifarios_proyectados"].sum()
+    ingresos_directos_ok = bool((ingreso_tipo.reindex(sorted(tipos_con_tarifa), fill_value=0.0) > 0).all())
+    ingresos_cero_ok = bool((ingreso_tipo.drop(labels=list(tipos_con_tarifa), errors="ignore").abs() <= 1e-9).all())
+    rows.append(_ok(
+        "Ingresos sólo en tipos con tarifa directa",
+        ingresos_directos_ok and ingresos_cero_ok,
+        "; ".join(f"{k}: {v:,.0f}" for k, v in ingreso_tipo.items()),
     ))
 
     subsidio_ref = resultado_tarjetas["subsidio_referencial_base"]
