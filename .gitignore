@@ -230,3 +230,7 @@ _Pycache_/
 .streamlit/cache/
 outputs/**/*.xlsx
 outputs/**/*.zip
+outputs/od_biotren_tipo_tarjeta/
+outputs/**/od_2027_*long.csv
+outputs/**/ingresos_*long.csv
+outputs/**/base_subsidio_*long.csv

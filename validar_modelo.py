@@ -152,12 +152,36 @@ def ejecutar_validacion() -> pd.DataFrame:
     subsidio_ok = bool({"mes", "grupo_subsidio_referencial", "viajes_observados_base_referencial"}.issubset(subsidio_ref.columns) and len(subsidio_ref) > 0)
     rows.append(_ok("Base referencial de subsidio en memoria", subsidio_ok, f"Filas agregadas: {len(subsidio_ref)}; sin cálculo de montos"))
 
-    # 13. Carga real de Streamlit mediante AppTest.
+    # 13. Exportación controlada en modo muestra: un mes/tipo, sin escribir
+    # outputs completos. Valida la ruta operativa sin generar archivos masivos.
+    muestra_export = ODH.exportar_salidas_tipo_tarjeta(
+        serv["BIOTREN"].astype(float),
+        meses=[1],
+        tipos_tarjeta=["monedero"],
+        escribir_archivos=False,
+    )
+    muestra_ok = bool(
+        len(muestra_export["viajes_tipo_tarjeta_long"]) > 0
+        and len(muestra_export["ingresos_tipo_tarjeta_long"]) == len(muestra_export["viajes_tipo_tarjeta_long"])
+        and len(muestra_export["base_subsidio_referencial_long"]) > 0
+        and muestra_export["archivos"] == {}
+    )
+    rows.append(_ok(
+        "Exportación tipo tarjeta en modo muestra sin outputs completos",
+        muestra_ok,
+        (
+            f"Viajes: {len(muestra_export['viajes_tipo_tarjeta_long'])}; "
+            f"ingresos: {len(muestra_export['ingresos_tipo_tarjeta_long'])}; "
+            f"archivos escritos: {len(muestra_export['archivos'])}"
+        ),
+    ))
+
+    # 14. Carga real de Streamlit mediante AppTest.
     app = AppTest.from_file(str(BASE / "streamlit_app.py"), default_timeout=30)
     app.run()
     rows.append(_ok("Carga de Streamlit", len(app.exception) == 0, f"Excepciones detectadas: {len(app.exception)}"))
 
-    # 14. Cobertura de archivos exportados.
+    # 15. Cobertura de archivos exportados.
     expected = [
         OUT / "proyeccion_2027_resumen_mensual_elastico.csv",
         OUT / "proyeccion_2027_unidades_mensual_elastico.csv",
