@@ -346,3 +346,27 @@ El procedimiento calcula, por servicio y mes, la tabla observado vs estimado y l
 - las estimaciones usan la lógica vigente del motor mensual-elástico y pueden incorporar parámetros calibrados con información posterior al periodo evaluado;
 - los feriados parametrizados explícitamente corresponden al horizonte operacional 2027, por lo que la lectura histórica debe interpretarse como prueba de consistencia mensual y no como reconstrucción operacional diaria completa;
 - el proceso se ejecuta en memoria, sin generar archivos binarios, sin modificar outputs masivos y sin tocar `data/od_biotren/processed/`.
+
+## Recalibración operacional del escenario 2027
+
+La proyección 2027 se presenta como escenario recalibrado a partir de nuevos supuestos operacionales. La recalibración se aplica después del motor mensual-elástico y antes de las distribuciones OD, ingresos preliminares y bandas de incertidumbre, manteniendo separadas la proyección base, el backtesting histórico y el módulo de incertidumbre.
+
+### Biotren
+
+Biotren incorpora dos etapas. Primero se aplica una baja progresiva mensual para llevar el total anual a un nivel intermedio cercano a 12,8 millones. Luego se descuenta una afectación operacional en Línea 2 concentrada en fines de semana de enero y febrero, calculada con la demanda mensual, la participación mensual de L2 y la participación de sábados y domingos del calendario operacional. La diferencia restante frente al objetivo anual cercano a 12,7 millones se distribuye entre meses laborales de marzo a diciembre con pesos derivados de demanda mensual y días laborales. La distribución por línea MOD, la distribución OD por tipo de tarjeta y los ingresos preliminares se recalculan desde el nuevo total mensual. La base referencial de subsidio continúa sin cálculo de montos.
+
+### Tren Araucanía
+
+Tren Araucanía mantiene una metodología por tramo: Temuco-Victoria, Temuco-Pitrufquén y Claret. Victoria-Temuco opera con 11 servicios de lunes a viernes durante 2027. Claret conserva su carácter escolar y sólo aporta en marzo-diciembre. El perfil mensual combina patrón histórico, calendario operacional, oferta mensual, componente escolar y suavizamiento de marzo cuando el diagnóstico lo identifica como outlier respecto del promedio abril-diciembre y del promedio anual.
+
+### Llanquihue-Puerto Montt
+
+Llanquihue-Puerto Montt se calibra con el indicador de pasajeros por día laboral operacional. Para marzo-diciembre se aproxima al entorno de 1.500 pasajeros por día laboral, permitiendo variaciones por estacionalidad y cantidad de días laborales. Enero y febrero reciben factores de reducción por menor efecto novedad y no usan la restricción de 1.500 como regla rígida.
+
+### Laja-Talcahuano
+
+Laja-Talcahuano no recibe ajuste específico nuevo dentro de la recalibración. El servicio mantiene su tratamiento vigente, incluida la operación de feriados con regla de fin de semana cuando corresponde.
+
+### Incertidumbre
+
+Las bandas bajo/base/alto se recalculan sobre la nueva base 2027. El WMAPE y el sesgo provienen del backtesting histórico y no modifican su metodología; el ajuste por sesgo se interpreta como sensibilidad diagnóstica sobre la base recalibrada y se controla que no genere valores negativos.

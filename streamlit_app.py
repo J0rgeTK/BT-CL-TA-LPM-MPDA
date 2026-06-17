@@ -62,7 +62,7 @@ except Exception as e:
     st.stop()
 
 st.markdown('<div class="hero"><h1>🚆 Modelo de afluencia 2027 — EFE/Fesur</h1>'
-            '<p>Motor mensual-elástico · feriados 2027 · escenario 2027 actualizado · oferta editable por mes y tipo de día</p></div>', unsafe_allow_html=True)
+            '<p>Motor mensual-elástico · feriados 2027 · escenario 2027 recalibrado · oferta editable por mes y tipo de día</p></div>', unsafe_allow_html=True)
 
 
 def fmt(n):
@@ -714,14 +714,38 @@ def render_validacion_historica():
 
 def render_resumen():
     uni, serv, detalle = O.proyectar_mensual_elastico(params, mdf, return_detalle=True)
-    st.markdown("### Resumen 2027")
-    st.info("El total anual es la suma de los meses proyectados. No existe redistribución posterior de un total anual fijo.")
+    st.markdown("### Resumen 2027 recalibrado")
+    st.info("El total anual es la suma de los meses proyectados. El escenario 2027 recalibrado conserva trazabilidad contra el escenario anterior y aplica supuestos operacionales específicos por servicio.")
 
     kk = st.columns(4)
     for i, s in enumerate(O.SERVICIOS):
         viajes = detalle[detalle.servicio == s]["viajes_operados_plan"].sum()
         om = serv[s].sum() / max(viajes, 1)
         kk[i].metric(O.NOMBRE[s], fmt(serv[s].sum()), f"{fmt(om)} pax/viaje")
+
+
+    st.markdown("#### Comparación contra escenario anterior")
+    escenario_anterior = {"BIOTREN": 12991160.0, "CORTO_LAJA": 540842.0, "TREN_ARAUCANIA": 950258.0, "LLANQUIHUE_PM": 420853.0}
+    motivos = {
+        "BIOTREN": "Baja progresiva, afectación L2 fines de semana y ajuste residual laboral",
+        "TREN_ARAUCANIA": "Victoria-Temuco 11 servicios L-V y suavizamiento de marzo",
+        "LLANQUIHUE_PM": "Promedio laboral marzo-diciembre y menor efecto novedad estival",
+        "CORTO_LAJA": "Sin ajuste específico nuevo",
+    }
+    comp = pd.DataFrame([{
+        "servicio": O.NOMBRE[k],
+        "total anterior": escenario_anterior[k],
+        "total recalibrado": float(serv[k].sum()),
+        "diferencia": float(serv[k].sum()) - escenario_anterior[k],
+        "diferencia %": (float(serv[k].sum()) / escenario_anterior[k] - 1.0) * 100.0,
+        "motivo principal": motivos[k],
+    } for k in O.SERVICIOS])
+    st.dataframe(comp.style.format({"total anterior":"{:,.0f}", "total recalibrado":"{:,.0f}", "diferencia":"{:,.0f}", "diferencia %":"{:+.2f}%"}), width="stretch", hide_index=True)
+
+    diag_detalle = detalle.groupby(["servicio", "mes"], as_index=False)["afl"].sum()
+    if not diag_detalle.empty:
+        bt = serv["BIOTREN"].astype(float)
+        st.caption(f"Biotren queda a {fmt(abs(bt.sum() - 12_700_000))} pasajeros del objetivo de 12,7 millones. Tren Araucanía usa 11 servicios L-V Victoria-Temuco; Laja-Talcahuano no recibe ajuste específico nuevo.")
 
     fig = go.Figure()
     for s in O.SERVICIOS:
@@ -823,8 +847,17 @@ def render_servicio(s):
     if s == "TREN_ARAUCANIA":
         st.warning("Claret se considera servicio escolar: enero y febrero quedan sin oferta ni demanda proyectada para este tipo de servicio. Las modificaciones de oferta se evalúan por tramo con elasticidad diferenciada.")
     if s == "LLANQUIHUE_PM":
-        st.warning("Enero y febrero mantienen una señal estival dentro del perfil mensual; no se consideran servicios planificados de fin de semana.")
+        st.warning("Enero y febrero se reducen por menor efecto novedad; marzo-diciembre se calibran hacia un promedio laboral cercano a 1.500 pasajeros, sin forzar exactamente el mismo valor cada mes.")
 
+    if s == "LLANQUIHUE_PM":
+        cal = O.dias_operacionales_por_tipo(2027, units=["LLANQUIHUE_PM"])
+        lv = cal[(cal.unit.eq("LLANQUIHUE_PM")) & (cal.dt.eq("LV"))].set_index("mes")["n_dias"]
+        t = pd.DataFrame({"periodo": serv.index, "pasajeros": serv[s].astype(float).values})
+        t["mes"] = range(1, 13)
+        t["dias_laborales_operacionales"] = t["mes"].map(lv.to_dict()).astype(float)
+        t["promedio_laboral"] = t["pasajeros"] / t["dias_laborales_operacionales"].replace(0, pd.NA)
+        st.markdown("#### Promedio laboral mensual")
+        st.dataframe(t[["periodo", "pasajeros", "dias_laborales_operacionales", "promedio_laboral"]].style.format({"pasajeros":"{:,.0f}", "dias_laborales_operacionales":"{:,.0f}", "promedio_laboral":"{:,.1f}"}), width="stretch", hide_index=True)
     if s == "BIOTREN":
         render_distribucion_biotren_linea_mod(serv)
         render_od_biotren(serv)
