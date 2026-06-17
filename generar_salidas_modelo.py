@@ -15,6 +15,35 @@ params = O.aplicar_oferta_actual(pd.read_csv(DATA / "oferta_params.csv"))
 diario = pd.read_csv(DATA / "afluencia_diaria_consolidada.csv", parse_dates=["fecha"])
 mdf = P.mensualizar(diario)
 uni, serv, detalle = O.proyectar_mensual_elastico(params, mdf, return_detalle=True)
+_, comparativo_recal, mensual_recal, diagnostico_recal = O.recalibrar_escenario_2027(detalle, anio=2027)
+escenario_anterior = {
+    'BIOTREN': 12_991_160.0,
+    'TREN_ARAUCANIA': 950_258.0,
+    'LLANQUIHUE_PM': 420_853.0,
+    'CORTO_LAJA': 540_842.0,
+}
+motivos_recal = {
+    'BIOTREN': 'Baja progresiva, afectación operacional L2 fines de semana enero-febrero y ajuste residual laboral',
+    'TREN_ARAUCANIA': 'Victoria-Temuco opera 11 servicios lunes-viernes durante 2027 y perfil mensual suavizado',
+    'LLANQUIHUE_PM': 'Calibración a promedio laboral cercano a 1.500 pasajeros marzo-diciembre y menor efecto novedad enero-febrero',
+    'CORTO_LAJA': 'Sin ajuste específico nuevo; mantiene regla operacional vigente',
+}
+comparativo_recal = pd.DataFrame([
+    {
+        'servicio': s,
+        'total_anterior': escenario_anterior[s],
+        'total_recalibrado': float(serv[s].sum()),
+        'diferencia_absoluta': float(serv[s].sum()) - escenario_anterior[s],
+        'diferencia_porcentual': (float(serv[s].sum()) / escenario_anterior[s] - 1.0) * 100.0,
+        'motivo_principal_ajuste': motivos_recal[s],
+    }
+    for s in O.SERVICIOS
+])
+mensual_recal = mensual_recal.copy()
+mensual_recal['periodo'] = mensual_recal['mes'].map(lambda m: f'2027-{int(m):02d}')
+mensual_recal.to_csv(OUT / 'comparativo_mensual_escenario_2027_recalibrado.csv', index=False)
+comparativo_recal.to_csv(OUT / 'comparativo_escenario_2027_recalibrado.csv', index=False)
+diagnostico_recal.to_csv(OUT / 'diagnostico_recalibracion_escenario_2027.csv', index=False)
 
 serv.to_csv(OUT / "proyeccion_2027_resumen_mensual_elastico.csv")
 uni.to_csv(OUT / "proyeccion_2027_unidades_mensual_elastico.csv")
@@ -182,13 +211,13 @@ for servicio in O.SERVICIOS:
         'variacion_mismos_meses_vs_2026_pct': None if _var(proy_2027_mismos_meses, h2026) is None else round(_var(proy_2027_mismos_meses, h2026), 1),
     }
     if servicio == 'BIOTREN':
-        base['justificacion'] = 'Crecimiento por mayor oferta L1/L2, desempeño reciente 2026, feriados sin operación y ajuste marzo-abril para reflejar que marzo 2026 superó levemente a abril.'
+        base['justificacion'] = 'Escenario 2027 recalibrado: baja progresiva del total, afectación operacional L2 en fines de semana de enero-febrero, ajuste residual laboral marzo-diciembre y recalculo posterior de MOD, OD por tarjeta e ingresos preliminares.'
     elif servicio == 'CORTO_LAJA':
         base['justificacion'] = 'Recuperación de confiabilidad con supresión acotada a 1%, mayor referencia 2024, oferta 8 servicios diarios y 10 sólo fines de semana de enero-febrero.'
     elif servicio == 'TREN_ARAUCANIA':
-        base['justificacion'] = 'Proyección por tramo; aumento Victoria-Temuco a 15 servicios LV con elasticidad diferenciada y Claret escolar sólo marzo-diciembre; nivel moderado cercano a 950 mil.'
+        base['justificacion'] = 'Proyección por tramo; Victoria-Temuco opera 11 servicios LV durante 2027, Pitrufquén se mantiene separado y Claret opera como componente escolar sólo marzo-diciembre; perfil mensual con diagnóstico de marzo.'
     elif servicio == 'LLANQUIHUE_PM':
-        base['justificacion'] = 'Se mantiene señal estival enero-febrero 2026, operación sólo lunes-viernes y feriados sin operación; histórico corto ponderado con cautela.'
+        base['justificacion'] = 'Calibración basada en promedio de día laboral cercano a 1.500 pasajeros marzo-diciembre, con reducción de enero-febrero por menor efecto novedad y operación sólo lunes-viernes sin feriados.'
     just_rows.append(base)
 
 pd.DataFrame(just_rows).to_csv(OUT / 'justificacion_metodologica_servicios.csv', index=False)
