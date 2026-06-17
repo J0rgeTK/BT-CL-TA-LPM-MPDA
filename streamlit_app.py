@@ -16,6 +16,7 @@ import plotly.graph_objects as go
 import pipeline_afluencia as P
 import oferta as O
 import od_biotren_hibrido as OD
+import backtesting as BT
 
 st.set_page_config(page_title="Afluencia EFE/Fesur 2027", layout="wide", page_icon="🚆")
 
@@ -661,6 +662,56 @@ Esta base no corresponde a liquidación, compensación ni estimación monetaria 
 - Feriados de Chile. *Feriados de Chile — Año 2027*. Fuente basada en Biblioteca del Congreso Nacional. https://www.feriados.cl/2027.htm
 """)
 
+def render_validacion_historica():
+    st.markdown("### Validación histórica — backtesting")
+    st.info("El backtesting compara observado vs estimado en periodos históricos conocidos. Es una validación retrospectiva diagnóstica, no un holdout estricto ni una garantía predictiva; no recalibra ni altera el escenario vigente 2027.")
+    try:
+        bt = BT.ejecutar_backtesting(params, mdf)
+    except Exception as e:
+        st.warning(f"No fue posible ejecutar el backtesting histórico: {e}")
+        return
+
+    anios_bt = sorted(bt.observado_estimado["anio"].dropna().astype(int).unique().tolist())
+    meses_bt = int(len(bt.observado_estimado))
+    with st.expander("Alcance metodológico del backtesting", expanded=True):
+        st.markdown(f"""
+- **Tipo:** `{BT.BACKTESTING_TIPO}`; corresponde a una revisión retrospectiva diagnóstica, no a una validación holdout fuera de muestra.
+- **Periodos evaluados:** años {", ".join(map(str, anios_bt))}; se incluyen sólo meses con observación histórica disponible ({meses_bt} filas servicio-mes).
+- **Observado:** afluencia mensual normalizada `pax_norm`, con columna de cobertura para advertir meses incompletos.
+- **Estimado:** motor mensual-elástico y parámetros vigentes cargados por la aplicación; pueden incorporar información posterior al periodo evaluado.
+- **Interpretación:** WMAPE es la métrica agregada principal; MAPE se muestra como referencia y puede ser inestable en servicios o meses de baja afluencia.
+""")
+
+    total = bt.resumen_total_sistema.iloc[0]
+    k = st.columns(5)
+    k[0].metric("MAE sistema", fmt(total["MAE"]))
+    k[1].metric("RMSE sistema", fmt(total["RMSE"]))
+    k[2].metric("MAPE sistema", f"{total['MAPE']:.1f}%")
+    k[3].metric("WMAPE sistema", f"{total['WMAPE']:.1f}%")
+    k[4].metric("Sesgo sistema", f"{total['sesgo']:+.1f}%")
+
+    st.markdown("#### Métricas por servicio")
+    ms = bt.metricas_servicio.copy()
+    ms["servicio"] = ms["servicio"].map(lambda x: O.NOMBRE.get(x, x))
+    st.dataframe(ms, width="stretch", hide_index=True)
+
+    st.markdown("#### Tabla observado vs estimado por mes")
+    comp = bt.observado_estimado.copy()
+    comp["servicio"] = comp["servicio"].map(lambda x: O.NOMBRE.get(x, x))
+    st.dataframe(comp[["servicio", "periodo", "observado", "estimado", "error", "error_abs", "error_pct", "cobertura"]], width="stretch", height=360)
+
+    st.markdown("#### Errores mensuales agregados del sistema")
+    err = comp.groupby("periodo", as_index=False).agg(observado=("observado", "sum"), estimado=("estimado", "sum"))
+    err["error"] = err["estimado"] - err["observado"]
+    err["error_abs"] = err["error"].abs()
+    err["error_pct"] = err["error"] / err["observado"].replace(0, pd.NA)
+    st.dataframe(err, width="stretch", height=260)
+
+    st.markdown("#### Advertencias metodológicas")
+    for warning in bt.advertencias:
+        st.warning(warning)
+
+
 def render_resumen():
     uni, serv, detalle = O.proyectar_mensual_elastico(params, mdf, return_detalle=True)
     st.markdown("### Resumen 2027")
@@ -782,11 +833,13 @@ def render_servicio(s):
                        f"proyeccion_2027_{s}.csv", key=f"dl_{s}")
 
 
-tabs = st.tabs(["📘 Metodología", "📊 Resumen"] + [O.NOMBRE[s] for s in O.SERVICIOS])
+tabs = st.tabs(["📘 Metodología", "📊 Resumen", "🧪 Validación histórica"] + [O.NOMBRE[s] for s in O.SERVICIOS])
 with tabs[0]:
     render_metodologia()
 with tabs[1]:
     render_resumen()
+with tabs[2]:
+    render_validacion_historica()
 for i, s in enumerate(O.SERVICIOS):
-    with tabs[i + 2]:
+    with tabs[i + 3]:
         render_servicio(s)
