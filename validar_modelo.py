@@ -16,6 +16,7 @@ from streamlit.testing.v1 import AppTest
 import pipeline_afluencia as P
 import oferta as O
 import od_biotren_hibrido as ODH
+import backtesting as BT
 
 BASE = Path(__file__).resolve().parent
 DATA = BASE / "data"
@@ -280,12 +281,28 @@ def ejecutar_validacion() -> pd.DataFrame:
         ),
     ))
 
-    # 14. Carga real de Streamlit mediante AppTest.
+    # 14. Backtesting histórico: métricas por servicio y total sistema en memoria.
+    bt = BT.ejecutar_backtesting(params, mdf)
+    metricas_ok = bool(
+        not bt.metricas_servicio.empty
+        and not bt.observado_estimado.empty
+        and set(BT.METRIC_COLUMNS).issubset(bt.metricas_servicio.columns)
+        and set(BT.METRIC_COLUMNS).issubset(bt.resumen_total_sistema.columns)
+        and {"n_meses_mape", "n_meses_observado_cero"}.issubset(bt.metricas_servicio.columns)
+        and BT.BACKTESTING_TIPO == "retrospectivo_diagnostico_no_holdout"
+    )
+    rows.append(_ok(
+        "Backtesting histórico por servicio",
+        metricas_ok,
+        f"Servicios: {len(bt.metricas_servicio)}; meses comparados: {len(bt.observado_estimado)}; advertencias: {len(bt.advertencias)}",
+    ))
+
+    # 15. Carga real de Streamlit mediante AppTest.
     app = AppTest.from_file(str(BASE / "streamlit_app.py"), default_timeout=30)
     app.run()
     rows.append(_ok("Carga de Streamlit", len(app.exception) == 0, f"Excepciones detectadas: {len(app.exception)}"))
 
-    # 15. Cobertura de archivos exportados.
+    # 16. Cobertura de archivos exportados.
     expected = [
         OUT / "proyeccion_2027_resumen_mensual_elastico.csv",
         OUT / "proyeccion_2027_unidades_mensual_elastico.csv",

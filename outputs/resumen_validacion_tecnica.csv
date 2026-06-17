@@ -18,5 +18,21 @@ Participaciones mensuales por tipo suman 1,OK,Diferencia máxima: 0.000000000000
 Participaciones OD por tipo/mes suman 1,OK,Diferencia máxima con viajes: 0.000000000000; casos sin viajes OK: True
 Estructura de tarifas para ingresos preliminares,OK,"Columnas OK: True; tipos tarifa: ['Adulto Mayor', 'Estudiante', 'Normal']; estaciones cubiertas: True; mapeo tarifa OK: True"
 Estructura de base referencial de subsidio,OK,"Columnas detectadas: ['mes', 'mes_nombre', 'grupo_subsidio_referencial', 'origen', 'destino', 'viajes_observados_base_referencial']"
+Estaciones OD con registro en mapeo línea,OK,Sin registro: ninguna
+Mapeo estación-línea sin duplicados,OK,Duplicadas: ninguna
+Valores válidos de linea_base,OK,Inválidos: ninguno
+Concepción marcada como estación común/intercambio,OK,"Registro: [{'estacion': 'Concepción', 'linea_base': 'L1_L2', 'es_estacion_comun': 1}]"
+Cantidad de estaciones por línea base,OK,L1: 11; L1_L2: 1; L2: 13; SIN_CLASIFICAR: 2
+Proporción de viajes OD No clasificado,OK,"Viajes No clasificado: 157,085; proporción: 1.4499%"
+Clasificación OD por línea conserva total observado,OK,"Original: 10,834,511; clasificado: 10,834,511; diferencia: 0.00000000"
+Top pares OD No clasificado por motivo probable,OK,"Motivos: estacion_comun_a_estacion_comun: 157,085; estacion_sin_clasificar: 0. Pares No clasificado sin viajes observados: 104. Top: Concepción->Concepción: 157,085 (100.0000% No clas.; 1.4499% total; estacion_comun_a_estacion_comun)"
+Distribución por línea MOD conserva total Biotren,OK,"Diferencia máxima: 0.00000000; diferencia participación: 0.000000000000; categorías estándar: ['L1', 'L1-L2', 'L2']"
+No clasificado sin proyección estándar,OK,Concepción→Concepción queda como control diagnóstico histórico y no se incluye en líneas proyectadas
+Consistencia tarjeta mensual vs Biotren,OK,Diferencia máxima: 0.00000003
+Ingreso tarifario agregado por tipo de tarjeta,OK,"Adulto Mayor: 263,704,308; Estudiante: 626,815,617; Normal: 5,814,208,723; Sin ingreso tarifario: 0"
+Ingresos sólo en tipos con tarifa directa,OK,"adulto_mayor: 263,704,308; convenio_colectivo: 0; discapacitado: 0; estudiante_basica: 0; funcionario_especial: 0; funcionario_normal: 0; media_superior: 626,815,617; monedero: 5,814,208,723"
+Base referencial de subsidio en memoria,OK,Filas agregadas: 36; sin cálculo de montos
+Exportación tipo tarjeta en modo muestra sin outputs completos,OK,Viajes: 729; ingresos: 729; archivos escritos: 0
+Backtesting histórico por servicio,OK,Servicios: 4; meses comparados: 94; advertencias: 8
 Carga de Streamlit,OK,Excepciones detectadas: 0
 Archivos de salida principales,OK,Faltantes: ninguno

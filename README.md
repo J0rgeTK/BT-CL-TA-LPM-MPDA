@@ -295,3 +295,22 @@ python preparar_insumos_od_biotren.py
 El script lee los Excel disponibles en `data/od_biotren/input/`, homologa estaciones con la misma lógica del módulo OD y vuelve a generar los CSV en `data/od_biotren/processed/`.
 
 Si los CSV procesados faltan, `od_biotren_hibrido.py` muestra un error indicando que se debe ejecutar `python preparar_insumos_od_biotren.py` con los Excel originales disponibles.
+
+## Backtesting histórico del modelo EFE Sur
+
+Se incorporó un módulo de backtesting para evaluar la capacidad del modelo predictivo de EFE Sur de reproducir periodos históricos conocidos. Esta validación es **retrospectiva diagnóstica**: compara afluencia mensual observada contra afluencia estimada por el motor mensual-elástico vigente, sin recalibrar parámetros, sin modificar la lógica de proyección y sin alterar los resultados del escenario 2027.
+
+### Alcance
+
+- **Periodos evaluados:** por defecto, todos los años históricos disponibles antes de 2027 y sólo los meses con observación efectiva en la base mensual.
+- **Dato observado:** `pax_norm`, la afluencia mensual normalizada que produce `pipeline_afluencia.mensualizar`; se conserva la columna `cobertura` para identificar meses incompletos.
+- **Dato estimado:** salida mensual por servicio del motor mensual-elástico vigente, usando los parámetros vigentes cargados por la aplicación o la validación.
+- **Tipo de prueba:** no es un holdout estricto fuera de muestra. Si los parámetros vigentes incorporan información posterior al periodo evaluado, el resultado debe interpretarse como validación retrospectiva diagnóstica y no como evidencia predictiva independiente.
+
+### Métricas e interpretación
+
+El backtesting entrega métricas por servicio y para el total sistema: MAE, RMSE, MAPE, WMAPE y sesgo. MAE y RMSE se expresan en viajes mensuales; MAPE y WMAPE se expresan como porcentaje sobre observado; el sesgo resume la dirección del error agregado. WMAPE es la referencia agregada principal porque pondera por volumen observado. MAPE se informa sólo como apoyo, excluye meses con observado cero y puede ser inestable en meses o servicios de baja afluencia.
+
+El módulo también entrega tabla mensual observado vs estimado, errores absolutos y porcentuales, conteo de meses usados en MAPE, conteo de meses con observado cero, advertencias metodológicas y validación automática desde `validar_modelo.py`.
+
+La sección **Validación histórica** de Streamlit muestra los resultados agregados, el detalle observado vs estimado y las advertencias. El proceso se ejecuta en memoria: no genera archivos binarios, no modifica outputs masivos y no altera `data/od_biotren/processed/`.
