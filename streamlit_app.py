@@ -17,6 +17,7 @@ import pipeline_afluencia as P
 import oferta as O
 import od_biotren_hibrido as OD
 import backtesting as BT
+import incertidumbre as INC
 
 st.set_page_config(page_title="Afluencia EFE/Fesur 2027", layout="wide", page_icon="🚆")
 
@@ -99,6 +100,44 @@ def _matriz_tarjeta(df, tipo_tarjeta, valor):
     M = tmp.pivot_table(index="origen", columns="destino", values=valor, aggfunc="sum", fill_value=0.0)
     return M.reindex(index=estaciones, columns=estaciones, fill_value=0.0)
 
+
+
+def render_incertidumbre_biotren(serv):
+    st.markdown("#### Incertidumbre diagnóstica Biotren")
+    try:
+        bt = BT.ejecutar_backtesting(params, mdf)
+        bandas = INC.calcular_bandas_incertidumbre(serv.astype(float), bt.metricas_servicio)
+    except Exception as e:
+        st.warning(f"No fue posible calcular las bandas diagnósticas de Biotren: {e}")
+        return
+
+    fila = bandas.anual[bandas.anual["servicio"].eq("BIOTREN")].copy()
+    if fila.empty:
+        st.warning("No hay métricas de incertidumbre disponibles para Biotren.")
+        return
+
+    cols = {
+        "total_banda_baja": "Banda baja",
+        "total_base": "Base vigente",
+        "total_banda_alta": "Banda alta",
+        "total_ajustado_sesgo": "Ajuste por sesgo",
+        "WMAPE_usado": "WMAPE usado (%)",
+        "sesgo_usado": "Sesgo usado (%)",
+        "advertencia_metodologica": "Advertencia metodológica",
+    }
+    st.dataframe(
+        fila[list(cols)].rename(columns=cols).style.format({
+            "Banda baja": "{:,.0f}",
+            "Base vigente": "{:,.0f}",
+            "Banda alta": "{:,.0f}",
+            "Ajuste por sesgo": "{:,.0f}",
+            "WMAPE usado (%)": "{:.2f}",
+            "Sesgo usado (%)": "{:+.2f}",
+        }),
+        width="stretch",
+        hide_index=True,
+    )
+    st.caption("Las bandas derivan del backtesting retrospectivo diagnóstico. No son intervalos estadísticos formales y no reemplazan la base operacional vigente de Biotren.")
 
 def render_distribucion_biotren_linea_mod(serv):
     st.markdown("#### Distribución Biotren por línea OD basada en MOD")
@@ -816,6 +855,7 @@ def render_servicio(s):
         st.markdown("#### Promedio laboral mensual")
         st.dataframe(t[["periodo", "pasajeros", "dias_laborales_operacionales", "promedio_laboral"]].style.format({"pasajeros":"{:,.0f}", "dias_laborales_operacionales":"{:,.0f}", "promedio_laboral":"{:,.1f}"}), width="stretch", hide_index=True)
     if s == "BIOTREN":
+        render_incertidumbre_biotren(serv)
         render_distribucion_biotren_linea_mod(serv)
         render_od_biotren(serv)
 

@@ -26,7 +26,7 @@ Cantidad de estaciones por línea base,OK,L1: 11; L1_L2: 1; L2: 13; SIN_CLASIFIC
 Proporción de viajes OD No clasificado,OK,"Viajes No clasificado: 157,085; proporción: 1.4499%"
 Clasificación OD por línea conserva total observado,OK,"Original: 10,834,511; clasificado: 10,834,511; diferencia: 0.00000000"
 Top pares OD No clasificado por motivo probable,OK,"Motivos: estacion_comun_a_estacion_comun: 157,085; estacion_sin_clasificar: 0. Pares No clasificado sin viajes observados: 104. Top: Concepción->Concepción: 157,085 (100.0000% No clas.; 1.4499% total; estacion_comun_a_estacion_comun)"
-Distribución por línea MOD conserva total Biotren,OK,"Diferencia máxima: 0.00000000; diferencia participación: 0.000000000000; categorías estándar: ['L1', 'L1-L2', 'L2']"
+Distribución por línea MOD conserva total Biotren,OK,"Diferencia máxima: 0.00000000; diferencia participación: 0.000000000000; categorías estándar: ['L1', 'L1-L2', 'L2']; total anual líneas: 12,673,199"
 No clasificado sin proyección estándar,OK,Concepción→Concepción queda como control diagnóstico histórico y no se incluye en líneas proyectadas
 Consistencia tarjeta mensual vs Biotren,OK,Diferencia máxima: 0.00000003
 Ingreso tarifario agregado por tipo de tarjeta,OK,"Adulto Mayor: 256,552,731; Estudiante: 613,506,010; Normal: 5,668,410,876; Sin ingreso tarifario: 0"
