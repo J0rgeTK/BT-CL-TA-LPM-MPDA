@@ -516,20 +516,76 @@ def editor_tren_araucania():
     return plan_tramos, plan_tramos
 
 
+def _referencia_servicio_disponible(s):
+    return s in set(REF_SERVICIO_TO_MODELO.values())
+
+
+def _referencia_servicio_mensual(s, serv):
+    if not _referencia_servicio_disponible(s):
+        return pd.DataFrame()
+    mensual = construir_referencia_mensual_visual(serv)
+    return mensual[mensual["servicio_modelo"].eq(s)].copy().sort_values(["anio", "mes_num"])
+
+
+def _referencia_servicio_anual(s, serv):
+    if not _referencia_servicio_disponible(s):
+        return pd.DataFrame()
+    anual = construir_referencia_anual_visual(serv)
+    return anual[anual["servicio_modelo"].eq(s)].copy().sort_values("anio")
+
+
 def grafico_historico_y_proyeccion(s, serv):
-    h = mdf[mdf.servicio == s].copy().sort_values("mes")
     fig = go.Figure()
-    if not h.empty:
-        fig.add_trace(go.Scatter(x=h["mes"].astype(str), y=h["pax_norm"], name="Histórico mensual", mode="lines",
-                                 line=dict(color=PAL[s], width=3), fill="tozeroy", fillcolor="rgba(31,111,235,.07)"))
-    fig.add_trace(go.Scatter(x=list(serv.index), y=serv[s].astype(float), name="Proyección 2027", mode="lines+markers",
-                             line=dict(color="#dc2626", width=3, dash="dash")))
-    fig.update_layout(height=330, margin=dict(l=8, r=8, t=8, b=8), plot_bgcolor="rgba(0,0,0,0)",
+    ref = _referencia_servicio_mensual(s, serv)
+    if not ref.empty:
+        for tipo in ["Histórico observado", "Cierre 2026 estimado", "Proyección 2027 modelo"]:
+            d = ref[ref["tipo_dato_label"].eq(tipo)].copy()
+            if d.empty:
+                continue
+            fig.add_trace(go.Scatter(
+                x=d["periodo"].astype(str),
+                y=d["afluencia"].astype(float),
+                name=tipo,
+                mode="lines+markers" if tipo != "Histórico observado" else "lines",
+                line=dict(
+                    color=REF_TIPO_COLOR[tipo],
+                    width=3 if tipo != "Histórico observado" else 2,
+                    dash="dash" if tipo == "Proyección 2027 modelo" else "solid",
+                ),
+                marker=dict(size=7),
+            ))
+    else:
+        st.info("La referencia histórica normalizada de cierre 2026 está disponible sólo para Biotren, Laja-Talcahuano y Tren Araucanía; no se extrapola histórico para este servicio.")
+        fig.add_trace(go.Scatter(
+            x=list(serv.index),
+            y=serv[s].astype(float),
+            name="Proyección 2027 modelo",
+            mode="lines+markers",
+            line=dict(color=REF_TIPO_COLOR["Proyección 2027 modelo"], width=3, dash="dash"),
+        ))
+    fig.update_layout(height=380, margin=dict(l=8, r=8, t=8, b=8), plot_bgcolor="rgba(0,0,0,0)",
                       paper_bgcolor="rgba(0,0,0,0)", legend=dict(orientation="h", y=1.15, x=0),
                       hovermode="x unified", font=dict(family="Segoe UI", color="#0f2740"))
-    fig.update_xaxes(showgrid=False)
-    fig.update_yaxes(gridcolor="#eef2f7", title="pax/mes")
+    fig.update_xaxes(showgrid=False, title="Periodo")
+    fig.update_yaxes(gridcolor="#eef2f7", title="pasajeros/mes")
     st.plotly_chart(fig, width="stretch")
+
+
+def tabla_referencia_anual_servicio(s, serv):
+    anual = _referencia_servicio_anual(s, serv)
+    if anual.empty:
+        return pd.DataFrame()
+    tabla = anual[["anio", "tipo_dato_label", "afluencia_anual"]].rename(columns={
+        "anio": "año",
+        "tipo_dato_label": "tipo de dato",
+        "afluencia_anual": "total anual",
+    })
+    tabla["observación metodológica"] = tabla["tipo de dato"].map({
+        "Histórico observado": "Registro histórico observado normalizado desde el CSV de referencia.",
+        "Cierre 2026 estimado": "Estimación de cierre anual 2026; no corresponde a observado definitivo.",
+        "Proyección 2027 modelo": "Resultado vigente del motor operacional 2027; no recalibrado por el cierre 2026.",
+    })
+    return tabla
 
 
 def tabla_historica_servicio(s):
@@ -951,19 +1007,23 @@ def render_servicio(s):
     ocup_proy = serv[s].dropna().sum() / max(viajes, 1)
     pk = serv[s].astype(float).idxmax()
 
+    st.markdown("#### Evolución mensual histórica, cierre 2026 y proyección 2027")
+    grafico_historico_y_proyeccion(s, serv)
+    tabla_ref = tabla_referencia_anual_servicio(s, serv)
+    if not tabla_ref.empty:
+        st.dataframe(tabla_ref.style.format({"total anual": "{:,.0f}"}), width="stretch", hide_index=True, height=300)
+
+    st.markdown("#### Total operacional 2027 vigente")
     k = st.columns(4)
     k[0].metric("Total anual 2027", fmt(serv[s].dropna().sum()))
     k[1].metric("Pax/viaje proyectado", fmt(ocup_proy))
     k[2].metric("Mes peak", pk, fmt(serv[s].max()))
     k[3].metric("Mes menor", serv[s].astype(float).idxmin(), fmt(serv[s].min()))
 
-    render_justificacion_servicio(s, serv, uni, detalle)
-    render_ecuacion_servicio(s)
-
     g, t = st.columns([3, 2])
     with g:
-        st.markdown("#### Histórico mensual y proyección")
-        grafico_historico_y_proyeccion(s, serv)
+        render_justificacion_servicio(s, serv, uni, detalle)
+        render_ecuacion_servicio(s)
     with t:
         st.markdown("#### Proyección mensual 2027")
         out = pd.DataFrame(index=serv.index)
@@ -983,9 +1043,6 @@ def render_servicio(s):
     with st.expander("Calendario operacional aplicado al servicio"):
         st.dataframe(tabla_calendario_servicio(s), width="stretch")
     st.caption("La columna impacto_mes_vs_base permite verificar que un cambio de oferta afecta el mes modificado y que el total anual resulta de la suma mensual.")
-
-    st.markdown("#### Comportamiento mensual histórico por año")
-    st.dataframe(tabla_historica_servicio(s), width="stretch")
 
     if s == "CORTO_LAJA":
         st.warning("Oferta base: 8 servicios todos los días; sólo sábados y domingos de enero-febrero tienen 10 servicios. El escenario incorpora recuperación parcial de confiabilidad, supresión base acotada y mayor peso del patrón histórico de mejor desempeño.")
