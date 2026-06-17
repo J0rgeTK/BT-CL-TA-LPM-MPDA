@@ -837,6 +837,80 @@ def render_validacion_historica():
 
 
 
+def render_evolucion_historica_cierre_proyeccion(serv):
+    st.markdown("#### Evolución histórica, cierre 2026 y proyección 2027")
+    st.info(
+        "Los CSV normalizados de cierre 2026 se usan exclusivamente como referencia visual. "
+        "El cierre 2026 se rotula como estimado y no recalibra ni modifica la proyección operacional 2027 vigente."
+    )
+    anual = construir_referencia_anual_visual(serv)
+    mensual = construir_referencia_mensual_visual(serv)
+
+    servicios = list(REF_SERVICIO_TO_MODELO.values())
+    servicio_sel = st.selectbox(
+        "Servicio",
+        servicios,
+        format_func=lambda x: O.NOMBRE.get(x, x),
+        key="ref_cierre_2026_servicio",
+    )
+
+    anual_s = anual[anual["servicio_modelo"].eq(servicio_sel)].copy().sort_values("anio")
+    mensual_s = mensual[mensual["servicio_modelo"].eq(servicio_sel)].copy()
+
+    fig = go.Figure()
+    for tipo in ["Histórico observado", "Cierre 2026 estimado", "Proyección 2027 modelo"]:
+        d = anual_s[anual_s["tipo_dato_label"].eq(tipo)].sort_values("anio")
+        if d.empty:
+            continue
+        modo = "lines+markers" if tipo == "Histórico observado" else "markers"
+        fig.add_trace(go.Scatter(
+            x=d["anio"].astype(int),
+            y=d["afluencia_anual"].astype(float),
+            name=tipo,
+            mode=modo,
+            marker=dict(size=11),
+            line=dict(color=REF_TIPO_COLOR[tipo], width=3, dash="dash" if tipo != "Histórico observado" else "solid"),
+        ))
+    fig.update_layout(height=360, margin=dict(l=8, r=8, t=8, b=8), plot_bgcolor="rgba(0,0,0,0)",
+                      paper_bgcolor="rgba(0,0,0,0)", legend=dict(orientation="h", y=1.12, x=0),
+                      hovermode="x unified", font=dict(family="Segoe UI", color="#0f2740"))
+    fig.update_xaxes(dtick=1, showgrid=False, title="Año")
+    fig.update_yaxes(gridcolor="#eef2f7", title="pasajeros/año")
+    st.plotly_chart(fig, width="stretch")
+
+    mensual_cmp = mensual_s[mensual_s["anio"].isin([2026, 2027])].copy().sort_values(["anio", "mes_num"])
+    fig_m = go.Figure()
+    for tipo in ["Cierre 2026 estimado", "Proyección 2027 modelo"]:
+        d = mensual_cmp[mensual_cmp["tipo_dato_label"].eq(tipo)]
+        if d.empty:
+            continue
+        fig_m.add_trace(go.Scatter(
+            x=d["mes_num"].astype(int),
+            y=d["afluencia"].astype(float),
+            name=tipo,
+            mode="lines+markers",
+            line=dict(color=REF_TIPO_COLOR[tipo], width=3, dash="dash" if tipo == "Proyección 2027 modelo" else "solid"),
+        ))
+    fig_m.update_layout(height=320, margin=dict(l=8, r=8, t=8, b=8), plot_bgcolor="rgba(0,0,0,0)",
+                        paper_bgcolor="rgba(0,0,0,0)", legend=dict(orientation="h", y=1.12, x=0),
+                        hovermode="x unified", font=dict(family="Segoe UI", color="#0f2740"))
+    fig_m.update_xaxes(dtick=1, range=[0.7, 12.3], showgrid=False, title="Mes")
+    fig_m.update_yaxes(gridcolor="#eef2f7", title="pasajeros/mes")
+    st.plotly_chart(fig_m, width="stretch")
+
+    tabla = anual_s[["anio", "tipo_dato_label", "afluencia_anual"]].rename(columns={
+        "anio": "año",
+        "tipo_dato_label": "tipo de dato",
+        "afluencia_anual": "afluencia",
+    })
+    tabla["observación metodológica"] = tabla["tipo de dato"].map({
+        "Histórico observado": "Registro histórico observado normalizado desde el CSV de referencia.",
+        "Cierre 2026 estimado": "Estimación de cierre anual 2026; no corresponde a observado definitivo.",
+        "Proyección 2027 modelo": "Resultado vigente del motor operacional 2027; no recalibrado por el cierre 2026.",
+    })
+    st.dataframe(tabla.style.format({"afluencia": "{:,.0f}"}), width="stretch", hide_index=True, height=300)
+
+
 def render_resumen():
     uni, serv, detalle = O.proyectar_mensual_elastico(params, mdf, return_detalle=True)
     st.markdown("### Resumen 2027 recalibrado")
@@ -882,6 +956,8 @@ def render_resumen():
     fig.update_xaxes(showgrid=False)
     fig.update_yaxes(gridcolor="#eef2f7", title="pax/mes")
     st.plotly_chart(fig, width="stretch")
+
+    render_evolucion_historica_cierre_proyeccion(serv)
 
     st.markdown("#### Proyección mensual 2027")
     st.dataframe(serv, width="stretch")
