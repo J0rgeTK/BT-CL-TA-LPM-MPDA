@@ -1,0 +1,253 @@
+servicio,anio,mes_num,mes,afluencia,tipo_dato,fuente
+Biotren,2026,1,Enero,781451.0,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Biotren,2026,2,Febrero,746327.0,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Biotren,2026,3,Marzo,1169450.0,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Biotren,2026,4,Abril,1157284.0,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Biotren,2026,5,Mayo,1039422.0,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Biotren,2026,6,Junio,1058680.691289,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Biotren,2026,7,Julio,978541.650333,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Biotren,2026,8,Agosto,1093914.485,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Biotren,2026,9,Septiembre,1019308.9545,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Biotren,2026,10,Octubre,1086498.61,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Biotren,2026,11,Noviembre,1086131.61,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Biotren,2026,12,Diciembre,1037381.4545,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2026,1,Enero,47831.0,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2026,2,Febrero,55341.0,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2026,3,Marzo,39187.0,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2026,4,Abril,40219.0,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2026,5,Mayo,38996.0,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2026,6,Junio,34900.0,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2026,7,Julio,36509.38,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2026,8,Agosto,37955.67,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2026,9,Septiembre,36423.12,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2026,10,Octubre,44279.52,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2026,11,Noviembre,45333.88,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2026,12,Diciembre,46750.38,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2026,1,Enero,39424.0,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2026,2,Febrero,42486.0,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2026,3,Marzo,72866.0,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2026,4,Abril,80682.0,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2026,5,Mayo,74371.0,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2026,6,Junio,72037.0,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2026,7,Julio,63326.266667,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2026,8,Agosto,62405.016667,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2026,9,Septiembre,61647.916667,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2026,10,Octubre,65493.716667,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2026,11,Noviembre,64964.416667,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2026,12,Diciembre,62492.116667,cierre_2026_estimado,Cierre-2026-EFESur.xlsx
+Biotren,2025,1,Enero,895289.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2025,2,Febrero,735008.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2025,3,Marzo,1098261.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2025,4,Abril,1007173.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2025,5,Mayo,968459.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2025,6,Junio,919687.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2025,7,Julio,820579.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2025,8,Agosto,978368.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2025,9,Septiembre,928503.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2025,10,Octubre,1010594.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2025,11,Noviembre,937259.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2025,12,Diciembre,902604.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2024,1,Enero,855046.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2024,2,Febrero,782790.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2024,3,Marzo,1107393.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2024,4,Abril,1165612.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2024,5,Mayo,1064381.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2024,6,Junio,725422.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2024,7,Julio,979099.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2024,8,Agosto,931941.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2024,9,Septiembre,913921.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2024,10,Octubre,1141272.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2024,11,Noviembre,1065309.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2024,12,Diciembre,986111.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2023,1,Enero,575801.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2023,2,Febrero,499382.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2023,3,Marzo,908583.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2023,4,Abril,926197.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2023,5,Mayo,1077422.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2023,6,Junio,917543.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2023,7,Julio,885232.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2023,8,Agosto,979886.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2023,9,Septiembre,806283.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2023,10,Octubre,987360.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2023,11,Noviembre,1041355.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2023,12,Diciembre,945139.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2022,1,Enero,495114.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2022,2,Febrero,437562.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2022,3,Marzo,826830.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2022,4,Abril,821462.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2022,5,Mayo,917285.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2022,6,Junio,737235.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2022,7,Julio,668959.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2022,8,Agosto,901891.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2022,9,Septiembre,841169.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2022,10,Octubre,812585.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2022,11,Noviembre,926437.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2022,12,Diciembre,683318.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2021,1,Enero,166838.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2021,2,Febrero,178058.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2021,3,Marzo,240471.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2021,4,Abril,209478.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2021,5,Mayo,256783.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2021,6,Junio,271059.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2021,7,Julio,300110.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2021,8,Agosto,335343.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2021,9,Septiembre,351080.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2021,10,Octubre,422292.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2021,11,Noviembre,536376.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2021,12,Diciembre,545493.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2020,1,Enero,403668.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2020,2,Febrero,347483.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2020,3,Marzo,301199.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2020,4,Abril,142964.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2020,5,Mayo,143094.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2020,6,Junio,122195.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2020,7,Julio,94714.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2020,8,Agosto,168395.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2020,9,Septiembre,101192.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2020,10,Octubre,125187.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2020,11,Noviembre,183757.0,historico_observado,Cierre-2026-EFESur.xlsx
+Biotren,2020,12,Diciembre,238412.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2025,1,Enero,68173.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2025,2,Febrero,69269.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2025,3,Marzo,42572.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2025,4,Abril,38563.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2025,5,Mayo,33393.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2025,6,Junio,34068.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2025,7,Julio,34081.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2025,8,Agosto,37156.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2025,9,Septiembre,36755.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2025,10,Octubre,41850.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2025,11,Noviembre,43948.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2025,12,Diciembre,44504.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2024,1,Enero,73194.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2024,2,Febrero,73556.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2024,3,Marzo,54332.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2024,4,Abril,45371.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2024,5,Mayo,43774.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2024,6,Junio,32281.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2024,7,Julio,43469.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2024,8,Agosto,39348.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2024,9,Septiembre,43640.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2024,10,Octubre,50284.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2024,11,Noviembre,50570.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2024,12,Diciembre,52956.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2023,1,Enero,59670.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2023,2,Febrero,43278.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2023,3,Marzo,41857.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2023,4,Abril,37867.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2023,5,Mayo,41160.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2023,6,Junio,35351.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2023,7,Julio,43706.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2023,8,Agosto,43547.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2023,9,Septiembre,40814.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2023,10,Octubre,49318.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2023,11,Noviembre,47883.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2023,12,Diciembre,54968.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2022,1,Enero,51632.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2022,2,Febrero,51849.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2022,3,Marzo,38901.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2022,4,Abril,35908.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2022,5,Mayo,35883.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2022,6,Junio,31272.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2022,7,Julio,36164.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2022,8,Agosto,31504.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2022,9,Septiembre,36563.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2022,10,Octubre,37546.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2022,11,Noviembre,38714.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2022,12,Diciembre,43919.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2021,1,Enero,13693.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2021,2,Febrero,17615.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2021,3,Marzo,16983.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2021,4,Abril,13727.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2021,5,Mayo,19694.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2021,6,Junio,19968.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2021,7,Julio,23679.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2021,8,Agosto,23826.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2021,9,Septiembre,23882.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2021,10,Octubre,30482.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2021,11,Noviembre,34341.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2021,12,Diciembre,36274.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2020,1,Enero,48175.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2020,2,Febrero,53005.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2020,3,Marzo,23557.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2020,4,Abril,6749.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2020,5,Mayo,7955.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2020,6,Junio,6952.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2020,7,Julio,7521.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2020,8,Agosto,8268.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2020,9,Septiembre,4790.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2020,10,Octubre,9217.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2020,11,Noviembre,11816.0,historico_observado,Cierre-2026-EFESur.xlsx
+Laja Talcahuano,2020,12,Diciembre,16457.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2025,1,Enero,43340.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2025,2,Febrero,42891.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2025,3,Marzo,63167.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2025,4,Abril,62698.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2025,5,Mayo,59389.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2025,6,Junio,46222.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2025,7,Julio,55987.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2025,8,Agosto,51601.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2025,9,Septiembre,44714.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2025,10,Octubre,52922.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2025,11,Noviembre,50758.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2025,12,Diciembre,43849.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2024,1,Enero,54017.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2024,2,Febrero,54488.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2024,3,Marzo,75098.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2024,4,Abril,72907.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2024,5,Mayo,66142.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2024,6,Junio,47559.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2024,7,Julio,60872.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2024,8,Agosto,60202.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2024,9,Septiembre,53711.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2024,10,Octubre,67778.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2024,11,Noviembre,65914.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2024,12,Diciembre,48004.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2023,1,Enero,37744.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2023,2,Febrero,26184.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2023,3,Marzo,64606.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2023,4,Abril,58542.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2023,5,Mayo,60151.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2023,6,Junio,53308.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2023,7,Julio,56134.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2023,8,Agosto,65957.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2023,9,Septiembre,55022.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2023,10,Octubre,61704.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2023,11,Noviembre,68931.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2023,12,Diciembre,54828.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2022,1,Enero,1928.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2022,2,Febrero,2063.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2022,3,Marzo,42883.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2022,4,Abril,46300.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2022,5,Mayo,54640.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2022,6,Junio,44354.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2022,7,Julio,32181.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2022,8,Agosto,58215.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2022,9,Septiembre,47835.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2022,10,Octubre,49506.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2022,11,Noviembre,56161.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2022,12,Diciembre,40847.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2021,1,Enero,13693.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2021,2,Febrero,17615.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2021,3,Marzo,16983.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2021,4,Abril,13727.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2021,5,Mayo,19694.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2021,6,Junio,19968.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2021,7,Julio,23679.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2021,8,Agosto,23826.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2021,9,Septiembre,23882.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2021,10,Octubre,30482.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2021,11,Noviembre,34341.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2021,12,Diciembre,36274.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2020,1,Enero,27692.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2020,2,Febrero,27576.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2020,3,Marzo,23073.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2020,4,Abril,0.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2020,5,Mayo,0.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2020,6,Junio,2049.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2020,7,Julio,3067.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2020,8,Agosto,4176.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2020,9,Septiembre,3776.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2020,10,Octubre,2910.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2020,11,Noviembre,1822.0,historico_observado,Cierre-2026-EFESur.xlsx
+Tren Araucanía,2020,12,Diciembre,2467.0,historico_observado,Cierre-2026-EFESur.xlsx

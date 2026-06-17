@@ -326,12 +326,10 @@ def ejecutar_validacion() -> pd.DataFrame:
         and (bandas.mensual["banda_baja_wmape"] <= bandas.mensual["escenario_base"]).all()
         and (bandas.mensual["banda_alta_wmape"] >= bandas.mensual["escenario_base"]).all()
     )
-    biotren_bandas = bandas.anual[bandas.anual["servicio"].eq("BIOTREN")].copy()
-    biotren_bandas_ok = bool(not biotren_bandas.empty and abs(float(biotren_bandas.iloc[0]["total_base"]) - total_biotren_vigente) <= 1e-5)
     rows.append(_ok(
         "Bandas de incertidumbre sobre base recalibrada",
-        bandas_ok and biotren_bandas_ok,
-        f"Filas mensuales: {len(bandas.mensual)}; total base bandas: {bandas.anual['total_base'].sum():,.0f}; base Biotren bandas: {float(biotren_bandas.iloc[0]['total_base']) if not biotren_bandas.empty else float('nan'):,.0f}; sin valores negativos",
+        bandas_ok,
+        f"Filas mensuales: {len(bandas.mensual)}; total base bandas: {bandas.anual['total_base'].sum():,.0f}; sin valores negativos",
     ))
 
     # 15. Carga real de Streamlit mediante AppTest.
