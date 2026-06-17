@@ -26,6 +26,23 @@ CONF = {"BIOTREN": "ALTA", "CORTO_LAJA": "ALTA", "TREN_ARAUCANIA": "MEDIA", "LLA
 CONF_C = {"ALTA": "#0e9f6e", "MEDIA": "#d97706", "BAJA": "#dc2626"}
 DATA = os.path.join(os.path.dirname(__file__), "data")
 
+REFERENCIAS_CIERRE_2026 = os.path.join(DATA, "referencias_cierre_2026")
+REF_SERVICIO_TO_MODELO = {
+    "Biotren": "BIOTREN",
+    "Laja Talcahuano": "CORTO_LAJA",
+    "Tren Araucanía": "TREN_ARAUCANIA",
+}
+REF_TIPO_LABEL = {
+    "historico_observado": "Histórico observado",
+    "cierre_2026_estimado": "Cierre 2026 estimado",
+    "proyeccion_2027_modelo": "Proyección 2027 modelo",
+}
+REF_TIPO_COLOR = {
+    "Histórico observado": "#1f6feb",
+    "Cierre 2026 estimado": "#d97706",
+    "Proyección 2027 modelo": "#dc2626",
+}
+
 st.markdown("""
 <style>
   .stApp { background:#f6f8fb; }
@@ -65,6 +82,61 @@ except Exception as e:
 st.markdown('<div class="hero"><h1>🚆 Modelo de afluencia 2027 — EFE/Fesur</h1>'
             '<p>Motor mensual-elástico · feriados 2027 · escenario 2027 recalibrado · oferta editable por mes y tipo de día</p></div>', unsafe_allow_html=True)
 
+
+
+
+@st.cache_data
+def cargar_referencias_cierre_2026():
+    mensual_path = os.path.join(REFERENCIAS_CIERRE_2026, "afluencia_historica_cierre_2026_long.csv")
+    anual_path = os.path.join(REFERENCIAS_CIERRE_2026, "afluencia_historica_cierre_2026_resumen_anual.csv")
+    mensual = pd.read_csv(mensual_path)
+    anual = pd.read_csv(anual_path)
+    mensual["servicio_modelo"] = mensual["servicio"].map(REF_SERVICIO_TO_MODELO)
+    anual["servicio_modelo"] = anual["servicio"].map(REF_SERVICIO_TO_MODELO)
+    mensual["tipo_dato_label"] = mensual["tipo_dato"].map(REF_TIPO_LABEL)
+    anual["tipo_dato_label"] = anual["tipo_dato"].map(REF_TIPO_LABEL)
+    mensual["periodo"] = mensual["anio"].astype(int).astype(str) + "-" + mensual["mes_num"].astype(int).astype(str).str.zfill(2)
+    return mensual, anual
+
+
+def construir_referencia_anual_visual(serv):
+    _, anual = cargar_referencias_cierre_2026()
+    proy = pd.DataFrame([
+        {
+            "servicio": next(k for k, v in REF_SERVICIO_TO_MODELO.items() if v == servicio),
+            "servicio_modelo": servicio,
+            "anio": 2027,
+            "tipo_dato": "proyeccion_2027_modelo",
+            "tipo_dato_label": REF_TIPO_LABEL["proyeccion_2027_modelo"],
+            "afluencia_anual": float(serv[servicio].sum()),
+        }
+        for servicio in REF_SERVICIO_TO_MODELO.values()
+    ])
+    base = anual.copy()
+    base = base[base["servicio_modelo"].isin(REF_SERVICIO_TO_MODELO.values())]
+    return pd.concat([base, proy], ignore_index=True, sort=False)
+
+
+def construir_referencia_mensual_visual(serv):
+    mensual, _ = cargar_referencias_cierre_2026()
+    proy_rows = []
+    for servicio in REF_SERVICIO_TO_MODELO.values():
+        nombre_ref = next(k for k, v in REF_SERVICIO_TO_MODELO.items() if v == servicio)
+        for periodo, valor in serv[servicio].astype(float).items():
+            proy_rows.append({
+                "servicio": nombre_ref,
+                "servicio_modelo": servicio,
+                "anio": 2027,
+                "mes_num": int(str(periodo)[5:7]),
+                "mes": str(periodo)[5:7],
+                "periodo": periodo,
+                "afluencia": float(valor),
+                "tipo_dato": "proyeccion_2027_modelo",
+                "tipo_dato_label": REF_TIPO_LABEL["proyeccion_2027_modelo"],
+                "fuente": "Modelo operacional 2027 vigente",
+            })
+    base = mensual[mensual["servicio_modelo"].isin(REF_SERVICIO_TO_MODELO.values())].copy()
+    return pd.concat([base, pd.DataFrame(proy_rows)], ignore_index=True, sort=False)
 
 def fmt(n):
     return f"{int(round(float(n))):,}".replace(",", ".")
@@ -708,6 +780,81 @@ def render_validacion_historica():
         st.warning(warning)
 
 
+
+def render_evolucion_historica_cierre_proyeccion(serv):
+    st.markdown("#### Evolución histórica, cierre 2026 y proyección 2027")
+    st.info(
+        "Los CSV normalizados de cierre 2026 se usan exclusivamente como referencia visual. "
+        "El cierre 2026 se rotula como estimado y no recalibra ni modifica la proyección operacional 2027 vigente."
+    )
+    anual = construir_referencia_anual_visual(serv)
+    mensual = construir_referencia_mensual_visual(serv)
+
+    servicios = list(REF_SERVICIO_TO_MODELO.values())
+    servicio_sel = st.selectbox(
+        "Servicio",
+        servicios,
+        format_func=lambda x: O.NOMBRE.get(x, x),
+        key="ref_cierre_2026_servicio",
+    )
+
+    anual_s = anual[anual["servicio_modelo"].eq(servicio_sel)].copy().sort_values("anio")
+    mensual_s = mensual[mensual["servicio_modelo"].eq(servicio_sel)].copy()
+
+    fig = go.Figure()
+    for tipo in ["Histórico observado", "Cierre 2026 estimado", "Proyección 2027 modelo"]:
+        d = anual_s[anual_s["tipo_dato_label"].eq(tipo)].sort_values("anio")
+        if d.empty:
+            continue
+        modo = "lines+markers" if tipo == "Histórico observado" else "markers"
+        fig.add_trace(go.Scatter(
+            x=d["anio"].astype(int),
+            y=d["afluencia_anual"].astype(float),
+            name=tipo,
+            mode=modo,
+            marker=dict(size=11),
+            line=dict(color=REF_TIPO_COLOR[tipo], width=3, dash="dash" if tipo != "Histórico observado" else "solid"),
+        ))
+    fig.update_layout(height=360, margin=dict(l=8, r=8, t=8, b=8), plot_bgcolor="rgba(0,0,0,0)",
+                      paper_bgcolor="rgba(0,0,0,0)", legend=dict(orientation="h", y=1.12, x=0),
+                      hovermode="x unified", font=dict(family="Segoe UI", color="#0f2740"))
+    fig.update_xaxes(dtick=1, showgrid=False, title="Año")
+    fig.update_yaxes(gridcolor="#eef2f7", title="pasajeros/año")
+    st.plotly_chart(fig, width="stretch")
+
+    mensual_cmp = mensual_s[mensual_s["anio"].isin([2026, 2027])].copy().sort_values(["anio", "mes_num"])
+    fig_m = go.Figure()
+    for tipo in ["Cierre 2026 estimado", "Proyección 2027 modelo"]:
+        d = mensual_cmp[mensual_cmp["tipo_dato_label"].eq(tipo)]
+        if d.empty:
+            continue
+        fig_m.add_trace(go.Scatter(
+            x=d["mes_num"].astype(int),
+            y=d["afluencia"].astype(float),
+            name=tipo,
+            mode="lines+markers",
+            line=dict(color=REF_TIPO_COLOR[tipo], width=3, dash="dash" if tipo == "Proyección 2027 modelo" else "solid"),
+        ))
+    fig_m.update_layout(height=320, margin=dict(l=8, r=8, t=8, b=8), plot_bgcolor="rgba(0,0,0,0)",
+                        paper_bgcolor="rgba(0,0,0,0)", legend=dict(orientation="h", y=1.12, x=0),
+                        hovermode="x unified", font=dict(family="Segoe UI", color="#0f2740"))
+    fig_m.update_xaxes(dtick=1, range=[0.7, 12.3], showgrid=False, title="Mes")
+    fig_m.update_yaxes(gridcolor="#eef2f7", title="pasajeros/mes")
+    st.plotly_chart(fig_m, width="stretch")
+
+    tabla = anual_s[["anio", "tipo_dato_label", "afluencia_anual"]].rename(columns={
+        "anio": "año",
+        "tipo_dato_label": "tipo de dato",
+        "afluencia_anual": "afluencia",
+    })
+    tabla["observación metodológica"] = tabla["tipo de dato"].map({
+        "Histórico observado": "Registro histórico observado normalizado desde el CSV de referencia.",
+        "Cierre 2026 estimado": "Estimación de cierre anual 2026; no corresponde a observado definitivo.",
+        "Proyección 2027 modelo": "Resultado vigente del motor operacional 2027; no recalibrado por el cierre 2026.",
+    })
+    st.dataframe(tabla.style.format({"afluencia": "{:,.0f}"}), width="stretch", hide_index=True, height=300)
+
+
 def render_resumen():
     uni, serv, detalle = O.proyectar_mensual_elastico(params, mdf, return_detalle=True)
     st.markdown("### Resumen 2027 recalibrado")
@@ -753,6 +900,8 @@ def render_resumen():
     fig.update_xaxes(showgrid=False)
     fig.update_yaxes(gridcolor="#eef2f7", title="pax/mes")
     st.plotly_chart(fig, width="stretch")
+
+    render_evolucion_historica_cierre_proyeccion(serv)
 
     st.markdown("#### Proyección mensual 2027")
     st.dataframe(serv, width="stretch")
