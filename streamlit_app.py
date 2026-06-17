@@ -332,9 +332,9 @@ Esta sección explica por qué el resultado proyectado es coherente con los ante
             st.markdown(f"""
 **Resultado proyectado.** La proyección anual de Biotren alcanza **{fmt(total)} pasajeros**, compuesta por **{fmt(l1)}** en L1 y **{fmt(l2)}** en L2. La demanda responde parcialmente a la oferta: L1 considera 48 servicios de lunes a viernes durante 2027 y L2 considera 106 servicios de lunes a viernes entre enero y abril, con 109 desde mayo. Los feriados nacionales se tratan como días sin operación.
 
-**Consistencia histórica.** El resultado queda {fmt_pct(var_pct(total, h2024)) if h2024 else 's/i'} respecto de 2024 y {fmt_pct(var_pct(total, h2025)) if h2025 else 's/i'} respecto de 2025. Para el bloque de meses con observación reciente, la proyección 2027 suma **{fmt(janmay_2027)} pasajeros**, frente a **{fmt(h2026) if h2026 else 's/i'}** del bloque comparable. La magnitud es consistente con un escenario de crecimiento moderado y con la oferta operacional considerada.
+**Recalibración operacional.** El escenario incorpora ajuste base progresivo, afectación operacional de Línea 2 en fines de semana de enero-febrero y ajuste residual en meses laborales. El total queda cercano al objetivo operacional de 12,7 millones.
 
-**Perfil mensual.** El tratamiento del bloque marzo-abril evita concentraciones mensuales poco consistentes con la evidencia disponible, manteniendo la suma conjunta y una distribución mensual estable.
+**Distribuciones posteriores.** La distribución por línea OD basada en MOD, la distribución OD por tipo de tarjeta y los ingresos preliminares se aplican después de estimar el total mensual vigente; no generan el total mensual de Biotren.
 """)
         elif s == "CORTO_LAJA":
             st.markdown(f"""
@@ -347,20 +347,20 @@ Esta sección explica por qué el resultado proyectado es coherente con los ante
         elif s == "TREN_ARAUCANIA":
             tramos = {col: float(uni[col].sum()) for col in ["TA_TEMUCO_VICTORIA", "TA_TEMUCO_PITRUFQUEN", "TA_CLARET"] if col in uni.columns}
             st.markdown(f"""
-**Resultado proyectado.** La proyección anual de Tren Araucanía alcanza **{fmt(total)} pasajeros**. La demanda se calcula por tipo de servicio, no mediante una proporción fija agregada. Temuco-Victoria tiene mayor respuesta marginal que Pitrufquén-Temuco y Claret, y todos los tramos mantienen elasticidades menores que 1.
+**Resultado proyectado.** La proyección anual de Tren Araucanía alcanza **{fmt(total)} pasajeros**. La oferta Victoria-Temuco considera 11 servicios lunes-viernes durante 2027. La demanda se calcula por tipo de servicio, no mediante una proporción fija agregada.
 
 **Descomposición anual.** Temuco-Victoria proyecta **{fmt(tramos.get('TA_TEMUCO_VICTORIA', 0))}**, Temuco-Pitrufquén **{fmt(tramos.get('TA_TEMUCO_PITRUFQUEN', 0))}** y Claret **{fmt(tramos.get('TA_CLARET', 0))}** pasajeros. Claret se restringe a marzo-diciembre por su carácter escolar, por lo que enero y febrero no generan demanda en ese componente.
 
-**Consistencia histórica.** El resultado supera el histórico anual 2025 y se modera respecto de una extrapolación directa de la oferta, reconociendo que Pitrufquén y Claret no presentan la misma productividad marginal que Temuco-Victoria.
+**Perfil mensual.** La distribución combina patrón histórico, calendario, oferta y tratamiento escolar. El control técnico de marzo evita concentración artificial respecto del promedio abril-diciembre.
 """)
         elif s == "LLANQUIHUE_PM":
             ene_feb = float(serv.loc[["2027-01", "2027-02"], s].sum())
             st.markdown(f"""
-**Resultado proyectado.** La proyección anual de Llanquihue-Puerto Montt alcanza **{fmt(total)} pasajeros**, con **{fmt(ene_feb)}** pasajeros en enero-febrero. El perfil conserva una señal estival y mantiene operación planificada de lunes a viernes.
+**Resultado proyectado.** La proyección anual de Llanquihue-Puerto Montt alcanza **{fmt(total)} pasajeros**, con **{fmt(ene_feb)}** pasajeros en enero-febrero. La operación planificada es de lunes a viernes, sin feriados nacionales.
 
-**Consistencia operacional.** La proyección descuenta feriados nacionales como días sin operación y no incorpora servicios planificados de fin de semana. Por ello, el nivel anual queda condicionado por la ausencia de operación sábado-domingo y feriados.
+**Ancla laboral.** Marzo-diciembre se calibra con un promedio laboral referencial cercano a 1.500 pasajeros por día laboral. Esta referencia no fuerza un valor idéntico en todos los meses; permite variaciones por estacionalidad y calendario.
 
-**Criterio metodológico.** Dado el histórico disponible, la proyección combina estacionalidad observada, calendario operacional 2027 y productividad por servicio, sin extrapolar linealmente los meses estivales al resto del año.
+**Efecto novedad.** Enero y febrero incorporan reducción por menor efecto de novedad del servicio y no usan la restricción de 1.500 como regla rígida.
 """)
 
         st.markdown("**Componentes que explican el resultado mensual.**")
@@ -541,116 +541,73 @@ def render_metodologia():
     st.markdown("### Marco metodológico del modelo")
     st.markdown("""
 <div class="method">
-<b>Propósito.</b> El modelo entrega una proyección mensual de afluencia para los servicios de EFE Sur en 2027 y permite analizar escenarios de oferta por servicio, unidad operacional, mes y tipo de día.
+<b>Propósito.</b> El modelo estima la afluencia mensual 2027 por servicio y permite analizar escenarios de oferta por mes y tipo de día.
 <br><br>
-<b>Componentes.</b> La metodología separa tres niveles: (i) modelo temporal de afluencia mensual, (ii) módulo espacial OD de Biotren y (iii) estimación preliminar de ingresos OD. El módulo OD distribuye la demanda temporal ya estimada; no la reemplaza.
+<b>Escenario operacional vigente.</b> Biotren: 12.673.199; Tren Araucanía: 809.484; Llanquihue-Puerto Montt: 412.132; Laja-Talcahuano: 540.842; total sistema: 14.435.657 pasajeros.
 <br><br>
-<b>Principio de agregación.</b> Cada mes se calcula de manera independiente. El total anual corresponde a la suma de los doce meses; no existe redistribución posterior de un total anual fijo.
+<b>Separación metodológica.</b> La proyección base mensual, el backtesting histórico diagnóstico y las bandas de incertidumbre se mantienen como componentes diferenciados.
 </div>
 """, unsafe_allow_html=True)
 
-    with st.expander("1. Propósito y alcance del modelo", expanded=True):
+    with st.expander("1. Secuencia metodológica", expanded=True):
         st.markdown("""
-El modelo estima afluencia mensual 2027 para los servicios de EFE Sur y apoya la evaluación de escenarios por servicio, unidad operacional, mes y tipo de día.
-
-- **Qué calcula:** demanda mensual por servicio y, para Biotren, distribución espacial OD de la demanda ya proyectada.
-- **Qué insumos usa:** afluencia histórica, oferta programada, calendario operacional, feriados e insumos OD procesados.
-- **Qué supuesto aplica:** el módulo OD no reemplaza el modelo temporal; sólo distribuye la demanda mensual estimada.
-- **Qué validación controla:** conservación de totales entre proyección mensual y matrices OD.
-- **Qué limitación mantiene:** no corresponde a un modelo causal completo ni a una liquidación contable.
+1. El modelo construye una proyección mensual por servicio.
+2. La proyección considera calendario operacional, oferta, feriados, productividad, estacionalidad y supuestos específicos.
+3. Cada servicio se trata de forma independiente según sus reglas operacionales.
+4. Sólo Biotren incorpora módulos posteriores de distribución por línea OD, distribución OD por tipo de tarjeta, ingresos tarifarios preliminares y base referencial de subsidio.
+5. El backtesting histórico es retrospectivo diagnóstico no holdout.
+6. Las bandas de incertidumbre derivan del backtesting diagnóstico, no reemplazan el escenario base y se calculan sobre la base 2027 vigente.
 """)
 
-    with st.expander("2. Insumos y fuentes de información", expanded=False):
+    with st.expander("2. Tratamiento por servicio", expanded=False):
         st.markdown("""
-Los insumos principales son la afluencia diaria consolidada, parámetros de oferta, calendario operacional 2027, feriados nacionales, productividad histórica, perfiles estacionales, matrices OD históricas procesadas de Biotren, mapeo estación-línea, participaciones por tipo de tarjeta, tarifas 2026 y distancias entre estaciones.
-
-Los CSV procesados versionados permiten ejecutar la aplicación y las validaciones sin requerir archivos Excel binarios en el repositorio.
+- **Biotren:** proyecta **12.673.199 pasajeros**. La proyección incorpora ajuste base progresivo hacia un nivel intermedio cercano a 12,8 millones, afectación operacional de Línea 2 en fines de semana de enero-febrero y ajuste residual en meses laborales. El resultado queda cercano al objetivo operacional de 12,7 millones.
+- **Tren Araucanía:** proyecta **809.484 pasajeros**. Victoria-Temuco opera con 11 servicios lunes-viernes durante 2027. La metodología separa Temuco-Victoria, Temuco-Pitrufquén y Claret; Claret es un componente escolar específico de marzo-diciembre. El perfil mensual combina patrón histórico, calendario, oferta y control técnico de marzo.
+- **Llanquihue-Puerto Montt:** proyecta **412.132 pasajeros**. Marzo-diciembre se calibra con un promedio laboral referencial cercano a 1.500 pasajeros por día laboral; el promedio del bloque es aproximadamente 1.499,85. Enero y febrero incorporan reducción por menor efecto de novedad.
+- **Laja-Talcahuano:** proyecta **540.842 pasajeros**. No recibe ajuste operacional específico nuevo; mantiene su patrón histórico, oferta operacional, calendario y regla de feriados como operación de fin de semana.
 """)
+        st.info("Tren Araucanía, Llanquihue-Puerto Montt y Laja-Talcahuano no utilizan MOD Biotren, categorías L1/L2/L1-L2, tipo de tarjeta, ingresos ni base referencial de subsidio Biotren.")
 
-    with st.expander("3. Modelo temporal mensual de proyección", expanded=False):
-        st.markdown("""
-Primero se proyecta la demanda mensual total por servicio. El cálculo se realiza por unidad operacional `u`, mes `m` y tipo de día `d` —lunes-viernes, sábado y domingo—. La demanda base combina viajes operados esperados, productividad media, factor de nivel y estacionalidad mensual. La demanda de escenario aplica elasticidad parcial frente a cambios de oferta.
-""")
-        st.latex(r"V_{0,u,m,d}=S_{0,u,m,d}\cdot N^{op}_{u,m,d}\cdot (1-\tau_{u,m,d})")
-        st.latex(r"D_{0,u,m,d}=V_{0,u,m,d}\cdot q_{u,m,d}\cdot F_{nivel,s}\cdot F_{est,s,m}")
-        st.latex(r"V_{1,u,m,d}=S_{1,u,m,d}\cdot N^{op}_{u,m,d}\cdot (1-\tau_{u,m,d}-c_u)")
-        st.latex(r"D_{1,u,m,d}=D_{0,u,m,d}\cdot \left(\frac{V_{1,u,m,d}}{V_{0,u,m,d}}\right)^{\varepsilon_s}")
-        st.markdown("""
-La elasticidad menor que 1 evita respuestas proporcionales automáticas. El control principal es que los totales mensuales por servicio sean consistentes con el detalle de cálculo.
-""")
-
-    with st.expander("4. Calendario operacional, oferta y feriados", expanded=False):
+    with st.expander("3. Calendario operacional, oferta y feriados", expanded=False):
         st.info("Para Biotren, Tren Araucanía y Llanquihue-Puerto Montt, los feriados nacionales tienen oferta efectiva cero. Para Laja-Talcahuano, los feriados operan con oferta de fin de semana; si el feriado cae lunes-viernes se imputa como domingo operacional.")
-        st.markdown("La oferta de escenario se aplica por mes y tipo de día. Una modificación de oferta afecta el mes editado y el total anual sólo por agregación de meses.")
+        st.markdown("La oferta de escenario se aplica por mes y tipo de día. Una modificación de oferta afecta el mes editado y el total anual por agregación de meses.")
         st.dataframe(tabla_feriados_2027(), width="stretch", height=240)
         st.markdown("**Resumen de días operacionales por unidad, mes y tipo de día**")
         st.dataframe(O.calendario_operacional_resumen(2027), width="stretch", height=280)
 
-    with st.expander("5. Tratamiento por servicio", expanded=False):
+    with st.expander("4. Biotren: distribución por línea OD basada en MOD", expanded=False):
         st.markdown("""
-- **Biotren:** se proyecta separando L1 y L2 en el motor temporal. Laja-Talcahuano se mantiene como servicio separado para evitar doble conteo en el corredor.
-- **Laja-Talcahuano:** se calcula como servicio propio, con regla especial de operación en feriados y recuperación operacional parcial.
-- **Tren Araucanía:** se calcula por Temuco-Victoria, Temuco-Pitrufquén y Claret. Cada tramo tiene elasticidad diferenciada; Claret opera sólo en meses lectivos.
-- **Llanquihue-Puerto Montt:** se modela con operación de lunes a viernes, sin fines de semana ni feriados nacionales en el escenario base.
-""")
-        st.markdown("**Parámetros de escenario**")
-        p1, p2 = st.columns(2)
-        with p1:
-            st.dataframe(pd.DataFrame([{"servicio": O.NOMBRE[k], "elasticidad_oferta": v} for k, v in O.ELASTICIDAD_OFERTA_SERVICIO.items()]), width="stretch")
-        with p2:
-            st.dataframe(pd.DataFrame([{"servicio": O.NOMBRE[k], "factor_nivel": v, "fuerza_estacionalidad": O.FUERZA_ESTACIONALIDAD.get(k)} for k, v in O.AJUSTE_NIVEL_SERVICIO.items()]), width="stretch")
+La demanda total mensual de Biotren proviene del modelo temporal. La MOD histórica atribuible no genera ese total; sólo distribuye la demanda ya proyectada.
 
-    with st.expander("6. Biotren: distribución por línea OD basada en MOD", expanded=False):
-        st.markdown("""
-La demanda total mensual de Biotren proviene del modelo temporal. La MOD histórica atribuible no genera ese total; lo distribuye por línea OD.
-
-- **Clasificación:** cada par OD se clasifica según línea de origen y destino.
-- **Categorías estándar:** `L1`, `L2` y `L1-L2`; `L1-L2` representa viajes entre corredores o combinados.
-- **Concepción:** se trata como estación común/intercambio. Concepción + estación L1 se clasifica como `L1`; Concepción + estación L2 se clasifica como `L2`.
-- **Control:** `Concepción → Concepción` queda como `No clasificado` y no recibe proyección estándar.
-- **Criterio vigente:** el supuesto fijo 80/20 fue reemplazado por participaciones mensuales calculadas con MOD histórica atribuible.
+- **Categorías estándar:** `L1`, `L2` y `L1-L2`.
+- **Concepción:** estación común/intercambio; `Concepción → Concepción` queda como control `No clasificado` y no recibe proyección estándar.
+- **Criterio vigente:** el supuesto fijo 80/20 no corresponde a la metodología vigente; fue reemplazado por participaciones mensuales basadas en MOD histórica atribuible.
 - **Validación:** la suma mensual `L1 + L2 + L1-L2` conserva el total mensual de Biotren.
 """)
 
-    with st.expander("7. Biotren: distribución OD por tipo de tarjeta", expanded=False):
+    with st.expander("5. Biotren: tipo de tarjeta, ingresos y subsidio", expanded=False):
         st.markdown("""
-Después de distribuir por línea para análisis agregado, la demanda mensual de Biotren también se asigna por tipo de tarjeta y par OD con participaciones históricas mensuales.
+La distribución OD por tipo de tarjeta se recalcula sobre el total mensual vigente de Biotren.
 
-Tipos considerados: `monedero`, `media_superior`, `adulto_mayor`, `estudiante_basica`, `discapacitado`, `funcionario_normal`, `funcionario_especial` y `convenio_colectivo`.
+**Tipos con ingreso tarifario directo:** `monedero`, `media_superior` y `adulto_mayor`.
 
-La validación principal es que la suma de todos los tipos de tarjeta conserve la demanda mensual total de Biotren. La aplicación muestra sólo el mes y tipo seleccionados para evitar renderizar matrices completas innecesarias.
+**Tipos con tarifa cero:** `estudiante_basica`, `discapacitado`, `funcionario_normal`, `funcionario_especial` y `convenio_colectivo`.
+
+Los ingresos son preliminares y no incorporan subsidios, evasión, ajustes contables ni reglas comerciales adicionales. La base de subsidio es referencial y no calcula montos monetarios.
 """)
 
-    with st.expander("8. Ingresos tarifarios preliminares", expanded=False):
+    with st.expander("6. Backtesting e incertidumbre", expanded=False):
         st.markdown("""
-Los ingresos tarifarios son preliminares y se calculan sólo para tipos con tarifa directa:
+El backtesting histórico compara observado vs estimado en periodos conocidos. Es una validación retrospectiva diagnóstica no holdout y no reemplaza la proyección operacional 2027.
 
-- `monedero`: tarifa normal/adulto.
-- `media_superior`: tarifa estudiante.
-- `adulto_mayor`: tarifa adulto mayor.
-- `estudiante_basica`, `discapacitado`, `funcionario_normal`, `funcionario_especial` y `convenio_colectivo`: tarifa 0.
-
-No incorporan subsidios, evasión, ajustes contables, reglas comerciales adicionales ni variación tarifaria dinámica por periodo.
+Las bandas de incertidumbre derivan de métricas históricas de error, especialmente WMAPE. No son intervalos estadísticos formales ni intervalos de confianza. El ajuste por sesgo es una sensibilidad diagnóstica. Las bandas se calculan sobre la base vigente: Biotren 12.673.199; Tren Araucanía 809.484; Llanquihue-Puerto Montt 412.132; Laja-Talcahuano 540.842.
 """)
 
-    with st.expander("9. Base referencial para subsidio futuro", expanded=False):
+    with st.expander("7. Validaciones y limitaciones", expanded=False):
         st.markdown("""
-El modelo prepara una base referencial para trazabilidad futura, sin calcular montos de subsidio.
+**Validaciones:** conservación de totales mensuales, suma de participaciones MOD por línea, `No clasificado` sin proyección estándar, consistencia por tipo de tarjeta, ingresos sólo en tipos con tarifa aplicable, feriados por servicio, backtesting diagnóstico, bandas de incertidumbre sin valores negativos y ausencia de binarios versionados.
 
-- `subsidio_normal_base`: agrupa todas las MOD excepto `media_superior` y `adulto_mayor`.
-- `subsidio_estudiante_media_superior`: considera sólo `media_superior`.
-- `adulto_mayor`: queda sin subsidio referencial.
-
-Esta base no corresponde a liquidación, compensación ni estimación monetaria implementada.
-""")
-
-    with st.expander("10. Validaciones, limitaciones y próximos pasos", expanded=False):
-        st.markdown("""
-**Validaciones:** conservación de totales mensuales, suma de participaciones MOD por línea, `No clasificado` sin proyección estándar, consistencia por tipo de tarjeta, ingresos sólo en tipos con tarifa aplicable, feriados por servicio, orden de estaciones y ausencia de binarios versionados.
-
-**Limitaciones:** elasticidades agregadas, OD dependiente de datos históricos disponibles, ingresos preliminares y ausencia de cálculo de subsidios, capacidad, ocupación, tiempos de viaje y confiabilidad diaria detallada.
-
-**Próximos pasos:** profundizar subsidios desde la base referencial, integrar variables operacionales adicionales, mejorar reglas tarifarias y contrastar proyecciones con observaciones futuras.
+**Limitaciones:** elasticidades agregadas, OD dependiente de datos históricos disponibles, ingresos preliminares, ausencia de cálculo monetario de subsidios, capacidad, ocupación, tiempos de viaje y confiabilidad diaria detallada.
 """)
 
     st.markdown("#### Bibliografía")
