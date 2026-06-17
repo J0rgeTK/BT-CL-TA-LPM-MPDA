@@ -309,3 +309,55 @@ Si los CSV procesados faltan, `od_biotren_hibrido.py` muestra un error indicando
 5. Wilson, A. G. *Entropy in Urban and Regional Modelling*. Pion, 1970.
 6. Ortúzar, J. de D. & Willumsen, L. G. *Modelling Transport*. 4th edition. Wiley, 2011.
 7. Feriados de Chile. *Feriados de Chile — Año 2027*. Fuente basada en Biblioteca del Congreso Nacional.
+
+## Backtesting histórico y validación de desempeño
+
+El modelo incluye un módulo de backtesting histórico para contrastar periodos observados conocidos contra estimaciones producidas por el mismo motor mensual-elástico utilizado en el escenario vigente. El objetivo es medir desempeño retrospectivo por servicio y a nivel de total sistema, no recalibrar el modelo ni reemplazar la proyección oficial 2027.
+
+### Tipo de validación
+
+El backtesting implementado es una **validación retrospectiva diagnóstica**. No corresponde a un holdout estricto porque el motor se ejecuta con parámetros vigentes y con la base mensual histórica disponible para el modelo; por lo tanto, esos parámetros pueden contener información posterior al periodo evaluado. Esta decisión permite auditar consistencia, escala y perfil mensual del modelo vigente, pero no debe interpretarse como prueba independiente de capacidad predictiva fuera de muestra.
+
+### Datos, periodos y parámetros usados
+
+- **Periodos evaluados:** por defecto se consideran todos los años históricos disponibles antes de 2027. La comparación sólo incluye meses con observación en la base mensual.
+- **Observado:** se usa `pax_norm`, afluencia mensual normalizada por cobertura desde `pipeline_afluencia.mensualizar`. La cobertura se muestra para advertir meses incompletos.
+- **Estimado:** se usa el motor mensual-elástico vigente (`proyectar_mensual_elastico`) y los parámetros vigentes entregados al módulo, incluyendo la oferta actual aplicada por la aplicación o la validación.
+- **Escenario 2027:** el backtesting no cambia feriados, oferta, elasticidades, factores de nivel ni salidas proyectadas del escenario oficial; sólo ejecuta comparaciones en memoria.
+
+### Métricas
+
+El procedimiento calcula, por servicio y mes, la tabla observado vs estimado y los errores mensuales. Sobre esa base se reportan:
+
+- **MAE:** promedio del error absoluto mensual, en viajes.
+- **RMSE:** raíz del promedio del error cuadrático mensual, en viajes, más sensible a errores grandes.
+- **MAPE:** promedio del error porcentual absoluto; excluye meses con observado cero y puede ser inestable cuando el observado es bajo.
+- **WMAPE:** suma de errores absolutos dividida por suma de observados absolutos; es la métrica porcentual agregada principal.
+- **Sesgo:** suma de errores dividida por suma de observados absolutos; valores positivos indican sobreestimación agregada y valores negativos subestimación agregada.
+
+### Advertencias metodológicas
+
+- el backtesting es diagnóstico y no modifica resultados del escenario 2027;
+- la comparación se limita a meses con observación histórica disponible;
+- meses incompletos no se descartan automáticamente: se reporta cobertura para su interpretación;
+- servicios con baja afluencia pueden mostrar MAPE elevado por denominadores pequeños;
+- meses con observado cero no entran al MAPE y se contabilizan explícitamente;
+- WMAPE es la referencia agregada principal para comparar desempeño por servicio y sistema;
+- la contribución al error total permite identificar qué servicios, años o meses concentran el error absoluto del sistema;
+- los componentes internos, como tramos de Tren Araucanía o líneas de Biotren, se reportan como descomposición del estimado cuando la observación histórica comparable está agregada por servicio;
+- las estimaciones usan la lógica vigente del motor mensual-elástico y pueden incorporar parámetros calibrados con información posterior al periodo evaluado;
+- los feriados parametrizados explícitamente corresponden al horizonte operacional 2027, por lo que la lectura histórica debe interpretarse como prueba de consistencia mensual y no como reconstrucción operacional diaria completa;
+- el proceso se ejecuta en memoria, sin generar archivos binarios, sin modificar outputs masivos y sin tocar `data/od_biotren/processed/`.
+
+## Bandas de incertidumbre derivadas del backtesting
+
+A partir del backtesting retrospectivo diagnóstico se calculan bandas de incertidumbre por servicio para la proyección 2027. Estas bandas son herramientas de lectura de riesgo y sensibilidad; no son intervalos de confianza, no provienen de un modelo probabilístico formal y no modifican el escenario base.
+
+Para cada servicio `s` y mes `m`:
+
+- Base vigente: `B_{s,m}`.
+- Banda baja WMAPE: `max(0, B_{s,m} × (1 - WMAPE_s))`.
+- Banda alta WMAPE: `max(0, B_{s,m} × (1 + WMAPE_s))`.
+- Ajuste por sesgo: `max(0, B_{s,m} × (1 - sesgo_s))`.
+
+El WMAPE se interpreta como error porcentual histórico ponderado por volumen y define una banda simétrica diagnóstica alrededor del escenario base. El ajuste por sesgo no recalibra el modelo: sólo ilustra cómo cambiaría la escala si se descontara la sobreestimación o subestimación histórica observada. La lectura debe priorizar el escenario base y usar las bandas para reportar incertidumbre, especialmente en servicios con WMAPE superior a 25%, Tren Araucanía por alto sesgo positivo y Biotren por contribución relevante al error absoluto total del sistema.

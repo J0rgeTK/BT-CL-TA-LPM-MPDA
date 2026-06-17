@@ -16,6 +16,8 @@ from streamlit.testing.v1 import AppTest
 import pipeline_afluencia as P
 import oferta as O
 import od_biotren_hibrido as ODH
+import backtesting as BT
+import incertidumbre as INC
 
 BASE = Path(__file__).resolve().parent
 DATA = BASE / "data"
@@ -280,12 +282,46 @@ def ejecutar_validacion() -> pd.DataFrame:
         ),
     ))
 
-    # 14. Carga real de Streamlit mediante AppTest.
+    # 14. Backtesting histórico: métricas por servicio y total sistema en memoria.
+    bt = BT.ejecutar_backtesting(params, mdf)
+    metricas_ok = bool(
+        not bt.metricas_servicio.empty
+        and not bt.observado_estimado.empty
+        and set(BT.METRIC_COLUMNS).issubset(bt.metricas_servicio.columns)
+        and set(BT.METRIC_COLUMNS).issubset(bt.resumen_total_sistema.columns)
+        and {"n_meses_mape", "n_meses_observado_cero"}.issubset(bt.metricas_servicio.columns)
+        and BT.BACKTESTING_TIPO == "retrospectivo_diagnostico_no_holdout"
+        and {"contribucion_servicio", "resumen_servicio_anio", "componentes_estimados"}.issubset(bt.diagnosticos)
+    )
+    rows.append(_ok(
+        "Backtesting histórico por servicio",
+        metricas_ok,
+        f"Servicios: {len(bt.metricas_servicio)}; meses comparados: {len(bt.observado_estimado)}; advertencias: {len(bt.advertencias)}",
+    ))
+
+    # 14B. Bandas de incertidumbre diagnósticas: no alteran escenario base.
+    inc = INC.calcular_bandas_incertidumbre(serv.astype(float), bt.metricas_servicio, bt.diagnosticos["contribucion_servicio"])
+    base_inc = inc.mensual.pivot(index="periodo", columns="servicio", values="escenario_base").reindex(index=serv.index, columns=serv.columns)
+    dif_base_inc = float((base_inc.astype(float) - serv.astype(float)).abs().max().max())
+    bandas_ok = bool(
+        dif_base_inc <= 1e-9
+        and (inc.mensual["banda_baja_wmape"] <= inc.mensual["escenario_base"] + 1e-9).all()
+        and (inc.mensual["escenario_base"] <= inc.mensual["banda_alta_wmape"] + 1e-9).all()
+        and (inc.mensual[["escenario_base", "banda_baja_wmape", "banda_alta_wmape", "escenario_ajustado_sesgo"]] >= -1e-9).all().all()
+        and set(serv.columns).issubset(set(bt.metricas_servicio["servicio"]))
+    )
+    rows.append(_ok(
+        "Bandas de incertidumbre diagnósticas",
+        bandas_ok,
+        f"Diferencia base máxima: {dif_base_inc:.8f}; servicios: {len(inc.anual)}",
+    ))
+
+    # 15. Carga real de Streamlit mediante AppTest.
     app = AppTest.from_file(str(BASE / "streamlit_app.py"), default_timeout=30)
     app.run()
     rows.append(_ok("Carga de Streamlit", len(app.exception) == 0, f"Excepciones detectadas: {len(app.exception)}"))
 
-    # 15. Cobertura de archivos exportados.
+    # 16. Cobertura de archivos exportados.
     expected = [
         OUT / "proyeccion_2027_resumen_mensual_elastico.csv",
         OUT / "proyeccion_2027_unidades_mensual_elastico.csv",
