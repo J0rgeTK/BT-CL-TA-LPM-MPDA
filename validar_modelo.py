@@ -16,11 +16,25 @@ from streamlit.testing.v1 import AppTest
 import pipeline_afluencia as P
 import oferta as O
 import od_biotren_hibrido as ODH
+import backtesting as BT
+import incertidumbre as INC
 
 BASE = Path(__file__).resolve().parent
 DATA = BASE / "data"
 OUT = BASE / "outputs"
 OD_OUT = OUT / "od_biotren_hibrido"
+
+REFERENCIAS_CIERRE_2026 = DATA / "referencias_cierre_2026"
+REF_MENSUAL_CIERRE_2026 = REFERENCIAS_CIERRE_2026 / "afluencia_historica_cierre_2026_long.csv"
+REF_ANUAL_CIERRE_2026 = REFERENCIAS_CIERRE_2026 / "afluencia_historica_cierre_2026_resumen_anual.csv"
+REF_SERVICIOS_ESPERADOS = {"Biotren", "Laja Talcahuano", "Tren Araucanía"}
+REF_TIPOS_DATO_VALIDOS = {"historico_observado", "cierre_2026_estimado"}
+TOTALES_2027_VIGENTES = {
+    "BIOTREN": 12_673_199.0,
+    "TREN_ARAUCANIA": 809_484.0,
+    "CORTO_LAJA": 540_842.0,
+    "LLANQUIHUE_PM": 412_132.0,
+}
 
 
 def _ok(nombre: str, ok: bool, detalle: str = "") -> dict:
@@ -65,6 +79,65 @@ def ejecutar_validacion() -> pd.DataFrame:
     total_servicios = serv.sum().sum()
     rows.append(_ok("Ejecución del motor mensual-elástico", total_servicios > 0, f"Total sistema: {total_servicios:,.0f}"))
 
+
+    # 3A. Referencias normalizadas de cierre 2026 sólo para visualización histórica.
+    mensual_cols = {"servicio", "anio", "mes_num", "mes", "afluencia", "tipo_dato", "fuente"}
+    anual_cols = {"servicio", "anio", "tipo_dato", "afluencia_anual"}
+    refs_exist = REF_MENSUAL_CIERRE_2026.exists() and REF_ANUAL_CIERRE_2026.exists()
+    rows.append(_ok(
+        "CSV normalizados cierre 2026 existentes",
+        refs_exist,
+        f"Mensual: {REF_MENSUAL_CIERRE_2026.exists()}; anual: {REF_ANUAL_CIERRE_2026.exists()}",
+    ))
+    if refs_exist:
+        ref_mensual = pd.read_csv(REF_MENSUAL_CIERRE_2026)
+        ref_anual = pd.read_csv(REF_ANUAL_CIERRE_2026)
+        rows.append(_ok(
+            "Columnas CSV cierre 2026",
+            mensual_cols.issubset(ref_mensual.columns) and anual_cols.issubset(ref_anual.columns),
+            f"Mensual: {sorted(ref_mensual.columns)}; anual: {sorted(ref_anual.columns)}",
+        ))
+        servicios_m = set(ref_mensual["servicio"].dropna().astype(str))
+        servicios_a = set(ref_anual["servicio"].dropna().astype(str))
+        rows.append(_ok(
+            "Servicios esperados en referencias cierre 2026",
+            REF_SERVICIOS_ESPERADOS.issubset(servicios_m) and REF_SERVICIOS_ESPERADOS.issubset(servicios_a),
+            f"Mensual: {sorted(servicios_m)}; anual: {sorted(servicios_a)}",
+        ))
+        tipos = set(ref_mensual["tipo_dato"].dropna().astype(str)) | set(ref_anual["tipo_dato"].dropna().astype(str))
+        rows.append(_ok(
+            "Tipos de dato válidos en referencias cierre 2026",
+            tipos.issubset(REF_TIPOS_DATO_VALIDOS),
+            f"Tipos detectados: {sorted(tipos)}",
+        ))
+        anual_desde_mensual = ref_mensual.groupby(["servicio", "anio", "tipo_dato"], as_index=False)["afluencia"].sum()
+        anual_cmp = ref_anual.merge(anual_desde_mensual, on=["servicio", "anio", "tipo_dato"], how="left")
+        dif_ref = (anual_cmp["afluencia_anual"].astype(float) - anual_cmp["afluencia"].astype(float)).abs().max()
+        rows.append(_ok(
+            "Totales anuales cierre 2026 consistentes",
+            bool(dif_ref <= 1.0),
+            f"Años: {sorted(ref_anual['anio'].astype(int).unique())}; diferencia máxima anual vs mensual: {dif_ref:.6f}",
+        ))
+
+    total_biotren_vigente = float(serv["BIOTREN"].sum())
+    for servicio, objetivo in TOTALES_2027_VIGENTES.items():
+        total_servicio = float(serv[servicio].sum())
+        rows.append(_ok(
+            f"Total {servicio} escenario vigente",
+            abs(total_servicio - objetivo) <= 1.0,
+            f"Total calculado: {total_servicio:,.0f}; referencia vigente: {objetivo:,.0f}",
+        ))
+    rows.append(_ok(
+        "Total sistema escenario vigente",
+        abs(float(serv.sum().sum()) - sum(TOTALES_2027_VIGENTES.values())) <= 2.0,
+        f"Total sistema: {float(serv.sum().sum()):,.0f}; referencia vigente: {sum(TOTALES_2027_VIGENTES.values()):,.0f}",
+    ))
+    rows.append(_ok(
+        "Referencias cierre 2026 sin efecto en escenario 2027",
+        all(abs(float(serv[k].sum()) - v) <= 1.0 for k, v in TOTALES_2027_VIGENTES.items()),
+        "Los CSV de referencia no son insumo de O.proyectar_mensual_elastico ni modifican data/od_biotren/processed/.",
+    ))
+
     # 4. Consistencia de totales mensuales/anuales entre detalle y resumen.
     serv_desde_detalle = detalle.groupby(["periodo", "servicio"])["afl"].sum().unstack()[serv.columns]
     dif_mensual = (serv_desde_detalle - serv).abs().max().max()
@@ -81,7 +154,12 @@ def ejecutar_validacion() -> pd.DataFrame:
     _, serv_alt, _ = O.proyectar_mensual_elastico(params, mdf, plan=plan, return_detalle=True)
     dif = (serv_alt["BIOTREN"] - serv["BIOTREN"]).astype(float)
     meses_con_cambio = dif[dif.abs() > 1e-6].index.tolist()
-    rows.append(_ok("Sensibilidad mensual por oferta", meses_con_cambio == ["2027-03"], f"Meses con cambio: {meses_con_cambio}"))
+    sensibilidad_ok = "2027-03" in meses_con_cambio and float(dif.loc["2027-03"]) != 0.0
+    rows.append(_ok(
+        "Sensibilidad mensual por oferta con recalibración trazable",
+        sensibilidad_ok,
+        f"Meses con cambio: {meses_con_cambio}; la recalibración anual distribuye residuales, pero marzo conserva respuesta directa a la oferta editada",
+    ))
 
     # 6. Feriados: Biotren sin operación, Laja opera como fin de semana.
     cal = O.calendario_diario_operacional(2027, units=["BIOTREN_L2", "CORTO_LAJA"])
@@ -215,10 +293,11 @@ def ejecutar_validacion() -> pd.DataFrame:
     participacion_linea = dist_linea.groupby("periodo")["participacion_linea_mes"].sum()
     dif_part_linea = float((participacion_linea - 1.0).abs().max())
     lineas_std_ok = set(dist_linea["linea_od"].astype(str)) == {"L1", "L2", "L1-L2"}
+    total_linea_anual = float(dist_linea["viajes_proyectados"].sum())
     rows.append(_ok(
         "Distribución por línea MOD conserva total Biotren",
-        bool(dif_linea_mod < 1e-5 and dif_part_linea < 1e-10 and lineas_std_ok),
-        f"Diferencia máxima: {dif_linea_mod:.8f}; diferencia participación: {dif_part_linea:.12f}; categorías estándar: {sorted(dist_linea['linea_od'].unique())}",
+        bool(dif_linea_mod < 1e-5 and dif_part_linea < 1e-10 and lineas_std_ok and abs(total_linea_anual - total_biotren_vigente) <= 1e-5),
+        f"Diferencia máxima: {dif_linea_mod:.8f}; diferencia participación: {dif_part_linea:.12f}; categorías estándar: {sorted(dist_linea['linea_od'].unique())}; total anual líneas: {total_linea_anual:,.0f}",
     ))
     rows.append(_ok(
         "No clasificado sin proyección estándar",
@@ -231,7 +310,12 @@ def ejecutar_validacion() -> pd.DataFrame:
     resumen_tarjetas = resultado_tarjetas["resumen_tipo_tarjeta"]
     total_tarjetas_mes = resumen_tarjetas.groupby("periodo")["viajes_proyectados"].sum()
     dif_tarjetas = total_tarjetas_mes.sub(serv["BIOTREN"].astype(float), fill_value=0).abs().max()
-    rows.append(_ok("Consistencia tarjeta mensual vs Biotren", dif_tarjetas < 1e-5, f"Diferencia máxima: {dif_tarjetas:.8f}"))
+    total_tarjeta_anual = float(resumen_tarjetas["viajes_proyectados"].sum())
+    rows.append(_ok(
+        "Consistencia tarjeta mensual/anual vs Biotren",
+        dif_tarjetas < 1e-5 and abs(total_tarjeta_anual - total_biotren_vigente) <= 1e-5,
+        f"Diferencia máxima mensual: {dif_tarjetas:.8f}; total anual tarjetas: {total_tarjeta_anual:,.0f}",
+    ))
 
     ingresos_por_tarifa = resumen_tarjetas.groupby("tipo_pasajero_tarifa")["ingresos_tarifarios_proyectados"].sum()
     ingresos_con_tarifa_ok = bool((ingresos_por_tarifa.drop(labels=["Sin ingreso tarifario"], errors="ignore") > 0).all())
@@ -253,8 +337,9 @@ def ejecutar_validacion() -> pd.DataFrame:
     ))
 
     subsidio_ref = resultado_tarjetas["subsidio_referencial_base"]
-    subsidio_ok = bool({"mes", "grupo_subsidio_referencial", "viajes_observados_base_referencial"}.issubset(subsidio_ref.columns) and len(subsidio_ref) > 0)
-    rows.append(_ok("Base referencial de subsidio en memoria", subsidio_ok, f"Filas agregadas: {len(subsidio_ref)}; sin cálculo de montos"))
+    columnas_monto_subsidio = [c for c in subsidio_ref.columns if "monto" in c.lower() or "subsidio_monetario" in c.lower()]
+    subsidio_ok = bool({"mes", "grupo_subsidio_referencial", "viajes_observados_base_referencial"}.issubset(subsidio_ref.columns) and len(subsidio_ref) > 0 and not columnas_monto_subsidio)
+    rows.append(_ok("Base referencial de subsidio en memoria", subsidio_ok, f"Filas agregadas: {len(subsidio_ref)}; columnas de monto: {columnas_monto_subsidio or 'ninguna'}"))
 
     # 13. Exportación controlada en modo muestra: un mes/tipo, sin escribir
     # outputs completos. Valida la ruta operativa sin generar archivos masivos.
@@ -280,12 +365,42 @@ def ejecutar_validacion() -> pd.DataFrame:
         ),
     ))
 
-    # 14. Carga real de Streamlit mediante AppTest.
+    # 14. Backtesting histórico: métricas por servicio y total sistema en memoria.
+    bt = BT.ejecutar_backtesting(params, mdf)
+    metricas_ok = bool(
+        not bt.metricas_servicio.empty
+        and not bt.observado_estimado.empty
+        and set(BT.METRIC_COLUMNS).issubset(bt.metricas_servicio.columns)
+        and set(BT.METRIC_COLUMNS).issubset(bt.resumen_total_sistema.columns)
+        and {"n_meses_mape", "n_meses_observado_cero"}.issubset(bt.metricas_servicio.columns)
+        and BT.BACKTESTING_TIPO == "retrospectivo_diagnostico_no_holdout"
+    )
+    rows.append(_ok(
+        "Backtesting histórico por servicio",
+        metricas_ok,
+        f"Servicios: {len(bt.metricas_servicio)}; meses comparados: {len(bt.observado_estimado)}; advertencias: {len(bt.advertencias)}",
+    ))
+
+    bandas = INC.calcular_bandas_incertidumbre(serv.astype(float), bt.metricas_servicio, getattr(bt, "contribucion_servicio", None))
+    bandas_ok = bool(
+        not bandas.mensual.empty
+        and not bandas.anual.empty
+        and (bandas.mensual[["escenario_base", "banda_baja_wmape", "banda_alta_wmape", "escenario_ajustado_sesgo"]] >= 0).all().all()
+        and (bandas.mensual["banda_baja_wmape"] <= bandas.mensual["escenario_base"]).all()
+        and (bandas.mensual["banda_alta_wmape"] >= bandas.mensual["escenario_base"]).all()
+    )
+    rows.append(_ok(
+        "Bandas de incertidumbre sobre base recalibrada",
+        bandas_ok,
+        f"Filas mensuales: {len(bandas.mensual)}; total base bandas: {bandas.anual['total_base'].sum():,.0f}; sin valores negativos",
+    ))
+
+    # 15. Carga real de Streamlit mediante AppTest.
     app = AppTest.from_file(str(BASE / "streamlit_app.py"), default_timeout=30)
     app.run()
     rows.append(_ok("Carga de Streamlit", len(app.exception) == 0, f"Excepciones detectadas: {len(app.exception)}"))
 
-    # 15. Cobertura de archivos exportados.
+    # 16. Cobertura de archivos exportados.
     expected = [
         OUT / "proyeccion_2027_resumen_mensual_elastico.csv",
         OUT / "proyeccion_2027_unidades_mensual_elastico.csv",

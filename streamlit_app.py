@@ -16,6 +16,8 @@ import plotly.graph_objects as go
 import pipeline_afluencia as P
 import oferta as O
 import od_biotren_hibrido as OD
+import backtesting as BT
+import incertidumbre as INC
 
 st.set_page_config(page_title="Afluencia EFE/Fesur 2027", layout="wide", page_icon="🚆")
 
@@ -23,6 +25,23 @@ PAL = {"BIOTREN": "#1f6feb", "CORTO_LAJA": "#0e9f6e", "TREN_ARAUCANIA": "#d97706
 CONF = {"BIOTREN": "ALTA", "CORTO_LAJA": "ALTA", "TREN_ARAUCANIA": "MEDIA", "LLANQUIHUE_PM": "BAJA"}
 CONF_C = {"ALTA": "#0e9f6e", "MEDIA": "#d97706", "BAJA": "#dc2626"}
 DATA = os.path.join(os.path.dirname(__file__), "data")
+
+REFERENCIAS_CIERRE_2026 = os.path.join(DATA, "referencias_cierre_2026")
+REF_SERVICIO_TO_MODELO = {
+    "Biotren": "BIOTREN",
+    "Laja Talcahuano": "CORTO_LAJA",
+    "Tren Araucanía": "TREN_ARAUCANIA",
+}
+REF_TIPO_LABEL = {
+    "historico_observado": "Histórico observado",
+    "cierre_2026_estimado": "Cierre 2026 estimado",
+    "proyeccion_2027_modelo": "Proyección 2027 modelo",
+}
+REF_TIPO_COLOR = {
+    "Histórico observado": "#1f6feb",
+    "Cierre 2026 estimado": "#d97706",
+    "Proyección 2027 modelo": "#dc2626",
+}
 
 st.markdown("""
 <style>
@@ -61,8 +80,63 @@ except Exception as e:
     st.stop()
 
 st.markdown('<div class="hero"><h1>🚆 Modelo de afluencia 2027 — EFE/Fesur</h1>'
-            '<p>Motor mensual-elástico · feriados 2027 · escenario 2027 actualizado · oferta editable por mes y tipo de día</p></div>', unsafe_allow_html=True)
+            '<p>Motor mensual-elástico · feriados 2027 · escenario 2027 recalibrado · oferta editable por mes y tipo de día</p></div>', unsafe_allow_html=True)
 
+
+
+
+@st.cache_data
+def cargar_referencias_cierre_2026():
+    mensual_path = os.path.join(REFERENCIAS_CIERRE_2026, "afluencia_historica_cierre_2026_long.csv")
+    anual_path = os.path.join(REFERENCIAS_CIERRE_2026, "afluencia_historica_cierre_2026_resumen_anual.csv")
+    mensual = pd.read_csv(mensual_path)
+    anual = pd.read_csv(anual_path)
+    mensual["servicio_modelo"] = mensual["servicio"].map(REF_SERVICIO_TO_MODELO)
+    anual["servicio_modelo"] = anual["servicio"].map(REF_SERVICIO_TO_MODELO)
+    mensual["tipo_dato_label"] = mensual["tipo_dato"].map(REF_TIPO_LABEL)
+    anual["tipo_dato_label"] = anual["tipo_dato"].map(REF_TIPO_LABEL)
+    mensual["periodo"] = mensual["anio"].astype(int).astype(str) + "-" + mensual["mes_num"].astype(int).astype(str).str.zfill(2)
+    return mensual, anual
+
+
+def construir_referencia_anual_visual(serv):
+    _, anual = cargar_referencias_cierre_2026()
+    proy = pd.DataFrame([
+        {
+            "servicio": next(k for k, v in REF_SERVICIO_TO_MODELO.items() if v == servicio),
+            "servicio_modelo": servicio,
+            "anio": 2027,
+            "tipo_dato": "proyeccion_2027_modelo",
+            "tipo_dato_label": REF_TIPO_LABEL["proyeccion_2027_modelo"],
+            "afluencia_anual": float(serv[servicio].sum()),
+        }
+        for servicio in REF_SERVICIO_TO_MODELO.values()
+    ])
+    base = anual.copy()
+    base = base[base["servicio_modelo"].isin(REF_SERVICIO_TO_MODELO.values())]
+    return pd.concat([base, proy], ignore_index=True, sort=False)
+
+
+def construir_referencia_mensual_visual(serv):
+    mensual, _ = cargar_referencias_cierre_2026()
+    proy_rows = []
+    for servicio in REF_SERVICIO_TO_MODELO.values():
+        nombre_ref = next(k for k, v in REF_SERVICIO_TO_MODELO.items() if v == servicio)
+        for periodo, valor in serv[servicio].astype(float).items():
+            proy_rows.append({
+                "servicio": nombre_ref,
+                "servicio_modelo": servicio,
+                "anio": 2027,
+                "mes_num": int(str(periodo)[5:7]),
+                "mes": str(periodo)[5:7],
+                "periodo": periodo,
+                "afluencia": float(valor),
+                "tipo_dato": "proyeccion_2027_modelo",
+                "tipo_dato_label": REF_TIPO_LABEL["proyeccion_2027_modelo"],
+                "fuente": "Modelo operacional 2027 vigente",
+            })
+    base = mensual[mensual["servicio_modelo"].isin(REF_SERVICIO_TO_MODELO.values())].copy()
+    return pd.concat([base, pd.DataFrame(proy_rows)], ignore_index=True, sort=False)
 
 def fmt(n):
     return f"{int(round(float(n))):,}".replace(",", ".")
@@ -98,6 +172,44 @@ def _matriz_tarjeta(df, tipo_tarjeta, valor):
     M = tmp.pivot_table(index="origen", columns="destino", values=valor, aggfunc="sum", fill_value=0.0)
     return M.reindex(index=estaciones, columns=estaciones, fill_value=0.0)
 
+
+
+def render_incertidumbre_biotren(serv):
+    st.markdown("#### Incertidumbre diagnóstica Biotren")
+    try:
+        bt = BT.ejecutar_backtesting(params, mdf)
+        bandas = INC.calcular_bandas_incertidumbre(serv.astype(float), bt.metricas_servicio)
+    except Exception as e:
+        st.warning(f"No fue posible calcular las bandas diagnósticas de Biotren: {e}")
+        return
+
+    fila = bandas.anual[bandas.anual["servicio"].eq("BIOTREN")].copy()
+    if fila.empty:
+        st.warning("No hay métricas de incertidumbre disponibles para Biotren.")
+        return
+
+    cols = {
+        "total_banda_baja": "Banda baja",
+        "total_base": "Base vigente",
+        "total_banda_alta": "Banda alta",
+        "total_ajustado_sesgo": "Ajuste por sesgo",
+        "WMAPE_usado": "WMAPE usado (%)",
+        "sesgo_usado": "Sesgo usado (%)",
+        "advertencia_metodologica": "Advertencia metodológica",
+    }
+    st.dataframe(
+        fila[list(cols)].rename(columns=cols).style.format({
+            "Banda baja": "{:,.0f}",
+            "Base vigente": "{:,.0f}",
+            "Banda alta": "{:,.0f}",
+            "Ajuste por sesgo": "{:,.0f}",
+            "WMAPE usado (%)": "{:.2f}",
+            "Sesgo usado (%)": "{:+.2f}",
+        }),
+        width="stretch",
+        hide_index=True,
+    )
+    st.caption("Las bandas derivan del backtesting retrospectivo diagnóstico. No son intervalos estadísticos formales y no reemplazan la base operacional vigente de Biotren.")
 
 def render_distribucion_biotren_linea_mod(serv):
     st.markdown("#### Distribución Biotren por línea OD basada en MOD")
@@ -331,9 +443,9 @@ Esta sección explica por qué el resultado proyectado es coherente con los ante
             st.markdown(f"""
 **Resultado proyectado.** La proyección anual de Biotren alcanza **{fmt(total)} pasajeros**, compuesta por **{fmt(l1)}** en L1 y **{fmt(l2)}** en L2. La demanda responde parcialmente a la oferta: L1 considera 48 servicios de lunes a viernes durante 2027 y L2 considera 106 servicios de lunes a viernes entre enero y abril, con 109 desde mayo. Los feriados nacionales se tratan como días sin operación.
 
-**Consistencia histórica.** El resultado queda {fmt_pct(var_pct(total, h2024)) if h2024 else 's/i'} respecto de 2024 y {fmt_pct(var_pct(total, h2025)) if h2025 else 's/i'} respecto de 2025. Para el bloque de meses con observación reciente, la proyección 2027 suma **{fmt(janmay_2027)} pasajeros**, frente a **{fmt(h2026) if h2026 else 's/i'}** del bloque comparable. La magnitud es consistente con un escenario de crecimiento moderado y con la oferta operacional considerada.
+**Recalibración operacional.** El escenario incorpora ajuste base progresivo, afectación operacional de Línea 2 en fines de semana de enero-febrero y ajuste residual en meses laborales. El total queda cercano al objetivo operacional de 12,7 millones.
 
-**Perfil mensual.** El tratamiento del bloque marzo-abril evita concentraciones mensuales poco consistentes con la evidencia disponible, manteniendo la suma conjunta y una distribución mensual estable.
+**Distribuciones posteriores.** La distribución por línea OD basada en MOD, la distribución OD por tipo de tarjeta y los ingresos preliminares se aplican después de estimar el total mensual vigente; no generan el total mensual de Biotren.
 """)
         elif s == "CORTO_LAJA":
             st.markdown(f"""
@@ -346,20 +458,20 @@ Esta sección explica por qué el resultado proyectado es coherente con los ante
         elif s == "TREN_ARAUCANIA":
             tramos = {col: float(uni[col].sum()) for col in ["TA_TEMUCO_VICTORIA", "TA_TEMUCO_PITRUFQUEN", "TA_CLARET"] if col in uni.columns}
             st.markdown(f"""
-**Resultado proyectado.** La proyección anual de Tren Araucanía alcanza **{fmt(total)} pasajeros**. La demanda se calcula por tipo de servicio, no mediante una proporción fija agregada. Temuco-Victoria tiene mayor respuesta marginal que Pitrufquén-Temuco y Claret, y todos los tramos mantienen elasticidades menores que 1.
+**Resultado proyectado.** La proyección anual de Tren Araucanía alcanza **{fmt(total)} pasajeros**. La oferta Victoria-Temuco considera 11 servicios lunes-viernes durante 2027. La demanda se calcula por tipo de servicio, no mediante una proporción fija agregada.
 
 **Descomposición anual.** Temuco-Victoria proyecta **{fmt(tramos.get('TA_TEMUCO_VICTORIA', 0))}**, Temuco-Pitrufquén **{fmt(tramos.get('TA_TEMUCO_PITRUFQUEN', 0))}** y Claret **{fmt(tramos.get('TA_CLARET', 0))}** pasajeros. Claret se restringe a marzo-diciembre por su carácter escolar, por lo que enero y febrero no generan demanda en ese componente.
 
-**Consistencia histórica.** El resultado supera el histórico anual 2025 y se modera respecto de una extrapolación directa de la oferta, reconociendo que Pitrufquén y Claret no presentan la misma productividad marginal que Temuco-Victoria.
+**Perfil mensual.** La distribución combina patrón histórico, calendario, oferta y tratamiento escolar. El control técnico de marzo evita concentración artificial respecto del promedio abril-diciembre.
 """)
         elif s == "LLANQUIHUE_PM":
             ene_feb = float(serv.loc[["2027-01", "2027-02"], s].sum())
             st.markdown(f"""
-**Resultado proyectado.** La proyección anual de Llanquihue-Puerto Montt alcanza **{fmt(total)} pasajeros**, con **{fmt(ene_feb)}** pasajeros en enero-febrero. El perfil conserva una señal estival y mantiene operación planificada de lunes a viernes.
+**Resultado proyectado.** La proyección anual de Llanquihue-Puerto Montt alcanza **{fmt(total)} pasajeros**, con **{fmt(ene_feb)}** pasajeros en enero-febrero. La operación planificada es de lunes a viernes, sin feriados nacionales.
 
-**Consistencia operacional.** La proyección descuenta feriados nacionales como días sin operación y no incorpora servicios planificados de fin de semana. Por ello, el nivel anual queda condicionado por la ausencia de operación sábado-domingo y feriados.
+**Ancla laboral.** Marzo-diciembre se calibra con un promedio laboral referencial cercano a 1.500 pasajeros por día laboral. Esta referencia no fuerza un valor idéntico en todos los meses; permite variaciones por estacionalidad y calendario.
 
-**Criterio metodológico.** Dado el histórico disponible, la proyección combina estacionalidad observada, calendario operacional 2027 y productividad por servicio, sin extrapolar linealmente los meses estivales al resto del año.
+**Efecto novedad.** Enero y febrero incorporan reducción por menor efecto de novedad del servicio y no usan la restricción de 1.500 como regla rígida.
 """)
 
         st.markdown("**Componentes que explican el resultado mensual.**")
@@ -540,116 +652,73 @@ def render_metodologia():
     st.markdown("### Marco metodológico del modelo")
     st.markdown("""
 <div class="method">
-<b>Propósito.</b> El modelo entrega una proyección mensual de afluencia para los servicios de EFE Sur en 2027 y permite analizar escenarios de oferta por servicio, unidad operacional, mes y tipo de día.
+<b>Propósito.</b> El modelo estima la afluencia mensual 2027 por servicio y permite analizar escenarios de oferta por mes y tipo de día.
 <br><br>
-<b>Componentes.</b> La metodología separa tres niveles: (i) modelo temporal de afluencia mensual, (ii) módulo espacial OD de Biotren y (iii) estimación preliminar de ingresos OD. El módulo OD distribuye la demanda temporal ya estimada; no la reemplaza.
+<b>Escenario operacional vigente.</b> Biotren: 12.673.199; Tren Araucanía: 809.484; Llanquihue-Puerto Montt: 412.132; Laja-Talcahuano: 540.842; total sistema: 14.435.657 pasajeros.
 <br><br>
-<b>Principio de agregación.</b> Cada mes se calcula de manera independiente. El total anual corresponde a la suma de los doce meses; no existe redistribución posterior de un total anual fijo.
+<b>Separación metodológica.</b> La proyección base mensual, el backtesting histórico diagnóstico y las bandas de incertidumbre se mantienen como componentes diferenciados.
 </div>
 """, unsafe_allow_html=True)
 
-    with st.expander("1. Propósito y alcance del modelo", expanded=True):
+    with st.expander("1. Secuencia metodológica", expanded=True):
         st.markdown("""
-El modelo estima afluencia mensual 2027 para los servicios de EFE Sur y apoya la evaluación de escenarios por servicio, unidad operacional, mes y tipo de día.
-
-- **Qué calcula:** demanda mensual por servicio y, para Biotren, distribución espacial OD de la demanda ya proyectada.
-- **Qué insumos usa:** afluencia histórica, oferta programada, calendario operacional, feriados e insumos OD procesados.
-- **Qué supuesto aplica:** el módulo OD no reemplaza el modelo temporal; sólo distribuye la demanda mensual estimada.
-- **Qué validación controla:** conservación de totales entre proyección mensual y matrices OD.
-- **Qué limitación mantiene:** no corresponde a un modelo causal completo ni a una liquidación contable.
+1. El modelo construye una proyección mensual por servicio.
+2. La proyección considera calendario operacional, oferta, feriados, productividad, estacionalidad y supuestos específicos.
+3. Cada servicio se trata de forma independiente según sus reglas operacionales.
+4. Sólo Biotren incorpora módulos posteriores de distribución por línea OD, distribución OD por tipo de tarjeta, ingresos tarifarios preliminares y base referencial de subsidio.
+5. El backtesting histórico es retrospectivo diagnóstico no holdout.
+6. Las bandas de incertidumbre derivan del backtesting diagnóstico, no reemplazan el escenario base y se calculan sobre la base 2027 vigente.
 """)
 
-    with st.expander("2. Insumos y fuentes de información", expanded=False):
+    with st.expander("2. Tratamiento por servicio", expanded=False):
         st.markdown("""
-Los insumos principales son la afluencia diaria consolidada, parámetros de oferta, calendario operacional 2027, feriados nacionales, productividad histórica, perfiles estacionales, matrices OD históricas procesadas de Biotren, mapeo estación-línea, participaciones por tipo de tarjeta, tarifas 2026 y distancias entre estaciones.
-
-Los CSV procesados versionados permiten ejecutar la aplicación y las validaciones sin requerir archivos Excel binarios en el repositorio.
+- **Biotren:** proyecta **12.673.199 pasajeros**. La proyección incorpora ajuste base progresivo hacia un nivel intermedio cercano a 12,8 millones, afectación operacional de Línea 2 en fines de semana de enero-febrero y ajuste residual en meses laborales. El resultado queda cercano al objetivo operacional de 12,7 millones.
+- **Tren Araucanía:** proyecta **809.484 pasajeros**. Victoria-Temuco opera con 11 servicios lunes-viernes durante 2027. La metodología separa Temuco-Victoria, Temuco-Pitrufquén y Claret; Claret es un componente escolar específico de marzo-diciembre. El perfil mensual combina patrón histórico, calendario, oferta y control técnico de marzo.
+- **Llanquihue-Puerto Montt:** proyecta **412.132 pasajeros**. Marzo-diciembre se calibra con un promedio laboral referencial cercano a 1.500 pasajeros por día laboral; el promedio del bloque es aproximadamente 1.499,85. Enero y febrero incorporan reducción por menor efecto de novedad.
+- **Laja-Talcahuano:** proyecta **540.842 pasajeros**. No recibe ajuste operacional específico nuevo; mantiene su patrón histórico, oferta operacional, calendario y regla de feriados como operación de fin de semana.
 """)
+        st.info("Tren Araucanía, Llanquihue-Puerto Montt y Laja-Talcahuano no utilizan MOD Biotren, categorías L1/L2/L1-L2, tipo de tarjeta, ingresos ni base referencial de subsidio Biotren.")
 
-    with st.expander("3. Modelo temporal mensual de proyección", expanded=False):
-        st.markdown("""
-Primero se proyecta la demanda mensual total por servicio. El cálculo se realiza por unidad operacional `u`, mes `m` y tipo de día `d` —lunes-viernes, sábado y domingo—. La demanda base combina viajes operados esperados, productividad media, factor de nivel y estacionalidad mensual. La demanda de escenario aplica elasticidad parcial frente a cambios de oferta.
-""")
-        st.latex(r"V_{0,u,m,d}=S_{0,u,m,d}\cdot N^{op}_{u,m,d}\cdot (1-\tau_{u,m,d})")
-        st.latex(r"D_{0,u,m,d}=V_{0,u,m,d}\cdot q_{u,m,d}\cdot F_{nivel,s}\cdot F_{est,s,m}")
-        st.latex(r"V_{1,u,m,d}=S_{1,u,m,d}\cdot N^{op}_{u,m,d}\cdot (1-\tau_{u,m,d}-c_u)")
-        st.latex(r"D_{1,u,m,d}=D_{0,u,m,d}\cdot \left(\frac{V_{1,u,m,d}}{V_{0,u,m,d}}\right)^{\varepsilon_s}")
-        st.markdown("""
-La elasticidad menor que 1 evita respuestas proporcionales automáticas. El control principal es que los totales mensuales por servicio sean consistentes con el detalle de cálculo.
-""")
-
-    with st.expander("4. Calendario operacional, oferta y feriados", expanded=False):
+    with st.expander("3. Calendario operacional, oferta y feriados", expanded=False):
         st.info("Para Biotren, Tren Araucanía y Llanquihue-Puerto Montt, los feriados nacionales tienen oferta efectiva cero. Para Laja-Talcahuano, los feriados operan con oferta de fin de semana; si el feriado cae lunes-viernes se imputa como domingo operacional.")
-        st.markdown("La oferta de escenario se aplica por mes y tipo de día. Una modificación de oferta afecta el mes editado y el total anual sólo por agregación de meses.")
+        st.markdown("La oferta de escenario se aplica por mes y tipo de día. Una modificación de oferta afecta el mes editado y el total anual por agregación de meses.")
         st.dataframe(tabla_feriados_2027(), width="stretch", height=240)
         st.markdown("**Resumen de días operacionales por unidad, mes y tipo de día**")
         st.dataframe(O.calendario_operacional_resumen(2027), width="stretch", height=280)
 
-    with st.expander("5. Tratamiento por servicio", expanded=False):
+    with st.expander("4. Biotren: distribución por línea OD basada en MOD", expanded=False):
         st.markdown("""
-- **Biotren:** se proyecta separando L1 y L2 en el motor temporal. Laja-Talcahuano se mantiene como servicio separado para evitar doble conteo en el corredor.
-- **Laja-Talcahuano:** se calcula como servicio propio, con regla especial de operación en feriados y recuperación operacional parcial.
-- **Tren Araucanía:** se calcula por Temuco-Victoria, Temuco-Pitrufquén y Claret. Cada tramo tiene elasticidad diferenciada; Claret opera sólo en meses lectivos.
-- **Llanquihue-Puerto Montt:** se modela con operación de lunes a viernes, sin fines de semana ni feriados nacionales en el escenario base.
-""")
-        st.markdown("**Parámetros de escenario**")
-        p1, p2 = st.columns(2)
-        with p1:
-            st.dataframe(pd.DataFrame([{"servicio": O.NOMBRE[k], "elasticidad_oferta": v} for k, v in O.ELASTICIDAD_OFERTA_SERVICIO.items()]), width="stretch")
-        with p2:
-            st.dataframe(pd.DataFrame([{"servicio": O.NOMBRE[k], "factor_nivel": v, "fuerza_estacionalidad": O.FUERZA_ESTACIONALIDAD.get(k)} for k, v in O.AJUSTE_NIVEL_SERVICIO.items()]), width="stretch")
+La demanda total mensual de Biotren proviene del modelo temporal. La MOD histórica atribuible no genera ese total; sólo distribuye la demanda ya proyectada.
 
-    with st.expander("6. Biotren: distribución por línea OD basada en MOD", expanded=False):
-        st.markdown("""
-La demanda total mensual de Biotren proviene del modelo temporal. La MOD histórica atribuible no genera ese total; lo distribuye por línea OD.
-
-- **Clasificación:** cada par OD se clasifica según línea de origen y destino.
-- **Categorías estándar:** `L1`, `L2` y `L1-L2`; `L1-L2` representa viajes entre corredores o combinados.
-- **Concepción:** se trata como estación común/intercambio. Concepción + estación L1 se clasifica como `L1`; Concepción + estación L2 se clasifica como `L2`.
-- **Control:** `Concepción → Concepción` queda como `No clasificado` y no recibe proyección estándar.
-- **Criterio vigente:** el supuesto fijo 80/20 fue reemplazado por participaciones mensuales calculadas con MOD histórica atribuible.
+- **Categorías estándar:** `L1`, `L2` y `L1-L2`.
+- **Concepción:** estación común/intercambio; `Concepción → Concepción` queda como control `No clasificado` y no recibe proyección estándar.
+- **Criterio vigente:** el supuesto fijo 80/20 no corresponde a la metodología vigente; fue reemplazado por participaciones mensuales basadas en MOD histórica atribuible.
 - **Validación:** la suma mensual `L1 + L2 + L1-L2` conserva el total mensual de Biotren.
 """)
 
-    with st.expander("7. Biotren: distribución OD por tipo de tarjeta", expanded=False):
+    with st.expander("5. Biotren: tipo de tarjeta, ingresos y subsidio", expanded=False):
         st.markdown("""
-Después de distribuir por línea para análisis agregado, la demanda mensual de Biotren también se asigna por tipo de tarjeta y par OD con participaciones históricas mensuales.
+La distribución OD por tipo de tarjeta se recalcula sobre el total mensual vigente de Biotren.
 
-Tipos considerados: `monedero`, `media_superior`, `adulto_mayor`, `estudiante_basica`, `discapacitado`, `funcionario_normal`, `funcionario_especial` y `convenio_colectivo`.
+**Tipos con ingreso tarifario directo:** `monedero`, `media_superior` y `adulto_mayor`.
 
-La validación principal es que la suma de todos los tipos de tarjeta conserve la demanda mensual total de Biotren. La aplicación muestra sólo el mes y tipo seleccionados para evitar renderizar matrices completas innecesarias.
+**Tipos con tarifa cero:** `estudiante_basica`, `discapacitado`, `funcionario_normal`, `funcionario_especial` y `convenio_colectivo`.
+
+Los ingresos son preliminares y no incorporan subsidios, evasión, ajustes contables ni reglas comerciales adicionales. La base de subsidio es referencial y no calcula montos monetarios.
 """)
 
-    with st.expander("8. Ingresos tarifarios preliminares", expanded=False):
+    with st.expander("6. Backtesting e incertidumbre", expanded=False):
         st.markdown("""
-Los ingresos tarifarios son preliminares y se calculan sólo para tipos con tarifa directa:
+El backtesting histórico compara observado vs estimado en periodos conocidos. Es una validación retrospectiva diagnóstica no holdout y no reemplaza la proyección operacional 2027.
 
-- `monedero`: tarifa normal/adulto.
-- `media_superior`: tarifa estudiante.
-- `adulto_mayor`: tarifa adulto mayor.
-- `estudiante_basica`, `discapacitado`, `funcionario_normal`, `funcionario_especial` y `convenio_colectivo`: tarifa 0.
-
-No incorporan subsidios, evasión, ajustes contables, reglas comerciales adicionales ni variación tarifaria dinámica por periodo.
+Las bandas de incertidumbre derivan de métricas históricas de error, especialmente WMAPE. No son intervalos estadísticos formales ni intervalos de confianza. El ajuste por sesgo es una sensibilidad diagnóstica. Las bandas se calculan sobre la base vigente: Biotren 12.673.199; Tren Araucanía 809.484; Llanquihue-Puerto Montt 412.132; Laja-Talcahuano 540.842.
 """)
 
-    with st.expander("9. Base referencial para subsidio futuro", expanded=False):
+    with st.expander("7. Validaciones y limitaciones", expanded=False):
         st.markdown("""
-El modelo prepara una base referencial para trazabilidad futura, sin calcular montos de subsidio.
+**Validaciones:** conservación de totales mensuales, suma de participaciones MOD por línea, `No clasificado` sin proyección estándar, consistencia por tipo de tarjeta, ingresos sólo en tipos con tarifa aplicable, feriados por servicio, backtesting diagnóstico, bandas de incertidumbre sin valores negativos y ausencia de binarios versionados.
 
-- `subsidio_normal_base`: agrupa todas las MOD excepto `media_superior` y `adulto_mayor`.
-- `subsidio_estudiante_media_superior`: considera sólo `media_superior`.
-- `adulto_mayor`: queda sin subsidio referencial.
-
-Esta base no corresponde a liquidación, compensación ni estimación monetaria implementada.
-""")
-
-    with st.expander("10. Validaciones, limitaciones y próximos pasos", expanded=False):
-        st.markdown("""
-**Validaciones:** conservación de totales mensuales, suma de participaciones MOD por línea, `No clasificado` sin proyección estándar, consistencia por tipo de tarjeta, ingresos sólo en tipos con tarifa aplicable, feriados por servicio, orden de estaciones y ausencia de binarios versionados.
-
-**Limitaciones:** elasticidades agregadas, OD dependiente de datos históricos disponibles, ingresos preliminares y ausencia de cálculo de subsidios, capacidad, ocupación, tiempos de viaje y confiabilidad diaria detallada.
-
-**Próximos pasos:** profundizar subsidios desde la base referencial, integrar variables operacionales adicionales, mejorar reglas tarifarias y contrastar proyecciones con observaciones futuras.
+**Limitaciones:** elasticidades agregadas, OD dependiente de datos históricos disponibles, ingresos preliminares, ausencia de cálculo monetario de subsidios, capacidad, ocupación, tiempos de viaje y confiabilidad diaria detallada.
 """)
 
     st.markdown("#### Bibliografía")
@@ -661,16 +730,165 @@ Esta base no corresponde a liquidación, compensación ni estimación monetaria 
 - Feriados de Chile. *Feriados de Chile — Año 2027*. Fuente basada en Biblioteca del Congreso Nacional. https://www.feriados.cl/2027.htm
 """)
 
+def render_validacion_historica():
+    st.markdown("### Validación histórica — backtesting")
+    st.info("El backtesting compara observado vs estimado en periodos históricos conocidos. Es una validación retrospectiva diagnóstica, no un holdout estricto ni una garantía predictiva; no recalibra ni altera el escenario vigente 2027.")
+    try:
+        bt = BT.ejecutar_backtesting(params, mdf)
+    except Exception as e:
+        st.warning(f"No fue posible ejecutar el backtesting histórico: {e}")
+        return
+
+    anios_bt = sorted(bt.observado_estimado["anio"].dropna().astype(int).unique().tolist())
+    meses_bt = int(len(bt.observado_estimado))
+    with st.expander("Alcance metodológico del backtesting", expanded=True):
+        st.markdown(f"""
+- **Tipo:** `{BT.BACKTESTING_TIPO}`; corresponde a una revisión retrospectiva diagnóstica, no a una validación holdout fuera de muestra.
+- **Periodos evaluados:** años {", ".join(map(str, anios_bt))}; se incluyen sólo meses con observación histórica disponible ({meses_bt} filas servicio-mes).
+- **Observado:** afluencia mensual normalizada `pax_norm`, con columna de cobertura para advertir meses incompletos.
+- **Estimado:** motor mensual-elástico y parámetros vigentes cargados por la aplicación; pueden incorporar información posterior al periodo evaluado.
+- **Interpretación:** WMAPE es la métrica agregada principal; MAPE se muestra como referencia y puede ser inestable en servicios o meses de baja afluencia.
+""")
+
+    total = bt.resumen_total_sistema.iloc[0]
+    k = st.columns(5)
+    k[0].metric("MAE sistema", fmt(total["MAE"]))
+    k[1].metric("RMSE sistema", fmt(total["RMSE"]))
+    k[2].metric("MAPE sistema", f"{total['MAPE']:.1f}%")
+    k[3].metric("WMAPE sistema", f"{total['WMAPE']:.1f}%")
+    k[4].metric("Sesgo sistema", f"{total['sesgo']:+.1f}%")
+
+    st.markdown("#### Métricas por servicio")
+    ms = bt.metricas_servicio.copy()
+    ms["servicio"] = ms["servicio"].map(lambda x: O.NOMBRE.get(x, x))
+    st.dataframe(ms, width="stretch", hide_index=True)
+
+    st.markdown("#### Tabla observado vs estimado por mes")
+    comp = bt.observado_estimado.copy()
+    comp["servicio"] = comp["servicio"].map(lambda x: O.NOMBRE.get(x, x))
+    st.dataframe(comp[["servicio", "periodo", "observado", "estimado", "error", "error_abs", "error_pct", "cobertura"]], width="stretch", height=360)
+
+    st.markdown("#### Errores mensuales agregados del sistema")
+    err = comp.groupby("periodo", as_index=False).agg(observado=("observado", "sum"), estimado=("estimado", "sum"))
+    err["error"] = err["estimado"] - err["observado"]
+    err["error_abs"] = err["error"].abs()
+    err["error_pct"] = err["error"] / err["observado"].replace(0, pd.NA)
+    st.dataframe(err, width="stretch", height=260)
+
+    st.markdown("#### Advertencias metodológicas")
+    for warning in bt.advertencias:
+        st.warning(warning)
+
+
+
+def render_evolucion_historica_cierre_proyeccion(serv):
+    st.markdown("#### Evolución histórica, cierre 2026 y proyección 2027")
+    st.info(
+        "Los CSV normalizados de cierre 2026 se usan exclusivamente como referencia visual. "
+        "El cierre 2026 se rotula como estimado y no recalibra ni modifica la proyección operacional 2027 vigente."
+    )
+    anual = construir_referencia_anual_visual(serv)
+    mensual = construir_referencia_mensual_visual(serv)
+
+    servicios = list(REF_SERVICIO_TO_MODELO.values())
+    servicio_sel = st.selectbox(
+        "Servicio",
+        servicios,
+        format_func=lambda x: O.NOMBRE.get(x, x),
+        key="ref_cierre_2026_servicio",
+    )
+
+    anual_s = anual[anual["servicio_modelo"].eq(servicio_sel)].copy().sort_values("anio")
+    mensual_s = mensual[mensual["servicio_modelo"].eq(servicio_sel)].copy()
+
+    fig = go.Figure()
+    for tipo in ["Histórico observado", "Cierre 2026 estimado", "Proyección 2027 modelo"]:
+        d = anual_s[anual_s["tipo_dato_label"].eq(tipo)].sort_values("anio")
+        if d.empty:
+            continue
+        modo = "lines+markers" if tipo == "Histórico observado" else "markers"
+        fig.add_trace(go.Scatter(
+            x=d["anio"].astype(int),
+            y=d["afluencia_anual"].astype(float),
+            name=tipo,
+            mode=modo,
+            marker=dict(size=11),
+            line=dict(color=REF_TIPO_COLOR[tipo], width=3, dash="dash" if tipo != "Histórico observado" else "solid"),
+        ))
+    fig.update_layout(height=360, margin=dict(l=8, r=8, t=8, b=8), plot_bgcolor="rgba(0,0,0,0)",
+                      paper_bgcolor="rgba(0,0,0,0)", legend=dict(orientation="h", y=1.12, x=0),
+                      hovermode="x unified", font=dict(family="Segoe UI", color="#0f2740"))
+    fig.update_xaxes(dtick=1, showgrid=False, title="Año")
+    fig.update_yaxes(gridcolor="#eef2f7", title="pasajeros/año")
+    st.plotly_chart(fig, width="stretch")
+
+    mensual_cmp = mensual_s[mensual_s["anio"].isin([2026, 2027])].copy().sort_values(["anio", "mes_num"])
+    fig_m = go.Figure()
+    for tipo in ["Cierre 2026 estimado", "Proyección 2027 modelo"]:
+        d = mensual_cmp[mensual_cmp["tipo_dato_label"].eq(tipo)]
+        if d.empty:
+            continue
+        fig_m.add_trace(go.Scatter(
+            x=d["mes_num"].astype(int),
+            y=d["afluencia"].astype(float),
+            name=tipo,
+            mode="lines+markers",
+            line=dict(color=REF_TIPO_COLOR[tipo], width=3, dash="dash" if tipo == "Proyección 2027 modelo" else "solid"),
+        ))
+    fig_m.update_layout(height=320, margin=dict(l=8, r=8, t=8, b=8), plot_bgcolor="rgba(0,0,0,0)",
+                        paper_bgcolor="rgba(0,0,0,0)", legend=dict(orientation="h", y=1.12, x=0),
+                        hovermode="x unified", font=dict(family="Segoe UI", color="#0f2740"))
+    fig_m.update_xaxes(dtick=1, range=[0.7, 12.3], showgrid=False, title="Mes")
+    fig_m.update_yaxes(gridcolor="#eef2f7", title="pasajeros/mes")
+    st.plotly_chart(fig_m, width="stretch")
+
+    tabla = anual_s[["anio", "tipo_dato_label", "afluencia_anual"]].rename(columns={
+        "anio": "año",
+        "tipo_dato_label": "tipo de dato",
+        "afluencia_anual": "afluencia",
+    })
+    tabla["observación metodológica"] = tabla["tipo de dato"].map({
+        "Histórico observado": "Registro histórico observado normalizado desde el CSV de referencia.",
+        "Cierre 2026 estimado": "Estimación de cierre anual 2026; no corresponde a observado definitivo.",
+        "Proyección 2027 modelo": "Resultado vigente del motor operacional 2027; no recalibrado por el cierre 2026.",
+    })
+    st.dataframe(tabla.style.format({"afluencia": "{:,.0f}"}), width="stretch", hide_index=True, height=300)
+
+
 def render_resumen():
     uni, serv, detalle = O.proyectar_mensual_elastico(params, mdf, return_detalle=True)
-    st.markdown("### Resumen 2027")
-    st.info("El total anual es la suma de los meses proyectados. No existe redistribución posterior de un total anual fijo.")
+    st.markdown("### Resumen 2027 recalibrado")
+    st.info("El total anual es la suma de los meses proyectados. El escenario 2027 recalibrado conserva trazabilidad contra el escenario anterior y aplica supuestos operacionales específicos por servicio.")
 
     kk = st.columns(4)
     for i, s in enumerate(O.SERVICIOS):
         viajes = detalle[detalle.servicio == s]["viajes_operados_plan"].sum()
         om = serv[s].sum() / max(viajes, 1)
         kk[i].metric(O.NOMBRE[s], fmt(serv[s].sum()), f"{fmt(om)} pax/viaje")
+
+
+    st.markdown("#### Comparación contra escenario anterior")
+    escenario_anterior = {"BIOTREN": 12991160.0, "CORTO_LAJA": 540842.0, "TREN_ARAUCANIA": 950258.0, "LLANQUIHUE_PM": 420853.0}
+    motivos = {
+        "BIOTREN": "Baja progresiva, afectación L2 fines de semana y ajuste residual laboral",
+        "TREN_ARAUCANIA": "Victoria-Temuco 11 servicios L-V y suavizamiento de marzo",
+        "LLANQUIHUE_PM": "Promedio laboral marzo-diciembre y menor efecto novedad estival",
+        "CORTO_LAJA": "Sin ajuste específico nuevo",
+    }
+    comp = pd.DataFrame([{
+        "servicio": O.NOMBRE[k],
+        "total anterior": escenario_anterior[k],
+        "total recalibrado": float(serv[k].sum()),
+        "diferencia": float(serv[k].sum()) - escenario_anterior[k],
+        "diferencia %": (float(serv[k].sum()) / escenario_anterior[k] - 1.0) * 100.0,
+        "motivo principal": motivos[k],
+    } for k in O.SERVICIOS])
+    st.dataframe(comp.style.format({"total anterior":"{:,.0f}", "total recalibrado":"{:,.0f}", "diferencia":"{:,.0f}", "diferencia %":"{:+.2f}%"}), width="stretch", hide_index=True)
+
+    diag_detalle = detalle.groupby(["servicio", "mes"], as_index=False)["afl"].sum()
+    if not diag_detalle.empty:
+        bt = serv["BIOTREN"].astype(float)
+        st.caption(f"Biotren queda a {fmt(abs(bt.sum() - 12_700_000))} pasajeros del objetivo de 12,7 millones. Tren Araucanía usa 11 servicios L-V Victoria-Temuco; Laja-Talcahuano no recibe ajuste específico nuevo.")
 
     fig = go.Figure()
     for s in O.SERVICIOS:
@@ -682,6 +900,8 @@ def render_resumen():
     fig.update_xaxes(showgrid=False)
     fig.update_yaxes(gridcolor="#eef2f7", title="pax/mes")
     st.plotly_chart(fig, width="stretch")
+
+    render_evolucion_historica_cierre_proyeccion(serv)
 
     st.markdown("#### Proyección mensual 2027")
     st.dataframe(serv, width="stretch")
@@ -772,9 +992,19 @@ def render_servicio(s):
     if s == "TREN_ARAUCANIA":
         st.warning("Claret se considera servicio escolar: enero y febrero quedan sin oferta ni demanda proyectada para este tipo de servicio. Las modificaciones de oferta se evalúan por tramo con elasticidad diferenciada.")
     if s == "LLANQUIHUE_PM":
-        st.warning("Enero y febrero mantienen una señal estival dentro del perfil mensual; no se consideran servicios planificados de fin de semana.")
+        st.warning("Enero y febrero se reducen por menor efecto novedad; marzo-diciembre se calibran hacia un promedio laboral cercano a 1.500 pasajeros, sin forzar exactamente el mismo valor cada mes.")
 
+    if s == "LLANQUIHUE_PM":
+        cal = O.dias_operacionales_por_tipo(2027, units=["LLANQUIHUE_PM"])
+        lv = cal[(cal.unit.eq("LLANQUIHUE_PM")) & (cal.dt.eq("LV"))].set_index("mes")["n_dias"]
+        t = pd.DataFrame({"periodo": serv.index, "pasajeros": serv[s].astype(float).values})
+        t["mes"] = range(1, 13)
+        t["dias_laborales_operacionales"] = t["mes"].map(lv.to_dict()).astype(float)
+        t["promedio_laboral"] = t["pasajeros"] / t["dias_laborales_operacionales"].replace(0, pd.NA)
+        st.markdown("#### Promedio laboral mensual")
+        st.dataframe(t[["periodo", "pasajeros", "dias_laborales_operacionales", "promedio_laboral"]].style.format({"pasajeros":"{:,.0f}", "dias_laborales_operacionales":"{:,.0f}", "promedio_laboral":"{:,.1f}"}), width="stretch", hide_index=True)
     if s == "BIOTREN":
+        render_incertidumbre_biotren(serv)
         render_distribucion_biotren_linea_mod(serv)
         render_od_biotren(serv)
 
@@ -782,11 +1012,13 @@ def render_servicio(s):
                        f"proyeccion_2027_{s}.csv", key=f"dl_{s}")
 
 
-tabs = st.tabs(["📘 Metodología", "📊 Resumen"] + [O.NOMBRE[s] for s in O.SERVICIOS])
+tabs = st.tabs(["📘 Metodología", "📊 Resumen", "🧪 Validación histórica"] + [O.NOMBRE[s] for s in O.SERVICIOS])
 with tabs[0]:
     render_metodologia()
 with tabs[1]:
     render_resumen()
+with tabs[2]:
+    render_validacion_historica()
 for i, s in enumerate(O.SERVICIOS):
-    with tabs[i + 2]:
+    with tabs[i + 3]:
         render_servicio(s)

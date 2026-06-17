@@ -1,0 +1,12 @@
+servicio,indicador,valor
+BIOTREN,total_anterior,12673200.020848522
+BIOTREN,total_intermedio_base,12800000.0
+BIOTREN,total_recalibrado,12681891.28507837
+BIOTREN,impacto_l2_fds_ene_feb,118108.71492163214
+BIOTREN,ajuste_residual_laboral,0.0
+LLANQUIHUE_PM,total_anterior,412132.0025562038
+LLANQUIHUE_PM,total_recalibrado,391116.0268143471
+LLANQUIHUE_PM,promedio_laboral_mar_dic,1499.9875072062248
+TREN_ARAUCANIA,servicios_lv_victoria_temuco,11.0
+TREN_ARAUCANIA,ratio_marzo_vs_promedio_abr_dic,1.1543110522200917
+TREN_ARAUCANIA,ratio_marzo_vs_promedio_anual,1.1753184992316108
