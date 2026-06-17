@@ -202,3 +202,11 @@ Laja-Talcahuano no recibe ajuste específico nuevo dentro de la recalibración. 
 ### Incertidumbre
 
 Las bandas bajo/base/alto se recalculan sobre la nueva base 2027. El WMAPE y el sesgo provienen del backtesting histórico y no modifican su metodología; el ajuste por sesgo se interpreta como sensibilidad diagnóstica sobre la base recalibrada y se controla que no genere valores negativos.
+
+## Referencias históricas normalizadas y cierre 2026 estimado
+
+Los CSV normalizados de `data/referencias_cierre_2026/` se incorporan como insumo auxiliar de visualización histórica. La lectura separa **Histórico observado**, **Cierre 2026 estimado** y **Proyección 2027 modelo**, evitando interpretar el cierre 2026 como observado definitivo.
+
+Estos archivos no forman parte de la calibración del motor de proyección, no modifican elasticidades, factores operacionales ni resultados del escenario 2027 vigente. Se usan para presentar la trayectoria anual y mensual de Biotren, Laja-Talcahuano y Tren Araucanía, manteniendo la proyección 2027 como resultado del modelo operacional vigente.
+
+La serie histórica mensual normalizada se integra en las secciones metodológicas de los servicios con información disponible: Biotren, Laja-Talcahuano y Tren Araucanía. Esta organización vincula la trayectoria observada, el cierre 2026 estimado y la proyección 2027 vigente con la lógica operacional de cada servicio. Llanquihue-Puerto Montt mantiene su visualización de proyección vigente sin construir una referencia histórica no contenida en los CSV normalizados.

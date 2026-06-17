@@ -180,3 +180,11 @@ Tren Araucanía se calcula por componente de servicio. Victoria-Temuco opera con
 Llanquihue-Puerto Montt se calibra con un promedio de día laboral cercano a 1.500 pasajeros entre marzo y diciembre, permitiendo variación mensual por estacionalidad y calendario. Enero y febrero incorporan una reducción por menor efecto novedad del servicio y no se fuerzan al promedio laboral de meses ancla.
 
 Laja-Talcahuano no recibe una modificación específica nueva en la recalibración y mantiene su regla operacional de feriados como fin de semana. Las bandas de incertidumbre se calculan sobre la nueva proyección base 2027, conservando las métricas históricas de WMAPE y sesgo del backtesting.
+
+## Referencias históricas y cierre 2026 para visualización
+
+Los archivos normalizados ubicados en `data/referencias_cierre_2026/` se utilizan como referencia visual para los diagramas de evolución histórica, cierre 2026 y proyección 2027. El tratamiento metodológico distingue explícitamente tres categorías: **Histórico observado**, **Cierre 2026 estimado** y **Proyección 2027 modelo**.
+
+El cierre 2026 estimado no recalibra el motor mensual-elástico, no modifica el escenario operacional 2027 vigente y no altera los insumos procesados de `data/od_biotren/processed/`. Su función es mejorar la lectura histórica, la trazabilidad visual del diagrama de proyección y la comparación entre la trayectoria observada, el cierre anual estimado y el resultado operacional vigente del modelo.
+
+La visualización mensual de referencias históricas y cierre 2026 se presenta en la sección específica de cada servicio con disponibilidad normalizada: Biotren, Laja-Talcahuano y Tren Araucanía. La pestaña de resumen conserva la visión operacional agregada del escenario 2027, mientras que la lectura histórica detallada se realiza en el contexto técnico de cada servicio. Llanquihue-Puerto Montt no cuenta con referencia normalizada en estos CSV y no recibe extrapolación histórica.

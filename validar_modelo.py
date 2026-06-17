@@ -24,6 +24,18 @@ DATA = BASE / "data"
 OUT = BASE / "outputs"
 OD_OUT = OUT / "od_biotren_hibrido"
 
+REFERENCIAS_CIERRE_2026 = DATA / "referencias_cierre_2026"
+REF_MENSUAL_CIERRE_2026 = REFERENCIAS_CIERRE_2026 / "afluencia_historica_cierre_2026_long.csv"
+REF_ANUAL_CIERRE_2026 = REFERENCIAS_CIERRE_2026 / "afluencia_historica_cierre_2026_resumen_anual.csv"
+REF_SERVICIOS_ESPERADOS = {"Biotren", "Laja Talcahuano", "Tren Araucanía"}
+REF_TIPOS_DATO_VALIDOS = {"historico_observado", "cierre_2026_estimado"}
+TOTALES_2027_VIGENTES = {
+    "BIOTREN": 12_673_199.0,
+    "TREN_ARAUCANIA": 809_484.0,
+    "CORTO_LAJA": 540_842.0,
+    "LLANQUIHUE_PM": 412_132.0,
+}
+
 
 def _ok(nombre: str, ok: bool, detalle: str = "") -> dict:
     return {"control": nombre, "estado": "OK" if ok else "REVISAR", "detalle": detalle}
@@ -67,12 +79,63 @@ def ejecutar_validacion() -> pd.DataFrame:
     total_servicios = serv.sum().sum()
     rows.append(_ok("Ejecución del motor mensual-elástico", total_servicios > 0, f"Total sistema: {total_servicios:,.0f}"))
 
-    total_biotren_vigente = float(serv["BIOTREN"].sum())
-    objetivo_biotren_vigente = 12_673_199.0
+
+    # 3A. Referencias normalizadas de cierre 2026 sólo para visualización histórica.
+    mensual_cols = {"servicio", "anio", "mes_num", "mes", "afluencia", "tipo_dato", "fuente"}
+    anual_cols = {"servicio", "anio", "tipo_dato", "afluencia_anual"}
+    refs_exist = REF_MENSUAL_CIERRE_2026.exists() and REF_ANUAL_CIERRE_2026.exists()
     rows.append(_ok(
-        "Total Biotren escenario vigente",
-        abs(total_biotren_vigente - objetivo_biotren_vigente) <= 1.0,
-        f"Total Biotren: {total_biotren_vigente:,.0f}; referencia vigente: {objetivo_biotren_vigente:,.0f}",
+        "CSV normalizados cierre 2026 existentes",
+        refs_exist,
+        f"Mensual: {REF_MENSUAL_CIERRE_2026.exists()}; anual: {REF_ANUAL_CIERRE_2026.exists()}",
+    ))
+    if refs_exist:
+        ref_mensual = pd.read_csv(REF_MENSUAL_CIERRE_2026)
+        ref_anual = pd.read_csv(REF_ANUAL_CIERRE_2026)
+        rows.append(_ok(
+            "Columnas CSV cierre 2026",
+            mensual_cols.issubset(ref_mensual.columns) and anual_cols.issubset(ref_anual.columns),
+            f"Mensual: {sorted(ref_mensual.columns)}; anual: {sorted(ref_anual.columns)}",
+        ))
+        servicios_m = set(ref_mensual["servicio"].dropna().astype(str))
+        servicios_a = set(ref_anual["servicio"].dropna().astype(str))
+        rows.append(_ok(
+            "Servicios esperados en referencias cierre 2026",
+            REF_SERVICIOS_ESPERADOS.issubset(servicios_m) and REF_SERVICIOS_ESPERADOS.issubset(servicios_a),
+            f"Mensual: {sorted(servicios_m)}; anual: {sorted(servicios_a)}",
+        ))
+        tipos = set(ref_mensual["tipo_dato"].dropna().astype(str)) | set(ref_anual["tipo_dato"].dropna().astype(str))
+        rows.append(_ok(
+            "Tipos de dato válidos en referencias cierre 2026",
+            tipos.issubset(REF_TIPOS_DATO_VALIDOS),
+            f"Tipos detectados: {sorted(tipos)}",
+        ))
+        anual_desde_mensual = ref_mensual.groupby(["servicio", "anio", "tipo_dato"], as_index=False)["afluencia"].sum()
+        anual_cmp = ref_anual.merge(anual_desde_mensual, on=["servicio", "anio", "tipo_dato"], how="left")
+        dif_ref = (anual_cmp["afluencia_anual"].astype(float) - anual_cmp["afluencia"].astype(float)).abs().max()
+        rows.append(_ok(
+            "Totales anuales cierre 2026 consistentes",
+            bool(dif_ref <= 1.0),
+            f"Años: {sorted(ref_anual['anio'].astype(int).unique())}; diferencia máxima anual vs mensual: {dif_ref:.6f}",
+        ))
+
+    total_biotren_vigente = float(serv["BIOTREN"].sum())
+    for servicio, objetivo in TOTALES_2027_VIGENTES.items():
+        total_servicio = float(serv[servicio].sum())
+        rows.append(_ok(
+            f"Total {servicio} escenario vigente",
+            abs(total_servicio - objetivo) <= 1.0,
+            f"Total calculado: {total_servicio:,.0f}; referencia vigente: {objetivo:,.0f}",
+        ))
+    rows.append(_ok(
+        "Total sistema escenario vigente",
+        abs(float(serv.sum().sum()) - sum(TOTALES_2027_VIGENTES.values())) <= 2.0,
+        f"Total sistema: {float(serv.sum().sum()):,.0f}; referencia vigente: {sum(TOTALES_2027_VIGENTES.values()):,.0f}",
+    ))
+    rows.append(_ok(
+        "Referencias cierre 2026 sin efecto en escenario 2027",
+        all(abs(float(serv[k].sum()) - v) <= 1.0 for k, v in TOTALES_2027_VIGENTES.items()),
+        "Los CSV de referencia no son insumo de O.proyectar_mensual_elastico ni modifican data/od_biotren/processed/.",
     ))
 
     # 4. Consistencia de totales mensuales/anuales entre detalle y resumen.
