@@ -1,9 +1,9 @@
 control,estado,detalle
 Compilación Python del proyecto,OK,compileall sobre el directorio del modelo
 Sin binarios/cache versionados,OK,Faltantes: ninguno
-Ejecución del motor mensual-elástico,OK,"Total sistema: 14,903,113"
-Consistencia mensual/anual del motor,OK,Diferencia mensual máxima: 0.494399; anual máxima: 1.625558
-Sensibilidad mensual por oferta,OK,Meses con cambio: ['2027-03']
+Ejecución del motor mensual-elástico,OK,"Total sistema: 14,435,657"
+Consistencia mensual/anual del motor,OK,Diferencia mensual máxima: 0.495437; anual máxima: 1.020849
+Sensibilidad mensual por oferta con recalibración trazable,OK,"Meses con cambio: ['2027-01', '2027-02', '2027-03', '2027-04', '2027-05', '2027-06', '2027-07', '2027-08', '2027-09', '2027-10', '2027-11', '2027-12']; la recalibración anual distribuye residuales, pero marzo conserva respuesta directa a la oferta editada"
 Regla de feriados Biotren,OK,Biotren queda sin operación en feriados nacionales
 Regla de feriados Laja-Talcahuano,OK,Laja-Talcahuano opera feriados con regla fin de semana
 Consistencia OD mensual vs Biotren,OK,Diferencia máxima: 0.00000000
@@ -29,10 +29,11 @@ Top pares OD No clasificado por motivo probable,OK,"Motivos: estacion_comun_a_es
 Distribución por línea MOD conserva total Biotren,OK,"Diferencia máxima: 0.00000000; diferencia participación: 0.000000000000; categorías estándar: ['L1', 'L1-L2', 'L2']"
 No clasificado sin proyección estándar,OK,Concepción→Concepción queda como control diagnóstico histórico y no se incluye en líneas proyectadas
 Consistencia tarjeta mensual vs Biotren,OK,Diferencia máxima: 0.00000003
-Ingreso tarifario agregado por tipo de tarjeta,OK,"Adulto Mayor: 263,704,308; Estudiante: 626,815,617; Normal: 5,814,208,723; Sin ingreso tarifario: 0"
-Ingresos sólo en tipos con tarifa directa,OK,"adulto_mayor: 263,704,308; convenio_colectivo: 0; discapacitado: 0; estudiante_basica: 0; funcionario_especial: 0; funcionario_normal: 0; media_superior: 626,815,617; monedero: 5,814,208,723"
+Ingreso tarifario agregado por tipo de tarjeta,OK,"Adulto Mayor: 256,552,731; Estudiante: 613,506,010; Normal: 5,668,410,876; Sin ingreso tarifario: 0"
+Ingresos sólo en tipos con tarifa directa,OK,"adulto_mayor: 256,552,731; convenio_colectivo: 0; discapacitado: 0; estudiante_basica: 0; funcionario_especial: 0; funcionario_normal: 0; media_superior: 613,506,010; monedero: 5,668,410,876"
 Base referencial de subsidio en memoria,OK,Filas agregadas: 36; sin cálculo de montos
 Exportación tipo tarjeta en modo muestra sin outputs completos,OK,Viajes: 729; ingresos: 729; archivos escritos: 0
 Backtesting histórico por servicio,OK,Servicios: 4; meses comparados: 94; advertencias: 8
+Bandas de incertidumbre sobre base recalibrada,OK,"Filas mensuales: 48; total base bandas: 14,435,657; sin valores negativos"
 Carga de Streamlit,OK,Excepciones detectadas: 0
 Archivos de salida principales,OK,Faltantes: ninguno

@@ -10,7 +10,7 @@ Para Tren Araucania la demanda se calcula por tipo de servicio/tramo:
 TA_TEMUCO_VICTORIA, TA_TEMUCO_PITRUFQUEN y TA_CLARET. La demanda anual
 del servicio resulta de sumar los tramos, y Claret se restringe a marzo-diciembre
 por tratarse de un servicio escolar.
-La afluencia de Biotren se reparte 20/80 (L1/L2, matriz OD; supuesto).
+La distribución de Biotren por línea y OD se recalcula desde el total mensual vigente; no se usa una regla 80/20 como criterio de escenario.
 
 Estaciones Llanquihue-PM (XP-NQ): XP=La Paloma, NQ=Llanquihue, AL=Alerce, EV=Puerto Varas.
 Nota operacional: los servicios Laja-Talcahuano circulan sobre el corredor de L1,
@@ -116,7 +116,7 @@ OFERTA_ACTUAL_MODELO = {
     'BIOTREN_L1': {'LV': 48.0, 'Sab': 8.0, 'Dom': 0.0},
     'BIOTREN_L2': {'LV': 106.0, 'Sab': 53.0, 'Dom': 32.0},
     'CORTO_LAJA': {'LV': 8.0, 'Sab': 8.0, 'Dom': 8.0},
-    'TREN_ARAUCANIA': {'LV': 24.6, 'Sab': 12.0, 'Dom': 6.0},
+    'TREN_ARAUCANIA': {'LV': 20.6, 'Sab': 12.0, 'Dom': 6.0},
     'LLANQUIHUE_PM': {'LV': 20.0, 'Sab': 0.0, 'Dom': 0.0},
 }
 
@@ -178,7 +178,7 @@ OFERTA_ACTUAL_DETALLE = [
     {'servicio': 'Laja-Talcahuano', 'unit': 'CORTO_LAJA', 'dt': 'Dom', 'servicios_dia': 8.0,
      'detalle': 'Marzo-diciembre: 8 servicios domingo'},
     {'servicio': 'Tren Araucania', 'unit': 'TREN_ARAUCANIA', 'dt': 'LV', 'servicios_dia': 24.6,
-     'detalle': 'Escenario 2027 actualizado: Victoria-Temuco 15 LV + Pitrufquen 6,6 LV + Claret 3 LV escolar'},
+     'detalle': 'Escenario 2027 recalibrado: Victoria-Temuco 11 LV + Pitrufquen 6,6 LV + Claret 3 LV escolar'},
     {'servicio': 'Tren Araucania', 'unit': 'TREN_ARAUCANIA', 'dt': 'Sab', 'servicios_dia': 12.0,
      'detalle': '8 Victoria-Temuco + 4 Pitrufquen-Temuco'},
     {'servicio': 'Tren Araucania', 'unit': 'TREN_ARAUCANIA', 'dt': 'Dom', 'servicios_dia': 6.0,
@@ -493,6 +493,150 @@ RAMP_NUEVA_OFERTA = {
     'LLANQUIHUE_PM': 0.40,
 }
 
+# Parámetros editables de recalibración operacional 2027. Se aplican después
+# del motor mensual-elástico y antes de OD, ingresos, backtesting e incertidumbre.
+RECALIBRACION_2027 = {
+    'activa': True,
+    'biotren': {
+        'objetivo_base_intermedio': 12_800_000.0,
+        'objetivo_final': 12_700_000.0,
+        'meses_afectacion_l2_fds': (1, 2),
+        'factor_afectacion_l2_fds': 0.32,
+        'aplicar_ajuste_residual_laboral': True,
+        'meses_ajuste_residual_laboral': tuple(range(3, 13)),
+        'tolerancia_objetivo': 30_000.0,
+    },
+    'llanquihue_pm': {
+        'demanda_laboral_promedio_objetivo_mar_dic': 1_500.0,
+        'meses_ancla_laboral': tuple(range(3, 13)),
+        'factor_novedad_enero': 0.78,
+        'factor_novedad_febrero': 0.78,
+        'no_forzar_1500_en_todos_los_meses': True,
+        'amplitud_estacional_mar_dic': 0.08,
+    },
+    'tren_araucania': {
+        'servicios_lv_victoria_temuco': 11.0,
+        'umbral_marzo_vs_abr_dic': 1.18,
+    },
+}
+
+
+def _escalar_detalle_servicio(detalle, servicio, factores_por_mes):
+    out = detalle.copy()
+    for mes, factor in factores_por_mes.items():
+        m = out['servicio'].eq(servicio) & out['mes'].astype(int).eq(int(mes))
+        out.loc[m, 'afl'] = pd.to_numeric(out.loc[m, 'afl'], errors='coerce').fillna(0.0) * float(factor)
+        if 'demanda_base_mensual' in out.columns:
+            out.loc[m, 'demanda_base_mensual'] = pd.to_numeric(out.loc[m, 'demanda_base_mensual'], errors='coerce').fillna(0.0) * float(factor)
+    return out
+
+
+def recalibrar_escenario_2027(detalle, anio=2027):
+    """Aplica supuestos operacionales 2027 trazables sin cambiar backtesting.
+
+    Biotren: baja progresiva a un total intermedio, afectación L2 en fines de
+    semana de enero-febrero y ajuste residual en meses laborales.
+    Llanquihue-Puerto Montt: calibración marzo-diciembre por promedio de día
+    laboral cercano a 1.500, con reducción de enero-febrero por menor novedad.
+    Tren Araucanía se recalcula desde la oferta por tramo; aquí sólo se suaviza
+    un marzo metodológicamente excesivo conservando su total anual.
+    """
+    if not RECALIBRACION_2027.get('activa', True):
+        return detalle.copy(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+    d = detalle.copy()
+    diag = []
+    mensual_rows = []
+
+    # Biotren.
+    cfg = RECALIBRACION_2027['biotren']
+    bi = d[d['servicio'].eq('BIOTREN')].groupby('mes')['afl'].sum().astype(float)
+    total_ant = float(bi.sum())
+    f_base = float(cfg['objetivo_base_intermedio']) / total_ant if total_ant else 1.0
+    inter = bi * f_base
+    cal = calendario_diario_operacional(anio, units=['BIOTREN_L2'])
+    fds = cal[(cal['unit'].eq('BIOTREN_L2')) & (cal['opera'])].assign(es_fds=lambda x: x['dt_calendario'].isin(['Sab','Dom']))
+    part_fds = fds.groupby('mes')['es_fds'].mean().reindex(range(1,13)).fillna(0.0)
+    unit_mes = d[d['servicio'].eq('BIOTREN')].groupby(['unit','mes'])['afl'].sum().unstack(0).fillna(0.0)
+    part_l2 = (unit_mes.get('BIOTREN_L2', 0.0) / unit_mes.sum(axis=1).replace(0, np.nan)).reindex(range(1,13)).fillna(0.0)
+    post = inter.copy()
+    impacto_l2 = pd.Series(0.0, index=range(1,13))
+    for mes in cfg['meses_afectacion_l2_fds']:
+        impacto_l2.loc[mes] = inter.loc[mes] * part_l2.loc[mes] * part_fds.loc[mes] * float(cfg['factor_afectacion_l2_fds'])
+        post.loc[mes] -= impacto_l2.loc[mes]
+    residual = float(post.sum() - cfg['objetivo_final'])
+    ajuste_res = pd.Series(0.0, index=range(1,13))
+    if cfg.get('aplicar_ajuste_residual_laboral', True) and residual > 0:
+        meses_lab = list(cfg['meses_ajuste_residual_laboral'])
+        lv = dias_operacionales_por_tipo(anio, units=['BIOTREN_L2'])
+        lv = lv[(lv.unit.eq('BIOTREN_L2')) & (lv.dt.eq('LV'))].set_index('mes')['n_dias'].reindex(meses_lab).fillna(0.0)
+        pesos = (post.reindex(meses_lab).astype(float) * lv).clip(lower=0)
+        pesos = pesos / pesos.sum()
+        ajuste_res.loc[meses_lab] = residual * pesos
+        post.loc[meses_lab] -= ajuste_res.loc[meses_lab]
+    factores = (post / bi.replace(0, np.nan)).replace([np.inf,-np.inf], np.nan).fillna(1.0).to_dict()
+    d = _escalar_detalle_servicio(d, 'BIOTREN', factores)
+    for mes in range(1,13):
+        mensual_rows.append({'mes': mes, 'servicio': 'BIOTREN', 'proyeccion_anterior': bi.loc[mes], 'proyeccion_recalibrada': post.loc[mes], 'diferencia': post.loc[mes]-bi.loc[mes], 'factor_o_ajuste_aplicado': f"base={f_base:.6f}; impacto_l2_fds={impacto_l2.loc[mes]:.0f}; residual_laboral={ajuste_res.loc[mes]:.0f}"})
+    diag.append({'servicio':'BIOTREN','indicador':'total_anterior','valor':total_ant})
+    diag.append({'servicio':'BIOTREN','indicador':'total_intermedio_base','valor':float(inter.sum())})
+    diag.append({'servicio':'BIOTREN','indicador':'total_recalibrado','valor':float(post.sum())})
+    diag.append({'servicio':'BIOTREN','indicador':'impacto_l2_fds_ene_feb','valor':float(impacto_l2.sum())})
+    diag.append({'servicio':'BIOTREN','indicador':'ajuste_residual_laboral','valor':float(ajuste_res.sum())})
+
+    # Llanquihue-Puerto Montt.
+    cfg = RECALIBRACION_2027['llanquihue_pm']
+    ll = d[d['servicio'].eq('LLANQUIHUE_PM')].groupby('mes')['afl'].sum().astype(float)
+    newll = ll.copy()
+    newll.loc[1] = ll.loc[1] * float(cfg['factor_novedad_enero'])
+    newll.loc[2] = ll.loc[2] * float(cfg['factor_novedad_febrero'])
+    lv = dias_operacionales_por_tipo(anio, units=['LLANQUIHUE_PM'])
+    lv = lv[(lv.unit.eq('LLANQUIHUE_PM')) & (lv.dt.eq('LV'))].set_index('mes')['n_dias'].reindex(range(1,13)).fillna(0.0)
+    meses = list(cfg['meses_ancla_laboral'])
+    raw_ratio = (ll.reindex(meses) / lv.reindex(meses).replace(0,np.nan)).replace([np.inf,-np.inf], np.nan)
+    rel = (raw_ratio / raw_ratio.mean()).fillna(1.0)
+    amp = float(cfg['amplitud_estacional_mar_dic'])
+    rel = 1.0 + (rel - 1.0) * amp
+    for mes in meses:
+        newll.loc[mes] = float(cfg['demanda_laboral_promedio_objetivo_mar_dic']) * float(lv.loc[mes]) * float(rel.loc[mes])
+    factores = (newll / ll.replace(0, np.nan)).replace([np.inf,-np.inf], np.nan).fillna(1.0).to_dict()
+    d = _escalar_detalle_servicio(d, 'LLANQUIHUE_PM', factores)
+    for mes in range(1,13):
+        mensual_rows.append({'mes': mes, 'servicio': 'LLANQUIHUE_PM', 'proyeccion_anterior': ll.loc[mes], 'proyeccion_recalibrada': newll.loc[mes], 'diferencia': newll.loc[mes]-ll.loc[mes], 'factor_o_ajuste_aplicado': 'efecto_novedad_ene_feb' if mes in (1,2) else 'calibracion_promedio_laboral_mar_dic'})
+    diag.append({'servicio':'LLANQUIHUE_PM','indicador':'total_anterior','valor':float(ll.sum())})
+    diag.append({'servicio':'LLANQUIHUE_PM','indicador':'total_recalibrado','valor':float(newll.sum())})
+    diag.append({'servicio':'LLANQUIHUE_PM','indicador':'promedio_laboral_mar_dic','valor':float(newll.reindex(meses).sum()/lv.reindex(meses).sum())})
+
+    # Diagnóstico Tren Araucanía: suavizado conservando total si marzo queda alto.
+    ta = d[d['servicio'].eq('TREN_ARAUCANIA')].groupby('mes')['afl'].sum().astype(float)
+    ta_new = ta.copy()
+    prom_abr_dic = float(ta.reindex(range(4,13)).mean())
+    ratio_mar = float(ta.loc[3] / prom_abr_dic) if prom_abr_dic else 0.0
+    umbral = float(RECALIBRACION_2027['tren_araucania']['umbral_marzo_vs_abr_dic'])
+    if ratio_mar > umbral:
+        exceso = ta.loc[3] - prom_abr_dic * umbral
+        ta_new.loc[3] -= exceso
+        pesos = ta_new.reindex(range(4,13)) / ta_new.reindex(range(4,13)).sum()
+        ta_new.loc[list(range(4,13))] += exceso * pesos
+        factores = (ta_new / ta.replace(0, np.nan)).replace([np.inf,-np.inf], np.nan).fillna(1.0).to_dict()
+        d = _escalar_detalle_servicio(d, 'TREN_ARAUCANIA', factores)
+    for mes in range(1,13):
+        mensual_rows.append({'mes': mes, 'servicio': 'TREN_ARAUCANIA', 'proyeccion_anterior': ta.loc[mes], 'proyeccion_recalibrada': ta_new.loc[mes], 'diferencia': ta_new.loc[mes]-ta.loc[mes], 'factor_o_ajuste_aplicado': 'oferta_victoria_temuco_11_lv_y_suavizamiento_marzo' if mes==3 else 'oferta_victoria_temuco_11_lv'})
+    diag.append({'servicio':'TREN_ARAUCANIA','indicador':'servicios_lv_victoria_temuco','valor':float(RECALIBRACION_2027['tren_araucania']['servicios_lv_victoria_temuco'])})
+    diag.append({'servicio':'TREN_ARAUCANIA','indicador':'ratio_marzo_vs_promedio_abr_dic','valor':float(ta_new.loc[3]/ta_new.reindex(range(4,13)).mean())})
+    diag.append({'servicio':'TREN_ARAUCANIA','indicador':'ratio_marzo_vs_promedio_anual','valor':float(ta_new.loc[3]/ta_new.mean())})
+
+    # Laja se deja sin ajuste específico.
+    laja = d[d['servicio'].eq('CORTO_LAJA')].groupby('mes')['afl'].sum().astype(float)
+    for mes in range(1,13):
+        mensual_rows.append({'mes': mes, 'servicio': 'CORTO_LAJA', 'proyeccion_anterior': laja.loc[mes], 'proyeccion_recalibrada': laja.loc[mes], 'diferencia': 0.0, 'factor_o_ajuste_aplicado': 'sin_ajuste_especifico_nuevo'})
+
+    # Comparativo anual anterior vs recalibrado dentro de esta función.
+    ant = {'BIOTREN': bi.sum(), 'LLANQUIHUE_PM': ll.sum(), 'TREN_ARAUCANIA': ta.sum(), 'CORTO_LAJA': laja.sum()}
+    rec = d.groupby('servicio')['afl'].sum().to_dict()
+    motivos = {'BIOTREN':'baja progresiva, afectación L2 fines de semana y residual laboral', 'TREN_ARAUCANIA':'Victoria-Temuco 11 servicios LV y suavizamiento de marzo', 'LLANQUIHUE_PM':'promedio laboral marzo-diciembre y menor efecto novedad estival', 'CORTO_LAJA':'sin ajuste específico nuevo'}
+    comp = pd.DataFrame([{'servicio':s, 'total_anterior':float(ant.get(s,0)), 'total_recalibrado':float(rec.get(s,0)), 'diferencia_absoluta':float(rec.get(s,0)-ant.get(s,0)), 'diferencia_porcentual':float((rec.get(s,0)/ant.get(s,1)-1)*100) if ant.get(s,0) else np.nan, 'motivo_principal_ajuste':motivos[s]} for s in SERVICIOS])
+    return d, comp, pd.DataFrame(mensual_rows), pd.DataFrame(diag)
+
 
 def cargar_calibracion_productividad(path=None):
     """Carga factores de calibración de pax/viaje construidos con información reciente.
@@ -554,9 +698,9 @@ def oferta_tren_araucania_tramos_df(mensual=True):
     edición mensual de oferta.
     """
     base = {
-        # Escenario 2027 actualizado: Victoria-Temuco sube de 9 a 15 servicios LV.
+        # Escenario 2027 recalibrado: Victoria-Temuco opera 11 servicios LV todo el año.
         # Pitrufquen mantiene promedio LV: lunes-jueves 7 y viernes 5 => 6,6. Claret 3 LV escolar.
-        'TA_TEMUCO_VICTORIA': {'LV': 15.0, 'Sab': 8.0, 'Dom': 6.0},
+        'TA_TEMUCO_VICTORIA': {'LV': 11.0, 'Sab': 8.0, 'Dom': 6.0},
         'TA_TEMUCO_PITRUFQUEN': {'LV': 6.6, 'Sab': 4.0, 'Dom': 0.0},
         'TA_CLARET': {'LV': 3.0, 'Sab': 0.0, 'Dom': 0.0},
     }
@@ -1076,6 +1220,8 @@ def proyectar_mensual_elastico(params, mdf, plan=None, contingencia_extra=None,
         all_cols = sorted(set(p.columns).union(set(ta_det.columns)))
         p = pd.concat([p[p['servicio'] != 'TREN_ARAUCANIA'].reindex(columns=all_cols),
                        ta_det.reindex(columns=all_cols)], ignore_index=True)
+
+    p, _, _, _ = recalibrar_escenario_2027(p, anio=anio)
 
     uni = p.groupby(['unit', 'mes'])['afl'].sum().reset_index()
     uni_w = uni.pivot(index='mes', columns='unit', values='afl').fillna(0.0)

@@ -314,3 +314,13 @@ El backtesting entrega métricas por servicio y para el total sistema: MAE, RMSE
 El módulo también entrega tabla mensual observado vs estimado, errores absolutos y porcentuales, conteo de meses usados en MAPE, conteo de meses con observado cero, advertencias metodológicas y validación automática desde `validar_modelo.py`.
 
 La sección **Validación histórica** de Streamlit muestra los resultados agregados, el detalle observado vs estimado y las advertencias. El proceso se ejecuta en memoria: no genera archivos binarios, no modifica outputs masivos y no altera `data/od_biotren/processed/`.
+
+## Escenario 2027 recalibrado
+
+El escenario 2027 incorpora una recalibración operacional trazable sin modificar los datos históricos procesados. Biotren aplica una baja progresiva del total mensual, una afectación operacional adicional en Línea 2 durante fines de semana de enero-febrero y un ajuste residual distribuido en meses laborales, de modo que la demanda anual se ubica en el entorno de 12,7 millones de pasajeros.
+
+Tren Araucanía se calcula por componente de servicio. Victoria-Temuco opera con 11 servicios de lunes a viernes durante todo 2027, Temuco-Pitrufquén se mantiene separado y Claret conserva su tratamiento escolar específico de marzo a diciembre. El perfil mensual incluye diagnóstico y suavizamiento de marzo cuando corresponde para evitar concentración artificial.
+
+Llanquihue-Puerto Montt se calibra con un promedio de día laboral cercano a 1.500 pasajeros entre marzo y diciembre, permitiendo variación mensual por estacionalidad y calendario. Enero y febrero incorporan una reducción por menor efecto novedad del servicio y no se fuerzan al promedio laboral de meses ancla.
+
+Laja-Talcahuano no recibe una modificación específica nueva en la recalibración y mantiene su regla operacional de feriados como fin de semana. Las bandas de incertidumbre se calculan sobre la nueva proyección base 2027, conservando las métricas históricas de WMAPE y sesgo del backtesting.

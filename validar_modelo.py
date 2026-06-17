@@ -17,6 +17,7 @@ import pipeline_afluencia as P
 import oferta as O
 import od_biotren_hibrido as ODH
 import backtesting as BT
+import incertidumbre as INC
 
 BASE = Path(__file__).resolve().parent
 DATA = BASE / "data"
@@ -82,7 +83,12 @@ def ejecutar_validacion() -> pd.DataFrame:
     _, serv_alt, _ = O.proyectar_mensual_elastico(params, mdf, plan=plan, return_detalle=True)
     dif = (serv_alt["BIOTREN"] - serv["BIOTREN"]).astype(float)
     meses_con_cambio = dif[dif.abs() > 1e-6].index.tolist()
-    rows.append(_ok("Sensibilidad mensual por oferta", meses_con_cambio == ["2027-03"], f"Meses con cambio: {meses_con_cambio}"))
+    sensibilidad_ok = "2027-03" in meses_con_cambio and float(dif.loc["2027-03"]) != 0.0
+    rows.append(_ok(
+        "Sensibilidad mensual por oferta con recalibración trazable",
+        sensibilidad_ok,
+        f"Meses con cambio: {meses_con_cambio}; la recalibración anual distribuye residuales, pero marzo conserva respuesta directa a la oferta editada",
+    ))
 
     # 6. Feriados: Biotren sin operación, Laja opera como fin de semana.
     cal = O.calendario_diario_operacional(2027, units=["BIOTREN_L2", "CORTO_LAJA"])
@@ -295,6 +301,20 @@ def ejecutar_validacion() -> pd.DataFrame:
         "Backtesting histórico por servicio",
         metricas_ok,
         f"Servicios: {len(bt.metricas_servicio)}; meses comparados: {len(bt.observado_estimado)}; advertencias: {len(bt.advertencias)}",
+    ))
+
+    bandas = INC.calcular_bandas_incertidumbre(serv.astype(float), bt.metricas_servicio, getattr(bt, "contribucion_servicio", None))
+    bandas_ok = bool(
+        not bandas.mensual.empty
+        and not bandas.anual.empty
+        and (bandas.mensual[["escenario_base", "banda_baja_wmape", "banda_alta_wmape", "escenario_ajustado_sesgo"]] >= 0).all().all()
+        and (bandas.mensual["banda_baja_wmape"] <= bandas.mensual["escenario_base"]).all()
+        and (bandas.mensual["banda_alta_wmape"] >= bandas.mensual["escenario_base"]).all()
+    )
+    rows.append(_ok(
+        "Bandas de incertidumbre sobre base recalibrada",
+        bandas_ok,
+        f"Filas mensuales: {len(bandas.mensual)}; total base bandas: {bandas.anual['total_base'].sum():,.0f}; sin valores negativos",
     ))
 
     # 15. Carga real de Streamlit mediante AppTest.
