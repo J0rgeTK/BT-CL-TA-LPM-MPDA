@@ -38,7 +38,6 @@ class BacktestResult:
     metricas_servicio: pd.DataFrame
     resumen_total_sistema: pd.DataFrame
     advertencias: list[str]
-    diagnosticos: dict[str, pd.DataFrame]
 
 
 def _as_prepared_mdf(mdf: pd.DataFrame) -> pd.DataFrame:
@@ -110,79 +109,6 @@ def calcular_metricas(df: pd.DataFrame, group_cols: list[str]) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def agregar_diagnosticos_mensuales(comp: pd.DataFrame) -> pd.DataFrame:
-    """Agrega sesgo mensual y contribución al error absoluto total del sistema."""
-    out = comp.copy()
-    total_error_abs = float(out["error_abs"].sum())
-    out["sesgo_mensual"] = out["error_pct"]
-    out["contribucion_error_total_sistema"] = out["error_abs"] / total_error_abs if total_error_abs else np.nan
-    out["mes_calendario"] = out["m"].astype(int)
-    out["bloque_calendario"] = np.select(
-        [
-            out["mes_calendario"].isin([1, 2]),
-            out["mes_calendario"].isin([3, 4, 5, 6, 7, 8, 9, 10, 11, 12]),
-        ],
-        ["estival", "no_estival"],
-        default="sin_clasificar",
-    )
-    out["bloque_escolar_ta"] = np.where(out["mes_calendario"].isin([3, 4, 5, 6, 7, 8, 9, 10, 11, 12]), "escolar", "no_escolar")
-    return out
-
-
-def diagnostico_componentes_estimados(params: pd.DataFrame, mdf: pd.DataFrame, anios: list[int] | tuple[int, ...],
-                                      comp: pd.DataFrame) -> pd.DataFrame:
-    """Resume componentes internos estimados cuando el motor los expone.
-
-    La base observada mensual disponible es por servicio agregado; por eso este
-    diagnóstico no asigna observado a componentes. Se usa para localizar cuánto
-    aporta cada componente interno a la estimación del servicio.
-    """
-    frames = []
-    for anio in sorted(set(int(y) for y in anios)):
-        _, _, detalle = O.proyectar_mensual_elastico(params, mdf, anio=anio, return_detalle=True)
-        d = detalle.copy()
-        d["anio"] = anio
-        d["mes_calendario"] = d["mes"].astype(int)
-        d["periodo"] = d["mes_calendario"].map(lambda m: f"{anio}-{int(m):02d}")
-        d["componente"] = d["unit"].map(O.TA_TRAMO_NOMBRE).fillna(d["unit"])
-        frames.append(
-            d.groupby(["servicio", "anio", "mes_calendario", "periodo", "unit", "componente"], as_index=False)
-            .agg(estimado_componente=("afl", "sum"), viajes_operados_plan=("viajes_operados_plan", "sum"))
-        )
-    if not frames:
-        return pd.DataFrame()
-    out = pd.concat(frames, ignore_index=True)
-    periodos_observados = comp[["servicio", "periodo"]].drop_duplicates()
-    out = out.merge(periodos_observados, on=["servicio", "periodo"], how="inner")
-    total = out.groupby(["servicio", "anio", "mes_calendario", "periodo"], as_index=False)["estimado_componente"].sum()
-    total = total.rename(columns={"estimado_componente": "estimado_servicio"})
-    out = out.merge(total, on=["servicio", "anio", "mes_calendario", "periodo"], how="left")
-    out["participacion_estimado_servicio"] = out["estimado_componente"] / out["estimado_servicio"].replace(0, np.nan)
-    out["bloque_escolar_ta"] = np.where(out["mes_calendario"].isin([3, 4, 5, 6, 7, 8, 9, 10, 11, 12]), "escolar", "no_escolar")
-    return out
-
-
-def generar_advertencias_servicio(metricas_servicio: pd.DataFrame, umbral_wmape: float = 25.0) -> pd.DataFrame:
-    """Genera advertencias diagnósticas livianas por servicio."""
-    rows = []
-    for r in metricas_servicio.itertuples(index=False):
-        mensajes = []
-        if float(r.WMAPE) >= umbral_wmape:
-            mensajes.append(f"WMAPE sobre umbral {umbral_wmape:.0f}%")
-        if abs(float(r.sesgo)) >= 10.0:
-            direccion = "sobreestimación" if float(r.sesgo) > 0 else "subestimación"
-            mensajes.append(f"sesgo agregado relevante ({direccion})")
-        if not mensajes:
-            mensajes.append("sin alerta cuantitativa principal")
-        rows.append({
-            "servicio": r.servicio,
-            "WMAPE": float(r.WMAPE),
-            "sesgo": float(r.sesgo),
-            "advertencia": "; ".join(mensajes),
-        })
-    return pd.DataFrame(rows).sort_values(["WMAPE", "servicio"], ascending=[False, True])
-
-
 def ejecutar_backtesting(params: pd.DataFrame, mdf: pd.DataFrame, anios: list[int] | tuple[int, ...] | None = None) -> BacktestResult:
     """Ejecuta backtesting por servicio y total sistema.
 
@@ -193,24 +119,7 @@ def ejecutar_backtesting(params: pd.DataFrame, mdf: pd.DataFrame, anios: list[in
     if anios is None:
         anios = sorted(int(y) for y in g.loc[g["anio"] < 2027, "anio"].dropna().unique())
     comp = comparar_observado_estimado(params, mdf, anios)
-    comp = agregar_diagnosticos_mensuales(comp)
     metricas_servicio = calcular_metricas(comp, ["servicio"])
-    resumen_servicio_anio = calcular_metricas(comp, ["servicio", "anio"])
-    resumen_servicio_mes_calendario = calcular_metricas(comp, ["servicio", "mes_calendario"])
-    contribucion_servicio = (
-        comp.groupby("servicio", as_index=False)
-        .agg(
-            error_abs=("error_abs", "sum"),
-            error_neto=("error", "sum"),
-            contribucion_error_total_sistema=("contribucion_error_total_sistema", "sum"),
-            observado_total=("observado", "sum"),
-            estimado_total=("estimado", "sum"),
-        )
-        .sort_values("contribucion_error_total_sistema", ascending=False)
-    )
-    contribucion_anio = calcular_metricas(comp, ["anio"])
-    componentes = diagnostico_componentes_estimados(params, mdf, anios, comp)
-    advertencias_servicio = generar_advertencias_servicio(metricas_servicio)
 
     sistema = comp.groupby(["anio", "m", "periodo"], as_index=False).agg(observado=("observado", "sum"), estimado=("estimado", "sum"))
     sistema["servicio"] = "TOTAL_SISTEMA"
@@ -228,14 +137,5 @@ def ejecutar_backtesting(params: pd.DataFrame, mdf: pd.DataFrame, anios: list[in
         "Las estimaciones usan el motor mensual-elástico vigente; los feriados parametrizados explícitamente corresponden al horizonte 2027.",
         "MAPE excluye meses con observado cero y puede ser inestable cuando el observado mensual es bajo; WMAPE se usa como métrica agregada principal.",
         "La comparación se limita a meses con observación histórica disponible y no genera outputs masivos ni modifica data/od_biotren/processed/.",
-        "Los componentes internos se reportan sólo para estimados cuando no existe observado desagregado comparable por componente.",
     ]
-    diagnosticos = {
-        "resumen_servicio_anio": resumen_servicio_anio,
-        "resumen_servicio_mes_calendario": resumen_servicio_mes_calendario,
-        "contribucion_servicio": contribucion_servicio,
-        "contribucion_anio": contribucion_anio,
-        "componentes_estimados": componentes,
-        "advertencias_servicio": advertencias_servicio,
-    }
-    return BacktestResult(comp, comp.copy(), metricas_servicio, resumen_total, advertencias, diagnosticos)
+    return BacktestResult(comp, comp.copy(), metricas_servicio, resumen_total, advertencias)

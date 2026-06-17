@@ -311,19 +311,6 @@ Se incorporó un módulo de backtesting para evaluar la capacidad del modelo pre
 
 El backtesting entrega métricas por servicio y para el total sistema: MAE, RMSE, MAPE, WMAPE y sesgo. MAE y RMSE se expresan en viajes mensuales; MAPE y WMAPE se expresan como porcentaje sobre observado; el sesgo resume la dirección del error agregado. WMAPE es la referencia agregada principal porque pondera por volumen observado. MAPE se informa sólo como apoyo, excluye meses con observado cero y puede ser inestable en meses o servicios de baja afluencia.
 
-El módulo también entrega tabla mensual observado vs estimado, errores absolutos y porcentuales, sesgo mensual, contribución al error absoluto total del sistema, resúmenes por año y mes calendario, conteo de meses usados en MAPE, conteo de meses con observado cero, advertencias metodológicas y validación automática desde `validar_modelo.py`. Los componentes internos disponibles se reportan sólo como estimación del motor cuando no existe observado desagregado comparable.
+El módulo también entrega tabla mensual observado vs estimado, errores absolutos y porcentuales, conteo de meses usados en MAPE, conteo de meses con observado cero, advertencias metodológicas y validación automática desde `validar_modelo.py`.
 
 La sección **Validación histórica** de Streamlit muestra los resultados agregados, el detalle observado vs estimado y las advertencias. El proceso se ejecuta en memoria: no genera archivos binarios, no modifica outputs masivos y no altera `data/od_biotren/processed/`.
-
-## Bandas de incertidumbre y escenarios diagnósticos
-
-Las bandas de incertidumbre se derivan del backtesting retrospectivo diagnóstico no holdout y se calculan en memoria sobre el escenario base 2027 vigente. No corresponden a intervalos estadísticos formales, no reemplazan el escenario base y no recalibran automáticamente la proyección.
-
-Para cada servicio y mes proyectado se reporta:
-
-- `escenario_base`: proyección vigente sin cambios;
-- `banda_baja_wmape`: `escenario_base × (1 - WMAPE_servicio)`, con piso mínimo cero;
-- `banda_alta_wmape`: `escenario_base × (1 + WMAPE_servicio)`, con piso mínimo cero;
-- `escenario_ajustado_sesgo`: `escenario_base × (1 - sesgo_servicio)`, sólo como referencia diagnóstica.
-
-El WMAPE histórico se usa como amplitud bajo/alto por servicio. El ajuste por sesgo permite visualizar sensibilidad ante sobreestimación o subestimación histórica, pero no debe reemplazar el escenario oficial. Los servicios con WMAPE mayor a 25%, Tren Araucanía por alto sesgo positivo y Biotren por su alta contribución al error absoluto total reciben advertencias metodológicas específicas.

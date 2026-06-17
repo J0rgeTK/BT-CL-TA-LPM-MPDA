@@ -17,7 +17,6 @@ import pipeline_afluencia as P
 import oferta as O
 import od_biotren_hibrido as OD
 import backtesting as BT
-import incertidumbre as INC
 
 st.set_page_config(page_title="Afluencia EFE/Fesur 2027", layout="wide", page_icon="🚆")
 
@@ -694,41 +693,7 @@ def render_validacion_historica():
     st.markdown("#### Métricas por servicio")
     ms = bt.metricas_servicio.copy()
     ms["servicio"] = ms["servicio"].map(lambda x: O.NOMBRE.get(x, x))
-    ms = ms.sort_values("WMAPE", ascending=False)
     st.dataframe(ms, width="stretch", hide_index=True)
-
-    st.markdown("#### Diagnóstico de concentración de errores")
-    contrib = bt.diagnosticos["contribucion_servicio"].copy()
-    contrib["servicio"] = contrib["servicio"].map(lambda x: O.NOMBRE.get(x, x))
-    st.dataframe(
-        contrib[["servicio", "error_abs", "error_neto", "contribucion_error_total_sistema", "observado_total", "estimado_total"]],
-        width="stretch",
-        hide_index=True,
-    )
-
-    st.markdown("#### Alertas por servicio")
-    alertas = bt.diagnosticos["advertencias_servicio"].copy()
-    alertas["servicio"] = alertas["servicio"].map(lambda x: O.NOMBRE.get(x, x))
-    st.dataframe(alertas, width="stretch", hide_index=True)
-    if (bt.metricas_servicio["WMAPE"] >= 25.0).any():
-        st.warning("Hay servicios con WMAPE superior a 25%; se recomienda interpretar el escenario base con bandas de incertidumbre o escenarios alternativos antes de aplicar factores de corrección.")
-
-    with st.expander("Foco Tren Araucanía y Biotren", expanded=False):
-        foco = bt.observado_estimado[bt.observado_estimado["servicio"].isin(["TREN_ARAUCANIA", "BIOTREN"])].copy()
-        foco["servicio"] = foco["servicio"].map(lambda x: O.NOMBRE.get(x, x))
-        st.dataframe(
-            foco[["servicio", "periodo", "mes_calendario", "observado", "estimado", "error", "error_abs", "error_pct", "contribucion_error_total_sistema"]],
-            width="stretch",
-            height=260,
-        )
-        comp_est = bt.diagnosticos["componentes_estimados"]
-        comp_est = comp_est[comp_est["servicio"].isin(["TREN_ARAUCANIA", "BIOTREN"])].copy()
-        st.caption("Componentes internos estimados: no se asigna observado por componente porque la base histórica comparable está agregada por servicio.")
-        st.dataframe(
-            comp_est[["servicio", "periodo", "componente", "estimado_componente", "participacion_estimado_servicio", "bloque_escolar_ta"]],
-            width="stretch",
-            height=260,
-        )
 
     st.markdown("#### Tabla observado vs estimado por mes")
     comp = bt.observado_estimado.copy()
@@ -744,51 +709,6 @@ def render_validacion_historica():
 
     st.markdown("#### Advertencias metodológicas")
     for warning in bt.advertencias:
-        st.warning(warning)
-
-
-
-def render_incertidumbre_diagnostica():
-    st.markdown("### Incertidumbre y escenarios diagnósticos")
-    st.info("Las bandas se derivan del backtesting retrospectivo diagnóstico. No son intervalos estadísticos formales y no reemplazan ni recalibran el escenario base 2027.")
-    try:
-        _, serv, _ = O.proyectar_mensual_elastico(params, mdf, return_detalle=True)
-        bt = BT.ejecutar_backtesting(params, mdf)
-        inc = INC.calcular_bandas_incertidumbre(serv.astype(float), bt.metricas_servicio, bt.diagnosticos["contribucion_servicio"])
-    except Exception as e:
-        st.warning(f"No fue posible calcular bandas de incertidumbre diagnósticas: {e}")
-        return
-
-    anual = inc.anual.copy()
-    anual["servicio_nombre"] = anual["servicio"].map(lambda x: O.NOMBRE.get(x, x))
-    st.markdown("#### Tabla anual por servicio")
-    st.dataframe(
-        anual[["servicio_nombre", "total_base", "total_banda_baja", "total_banda_alta", "total_ajustado_sesgo", "WMAPE_usado", "sesgo_usado", "advertencia_metodologica"]],
-        width="stretch",
-        hide_index=True,
-    )
-
-    st.markdown("#### Comparación bajo / base / alto")
-    comparacion = anual[["servicio_nombre", "total_banda_baja", "total_base", "total_banda_alta", "total_ajustado_sesgo"]].copy()
-    st.dataframe(comparacion, width="stretch", hide_index=True)
-
-    if (anual["WMAPE_usado"] > 25.0).any():
-        servicios = ", ".join(anual.loc[anual["WMAPE_usado"] > 25.0, "servicio_nombre"].astype(str))
-        st.warning(f"Servicios con WMAPE mayor a 25%: {servicios}. Usar bandas amplias y escenarios diagnósticos antes de interpretar cambios de oferta.")
-    ta = anual[anual["servicio"].eq("TREN_ARAUCANIA")]
-    if not ta.empty and float(ta.iloc[0]["sesgo_usado"]) > 25.0:
-        st.warning("Tren Araucanía presenta alto sesgo positivo histórico; el escenario ajustado por sesgo debe leerse sólo como sensibilidad diagnóstica de riesgo de sobreestimación.")
-    bt_row = anual[anual["servicio"].eq("BIOTREN")]
-    if not bt_row.empty and pd.notna(bt_row.iloc[0].get("contribucion_error_total_sistema")) and float(bt_row.iloc[0]["contribucion_error_total_sistema"]) >= 0.5:
-        st.warning("Biotren concentra alta contribución al error absoluto total del sistema; reportar incertidumbre sistémica aunque su WMAPE no sea el mayor.")
-
-    st.markdown("#### Serie mensual diagnóstica")
-    mensual = inc.mensual.copy()
-    mensual["servicio"] = mensual["servicio"].map(lambda x: O.NOMBRE.get(x, x))
-    st.dataframe(mensual, width="stretch", height=300)
-
-    st.markdown("#### Advertencias metodológicas")
-    for warning in inc.advertencias:
         st.warning(warning)
 
 
@@ -913,15 +833,13 @@ def render_servicio(s):
                        f"proyeccion_2027_{s}.csv", key=f"dl_{s}")
 
 
-tabs = st.tabs(["📘 Metodología", "📊 Resumen", "🧪 Validación histórica", "📈 Incertidumbre"] + [O.NOMBRE[s] for s in O.SERVICIOS])
+tabs = st.tabs(["📘 Metodología", "📊 Resumen", "🧪 Validación histórica"] + [O.NOMBRE[s] for s in O.SERVICIOS])
 with tabs[0]:
     render_metodologia()
 with tabs[1]:
     render_resumen()
 with tabs[2]:
     render_validacion_historica()
-with tabs[3]:
-    render_incertidumbre_diagnostica()
 for i, s in enumerate(O.SERVICIOS):
-    with tabs[i + 4]:
+    with tabs[i + 3]:
         render_servicio(s)
