@@ -132,19 +132,45 @@ El módulo OD por tipo de tarjeta distribuye el total mensual vigente de Biotren
 
 Los tipos con tarifa 0 conservan viajes proyectados en la distribución de afluencia, pero no generan ingreso tarifario directo.
 
-## 9. Ingresos tarifarios preliminares
+## 9. Ingresos por venta de pasajes
 
-Los ingresos OD preliminares se calculan en memoria multiplicando la matriz de viajes por la tarifa aplicable a cada tipo de tarjeta:
+Los ingresos por venta de pasajes se calculan en memoria multiplicando la matriz de viajes por la tarifa directa aplicable a cada tipo de tarjeta:
 
 ```text
 Ingreso_ij,t,m = Viajes_ij,t,m × Tarifa_ij,t
 ```
 
-Los ingresos tarifarios preliminares aplican sólo donde existe tarifa directa: `monedero`, `media_superior` y `adulto_mayor`. Los tipos `estudiante_basica`, `discapacitado`, `funcionario_normal`, `funcionario_especial` y `convenio_colectivo` usan tarifa 0. Los ingresos no incorporan subsidios, evasión, ajustes contables, reglas comerciales adicionales ni variación tarifaria dinámica por periodo.
+Los ingresos por venta de pasajes aplican sólo donde existe tarifa directa: `monedero`, `media_superior` y `adulto_mayor`. Los tipos `estudiante_basica`, `discapacitado`, `funcionario_normal`, `funcionario_especial` y `convenio_colectivo` usan tarifa 0. La tarifa estudiante pagada se mantiene para la venta de pasajes de `media_superior` y no se reemplaza por la tarifa estudiante BT sin subsidio.
 
-## 10. Base referencial de subsidio
+## 10. Subsidio e ingreso total Biotren
 
-La base referencial de subsidio se prepara para trazabilidad metodológica, sin calcular montos. El grupo `subsidio_normal_base` agrupa todas las matrices OD excepto `media_superior` y `adulto_mayor`; `subsidio_estudiante_media_superior` considera sólo `media_superior`; y `adulto_mayor` no considera subsidio referencial. Esta base no corresponde a liquidación, compensación ni estimación monetaria implementada.
+Venta de pasajes y subsidio son conceptos distintos. El cálculo se aplica sobre la proyección OD por tipo de tarjeta vigente de Biotren y no modifica la afluencia proyectada.
+
+### 10.1 Subsidio normal
+
+El grupo normal incluye todas las tarjetas excepto `media_superior` y `adulto_mayor`: `monedero`, `estudiante_basica`, `discapacitado`, `funcionario_normal`, `funcionario_especial` y `convenio_colectivo`.
+
+Monto_normal_base = Σ(MOD_normal_base_ij × tarifa_normal_ij), con diagonal en cero.
+
+Subsidio_normal = Monto_normal_base / (1 - tasa_descuento) - Monto_normal_base
+
+La tasa de descuento queda parametrizada en `data/tarifas_biotren/parametros_subsidio_biotren.csv` como `tasa_descuento_normal = 0,189`.
+
+### 10.2 Subsidio estudiante
+
+El grupo estudiante incluye sólo `media_superior`.
+
+Subsidio_estudiante = Σ(MOD_media_superior_ij × tarifa_estudiante_BT_sin_subsidio_ij), con diagonal en cero.
+
+La matriz `data/tarifas_biotren/tarifa_estudiante_bt_sin_subsidio_long.csv` se usa sólo para este subsidio; no reemplaza la tarifa estudiante pagada de venta de pasajes. No se imputan automáticamente tarifas faltantes y las brechas de cobertura se reportan como advertencias.
+
+### 10.3 Total
+
+Subsidio_total = Subsidio_normal + Subsidio_estudiante
+
+Ingreso_total_Biotren = Ingreso_venta + Subsidio_normal + Subsidio_estudiante
+
+`adulto_mayor` queda fuera de los grupos de subsidio indicados.
 
 ## 11. Backtesting histórico diagnóstico
 
@@ -167,7 +193,7 @@ Las bandas se calculan sobre la proyección base 2027 vigente:
 
 ## 13. Validaciones, limitaciones y próximos pasos
 
-El modelo genera controles de consistencia mensual/anual, feriados por servicio, sensibilidad de oferta, conservación de totales OD de Biotren, suma de participaciones MOD por línea, consistencia por tipo de tarjeta, ingresos sólo para tipos con tarifa aplicable, base referencial de subsidio sin montos, backtesting diagnóstico y bandas de incertidumbre sin valores negativos.
+El modelo genera controles de consistencia mensual/anual, feriados por servicio, sensibilidad de oferta, conservación de totales OD de Biotren, suma de participaciones MOD por línea, consistencia por tipo de tarjeta, ingresos sólo para tipos con tarifa aplicable, subsidio normal y estudiante con controles de cobertura, backtesting diagnóstico y bandas de incertidumbre sin valores negativos.
 
 La sección **Validación histórica** de Streamlit muestra los resultados agregados, el detalle observado vs estimado y las advertencias. El proceso se ejecuta en memoria: no genera archivos binarios, no modifica outputs masivos y no altera `data/od_biotren/processed/`.
 
