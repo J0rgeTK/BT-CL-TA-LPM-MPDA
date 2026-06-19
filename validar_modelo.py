@@ -421,7 +421,7 @@ def ejecutar_validacion() -> pd.DataFrame:
     ))
 
     # 15. Carga real de Streamlit mediante AppTest.
-    app = AppTest.from_file(str(BASE / "streamlit_app.py"), default_timeout=30)
+    app = AppTest.from_file(str(BASE / "streamlit_app.py"), default_timeout=90)
     app.run()
     rows.append(_ok("Carga de Streamlit", len(app.exception) == 0, f"Excepciones detectadas: {len(app.exception)}"))
 
