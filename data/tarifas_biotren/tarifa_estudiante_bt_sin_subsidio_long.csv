@@ -1,0 +1,677 @@
+origen,destino,tarifa_estudiante_bt_sin_subsidio,es_diagonal,origen_en_modelo,destino_en_modelo,tarifa_disponible,fuente
+Hualqui,Hualqui,,1,1,1,0,Estudiante BT sin subsidio.xlsx
+Hualqui,La Leonera,500.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hualqui,Manquimávida,500.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hualqui,Pedro Medina,500.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hualqui,Chiguayante,500.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hualqui,Concepción,550.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hualqui,Lorenzo Arenas,550.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hualqui,UTFSM,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hualqui,Los Cóndores,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hualqui,Higueras,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hualqui,El Arenal,580.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hualqui,Mercado,580.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hualqui,Juan Pablo II,600.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hualqui,Diagonal Biobío,600.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hualqui,Alborada,600.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hualqui,Costa Mar,600.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hualqui,El Parque,600.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hualqui,Lomas Coloradas,600.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hualqui,C. Raúl Silva H.,600.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hualqui,Hito Galvarino,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hualqui,Los Canelos,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hualqui,Huinca,960.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hualqui,Cristo Redentor,960.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hualqui,Laguna Quiñenco,970.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hualqui,Intermodal Coronel,970.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hualqui,Pasajero Lota,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+La Leonera,Hualqui,500.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+La Leonera,La Leonera,,1,1,1,0,Estudiante BT sin subsidio.xlsx
+La Leonera,Manquimávida,420.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+La Leonera,Pedro Medina,420.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+La Leonera,Chiguayante,420.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+La Leonera,Concepción,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+La Leonera,Lorenzo Arenas,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+La Leonera,UTFSM,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+La Leonera,Los Cóndores,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+La Leonera,Higueras,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+La Leonera,El Arenal,550.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+La Leonera,Mercado,550.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+La Leonera,Juan Pablo II,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+La Leonera,Diagonal Biobío,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+La Leonera,Alborada,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+La Leonera,Costa Mar,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+La Leonera,El Parque,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+La Leonera,Lomas Coloradas,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+La Leonera,C. Raúl Silva H.,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+La Leonera,Hito Galvarino,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+La Leonera,Los Canelos,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+La Leonera,Huinca,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+La Leonera,Cristo Redentor,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+La Leonera,Laguna Quiñenco,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+La Leonera,Intermodal Coronel,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+La Leonera,Pasajero Lota,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Manquimávida,Hualqui,500.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Manquimávida,La Leonera,420.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Manquimávida,Manquimávida,,1,1,1,0,Estudiante BT sin subsidio.xlsx
+Manquimávida,Pedro Medina,420.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Manquimávida,Chiguayante,420.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Manquimávida,Concepción,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Manquimávida,Lorenzo Arenas,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Manquimávida,UTFSM,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Manquimávida,Los Cóndores,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Manquimávida,Higueras,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Manquimávida,El Arenal,550.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Manquimávida,Mercado,550.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Manquimávida,Juan Pablo II,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Manquimávida,Diagonal Biobío,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Manquimávida,Alborada,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Manquimávida,Costa Mar,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Manquimávida,El Parque,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Manquimávida,Lomas Coloradas,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Manquimávida,C. Raúl Silva H.,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Manquimávida,Hito Galvarino,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Manquimávida,Los Canelos,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Manquimávida,Huinca,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Manquimávida,Cristo Redentor,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Manquimávida,Laguna Quiñenco,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Manquimávida,Intermodal Coronel,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Manquimávida,Pasajero Lota,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pedro Medina,Hualqui,500.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Pedro Medina,La Leonera,420.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Pedro Medina,Manquimávida,420.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Pedro Medina,Pedro Medina,,1,1,1,0,Estudiante BT sin subsidio.xlsx
+Pedro Medina,Chiguayante,420.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Pedro Medina,Concepción,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Pedro Medina,Lorenzo Arenas,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Pedro Medina,UTFSM,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Pedro Medina,Los Cóndores,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Pedro Medina,Higueras,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Pedro Medina,El Arenal,550.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Pedro Medina,Mercado,550.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Pedro Medina,Juan Pablo II,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Pedro Medina,Diagonal Biobío,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Pedro Medina,Alborada,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Pedro Medina,Costa Mar,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Pedro Medina,El Parque,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Pedro Medina,Lomas Coloradas,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Pedro Medina,C. Raúl Silva H.,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Pedro Medina,Hito Galvarino,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Pedro Medina,Los Canelos,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Pedro Medina,Huinca,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Pedro Medina,Cristo Redentor,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Pedro Medina,Laguna Quiñenco,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Pedro Medina,Intermodal Coronel,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Pedro Medina,Pasajero Lota,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Chiguayante,Hualqui,500.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Chiguayante,La Leonera,420.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Chiguayante,Manquimávida,420.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Chiguayante,Pedro Medina,420.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Chiguayante,Chiguayante,,1,1,1,0,Estudiante BT sin subsidio.xlsx
+Chiguayante,Concepción,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Chiguayante,Lorenzo Arenas,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Chiguayante,UTFSM,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Chiguayante,Los Cóndores,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Chiguayante,Higueras,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Chiguayante,El Arenal,550.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Chiguayante,Mercado,550.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Chiguayante,Juan Pablo II,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Chiguayante,Diagonal Biobío,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Chiguayante,Alborada,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Chiguayante,Costa Mar,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Chiguayante,El Parque,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Chiguayante,Lomas Coloradas,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Chiguayante,C. Raúl Silva H.,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Chiguayante,Hito Galvarino,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Chiguayante,Los Canelos,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Chiguayante,Huinca,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Chiguayante,Cristo Redentor,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Chiguayante,Laguna Quiñenco,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Chiguayante,Intermodal Coronel,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Chiguayante,Pasajero Lota,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Concepción,Hualqui,550.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Concepción,La Leonera,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Concepción,Manquimávida,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Concepción,Pedro Medina,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Concepción,Chiguayante,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Concepción,Concepción,,1,1,1,0,Estudiante BT sin subsidio.xlsx
+Concepción,Lorenzo Arenas,420.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Concepción,UTFSM,500.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Concepción,Los Cóndores,500.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Concepción,Higueras,500.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Concepción,El Arenal,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Concepción,Mercado,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Concepción,Juan Pablo II,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Concepción,Diagonal Biobío,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Concepción,Alborada,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Concepción,Costa Mar,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Concepción,El Parque,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Concepción,Lomas Coloradas,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Concepción,C. Raúl Silva H.,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Concepción,Hito Galvarino,850.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Concepción,Los Canelos,850.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Concepción,Huinca,850.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Concepción,Cristo Redentor,850.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Concepción,Laguna Quiñenco,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Concepción,Intermodal Coronel,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Concepción,Pasajero Lota,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Lorenzo Arenas,Hualqui,550.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lorenzo Arenas,La Leonera,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lorenzo Arenas,Manquimávida,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lorenzo Arenas,Pedro Medina,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lorenzo Arenas,Chiguayante,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lorenzo Arenas,Concepción,420.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lorenzo Arenas,Lorenzo Arenas,,1,1,1,0,Estudiante BT sin subsidio.xlsx
+Lorenzo Arenas,UTFSM,500.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lorenzo Arenas,Los Cóndores,500.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lorenzo Arenas,Higueras,500.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lorenzo Arenas,El Arenal,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lorenzo Arenas,Mercado,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lorenzo Arenas,Juan Pablo II,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lorenzo Arenas,Diagonal Biobío,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lorenzo Arenas,Alborada,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lorenzo Arenas,Costa Mar,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lorenzo Arenas,El Parque,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lorenzo Arenas,Lomas Coloradas,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lorenzo Arenas,C. Raúl Silva H.,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lorenzo Arenas,Hito Galvarino,850.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lorenzo Arenas,Los Canelos,850.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lorenzo Arenas,Huinca,850.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lorenzo Arenas,Cristo Redentor,850.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lorenzo Arenas,Laguna Quiñenco,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lorenzo Arenas,Intermodal Coronel,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lorenzo Arenas,Pasajero Lota,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+UTFSM,Hualqui,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+UTFSM,La Leonera,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+UTFSM,Manquimávida,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+UTFSM,Pedro Medina,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+UTFSM,Chiguayante,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+UTFSM,Concepción,500.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+UTFSM,Lorenzo Arenas,500.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+UTFSM,UTFSM,,1,1,1,0,Estudiante BT sin subsidio.xlsx
+UTFSM,Los Cóndores,420.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+UTFSM,Higueras,420.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+UTFSM,El Arenal,490.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+UTFSM,Mercado,490.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+UTFSM,Juan Pablo II,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+UTFSM,Diagonal Biobío,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+UTFSM,Alborada,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+UTFSM,Costa Mar,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+UTFSM,El Parque,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+UTFSM,Lomas Coloradas,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+UTFSM,C. Raúl Silva H.,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+UTFSM,Hito Galvarino,870.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+UTFSM,Los Canelos,870.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+UTFSM,Huinca,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+UTFSM,Cristo Redentor,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+UTFSM,Laguna Quiñenco,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+UTFSM,Intermodal Coronel,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+UTFSM,Pasajero Lota,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Los Cóndores,Hualqui,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Cóndores,La Leonera,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Cóndores,Manquimávida,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Cóndores,Pedro Medina,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Cóndores,Chiguayante,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Cóndores,Concepción,500.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Cóndores,Lorenzo Arenas,500.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Cóndores,UTFSM,420.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Cóndores,Los Cóndores,,1,1,1,0,Estudiante BT sin subsidio.xlsx
+Los Cóndores,Higueras,420.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Cóndores,El Arenal,490.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Cóndores,Mercado,490.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Cóndores,Juan Pablo II,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Cóndores,Diagonal Biobío,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Cóndores,Alborada,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Cóndores,Costa Mar,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Cóndores,El Parque,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Cóndores,Lomas Coloradas,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Cóndores,C. Raúl Silva H.,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Cóndores,Hito Galvarino,870.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Cóndores,Los Canelos,870.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Cóndores,Huinca,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Cóndores,Cristo Redentor,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Cóndores,Laguna Quiñenco,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Cóndores,Intermodal Coronel,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Cóndores,Pasajero Lota,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Higueras,Hualqui,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Higueras,La Leonera,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Higueras,Manquimávida,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Higueras,Pedro Medina,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Higueras,Chiguayante,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Higueras,Concepción,500.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Higueras,Lorenzo Arenas,500.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Higueras,UTFSM,420.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Higueras,Los Cóndores,420.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Higueras,Higueras,,1,1,1,0,Estudiante BT sin subsidio.xlsx
+Higueras,El Arenal,490.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Higueras,Mercado,490.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Higueras,Juan Pablo II,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Higueras,Diagonal Biobío,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Higueras,Alborada,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Higueras,Costa Mar,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Higueras,El Parque,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Higueras,Lomas Coloradas,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Higueras,C. Raúl Silva H.,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Higueras,Hito Galvarino,870.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Higueras,Los Canelos,870.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Higueras,Huinca,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Higueras,Cristo Redentor,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Higueras,Laguna Quiñenco,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Higueras,Intermodal Coronel,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Higueras,Pasajero Lota,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+El Arenal,Hualqui,580.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Arenal,La Leonera,550.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Arenal,Manquimávida,550.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Arenal,Pedro Medina,550.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Arenal,Chiguayante,550.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Arenal,Concepción,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Arenal,Lorenzo Arenas,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Arenal,UTFSM,490.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Arenal,Los Cóndores,490.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Arenal,Higueras,490.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Arenal,El Arenal,,1,1,1,0,Estudiante BT sin subsidio.xlsx
+El Arenal,Mercado,420.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Arenal,Juan Pablo II,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Arenal,Diagonal Biobío,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Arenal,Alborada,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Arenal,Costa Mar,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Arenal,El Parque,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Arenal,Lomas Coloradas,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Arenal,C. Raúl Silva H.,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Arenal,Hito Galvarino,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Arenal,Los Canelos,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Arenal,Huinca,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Arenal,Cristo Redentor,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Arenal,Laguna Quiñenco,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Arenal,Intermodal Coronel,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Arenal,Pasajero Lota,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Mercado,Hualqui,580.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Mercado,La Leonera,550.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Mercado,Manquimávida,550.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Mercado,Pedro Medina,550.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Mercado,Chiguayante,550.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Mercado,Concepción,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Mercado,Lorenzo Arenas,540.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Mercado,UTFSM,490.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Mercado,Los Cóndores,490.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Mercado,Higueras,490.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Mercado,El Arenal,420.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Mercado,Mercado,,1,1,1,0,Estudiante BT sin subsidio.xlsx
+Mercado,Juan Pablo II,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Mercado,Diagonal Biobío,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Mercado,Alborada,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Mercado,Costa Mar,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Mercado,El Parque,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Mercado,Lomas Coloradas,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Mercado,C. Raúl Silva H.,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Mercado,Hito Galvarino,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Mercado,Los Canelos,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Mercado,Huinca,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Mercado,Cristo Redentor,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Mercado,Laguna Quiñenco,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Mercado,Intermodal Coronel,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Mercado,Pasajero Lota,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Juan Pablo II,Hualqui,600.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Juan Pablo II,La Leonera,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Juan Pablo II,Manquimávida,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Juan Pablo II,Pedro Medina,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Juan Pablo II,Chiguayante,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Juan Pablo II,Concepción,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Juan Pablo II,Lorenzo Arenas,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Juan Pablo II,UTFSM,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Juan Pablo II,Los Cóndores,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Juan Pablo II,Higueras,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Juan Pablo II,El Arenal,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Juan Pablo II,Mercado,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Juan Pablo II,Juan Pablo II,,1,1,1,0,Estudiante BT sin subsidio.xlsx
+Juan Pablo II,Diagonal Biobío,440.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Juan Pablo II,Alborada,440.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Juan Pablo II,Costa Mar,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Juan Pablo II,El Parque,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Juan Pablo II,Lomas Coloradas,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Juan Pablo II,C. Raúl Silva H.,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Juan Pablo II,Hito Galvarino,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Juan Pablo II,Los Canelos,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Juan Pablo II,Huinca,680.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Juan Pablo II,Cristo Redentor,680.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Juan Pablo II,Laguna Quiñenco,790.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Juan Pablo II,Intermodal Coronel,790.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Juan Pablo II,Pasajero Lota,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Diagonal Biobío,Hualqui,600.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Diagonal Biobío,La Leonera,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Diagonal Biobío,Manquimávida,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Diagonal Biobío,Pedro Medina,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Diagonal Biobío,Chiguayante,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Diagonal Biobío,Concepción,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Diagonal Biobío,Lorenzo Arenas,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Diagonal Biobío,UTFSM,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Diagonal Biobío,Los Cóndores,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Diagonal Biobío,Higueras,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Diagonal Biobío,El Arenal,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Diagonal Biobío,Mercado,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Diagonal Biobío,Juan Pablo II,440.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Diagonal Biobío,Diagonal Biobío,,1,1,1,0,Estudiante BT sin subsidio.xlsx
+Diagonal Biobío,Alborada,440.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Diagonal Biobío,Costa Mar,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Diagonal Biobío,El Parque,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Diagonal Biobío,Lomas Coloradas,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Diagonal Biobío,C. Raúl Silva H.,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Diagonal Biobío,Hito Galvarino,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Diagonal Biobío,Los Canelos,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Diagonal Biobío,Huinca,680.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Diagonal Biobío,Cristo Redentor,680.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Diagonal Biobío,Laguna Quiñenco,790.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Diagonal Biobío,Intermodal Coronel,790.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Diagonal Biobío,Pasajero Lota,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Alborada,Hualqui,600.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Alborada,La Leonera,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Alborada,Manquimávida,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Alborada,Pedro Medina,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Alborada,Chiguayante,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Alborada,Concepción,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Alborada,Lorenzo Arenas,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Alborada,UTFSM,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Alborada,Los Cóndores,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Alborada,Higueras,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Alborada,El Arenal,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Alborada,Mercado,560.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Alborada,Juan Pablo II,440.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Alborada,Diagonal Biobío,440.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Alborada,Alborada,,1,1,1,0,Estudiante BT sin subsidio.xlsx
+Alborada,Costa Mar,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Alborada,El Parque,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Alborada,Lomas Coloradas,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Alborada,C. Raúl Silva H.,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Alborada,Hito Galvarino,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Alborada,Los Canelos,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Alborada,Huinca,680.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Alborada,Cristo Redentor,680.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Alborada,Laguna Quiñenco,790.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Alborada,Intermodal Coronel,790.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Alborada,Pasajero Lota,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Costa Mar,Hualqui,600.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Costa Mar,La Leonera,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Costa Mar,Manquimávida,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Costa Mar,Pedro Medina,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Costa Mar,Chiguayante,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Costa Mar,Concepción,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Costa Mar,Lorenzo Arenas,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Costa Mar,UTFSM,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Costa Mar,Los Cóndores,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Costa Mar,Higueras,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Costa Mar,El Arenal,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Costa Mar,Mercado,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Costa Mar,Juan Pablo II,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Costa Mar,Diagonal Biobío,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Costa Mar,Alborada,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Costa Mar,Costa Mar,,1,1,1,0,Estudiante BT sin subsidio.xlsx
+Costa Mar,El Parque,430.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Costa Mar,Lomas Coloradas,430.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Costa Mar,C. Raúl Silva H.,430.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Costa Mar,Hito Galvarino,610.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Costa Mar,Los Canelos,610.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Costa Mar,Huinca,630.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Costa Mar,Cristo Redentor,630.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Costa Mar,Laguna Quiñenco,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Costa Mar,Intermodal Coronel,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Costa Mar,Pasajero Lota,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+El Parque,Hualqui,600.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Parque,La Leonera,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Parque,Manquimávida,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Parque,Pedro Medina,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Parque,Chiguayante,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Parque,Concepción,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Parque,Lorenzo Arenas,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Parque,UTFSM,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Parque,Los Cóndores,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Parque,Higueras,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Parque,El Arenal,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Parque,Mercado,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Parque,Juan Pablo II,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Parque,Diagonal Biobío,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Parque,Alborada,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Parque,Costa Mar,430.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Parque,El Parque,,1,1,1,0,Estudiante BT sin subsidio.xlsx
+El Parque,Lomas Coloradas,430.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Parque,C. Raúl Silva H.,430.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Parque,Hito Galvarino,610.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Parque,Los Canelos,610.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Parque,Huinca,630.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Parque,Cristo Redentor,630.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Parque,Laguna Quiñenco,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Parque,Intermodal Coronel,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+El Parque,Pasajero Lota,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Lomas Coloradas,Hualqui,600.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lomas Coloradas,La Leonera,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lomas Coloradas,Manquimávida,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lomas Coloradas,Pedro Medina,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lomas Coloradas,Chiguayante,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lomas Coloradas,Concepción,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lomas Coloradas,Lorenzo Arenas,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lomas Coloradas,UTFSM,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lomas Coloradas,Los Cóndores,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lomas Coloradas,Higueras,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lomas Coloradas,El Arenal,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lomas Coloradas,Mercado,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lomas Coloradas,Juan Pablo II,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lomas Coloradas,Diagonal Biobío,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lomas Coloradas,Alborada,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lomas Coloradas,Costa Mar,430.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lomas Coloradas,El Parque,430.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lomas Coloradas,Lomas Coloradas,,1,1,1,0,Estudiante BT sin subsidio.xlsx
+Lomas Coloradas,C. Raúl Silva H.,430.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lomas Coloradas,Hito Galvarino,610.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lomas Coloradas,Los Canelos,610.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lomas Coloradas,Huinca,630.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lomas Coloradas,Cristo Redentor,630.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lomas Coloradas,Laguna Quiñenco,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lomas Coloradas,Intermodal Coronel,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Lomas Coloradas,Pasajero Lota,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+C. Raúl Silva H.,Hualqui,600.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+C. Raúl Silva H.,La Leonera,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+C. Raúl Silva H.,Manquimávida,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+C. Raúl Silva H.,Pedro Medina,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+C. Raúl Silva H.,Chiguayante,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+C. Raúl Silva H.,Concepción,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+C. Raúl Silva H.,Lorenzo Arenas,570.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+C. Raúl Silva H.,UTFSM,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+C. Raúl Silva H.,Los Cóndores,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+C. Raúl Silva H.,Higueras,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+C. Raúl Silva H.,El Arenal,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+C. Raúl Silva H.,Mercado,590.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+C. Raúl Silva H.,Juan Pablo II,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+C. Raúl Silva H.,Diagonal Biobío,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+C. Raúl Silva H.,Alborada,510.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+C. Raúl Silva H.,Costa Mar,430.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+C. Raúl Silva H.,El Parque,430.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+C. Raúl Silva H.,Lomas Coloradas,430.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+C. Raúl Silva H.,C. Raúl Silva H.,,1,1,1,0,Estudiante BT sin subsidio.xlsx
+C. Raúl Silva H.,Hito Galvarino,610.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+C. Raúl Silva H.,Los Canelos,610.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+C. Raúl Silva H.,Huinca,630.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+C. Raúl Silva H.,Cristo Redentor,630.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+C. Raúl Silva H.,Laguna Quiñenco,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+C. Raúl Silva H.,Intermodal Coronel,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+C. Raúl Silva H.,Pasajero Lota,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Hito Galvarino,Hualqui,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hito Galvarino,La Leonera,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hito Galvarino,Manquimávida,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hito Galvarino,Pedro Medina,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hito Galvarino,Chiguayante,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hito Galvarino,Concepción,850.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hito Galvarino,Lorenzo Arenas,850.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hito Galvarino,UTFSM,870.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hito Galvarino,Los Cóndores,870.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hito Galvarino,Higueras,870.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hito Galvarino,El Arenal,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hito Galvarino,Mercado,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hito Galvarino,Juan Pablo II,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hito Galvarino,Diagonal Biobío,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hito Galvarino,Alborada,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hito Galvarino,Costa Mar,610.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hito Galvarino,El Parque,610.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hito Galvarino,Lomas Coloradas,610.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hito Galvarino,C. Raúl Silva H.,610.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hito Galvarino,Hito Galvarino,,1,1,1,0,Estudiante BT sin subsidio.xlsx
+Hito Galvarino,Los Canelos,440.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hito Galvarino,Huinca,460.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hito Galvarino,Cristo Redentor,460.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hito Galvarino,Laguna Quiñenco,530.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hito Galvarino,Intermodal Coronel,530.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Hito Galvarino,Pasajero Lota,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Los Canelos,Hualqui,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Canelos,La Leonera,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Canelos,Manquimávida,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Canelos,Pedro Medina,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Canelos,Chiguayante,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Canelos,Concepción,850.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Canelos,Lorenzo Arenas,850.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Canelos,UTFSM,870.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Canelos,Los Cóndores,870.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Canelos,Higueras,870.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Canelos,El Arenal,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Canelos,Mercado,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Canelos,Juan Pablo II,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Canelos,Diagonal Biobío,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Canelos,Alborada,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Canelos,Costa Mar,610.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Canelos,El Parque,610.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Canelos,Lomas Coloradas,610.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Canelos,C. Raúl Silva H.,610.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Canelos,Hito Galvarino,440.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Canelos,Los Canelos,,1,1,1,0,Estudiante BT sin subsidio.xlsx
+Los Canelos,Huinca,460.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Canelos,Cristo Redentor,460.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Canelos,Laguna Quiñenco,530.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Canelos,Intermodal Coronel,530.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Los Canelos,Pasajero Lota,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Huinca,Hualqui,960.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Huinca,La Leonera,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Huinca,Manquimávida,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Huinca,Pedro Medina,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Huinca,Chiguayante,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Huinca,Concepción,850.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Huinca,Lorenzo Arenas,850.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Huinca,UTFSM,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Huinca,Los Cóndores,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Huinca,Higueras,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Huinca,El Arenal,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Huinca,Mercado,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Huinca,Juan Pablo II,680.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Huinca,Diagonal Biobío,680.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Huinca,Alborada,680.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Huinca,Costa Mar,630.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Huinca,El Parque,630.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Huinca,Lomas Coloradas,630.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Huinca,C. Raúl Silva H.,630.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Huinca,Hito Galvarino,460.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Huinca,Los Canelos,460.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Huinca,Huinca,,1,1,1,0,Estudiante BT sin subsidio.xlsx
+Huinca,Cristo Redentor,440.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Huinca,Laguna Quiñenco,450.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Huinca,Intermodal Coronel,450.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Huinca,Pasajero Lota,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Cristo Redentor,Hualqui,960.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Cristo Redentor,La Leonera,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Cristo Redentor,Manquimávida,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Cristo Redentor,Pedro Medina,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Cristo Redentor,Chiguayante,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Cristo Redentor,Concepción,850.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Cristo Redentor,Lorenzo Arenas,850.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Cristo Redentor,UTFSM,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Cristo Redentor,Los Cóndores,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Cristo Redentor,Higueras,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Cristo Redentor,El Arenal,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Cristo Redentor,Mercado,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Cristo Redentor,Juan Pablo II,680.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Cristo Redentor,Diagonal Biobío,680.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Cristo Redentor,Alborada,680.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Cristo Redentor,Costa Mar,630.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Cristo Redentor,El Parque,630.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Cristo Redentor,Lomas Coloradas,630.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Cristo Redentor,C. Raúl Silva H.,630.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Cristo Redentor,Hito Galvarino,460.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Cristo Redentor,Los Canelos,460.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Cristo Redentor,Huinca,440.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Cristo Redentor,Cristo Redentor,,1,1,1,0,Estudiante BT sin subsidio.xlsx
+Cristo Redentor,Laguna Quiñenco,450.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Cristo Redentor,Intermodal Coronel,450.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Cristo Redentor,Pasajero Lota,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Laguna Quiñenco,Hualqui,970.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Laguna Quiñenco,La Leonera,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Laguna Quiñenco,Manquimávida,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Laguna Quiñenco,Pedro Medina,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Laguna Quiñenco,Chiguayante,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Laguna Quiñenco,Concepción,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Laguna Quiñenco,Lorenzo Arenas,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Laguna Quiñenco,UTFSM,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Laguna Quiñenco,Los Cóndores,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Laguna Quiñenco,Higueras,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Laguna Quiñenco,El Arenal,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Laguna Quiñenco,Mercado,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Laguna Quiñenco,Juan Pablo II,790.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Laguna Quiñenco,Diagonal Biobío,790.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Laguna Quiñenco,Alborada,790.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Laguna Quiñenco,Costa Mar,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Laguna Quiñenco,El Parque,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Laguna Quiñenco,Lomas Coloradas,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Laguna Quiñenco,C. Raúl Silva H.,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Laguna Quiñenco,Hito Galvarino,530.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Laguna Quiñenco,Los Canelos,530.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Laguna Quiñenco,Huinca,450.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Laguna Quiñenco,Cristo Redentor,450.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Laguna Quiñenco,Laguna Quiñenco,,1,1,1,0,Estudiante BT sin subsidio.xlsx
+Laguna Quiñenco,Intermodal Coronel,440.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Laguna Quiñenco,Pasajero Lota,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Intermodal Coronel,Hualqui,970.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Intermodal Coronel,La Leonera,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Intermodal Coronel,Manquimávida,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Intermodal Coronel,Pedro Medina,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Intermodal Coronel,Chiguayante,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Intermodal Coronel,Concepción,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Intermodal Coronel,Lorenzo Arenas,880.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Intermodal Coronel,UTFSM,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Intermodal Coronel,Los Cóndores,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Intermodal Coronel,Higueras,900.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Intermodal Coronel,El Arenal,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Intermodal Coronel,Mercado,910.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Intermodal Coronel,Juan Pablo II,790.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Intermodal Coronel,Diagonal Biobío,790.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Intermodal Coronel,Alborada,790.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Intermodal Coronel,Costa Mar,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Intermodal Coronel,El Parque,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Intermodal Coronel,Lomas Coloradas,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Intermodal Coronel,C. Raúl Silva H.,650.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Intermodal Coronel,Hito Galvarino,530.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Intermodal Coronel,Los Canelos,530.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Intermodal Coronel,Huinca,450.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Intermodal Coronel,Cristo Redentor,450.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Intermodal Coronel,Laguna Quiñenco,440.0,0,1,1,1,Estudiante BT sin subsidio.xlsx
+Intermodal Coronel,Intermodal Coronel,,1,1,1,0,Estudiante BT sin subsidio.xlsx
+Intermodal Coronel,Pasajero Lota,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pasajero Lota,Hualqui,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pasajero Lota,La Leonera,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pasajero Lota,Manquimávida,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pasajero Lota,Pedro Medina,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pasajero Lota,Chiguayante,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pasajero Lota,Concepción,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pasajero Lota,Lorenzo Arenas,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pasajero Lota,UTFSM,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pasajero Lota,Los Cóndores,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pasajero Lota,Higueras,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pasajero Lota,El Arenal,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pasajero Lota,Mercado,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pasajero Lota,Juan Pablo II,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pasajero Lota,Diagonal Biobío,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pasajero Lota,Alborada,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pasajero Lota,Costa Mar,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pasajero Lota,El Parque,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pasajero Lota,Lomas Coloradas,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pasajero Lota,C. Raúl Silva H.,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pasajero Lota,Hito Galvarino,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pasajero Lota,Los Canelos,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pasajero Lota,Huinca,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pasajero Lota,Cristo Redentor,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pasajero Lota,Laguna Quiñenco,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pasajero Lota,Intermodal Coronel,,0,1,1,0,Estudiante BT sin subsidio.xlsx
+Pasajero Lota,Pasajero Lota,,1,1,1,0,Estudiante BT sin subsidio.xlsx

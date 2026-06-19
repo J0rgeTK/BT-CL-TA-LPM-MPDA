@@ -312,10 +312,10 @@ def render_od_biotren(serv):
 Esta subsección separa tres conceptos:
 
 - **Distribución de afluencia:** reparte la proyección mensual total de Biotren entre tipos de tarjeta y pares origen-destino con participaciones históricas.
-- **Ingresos tarifarios preliminares:** aplica tarifa Normal a `monedero`, tarifa Estudiante a `media_superior`, tarifa Adulto Mayor a `adulto_mayor` y tarifa cero al resto.
-- **Base referencial para subsidio futuro:** muestra viajes observados base por grupo referencial; no calcula montos de subsidio ni implementa una liquidación.
+- **Venta de pasajes:** aplica tarifa Normal a `monedero`, tarifa Estudiante pagada a `media_superior`, tarifa Adulto Mayor a `adulto_mayor` y tarifa cero al resto.
+- **Subsidio Biotren:** calcula subsidio normal con `tasa_descuento = 18,9%` y subsidio estudiante sólo para `media_superior` con la matriz estudiante BT sin subsidio.
 
-La proyección mensual total de Biotren no se recalcula en esta vista; sólo se distribuye el mes seleccionado.
+Venta de pasajes y subsidio son conceptos distintos. `adulto_mayor` queda fuera de los grupos de subsidio indicados. La proyección mensual total de Biotren no se recalcula ni se modifica en esta vista; sólo se distribuye el mes seleccionado.
 """)
 
     viajes_long = resultado["viajes_tipo_tarjeta_long"]
@@ -344,6 +344,23 @@ La proyección mensual total de Biotren no se recalcula en esta vista; sólo se 
         st.success(f"Validación mensual: la suma de tipos de tarjeta coincide con Biotren ({fmt(suma_tipos)} viajes).")
     else:
         st.error(f"Validación mensual: diferencia de {dif_total:,.6f} viajes entre tipos de tarjeta y Biotren.")
+
+    st.markdown("#### Ingresos y subsidio Biotren")
+    ingresos_subsidio = resultado.get("ingresos_subsidio_biotren", {})
+    mensual_sub = ingresos_subsidio.get("resumen_mensual", pd.DataFrame())
+    anual_sub = ingresos_subsidio.get("resumen_anual", {})
+    cobertura = ingresos_subsidio.get("cobertura_estudiante", {})
+    sub_mes = mensual_sub[mensual_sub["periodo"].astype(str).eq(str(periodo))] if not mensual_sub.empty else pd.DataFrame()
+    valores = sub_mes.iloc[0].to_dict() if not sub_mes.empty else anual_sub
+    csub = st.columns(5)
+    csub[0].metric("Venta pasajes", f"$ {fmt(valores.get('ingreso_venta', 0))}")
+    csub[1].metric("Subsidio normal", f"$ {fmt(valores.get('subsidio_normal', 0))}")
+    csub[2].metric("Subsidio estudiante", f"$ {fmt(valores.get('subsidio_estudiante', 0))}")
+    csub[3].metric("Subsidio total", f"$ {fmt(valores.get('subsidio_total', 0))}")
+    csub[4].metric("Ingreso total", f"$ {fmt(valores.get('ingreso_total_biotren', 0))}")
+    st.caption("Tasa_descuento usada para subsidio normal: 18,9%. El subsidio estudiante usa la matriz estudiante BT sin subsidio; el cálculo no modifica la afluencia proyectada.")
+    for adv in cobertura.get("advertencias", []):
+        st.warning(adv)
 
     t1, t2, t3, t4 = st.tabs(["Matriz OD viajes", "Matriz OD ingresos", "Resumen mensual", "Base subsidio futura"])
     with t1:

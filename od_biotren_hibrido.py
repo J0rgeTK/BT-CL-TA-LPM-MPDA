@@ -28,6 +28,7 @@ DATA = BASE_DIR / "data"
 OUT = BASE_DIR / "outputs"
 OD_INPUT = DATA / "od_biotren" / "input"
 OD_PROCESSED = DATA / "od_biotren" / "processed"
+TARIFAS_BIOTREN = DATA / "tarifas_biotren"
 OD_OUT = OUT / "od_biotren_hibrido"
 OD_OUT.mkdir(parents=True, exist_ok=True)
 
@@ -48,6 +49,8 @@ PROCESSED_FILES = {
     "base_subsidio_referencial": OD_PROCESSED / "base_subsidio_referencial_historica_long.csv",
     "tarifas": OD_PROCESSED / "tarifas_2026_por_tipo_long.csv",
     "distancias": OD_PROCESSED / "distancia_biotren_km_long.csv",
+    "tarifa_estudiante_bt_sin_subsidio": TARIFAS_BIOTREN / "tarifa_estudiante_bt_sin_subsidio_long.csv",
+    "parametros_subsidio_biotren": TARIFAS_BIOTREN / "parametros_subsidio_biotren.csv",
     "validacion": OD_PROCESSED / "validacion_extraccion_od.csv",
 }
 
@@ -643,6 +646,68 @@ def validar_insumos_tipo_tarjeta(tol: float = 1e-8) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+
+def cargar_tarifa_estudiante_bt_sin_subsidio() -> pd.DataFrame:
+    """Carga la tarifa estudiante BT sin subsidio corregida en formato largo."""
+    path = PROCESSED_FILES["tarifa_estudiante_bt_sin_subsidio"]
+    cols = {
+        "origen", "destino", "tarifa_estudiante_bt_sin_subsidio", "es_diagonal",
+        "origen_en_modelo", "destino_en_modelo", "tarifa_disponible", "fuente",
+    }
+    if not path.exists():
+        raise FileNotFoundError(f"No existe {path}")
+    df = pd.read_csv(path)
+    missing = cols - set(df.columns)
+    if missing:
+        raise ValueError(f"Faltan columnas en tarifa estudiante BT sin subsidio: {sorted(missing)}")
+    df["tarifa_estudiante_bt_sin_subsidio"] = pd.to_numeric(df["tarifa_estudiante_bt_sin_subsidio"], errors="coerce")
+    df["es_diagonal"] = df["es_diagonal"].astype(int)
+    df["tarifa_disponible"] = df["tarifa_disponible"].astype(int)
+    return df
+
+
+def cargar_tasa_descuento_normal() -> float:
+    """Carga y valida la tasa de descuento normal Biotren versionada."""
+    df = pd.read_csv(PROCESSED_FILES["parametros_subsidio_biotren"])
+    fila = df[df["parametro"].astype(str).eq("tasa_descuento_normal")]
+    if fila.empty:
+        raise ValueError("No existe el parámetro tasa_descuento_normal")
+    tasa = float(fila.iloc[0]["valor"])
+    if not (0.0 < tasa < 1.0):
+        raise ValueError(f"tasa_descuento_normal fuera de rango (0,1): {tasa}")
+    return tasa
+
+
+def validar_cobertura_tarifa_estudiante(station_order: list[str], viajes_media_superior: pd.DataFrame | None = None) -> dict:
+    """Valida cobertura de estaciones y pares OD para tarifa estudiante sin subsidio."""
+    tarifa = cargar_tarifa_estudiante_bt_sin_subsidio()
+    estaciones_modelo = {canon(e) for e in station_order}
+    estaciones_tarifa = {canon(e) for e in pd.concat([tarifa["origen"], tarifa["destino"]]).dropna().astype(str)}
+    sin_cobertura = sorted(estaciones_modelo - estaciones_tarifa)
+    fuera_modelo = sorted(estaciones_tarifa - estaciones_modelo)
+    disponibles = tarifa[tarifa["tarifa_disponible"].astype(int).eq(1)]
+    estaciones_sin_tarifas = []
+    for e in sorted(estaciones_tarifa):
+        mov = disponibles[disponibles["origen"].map(canon).eq(e) | disponibles["destino"].map(canon).eq(e)]
+        if mov.empty:
+            estaciones_sin_tarifas.append(e)
+    advertencias = []
+    if sin_cobertura:
+        advertencias.append("Estaciones del modelo sin cobertura en matriz estudiante: " + ", ".join(sin_cobertura))
+    if fuera_modelo:
+        advertencias.append("Estaciones de matriz estudiante fuera del modelo: " + ", ".join(fuera_modelo))
+    if estaciones_sin_tarifas:
+        advertencias.append("Estaciones sin tarifas disponibles: " + ", ".join(estaciones_sin_tarifas))
+    pares_media_sin_tarifa = 0
+    if viajes_media_superior is not None and not viajes_media_superior.empty:
+        llave = tarifa.assign(_o=tarifa["origen"].map(canon), _d=tarifa["destino"].map(canon))[["_o", "_d", "tarifa_disponible"]]
+        tmp = viajes_media_superior.assign(_o=viajes_media_superior["origen"].map(canon), _d=viajes_media_superior["destino"].map(canon))
+        m = tmp.merge(llave, on=["_o", "_d"], how="left")
+        pares_media_sin_tarifa = int(((m["viajes_proyectados"] > 1e-9) & (m["_o"] != m["_d"]) & (m["tarifa_disponible"].fillna(0).astype(int) != 1)).sum())
+        if pares_media_sin_tarifa:
+            advertencias.append(f"Pares OD media_superior con viajes y sin tarifa estudiante sin subsidio: {pares_media_sin_tarifa}")
+    return {"estaciones_matriz": len(estaciones_tarifa), "estaciones_modelo": len(station_order), "sin_cobertura_modelo": sin_cobertura, "fuera_modelo": fuera_modelo, "estaciones_sin_tarifas": estaciones_sin_tarifas, "pares_media_superior_sin_tarifa": pares_media_sin_tarifa, "advertencias": advertencias}
+
 def _tarifa_por_tipo_tarjeta(tipo_tarjeta: str, mapeo: pd.DataFrame) -> str | None:
     """Devuelve el tipo de tarifa aplicable para un tipo de tarjeta."""
     fila = mapeo[mapeo["tipo_tarjeta"].astype(str) == str(tipo_tarjeta)]
@@ -726,13 +791,82 @@ def distribuir_proyeccion_biotren_por_tipo_tarjeta(serie_biotren: pd.Series | di
         ["mes", "grupo_subsidio_referencial"], as_index=False
     )["viajes_observados_base_referencial"].sum()
 
+    ingresos_subsidio = calcular_ingresos_y_subsidio_biotren(viajes_tarjeta_long, station_order, tarifa_mats)
+
     return {
         "resumen_tipo_tarjeta": resumen,
         "viajes_tipo_tarjeta_long": viajes_tarjeta_long,
         "subsidio_referencial_base": subsidio_referencial,
         "mapeo_tipo_tarjeta": mapeo,
+        "ingresos_subsidio_biotren": ingresos_subsidio,
     }
 
+
+
+def calcular_ingresos_y_subsidio_biotren(viajes_tarjeta_long: pd.DataFrame, station_order: list[str], tarifa_mats: dict[str, pd.DataFrame] | None = None) -> dict:
+    """Calcula ingresos por venta de pasajes y subsidios Biotren sin modificar viajes."""
+    tasa = cargar_tasa_descuento_normal()
+    if tarifa_mats is None:
+        tarifas = pd.read_csv(PROCESSED_FILES["tarifas"])
+        tarifa_mats = {str(t): _matrix_from_long(g, "tarifa_2026", station_order) for t, g in tarifas.groupby("tipo_pasajero", sort=False)}
+    tarifa_est = cargar_tarifa_estudiante_bt_sin_subsidio()
+    tarifa_est_m = _matrix_from_long(tarifa_est, "tarifa_estudiante_bt_sin_subsidio", station_order).fillna(0.0)
+    for e in station_order:
+        if e in tarifa_est_m.index and e in tarifa_est_m.columns:
+            tarifa_est_m.loc[e, e] = 0.0
+    tarifa_normal = pd.DataFrame(
+        tarifa_mats["Normal"].loc[station_order, station_order].astype(float).to_numpy(copy=True),
+        index=station_order,
+        columns=station_order,
+    )
+    for e in station_order:
+        tarifa_normal.loc[e, e] = 0.0
+
+    normal_tipos = {"monedero", "estudiante_basica", "discapacitado", "funcionario_normal", "funcionario_especial", "convenio_colectivo"}
+    estudiante_tipos = {"media_superior"}
+    tarifa_directa_tipos = {"monedero", "media_superior", "adulto_mayor"}
+
+    venta = float(viajes_tarjeta_long["ingresos_tarifarios_proyectados"].sum())
+    normal = viajes_tarjeta_long[viajes_tarjeta_long["tipo_tarjeta"].astype(str).isin(normal_tipos)]
+    media = viajes_tarjeta_long[viajes_tarjeta_long["tipo_tarjeta"].astype(str).isin(estudiante_tipos)]
+
+    def monto(df, mat):
+        total = 0.0
+        for r in df.itertuples(index=False):
+            o, d = canon(getattr(r, "origen")), canon(getattr(r, "destino"))
+            if o == d:
+                continue
+            if o in mat.index and d in mat.columns:
+                total += float(getattr(r, "viajes_proyectados")) * float(mat.loc[o, d])
+        return total
+
+    monto_normal_base = monto(normal, tarifa_normal)
+    subsidio_normal = monto_normal_base / (1.0 - tasa) - monto_normal_base
+    subsidio_estudiante = monto(media, tarifa_est_m)
+    subsidio_total = subsidio_normal + subsidio_estudiante
+    ingreso_total = venta + subsidio_total
+    cobertura = validar_cobertura_tarifa_estudiante(station_order, media)
+    resumen_mensual = viajes_tarjeta_long.groupby("periodo", as_index=False).agg(
+        viajes_proyectados=("viajes_proyectados", "sum"),
+        ingreso_venta=("ingresos_tarifarios_proyectados", "sum"),
+    )
+    resumen_mensual["tasa_descuento_normal"] = tasa
+    resumen_mensual["monto_normal_base"] = np.nan
+    resumen_mensual["subsidio_normal"] = np.nan
+    resumen_mensual["subsidio_estudiante"] = np.nan
+    for periodo, g in viajes_tarjeta_long.groupby("periodo"):
+        n = g[g["tipo_tarjeta"].astype(str).isin(normal_tipos)]
+        m = g[g["tipo_tarjeta"].astype(str).isin(estudiante_tipos)]
+        mn = monto(n, tarifa_normal)
+        se = monto(m, tarifa_est_m)
+        idx = resumen_mensual["periodo"].eq(periodo)
+        resumen_mensual.loc[idx, "monto_normal_base"] = mn
+        resumen_mensual.loc[idx, "subsidio_normal"] = mn / (1.0 - tasa) - mn
+        resumen_mensual.loc[idx, "subsidio_estudiante"] = se
+    resumen_mensual["subsidio_total"] = resumen_mensual["subsidio_normal"] + resumen_mensual["subsidio_estudiante"]
+    resumen_mensual["ingreso_total_biotren"] = resumen_mensual["ingreso_venta"] + resumen_mensual["subsidio_total"]
+    resumen_anual = {"ingreso_venta": venta, "monto_normal_base": monto_normal_base, "subsidio_normal": subsidio_normal, "subsidio_estudiante": subsidio_estudiante, "subsidio_total": subsidio_total, "ingreso_total_biotren": ingreso_total, "tasa_descuento_normal": tasa, "viajes_biotren": float(viajes_tarjeta_long["viajes_proyectados"].sum())}
+    return {"resumen_anual": resumen_anual, "resumen_mensual": resumen_mensual, "cobertura_estudiante": cobertura, "grupos": {"normal_base": sorted(normal_tipos), "estudiante_subsidio": sorted(estudiante_tipos), "tarifa_directa": sorted(tarifa_directa_tipos)}}
 
 def exportar_salidas_tipo_tarjeta(
     serie_biotren: pd.Series | dict,
