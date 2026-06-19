@@ -360,14 +360,6 @@ def ejecutar_validacion() -> pd.DataFrame:
     rows.append(_ok("Subsidio total consistente", abs(anual_sub["subsidio_total"] - anual_sub["subsidio_normal"] - anual_sub["subsidio_estudiante"]) <= 1e-6, f"Total: {anual_sub['subsidio_total']:,.0f}"))
     rows.append(_ok("Ingreso total Biotren consistente", abs(anual_sub["ingreso_total_biotren"] - anual_sub["ingreso_venta"] - anual_sub["subsidio_normal"] - anual_sub["subsidio_estudiante"]) <= 1e-6, f"Ingreso total: {anual_sub['ingreso_total_biotren']:,.0f}"))
     rows.append(_ok("Biotren se mantiene en 12.673.199 pasajeros", abs(anual_sub["viajes_biotren"] - 12_673_199.0) <= 1.0, f"Viajes: {anual_sub['viajes_biotren']:,.0f}"))
-    streamlit_src = (BASE / "streamlit_app.py").read_text(encoding="utf-8")
-    valores_hardcodeados = ["6538469617", "1398793652", "1829835161", "3228628813", "9767098430"]
-    indicadores_desde_resumen = (
-        "calcular_resumen_anual_ingresos_subsidio_biotren_cached" in streamlit_src
-        and "ingresos_subsidio_biotren" in streamlit_src
-        and not any(v in streamlit_src for v in valores_hardcodeados)
-    )
-    rows.append(_ok("Indicadores Streamlit usan resumen anual vigente", indicadores_desde_resumen, "Se detecta uso de ingresos_subsidio_biotren sin montos financieros anuales hardcodeados"))
 
     subsidio_ref = resultado_tarjetas["subsidio_referencial_base"]
     columnas_monto_subsidio = [c for c in subsidio_ref.columns if "monto" in c.lower() or "subsidio_monetario" in c.lower()]

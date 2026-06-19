@@ -144,7 +144,7 @@ Los ingresos por venta de pasajes aplican sólo donde existe tarifa directa: `mo
 
 ## 10. Subsidio e ingreso total Biotren
 
-Venta de pasajes y subsidio son conceptos distintos. El cálculo se aplica sobre la proyección OD por tipo de tarjeta vigente de Biotren y no modifica la afluencia proyectada. La sección Biotren presenta indicadores ejecutivos 2027 de afluencia, venta de pasajes, subsidio e ingreso total Biotren derivados de este resumen anual.
+Venta de pasajes y subsidio son conceptos distintos. El cálculo se aplica sobre la proyección OD por tipo de tarjeta vigente de Biotren y no modifica la afluencia proyectada.
 
 ### 10.1 Subsidio normal
 
