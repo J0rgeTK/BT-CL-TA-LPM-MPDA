@@ -142,6 +142,10 @@ def fmt(n):
     return f"{int(round(float(n))):,}".replace(",", ".")
 
 
+def fmt_mm(n):
+    return f"$ {float(n) / 1_000_000:,.0f} MM".replace(",", ".")
+
+
 def fmt_pct(delta):
     if pd.isna(delta):
         return "s/i"
@@ -158,6 +162,36 @@ def fmt_share(x):
 def calcular_od_biotren_tarjeta_mes_cached(periodo, valor):
     serie = pd.Series([float(valor)], index=[periodo])
     return OD.distribuir_proyeccion_biotren_por_tipo_tarjeta(serie)
+
+
+@st.cache_data(show_spinner=False)
+def calcular_resumen_anual_ingresos_subsidio_biotren_cached(serie_dict):
+    serie = pd.Series(serie_dict, dtype=float)
+    resultado = OD.distribuir_proyeccion_biotren_por_tipo_tarjeta(serie)
+    return resultado["ingresos_subsidio_biotren"]
+
+
+def render_indicadores_ejecutivos_biotren_2027(serv):
+    serie = serv["BIOTREN"].astype(float).copy()
+    ingresos_subsidio = calcular_resumen_anual_ingresos_subsidio_biotren_cached(serie.to_dict())
+    anual = ingresos_subsidio["resumen_anual"]
+    pasajeros = float(anual["viajes_biotren"])
+    ingreso_medio = float(anual["ingreso_total_biotren"]) / pasajeros if pasajeros > 0 else 0.0
+
+    st.markdown("#### Indicadores ejecutivos Biotren 2027")
+    fila_1 = st.columns(4)
+    fila_1[0].metric("Pasajeros 2027", fmt(pasajeros))
+    fila_1[1].metric("Venta de pasajes", fmt_mm(anual["ingreso_venta"]))
+    fila_1[2].metric("Subsidio total", fmt_mm(anual["subsidio_total"]))
+    fila_1[3].metric("Ingreso total Biotren", fmt_mm(anual["ingreso_total_biotren"]))
+
+    fila_2 = st.columns(4)
+    fila_2[0].metric("Subsidio normal", fmt_mm(anual["subsidio_normal"]))
+    fila_2[1].metric("Subsidio estudiante", fmt_mm(anual["subsidio_estudiante"]))
+    fila_2[2].metric("Tasa descuento normal", f"{float(anual['tasa_descuento_normal']) * 100:.1f}%".replace(".", ","))
+    fila_2[3].metric("Ingreso medio por pasajero", f"$ {fmt(ingreso_medio)}")
+
+    st.caption("Indicadores específicos de Biotren: la venta de pasajes proviene de tarifas directas; el subsidio normal usa tasa de descuento 18,9%; el subsidio estudiante usa la matriz estudiante BT sin subsidio; el ingreso total corresponde a venta de pasajes + subsidio normal + subsidio estudiante. El cálculo financiero no modifica la afluencia proyectada.")
 
 
 @st.cache_data(show_spinner=False)
@@ -312,10 +346,10 @@ def render_od_biotren(serv):
 Esta subsección separa tres conceptos:
 
 - **Distribución de afluencia:** reparte la proyección mensual total de Biotren entre tipos de tarjeta y pares origen-destino con participaciones históricas.
-- **Ingresos tarifarios preliminares:** aplica tarifa Normal a `monedero`, tarifa Estudiante a `media_superior`, tarifa Adulto Mayor a `adulto_mayor` y tarifa cero al resto.
-- **Base referencial para subsidio futuro:** muestra viajes observados base por grupo referencial; no calcula montos de subsidio ni implementa una liquidación.
+- **Venta de pasajes:** aplica tarifa Normal a `monedero`, tarifa Estudiante pagada a `media_superior`, tarifa Adulto Mayor a `adulto_mayor` y tarifa cero al resto.
+- **Subsidio Biotren:** calcula subsidio normal con `tasa_descuento = 18,9%` y subsidio estudiante sólo para `media_superior` con la matriz estudiante BT sin subsidio.
 
-La proyección mensual total de Biotren no se recalcula en esta vista; sólo se distribuye el mes seleccionado.
+Venta de pasajes y subsidio son conceptos distintos. `adulto_mayor` queda fuera de los grupos de subsidio indicados. La proyección mensual total de Biotren no se recalcula ni se modifica en esta vista; sólo se distribuye el mes seleccionado.
 """)
 
     viajes_long = resultado["viajes_tipo_tarjeta_long"]
@@ -344,6 +378,23 @@ La proyección mensual total de Biotren no se recalcula en esta vista; sólo se 
         st.success(f"Validación mensual: la suma de tipos de tarjeta coincide con Biotren ({fmt(suma_tipos)} viajes).")
     else:
         st.error(f"Validación mensual: diferencia de {dif_total:,.6f} viajes entre tipos de tarjeta y Biotren.")
+
+    st.markdown("#### Ingresos y subsidio Biotren")
+    ingresos_subsidio = resultado.get("ingresos_subsidio_biotren", {})
+    mensual_sub = ingresos_subsidio.get("resumen_mensual", pd.DataFrame())
+    anual_sub = ingresos_subsidio.get("resumen_anual", {})
+    cobertura = ingresos_subsidio.get("cobertura_estudiante", {})
+    sub_mes = mensual_sub[mensual_sub["periodo"].astype(str).eq(str(periodo))] if not mensual_sub.empty else pd.DataFrame()
+    valores = sub_mes.iloc[0].to_dict() if not sub_mes.empty else anual_sub
+    csub = st.columns(5)
+    csub[0].metric("Venta pasajes", f"$ {fmt(valores.get('ingreso_venta', 0))}")
+    csub[1].metric("Subsidio normal", f"$ {fmt(valores.get('subsidio_normal', 0))}")
+    csub[2].metric("Subsidio estudiante", f"$ {fmt(valores.get('subsidio_estudiante', 0))}")
+    csub[3].metric("Subsidio total", f"$ {fmt(valores.get('subsidio_total', 0))}")
+    csub[4].metric("Ingreso total", f"$ {fmt(valores.get('ingreso_total_biotren', 0))}")
+    st.caption("Tasa_descuento usada para subsidio normal: 18,9%. El subsidio estudiante usa la matriz estudiante BT sin subsidio; el cálculo no modifica la afluencia proyectada.")
+    for adv in cobertura.get("advertencias", []):
+        st.warning(adv)
 
     t1, t2, t3, t4 = st.tabs(["Matriz OD viajes", "Matriz OD ingresos", "Resumen mensual", "Base subsidio futura"])
     with t1:
@@ -1006,6 +1057,9 @@ def render_servicio(s):
     viajes = detalle[detalle.servicio == s]["viajes_operados_plan"].sum()
     ocup_proy = serv[s].dropna().sum() / max(viajes, 1)
     pk = serv[s].astype(float).idxmax()
+
+    if s == "BIOTREN":
+        render_indicadores_ejecutivos_biotren_2027(serv)
 
     st.markdown("#### Evolución mensual histórica, cierre 2026 y proyección 2027")
     grafico_historico_y_proyeccion(s, serv)

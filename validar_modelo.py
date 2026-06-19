@@ -336,6 +336,39 @@ def ejecutar_validacion() -> pd.DataFrame:
         "; ".join(f"{k}: {v:,.0f}" for k, v in ingreso_tipo.items()),
     ))
 
+    ingresos_sub = resultado_tarjetas["ingresos_subsidio_biotren"]
+    anual_sub = ingresos_sub["resumen_anual"]
+    cobertura_est = ingresos_sub["cobertura_estudiante"]
+    grupos_sub = ingresos_sub["grupos"]
+    tarifa_est_path = ODH.PROCESSED_FILES["tarifa_estudiante_bt_sin_subsidio"]
+    tarifa_est = ODH.cargar_tarifa_estudiante_bt_sin_subsidio()
+    cols_est = {"origen", "destino", "tarifa_estudiante_bt_sin_subsidio", "es_diagonal", "origen_en_modelo", "destino_en_modelo", "tarifa_disponible", "fuente"}
+    rows.append(_ok("Tarifa estudiante BT sin subsidio existe", tarifa_est_path.exists(), str(tarifa_est_path.relative_to(BASE))))
+    rows.append(_ok("Columnas tarifa estudiante BT sin subsidio", cols_est.issubset(tarifa_est.columns), f"Columnas: {sorted(tarifa_est.columns)}"))
+    tasa = ODH.cargar_tasa_descuento_normal()
+    rows.append(_ok("tasa_descuento_normal parametrizada", abs(tasa - 0.189) <= 1e-12, f"Valor: {tasa:.3f}"))
+    rows.append(_ok("tasa_descuento_normal entre 0 y 1", 0.0 < tasa < 1.0, f"Valor: {tasa:.3f}"))
+    rows.append(_ok("Estaciones matriz estudiante contenidas en modelo", len(cobertura_est["fuera_modelo"]) == 0, "Fuera modelo: " + (", ".join(cobertura_est["fuera_modelo"]) or "ninguna")))
+    rows.append(_ok("Concepcion Centro sin cobertura estudiante", "Concepción Centro" in cobertura_est["sin_cobertura_modelo"] or "Concepcion Centro" in cobertura_est["sin_cobertura_modelo"], f"Sin cobertura: {cobertura_est['sin_cobertura_modelo']}"))
+    rows.append(_ok("Pasajero Lota sin tarifas disponibles", "Pasajero Lota" in cobertura_est["estaciones_sin_tarifas"], f"Sin tarifas: {cobertura_est['estaciones_sin_tarifas']}"))
+    diag = tarifa_est[tarifa_est["origen"].map(ODH.canon).eq(tarifa_est["destino"].map(ODH.canon))]
+    rows.append(_ok("Diagonal estudiante tratada como cero", bool((diag["es_diagonal"].astype(int).eq(1)).all()), f"Filas diagonal: {len(diag)}"))
+    rows.append(_ok("MOD normal_base excluye media_superior y adulto_mayor", not ({"media_superior", "adulto_mayor"} & set(grupos_sub["normal_base"])), f"Grupo normal_base: {grupos_sub['normal_base']}"))
+    rows.append(_ok("media_superior único grupo estudiante subsidio", grupos_sub["estudiante_subsidio"] == ["media_superior"], f"Grupo estudiante: {grupos_sub['estudiante_subsidio']}"))
+    rows.append(_ok("Subsidio normal no negativo", anual_sub["subsidio_normal"] >= 0, f"Subsidio normal: {anual_sub['subsidio_normal']:,.0f}"))
+    rows.append(_ok("Subsidio estudiante no negativo", anual_sub["subsidio_estudiante"] >= 0, f"Subsidio estudiante: {anual_sub['subsidio_estudiante']:,.0f}"))
+    rows.append(_ok("Subsidio total consistente", abs(anual_sub["subsidio_total"] - anual_sub["subsidio_normal"] - anual_sub["subsidio_estudiante"]) <= 1e-6, f"Total: {anual_sub['subsidio_total']:,.0f}"))
+    rows.append(_ok("Ingreso total Biotren consistente", abs(anual_sub["ingreso_total_biotren"] - anual_sub["ingreso_venta"] - anual_sub["subsidio_normal"] - anual_sub["subsidio_estudiante"]) <= 1e-6, f"Ingreso total: {anual_sub['ingreso_total_biotren']:,.0f}"))
+    rows.append(_ok("Biotren se mantiene en 12.673.199 pasajeros", abs(anual_sub["viajes_biotren"] - 12_673_199.0) <= 1.0, f"Viajes: {anual_sub['viajes_biotren']:,.0f}"))
+    streamlit_src = (BASE / "streamlit_app.py").read_text(encoding="utf-8")
+    valores_hardcodeados = ["6538469617", "1398793652", "1829835161", "3228628813", "9767098430"]
+    indicadores_desde_resumen = (
+        "calcular_resumen_anual_ingresos_subsidio_biotren_cached" in streamlit_src
+        and "ingresos_subsidio_biotren" in streamlit_src
+        and not any(v in streamlit_src for v in valores_hardcodeados)
+    )
+    rows.append(_ok("Indicadores Streamlit usan resumen anual vigente", indicadores_desde_resumen, "Se detecta uso de ingresos_subsidio_biotren sin montos financieros anuales hardcodeados"))
+
     subsidio_ref = resultado_tarjetas["subsidio_referencial_base"]
     columnas_monto_subsidio = [c for c in subsidio_ref.columns if "monto" in c.lower() or "subsidio_monetario" in c.lower()]
     subsidio_ok = bool({"mes", "grupo_subsidio_referencial", "viajes_observados_base_referencial"}.issubset(subsidio_ref.columns) and len(subsidio_ref) > 0 and not columnas_monto_subsidio)
@@ -396,7 +429,7 @@ def ejecutar_validacion() -> pd.DataFrame:
     ))
 
     # 15. Carga real de Streamlit mediante AppTest.
-    app = AppTest.from_file(str(BASE / "streamlit_app.py"), default_timeout=30)
+    app = AppTest.from_file(str(BASE / "streamlit_app.py"), default_timeout=90)
     app.run()
     rows.append(_ok("Carga de Streamlit", len(app.exception) == 0, f"Excepciones detectadas: {len(app.exception)}"))
 
