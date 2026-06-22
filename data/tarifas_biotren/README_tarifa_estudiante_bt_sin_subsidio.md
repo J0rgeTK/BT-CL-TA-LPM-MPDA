@@ -1,45 +1,97 @@
-# Tarifa estudiante BT sin subsidio - matriz normalizada corregida
+# Tarifa estudiante BT sin subsidio normalizada
 
-Fuente original: `Estudiante BT sin subsidio.xlsx`, hoja `Hoja1`.
+## Fuente
 
-Uso previsto:
-- Insumo para calcular el subsidio asociado a la MOD `media_superior` de Biotren.
-- No reemplaza la tarifa estudiante pagada usada para ingresos por venta de pasajes.
-- No modifica la proyección de afluencia 2027.
+Archivo base: `Presupuesto 2026 Biotren v4.xlsx`  
+Hoja: `Tarifa Escolar Feb-sep`  
+Bloque utilizado: `Estudiante Sin subsidio 2026`  
+Rango de referencia del bloque fuente: encabezados en `B30:AA30`, matriz en `B31:AA56`.
 
-Archivos:
-- `tarifa_estudiante_bt_sin_subsidio_wide_raw.csv`: matriz fuente en formato ancho.
-- `tarifa_estudiante_bt_sin_subsidio_long.csv`: matriz en formato largo para consumo del modelo.
+Estos archivos normalizan la matriz que debe utilizarse para calcular el ingreso teórico estudiante sin subsidio de Biotren.
 
-Columnas del archivo largo:
-- `origen`, `destino`: estaciones de la matriz fuente.
-- `tarifa_estudiante_bt_sin_subsidio`: tarifa estudiante BT sin subsidio por par OD.
-- `es_diagonal`: 1 si origen y destino son la misma estación; 0 en caso contrario.
-- `origen_en_modelo`, `destino_en_modelo`: validación contra `data/od_biotren/processed/orden_estaciones_original.csv`.
-- `tarifa_disponible`: 1 si existe tarifa en la matriz fuente; 0 si está vacía.
-- `fuente`: nombre del archivo original.
+## Archivos
 
-Diagnóstico de cobertura:
-- Estaciones en matriz fuente: 26.
-- Estaciones en orden OD del modelo revisado: 27.
-- Pares OD totales en formato largo: 676.
-- Pares no diagonales con tarifa disponible: 600.
-- Pares no diagonales sin tarifa: 50.
-- Estaciones del modelo no presentes en la matriz fuente: Concepcion Centro.
-- Estaciones de la matriz fuente no presentes en el modelo: ninguna.
+- `tarifa_estudiante_bt_sin_subsidio_long.csv`: matriz en formato largo para uso del modelo.
+- `tarifa_estudiante_bt_sin_subsidio_wide_raw.csv`: matriz ancha normalizada.
+- `validacion_comparacion_tarifa_estudiante_sin_subsidio.csv`: comparación contra la matriz versionada previamente, para control de auditoría.
+- `README_tarifa_estudiante_bt_sin_subsidio.md`: descripción metodológica.
 
-Advertencias metodológicas:
-- La diagonal de la matriz debe tratarse como cero para el cálculo de subsidio.
-- `Concepcion Centro` no aparece en la matriz fuente y debe mantenerse como caso sin cobertura tarifaria salvo definición explícita.
-- `Pasajero Lota` aparece en la matriz, pero no posee tarifas disponibles hacia/desde otras estaciones en la fuente recibida.
-- No se debe imputar tarifa faltante sin regla metodológica validada.
+## Esquema del archivo largo
 
-Regla de cálculo propuesta para subsidio estudiante:
-- Grupo estudiante: sólo `media_superior`.
-- `subsidio_estudiante = suma(MOD_media_superior_ij × max(0, tarifa_estudiante_bt_sin_subsidio_ij - tarifa_estudiante_pagada_ij))`, con diagonal en cero. La venta de pasajes de `media_superior` usa la tarifa estudiante pagada; el subsidio cubre sólo la brecha tarifaria y no modifica la afluencia proyectada.
+Columnas:
 
-Regla de cálculo propuesta para subsidio normal:
-- Grupo normal: todas las tarjetas excepto `media_superior` y `adulto_mayor`.
-- `monto_tarifa_normal = suma(MOD_normal_base_ij × tarifa_normal_ij)`, con diagonal en cero.
-- `subsidio_normal = monto_tarifa_normal / (1 - tasa_descuento) - monto_tarifa_normal`.
-- La `tasa_descuento` debe quedar parametrizada y validada como valor mayor que 0 y menor que 1.
+- `origen`: estación de origen homologada al modelo.
+- `destino`: estación de destino homologada al modelo.
+- `tarifa_estudiante_bt_sin_subsidio`: tarifa estudiante sin subsidio proveniente del presupuesto base.
+- `es_diagonal`: 1 si origen = destino, 0 en caso contrario.
+- `origen_en_modelo`: 1 si la estación de origen está en el universo de estaciones Biotren del modelo.
+- `destino_en_modelo`: 1 si la estación de destino está en el universo de estaciones Biotren del modelo.
+- `tarifa_disponible`: 1 si existe tarifa disponible; 0 si la tarifa está vacía.
+- `fuente`: identificación del archivo, hoja y bloque fuente.
+
+## Cobertura
+
+- Estaciones en matriz fuente normalizada: 26.
+- Pares OD totales: 676.
+- Pares con tarifa disponible: 600.
+- Pares sin tarifa: 76.
+- Diagonal: sin tarifa disponible, tratada como cero para el ingreso teórico sin subsidio.
+- `Pasajero Lota`: sin tarifas disponibles hacia/desde otras estaciones.
+- `Concepción Centro`: no forma parte de esta matriz fuente y debe reportarse como estación del modelo sin cobertura tarifaria estudiante sin subsidio, si aparece en el universo de 27 estaciones del modelo.
+
+## Homologación aplicada
+
+| Nombre en presupuesto | Nombre normalizado |
+|---|---|
+| Manquimavida | Manquimávida |
+| Concepcion | Concepción |
+| Los Condores | Los Cóndores |
+| Arenal / El Arenal | El Arenal |
+| Diagonal Bio Bio | Diagonal Biobío |
+| Megacentro | El Parque |
+| Conavicoop | C. Raúl Silva H. |
+| Escuadron | Hito Galvarino |
+| Los Molles | Huinca |
+| Los Chiflones | Cristo Redentor |
+| Yobilo | Laguna Quiñenco |
+
+## Controles de validación
+
+Valores esperados desde el presupuesto base:
+
+| OD | Tarifa |
+|---|---:|
+| Hualqui → La Leonera | 320 |
+| Hualqui → Concepción | 330 |
+| Hualqui → UTFSM | 340 |
+| Concepción → UTFSM | 300 |
+| Hualqui → Los Canelos | 560 |
+| Hito Galvarino → Hualqui | 370 |
+
+## Uso metodológico
+
+Esta matriz debe usarse únicamente para calcular:
+
+`Ingreso_teorico_estudiante_sin_subsidio_sin_diagonal`
+
+La fórmula oficial de subsidio estudiante Biotren es:
+
+`Subsidio_estudiante = Ingreso_teorico_estudiante_sin_subsidio_sin_diagonal - Venta_media_superior_con_diagonal`
+
+donde:
+
+- `Ingreso_teorico_estudiante_sin_subsidio_sin_diagonal = Σ_{i≠j}(MOD_media_superior_ij × tarifa_estudiante_BT_sin_subsidio_ij)`
+- `Venta_media_superior_con_diagonal = Σ_{todos i,j}(MOD_media_superior_ij × tarifa_estudiante_pagada_ij)`
+
+No debe usarse como fórmula final la brecha OD `max(0, tarifa_sin_subsidio - tarifa_pagada)` por par OD.
+
+## Observación de auditoría
+
+La comparación contra la matriz versionada anteriormente indica que la matriz previa tenía valores superiores. En los 600 pares comparables con tarifa disponible:
+
+- Diferencia promedio nueva - anterior: -247.13
+- Diferencia mediana nueva - anterior: -220.00
+- Diferencia mínima nueva - anterior: -540
+- Diferencia máxima nueva - anterior: -70
+
+Esta normalización debe reemplazar los archivos de tarifa estudiante BT sin subsidio existentes en `data/tarifas_biotren/`.

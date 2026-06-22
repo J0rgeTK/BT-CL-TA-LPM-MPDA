@@ -1,0 +1,601 @@
+﻿origen,destino,tarifa_versionada_anterior,tarifa_presupuesto_2026_normalizada,diferencia_nueva_menos_anterior
+Hualqui,La Leonera,500,320,-180
+Hualqui,Manquimávida,500,320,-180
+Hualqui,Pedro Medina,500,320,-180
+Hualqui,Chiguayante,500,320,-180
+Hualqui,Concepción,550,330,-220
+Hualqui,Lorenzo Arenas,550,330,-220
+Hualqui,UTFSM,560,340,-220
+Hualqui,Los Cóndores,560,350,-210
+Hualqui,Higueras,560,350,-210
+Hualqui,El Arenal,580,350,-230
+Hualqui,Mercado,580,360,-220
+Hualqui,Juan Pablo II,600,370,-230
+Hualqui,Diagonal Biobío,600,370,-230
+Hualqui,Alborada,600,370,-230
+Hualqui,Costa Mar,600,360,-240
+Hualqui,El Parque,600,370,-230
+Hualqui,Lomas Coloradas,600,370,-230
+Hualqui,C. Raúl Silva H.,600,370,-230
+Hualqui,Hito Galvarino,910,370,-540
+Hualqui,Los Canelos,910,560,-350
+Hualqui,Huinca,960,570,-390
+Hualqui,Cristo Redentor,960,590,-370
+Hualqui,Laguna Quiñenco,970,580,-390
+Hualqui,Intermodal Coronel,970,590,-380
+La Leonera,Hualqui,500,320,-180
+La Leonera,Manquimávida,420,290,-130
+La Leonera,Pedro Medina,420,290,-130
+La Leonera,Chiguayante,420,290,-130
+La Leonera,Concepción,510,320,-190
+La Leonera,Lorenzo Arenas,510,320,-190
+La Leonera,UTFSM,540,320,-220
+La Leonera,Los Cóndores,540,330,-210
+La Leonera,Higueras,540,330,-210
+La Leonera,El Arenal,550,330,-220
+La Leonera,Mercado,550,340,-210
+La Leonera,Juan Pablo II,590,360,-230
+La Leonera,Diagonal Biobío,590,370,-220
+La Leonera,Alborada,590,370,-220
+La Leonera,Costa Mar,590,370,-220
+La Leonera,El Parque,590,370,-220
+La Leonera,Lomas Coloradas,590,370,-220
+La Leonera,C. Raúl Silva H.,590,370,-220
+La Leonera,Hito Galvarino,900,370,-530
+La Leonera,Los Canelos,900,560,-340
+La Leonera,Huinca,910,550,-360
+La Leonera,Cristo Redentor,910,550,-360
+La Leonera,Laguna Quiñenco,910,550,-360
+La Leonera,Intermodal Coronel,910,560,-350
+Manquimávida,Hualqui,500,320,-180
+Manquimávida,La Leonera,420,290,-130
+Manquimávida,Pedro Medina,420,290,-130
+Manquimávida,Chiguayante,420,290,-130
+Manquimávida,Concepción,510,320,-190
+Manquimávida,Lorenzo Arenas,510,320,-190
+Manquimávida,UTFSM,540,320,-220
+Manquimávida,Los Cóndores,540,330,-210
+Manquimávida,Higueras,540,330,-210
+Manquimávida,El Arenal,550,330,-220
+Manquimávida,Mercado,550,340,-210
+Manquimávida,Juan Pablo II,590,360,-230
+Manquimávida,Diagonal Biobío,590,370,-220
+Manquimávida,Alborada,590,370,-220
+Manquimávida,Costa Mar,590,370,-220
+Manquimávida,El Parque,590,370,-220
+Manquimávida,Lomas Coloradas,590,370,-220
+Manquimávida,C. Raúl Silva H.,590,370,-220
+Manquimávida,Hito Galvarino,900,370,-530
+Manquimávida,Los Canelos,900,560,-340
+Manquimávida,Huinca,910,550,-360
+Manquimávida,Cristo Redentor,910,550,-360
+Manquimávida,Laguna Quiñenco,910,550,-360
+Manquimávida,Intermodal Coronel,910,560,-350
+Pedro Medina,Hualqui,500,320,-180
+Pedro Medina,La Leonera,420,290,-130
+Pedro Medina,Manquimávida,420,290,-130
+Pedro Medina,Chiguayante,420,290,-130
+Pedro Medina,Concepción,510,320,-190
+Pedro Medina,Lorenzo Arenas,510,320,-190
+Pedro Medina,UTFSM,540,320,-220
+Pedro Medina,Los Cóndores,540,330,-210
+Pedro Medina,Higueras,540,330,-210
+Pedro Medina,El Arenal,550,330,-220
+Pedro Medina,Mercado,550,340,-210
+Pedro Medina,Juan Pablo II,590,360,-230
+Pedro Medina,Diagonal Biobío,590,370,-220
+Pedro Medina,Alborada,590,370,-220
+Pedro Medina,Costa Mar,590,370,-220
+Pedro Medina,El Parque,590,370,-220
+Pedro Medina,Lomas Coloradas,590,370,-220
+Pedro Medina,C. Raúl Silva H.,590,370,-220
+Pedro Medina,Hito Galvarino,900,370,-530
+Pedro Medina,Los Canelos,900,560,-340
+Pedro Medina,Huinca,910,550,-360
+Pedro Medina,Cristo Redentor,910,550,-360
+Pedro Medina,Laguna Quiñenco,910,550,-360
+Pedro Medina,Intermodal Coronel,910,560,-350
+Chiguayante,Hualqui,500,320,-180
+Chiguayante,La Leonera,420,290,-130
+Chiguayante,Manquimávida,420,290,-130
+Chiguayante,Pedro Medina,420,290,-130
+Chiguayante,Concepción,510,320,-190
+Chiguayante,Lorenzo Arenas,510,320,-190
+Chiguayante,UTFSM,540,320,-220
+Chiguayante,Los Cóndores,540,330,-210
+Chiguayante,Higueras,540,330,-210
+Chiguayante,El Arenal,550,330,-220
+Chiguayante,Mercado,550,340,-210
+Chiguayante,Juan Pablo II,590,360,-230
+Chiguayante,Diagonal Biobío,590,370,-220
+Chiguayante,Alborada,590,370,-220
+Chiguayante,Costa Mar,590,370,-220
+Chiguayante,El Parque,590,370,-220
+Chiguayante,Lomas Coloradas,590,370,-220
+Chiguayante,C. Raúl Silva H.,590,370,-220
+Chiguayante,Hito Galvarino,900,370,-530
+Chiguayante,Los Canelos,900,560,-340
+Chiguayante,Huinca,910,550,-360
+Chiguayante,Cristo Redentor,910,550,-360
+Chiguayante,Laguna Quiñenco,910,550,-360
+Chiguayante,Intermodal Coronel,910,560,-350
+Concepción,Hualqui,550,330,-220
+Concepción,La Leonera,510,320,-190
+Concepción,Manquimávida,510,320,-190
+Concepción,Pedro Medina,510,320,-190
+Concepción,Chiguayante,510,320,-190
+Concepción,Lorenzo Arenas,420,290,-130
+Concepción,UTFSM,500,300,-200
+Concepción,Los Cóndores,500,320,-180
+Concepción,Higueras,500,320,-180
+Concepción,El Arenal,540,310,-230
+Concepción,Mercado,540,330,-210
+Concepción,Juan Pablo II,570,340,-230
+Concepción,Diagonal Biobío,570,350,-220
+Concepción,Alborada,570,350,-220
+Concepción,Costa Mar,570,350,-220
+Concepción,El Parque,570,350,-220
+Concepción,Lomas Coloradas,570,350,-220
+Concepción,C. Raúl Silva H.,570,350,-220
+Concepción,Hito Galvarino,850,350,-500
+Concepción,Los Canelos,850,530,-320
+Concepción,Huinca,850,530,-320
+Concepción,Cristo Redentor,850,530,-320
+Concepción,Laguna Quiñenco,880,530,-350
+Concepción,Intermodal Coronel,880,540,-340
+Lorenzo Arenas,Hualqui,550,330,-220
+Lorenzo Arenas,La Leonera,510,320,-190
+Lorenzo Arenas,Manquimávida,510,320,-190
+Lorenzo Arenas,Pedro Medina,510,320,-190
+Lorenzo Arenas,Chiguayante,510,320,-190
+Lorenzo Arenas,Concepción,420,290,-130
+Lorenzo Arenas,UTFSM,500,300,-200
+Lorenzo Arenas,Los Cóndores,500,320,-180
+Lorenzo Arenas,Higueras,500,320,-180
+Lorenzo Arenas,El Arenal,540,310,-230
+Lorenzo Arenas,Mercado,540,330,-210
+Lorenzo Arenas,Juan Pablo II,570,340,-230
+Lorenzo Arenas,Diagonal Biobío,570,350,-220
+Lorenzo Arenas,Alborada,570,350,-220
+Lorenzo Arenas,Costa Mar,570,350,-220
+Lorenzo Arenas,El Parque,570,350,-220
+Lorenzo Arenas,Lomas Coloradas,570,350,-220
+Lorenzo Arenas,C. Raúl Silva H.,570,350,-220
+Lorenzo Arenas,Hito Galvarino,850,350,-500
+Lorenzo Arenas,Los Canelos,850,530,-320
+Lorenzo Arenas,Huinca,850,530,-320
+Lorenzo Arenas,Cristo Redentor,850,530,-320
+Lorenzo Arenas,Laguna Quiñenco,880,530,-350
+Lorenzo Arenas,Intermodal Coronel,880,540,-340
+UTFSM,Hualqui,560,340,-220
+UTFSM,La Leonera,540,320,-220
+UTFSM,Manquimávida,540,320,-220
+UTFSM,Pedro Medina,540,320,-220
+UTFSM,Chiguayante,540,320,-220
+UTFSM,Concepción,500,300,-200
+UTFSM,Lorenzo Arenas,500,300,-200
+UTFSM,Los Cóndores,420,310,-110
+UTFSM,Higueras,420,310,-110
+UTFSM,El Arenal,490,310,-180
+UTFSM,Mercado,490,330,-160
+UTFSM,Juan Pablo II,560,350,-210
+UTFSM,Diagonal Biobío,560,360,-200
+UTFSM,Alborada,560,360,-200
+UTFSM,Costa Mar,590,360,-230
+UTFSM,El Parque,590,360,-230
+UTFSM,Lomas Coloradas,590,360,-230
+UTFSM,C. Raúl Silva H.,590,360,-230
+UTFSM,Hito Galvarino,870,360,-510
+UTFSM,Los Canelos,870,540,-330
+UTFSM,Huinca,880,530,-350
+UTFSM,Cristo Redentor,880,530,-350
+UTFSM,Laguna Quiñenco,900,540,-360
+UTFSM,Intermodal Coronel,900,550,-350
+Los Cóndores,Hualqui,560,350,-210
+Los Cóndores,La Leonera,540,330,-210
+Los Cóndores,Manquimávida,540,330,-210
+Los Cóndores,Pedro Medina,540,330,-210
+Los Cóndores,Chiguayante,540,330,-210
+Los Cóndores,Concepción,500,320,-180
+Los Cóndores,Lorenzo Arenas,500,320,-180
+Los Cóndores,UTFSM,420,310,-110
+Los Cóndores,Higueras,420,290,-130
+Los Cóndores,El Arenal,490,290,-200
+Los Cóndores,Mercado,490,310,-180
+Los Cóndores,Juan Pablo II,560,330,-230
+Los Cóndores,Diagonal Biobío,560,350,-210
+Los Cóndores,Alborada,560,350,-210
+Los Cóndores,Costa Mar,590,350,-240
+Los Cóndores,El Parque,590,370,-220
+Los Cóndores,Lomas Coloradas,590,370,-220
+Los Cóndores,C. Raúl Silva H.,590,370,-220
+Los Cóndores,Hito Galvarino,870,370,-500
+Los Cóndores,Los Canelos,870,540,-330
+Los Cóndores,Huinca,880,530,-350
+Los Cóndores,Cristo Redentor,880,540,-340
+Los Cóndores,Laguna Quiñenco,900,550,-350
+Los Cóndores,Intermodal Coronel,900,560,-340
+Higueras,Hualqui,560,350,-210
+Higueras,La Leonera,540,330,-210
+Higueras,Manquimávida,540,330,-210
+Higueras,Pedro Medina,540,330,-210
+Higueras,Chiguayante,540,330,-210
+Higueras,Concepción,500,320,-180
+Higueras,Lorenzo Arenas,500,320,-180
+Higueras,UTFSM,420,310,-110
+Higueras,Los Cóndores,420,290,-130
+Higueras,El Arenal,490,290,-200
+Higueras,Mercado,490,310,-180
+Higueras,Juan Pablo II,560,330,-230
+Higueras,Diagonal Biobío,560,350,-210
+Higueras,Alborada,560,350,-210
+Higueras,Costa Mar,590,350,-240
+Higueras,El Parque,590,370,-220
+Higueras,Lomas Coloradas,590,370,-220
+Higueras,C. Raúl Silva H.,590,370,-220
+Higueras,Hito Galvarino,870,370,-500
+Higueras,Los Canelos,870,540,-330
+Higueras,Huinca,880,530,-350
+Higueras,Cristo Redentor,880,540,-340
+Higueras,Laguna Quiñenco,900,550,-350
+Higueras,Intermodal Coronel,900,560,-340
+El Arenal,Hualqui,580,350,-230
+El Arenal,La Leonera,550,330,-220
+El Arenal,Manquimávida,550,330,-220
+El Arenal,Pedro Medina,550,330,-220
+El Arenal,Chiguayante,550,330,-220
+El Arenal,Concepción,540,310,-230
+El Arenal,Lorenzo Arenas,540,310,-230
+El Arenal,UTFSM,490,310,-180
+El Arenal,Los Cóndores,490,290,-200
+El Arenal,Higueras,490,290,-200
+El Arenal,Mercado,420,310,-110
+El Arenal,Juan Pablo II,560,330,-230
+El Arenal,Diagonal Biobío,560,350,-210
+El Arenal,Alborada,560,350,-210
+El Arenal,Costa Mar,590,350,-240
+El Arenal,El Parque,590,370,-220
+El Arenal,Lomas Coloradas,590,370,-220
+El Arenal,C. Raúl Silva H.,590,370,-220
+El Arenal,Hito Galvarino,880,360,-520
+El Arenal,Los Canelos,880,530,-350
+El Arenal,Huinca,900,540,-360
+El Arenal,Cristo Redentor,900,550,-350
+El Arenal,Laguna Quiñenco,910,540,-370
+El Arenal,Intermodal Coronel,910,550,-360
+Mercado,Hualqui,580,360,-220
+Mercado,La Leonera,550,340,-210
+Mercado,Manquimávida,550,340,-210
+Mercado,Pedro Medina,550,340,-210
+Mercado,Chiguayante,550,340,-210
+Mercado,Concepción,540,330,-210
+Mercado,Lorenzo Arenas,540,330,-210
+Mercado,UTFSM,490,330,-160
+Mercado,Los Cóndores,490,310,-180
+Mercado,Higueras,490,310,-180
+Mercado,El Arenal,420,310,-110
+Mercado,Juan Pablo II,560,310,-250
+Mercado,Diagonal Biobío,560,350,-210
+Mercado,Alborada,560,350,-210
+Mercado,Costa Mar,590,350,-240
+Mercado,El Parque,590,370,-220
+Mercado,Lomas Coloradas,590,370,-220
+Mercado,C. Raúl Silva H.,590,370,-220
+Mercado,Hito Galvarino,880,360,-520
+Mercado,Los Canelos,880,540,-340
+Mercado,Huinca,900,550,-350
+Mercado,Cristo Redentor,900,560,-340
+Mercado,Laguna Quiñenco,910,550,-360
+Mercado,Intermodal Coronel,910,550,-360
+Juan Pablo II,Hualqui,600,370,-230
+Juan Pablo II,La Leonera,590,360,-230
+Juan Pablo II,Manquimávida,590,360,-230
+Juan Pablo II,Pedro Medina,590,360,-230
+Juan Pablo II,Chiguayante,590,360,-230
+Juan Pablo II,Concepción,570,340,-230
+Juan Pablo II,Lorenzo Arenas,570,340,-230
+Juan Pablo II,UTFSM,560,350,-210
+Juan Pablo II,Los Cóndores,560,330,-230
+Juan Pablo II,Higueras,560,330,-230
+Juan Pablo II,El Arenal,560,330,-230
+Juan Pablo II,Mercado,560,310,-250
+Juan Pablo II,Diagonal Biobío,440,340,-100
+Juan Pablo II,Alborada,440,340,-100
+Juan Pablo II,Costa Mar,510,330,-180
+Juan Pablo II,El Parque,510,350,-160
+Juan Pablo II,Lomas Coloradas,510,350,-160
+Juan Pablo II,C. Raúl Silva H.,510,350,-160
+Juan Pablo II,Hito Galvarino,650,370,-280
+Juan Pablo II,Los Canelos,650,550,-100
+Juan Pablo II,Huinca,680,550,-130
+Juan Pablo II,Cristo Redentor,680,560,-120
+Juan Pablo II,Laguna Quiñenco,790,550,-240
+Juan Pablo II,Intermodal Coronel,790,550,-240
+Diagonal Biobío,Hualqui,600,370,-230
+Diagonal Biobío,La Leonera,590,370,-220
+Diagonal Biobío,Manquimávida,590,370,-220
+Diagonal Biobío,Pedro Medina,590,370,-220
+Diagonal Biobío,Chiguayante,590,370,-220
+Diagonal Biobío,Concepción,570,350,-220
+Diagonal Biobío,Lorenzo Arenas,570,350,-220
+Diagonal Biobío,UTFSM,560,360,-200
+Diagonal Biobío,Los Cóndores,560,350,-210
+Diagonal Biobío,Higueras,560,350,-210
+Diagonal Biobío,El Arenal,560,350,-210
+Diagonal Biobío,Mercado,560,350,-210
+Diagonal Biobío,Juan Pablo II,440,340,-100
+Diagonal Biobío,Alborada,440,300,-140
+Diagonal Biobío,Costa Mar,510,290,-220
+Diagonal Biobío,El Parque,510,330,-180
+Diagonal Biobío,Lomas Coloradas,510,330,-180
+Diagonal Biobío,C. Raúl Silva H.,510,330,-180
+Diagonal Biobío,Hito Galvarino,650,350,-300
+Diagonal Biobío,Los Canelos,650,410,-240
+Diagonal Biobío,Huinca,680,410,-270
+Diagonal Biobío,Cristo Redentor,680,420,-260
+Diagonal Biobío,Laguna Quiñenco,790,410,-380
+Diagonal Biobío,Intermodal Coronel,790,490,-300
+Alborada,Hualqui,600,370,-230
+Alborada,La Leonera,590,370,-220
+Alborada,Manquimávida,590,370,-220
+Alborada,Pedro Medina,590,370,-220
+Alborada,Chiguayante,590,370,-220
+Alborada,Concepción,570,350,-220
+Alborada,Lorenzo Arenas,570,350,-220
+Alborada,UTFSM,560,360,-200
+Alborada,Los Cóndores,560,350,-210
+Alborada,Higueras,560,350,-210
+Alborada,El Arenal,560,350,-210
+Alborada,Mercado,560,350,-210
+Alborada,Juan Pablo II,440,340,-100
+Alborada,Diagonal Biobío,440,300,-140
+Alborada,Costa Mar,510,290,-220
+Alborada,El Parque,510,330,-180
+Alborada,Lomas Coloradas,510,330,-180
+Alborada,C. Raúl Silva H.,510,330,-180
+Alborada,Hito Galvarino,650,350,-300
+Alborada,Los Canelos,650,410,-240
+Alborada,Huinca,680,410,-270
+Alborada,Cristo Redentor,680,420,-260
+Alborada,Laguna Quiñenco,790,410,-380
+Alborada,Intermodal Coronel,790,490,-300
+Costa Mar,Hualqui,600,360,-240
+Costa Mar,La Leonera,590,370,-220
+Costa Mar,Manquimávida,590,370,-220
+Costa Mar,Pedro Medina,590,370,-220
+Costa Mar,Chiguayante,590,370,-220
+Costa Mar,Concepción,570,350,-220
+Costa Mar,Lorenzo Arenas,570,350,-220
+Costa Mar,UTFSM,590,360,-230
+Costa Mar,Los Cóndores,590,350,-240
+Costa Mar,Higueras,590,350,-240
+Costa Mar,El Arenal,590,350,-240
+Costa Mar,Mercado,590,350,-240
+Costa Mar,Juan Pablo II,510,330,-180
+Costa Mar,Diagonal Biobío,510,290,-220
+Costa Mar,Alborada,510,290,-220
+Costa Mar,El Parque,430,330,-100
+Costa Mar,Lomas Coloradas,430,330,-100
+Costa Mar,C. Raúl Silva H.,430,330,-100
+Costa Mar,Hito Galvarino,610,340,-270
+Costa Mar,Los Canelos,610,400,-210
+Costa Mar,Huinca,630,410,-220
+Costa Mar,Cristo Redentor,630,420,-210
+Costa Mar,Laguna Quiñenco,650,420,-230
+Costa Mar,Intermodal Coronel,650,500,-150
+El Parque,Hualqui,600,370,-230
+El Parque,La Leonera,590,370,-220
+El Parque,Manquimávida,590,370,-220
+El Parque,Pedro Medina,590,370,-220
+El Parque,Chiguayante,590,370,-220
+El Parque,Concepción,570,350,-220
+El Parque,Lorenzo Arenas,570,350,-220
+El Parque,UTFSM,590,360,-230
+El Parque,Los Cóndores,590,370,-220
+El Parque,Higueras,590,370,-220
+El Parque,El Arenal,590,370,-220
+El Parque,Mercado,590,370,-220
+El Parque,Juan Pablo II,510,350,-160
+El Parque,Diagonal Biobío,510,330,-180
+El Parque,Alborada,510,330,-180
+El Parque,Costa Mar,430,330,-100
+El Parque,Lomas Coloradas,430,290,-140
+El Parque,C. Raúl Silva H.,430,290,-140
+El Parque,Hito Galvarino,610,300,-310
+El Parque,Los Canelos,610,370,-240
+El Parque,Huinca,630,380,-250
+El Parque,Cristo Redentor,630,400,-230
+El Parque,Laguna Quiñenco,650,400,-250
+El Parque,Intermodal Coronel,650,410,-240
+Lomas Coloradas,Hualqui,600,370,-230
+Lomas Coloradas,La Leonera,590,370,-220
+Lomas Coloradas,Manquimávida,590,370,-220
+Lomas Coloradas,Pedro Medina,590,370,-220
+Lomas Coloradas,Chiguayante,590,370,-220
+Lomas Coloradas,Concepción,570,350,-220
+Lomas Coloradas,Lorenzo Arenas,570,350,-220
+Lomas Coloradas,UTFSM,590,360,-230
+Lomas Coloradas,Los Cóndores,590,370,-220
+Lomas Coloradas,Higueras,590,370,-220
+Lomas Coloradas,El Arenal,590,370,-220
+Lomas Coloradas,Mercado,590,370,-220
+Lomas Coloradas,Juan Pablo II,510,350,-160
+Lomas Coloradas,Diagonal Biobío,510,330,-180
+Lomas Coloradas,Alborada,510,330,-180
+Lomas Coloradas,Costa Mar,430,330,-100
+Lomas Coloradas,El Parque,430,290,-140
+Lomas Coloradas,C. Raúl Silva H.,430,290,-140
+Lomas Coloradas,Hito Galvarino,610,300,-310
+Lomas Coloradas,Los Canelos,610,370,-240
+Lomas Coloradas,Huinca,630,380,-250
+Lomas Coloradas,Cristo Redentor,630,400,-230
+Lomas Coloradas,Laguna Quiñenco,650,400,-250
+Lomas Coloradas,Intermodal Coronel,650,410,-240
+C. Raúl Silva H.,Hualqui,600,370,-230
+C. Raúl Silva H.,La Leonera,590,370,-220
+C. Raúl Silva H.,Manquimávida,590,370,-220
+C. Raúl Silva H.,Pedro Medina,590,370,-220
+C. Raúl Silva H.,Chiguayante,590,370,-220
+C. Raúl Silva H.,Concepción,570,350,-220
+C. Raúl Silva H.,Lorenzo Arenas,570,350,-220
+C. Raúl Silva H.,UTFSM,590,360,-230
+C. Raúl Silva H.,Los Cóndores,590,370,-220
+C. Raúl Silva H.,Higueras,590,370,-220
+C. Raúl Silva H.,El Arenal,590,370,-220
+C. Raúl Silva H.,Mercado,590,370,-220
+C. Raúl Silva H.,Juan Pablo II,510,350,-160
+C. Raúl Silva H.,Diagonal Biobío,510,330,-180
+C. Raúl Silva H.,Alborada,510,330,-180
+C. Raúl Silva H.,Costa Mar,430,330,-100
+C. Raúl Silva H.,El Parque,430,290,-140
+C. Raúl Silva H.,Lomas Coloradas,430,290,-140
+C. Raúl Silva H.,Hito Galvarino,610,300,-310
+C. Raúl Silva H.,Los Canelos,610,370,-240
+C. Raúl Silva H.,Huinca,630,380,-250
+C. Raúl Silva H.,Cristo Redentor,630,400,-230
+C. Raúl Silva H.,Laguna Quiñenco,650,400,-250
+C. Raúl Silva H.,Intermodal Coronel,650,410,-240
+Hito Galvarino,Hualqui,910,370,-540
+Hito Galvarino,La Leonera,900,370,-530
+Hito Galvarino,Manquimávida,900,370,-530
+Hito Galvarino,Pedro Medina,900,370,-530
+Hito Galvarino,Chiguayante,900,370,-530
+Hito Galvarino,Concepción,850,350,-500
+Hito Galvarino,Lorenzo Arenas,850,350,-500
+Hito Galvarino,UTFSM,870,360,-510
+Hito Galvarino,Los Cóndores,870,370,-500
+Hito Galvarino,Higueras,870,370,-500
+Hito Galvarino,El Arenal,880,360,-520
+Hito Galvarino,Mercado,880,360,-520
+Hito Galvarino,Juan Pablo II,650,370,-280
+Hito Galvarino,Diagonal Biobío,650,350,-300
+Hito Galvarino,Alborada,650,350,-300
+Hito Galvarino,Costa Mar,610,340,-270
+Hito Galvarino,El Parque,610,300,-310
+Hito Galvarino,Lomas Coloradas,610,300,-310
+Hito Galvarino,C. Raúl Silva H.,610,300,-310
+Hito Galvarino,Los Canelos,440,370,-70
+Hito Galvarino,Huinca,460,370,-90
+Hito Galvarino,Cristo Redentor,460,390,-70
+Hito Galvarino,Laguna Quiñenco,530,390,-140
+Hito Galvarino,Intermodal Coronel,530,400,-130
+Los Canelos,Hualqui,910,560,-350
+Los Canelos,La Leonera,900,560,-340
+Los Canelos,Manquimávida,900,560,-340
+Los Canelos,Pedro Medina,900,560,-340
+Los Canelos,Chiguayante,900,560,-340
+Los Canelos,Concepción,850,530,-320
+Los Canelos,Lorenzo Arenas,850,530,-320
+Los Canelos,UTFSM,870,540,-330
+Los Canelos,Los Cóndores,870,540,-330
+Los Canelos,Higueras,870,540,-330
+Los Canelos,El Arenal,880,530,-350
+Los Canelos,Mercado,880,540,-340
+Los Canelos,Juan Pablo II,650,550,-100
+Los Canelos,Diagonal Biobío,650,410,-240
+Los Canelos,Alborada,650,410,-240
+Los Canelos,Costa Mar,610,400,-210
+Los Canelos,El Parque,610,370,-240
+Los Canelos,Lomas Coloradas,610,370,-240
+Los Canelos,C. Raúl Silva H.,610,370,-240
+Los Canelos,Hito Galvarino,440,370,-70
+Los Canelos,Huinca,460,300,-160
+Los Canelos,Cristo Redentor,460,300,-160
+Los Canelos,Laguna Quiñenco,530,300,-230
+Los Canelos,Intermodal Coronel,530,340,-190
+Huinca,Hualqui,960,570,-390
+Huinca,La Leonera,910,550,-360
+Huinca,Manquimávida,910,550,-360
+Huinca,Pedro Medina,910,550,-360
+Huinca,Chiguayante,910,550,-360
+Huinca,Concepción,850,530,-320
+Huinca,Lorenzo Arenas,850,530,-320
+Huinca,UTFSM,880,530,-350
+Huinca,Los Cóndores,880,530,-350
+Huinca,Higueras,880,530,-350
+Huinca,El Arenal,900,540,-360
+Huinca,Mercado,900,550,-350
+Huinca,Juan Pablo II,680,550,-130
+Huinca,Diagonal Biobío,680,410,-270
+Huinca,Alborada,680,410,-270
+Huinca,Costa Mar,630,410,-220
+Huinca,El Parque,630,380,-250
+Huinca,Lomas Coloradas,630,380,-250
+Huinca,C. Raúl Silva H.,630,380,-250
+Huinca,Hito Galvarino,460,370,-90
+Huinca,Los Canelos,460,300,-160
+Huinca,Cristo Redentor,440,300,-140
+Huinca,Laguna Quiñenco,450,300,-150
+Huinca,Intermodal Coronel,450,340,-110
+Cristo Redentor,Hualqui,960,590,-370
+Cristo Redentor,La Leonera,910,550,-360
+Cristo Redentor,Manquimávida,910,550,-360
+Cristo Redentor,Pedro Medina,910,550,-360
+Cristo Redentor,Chiguayante,910,550,-360
+Cristo Redentor,Concepción,850,530,-320
+Cristo Redentor,Lorenzo Arenas,850,530,-320
+Cristo Redentor,UTFSM,880,530,-350
+Cristo Redentor,Los Cóndores,880,540,-340
+Cristo Redentor,Higueras,880,540,-340
+Cristo Redentor,El Arenal,900,550,-350
+Cristo Redentor,Mercado,900,560,-340
+Cristo Redentor,Juan Pablo II,680,560,-120
+Cristo Redentor,Diagonal Biobío,680,420,-260
+Cristo Redentor,Alborada,680,420,-260
+Cristo Redentor,Costa Mar,630,420,-210
+Cristo Redentor,El Parque,630,400,-230
+Cristo Redentor,Lomas Coloradas,630,400,-230
+Cristo Redentor,C. Raúl Silva H.,630,400,-230
+Cristo Redentor,Hito Galvarino,460,390,-70
+Cristo Redentor,Los Canelos,460,300,-160
+Cristo Redentor,Huinca,440,300,-140
+Cristo Redentor,Laguna Quiñenco,450,300,-150
+Cristo Redentor,Intermodal Coronel,450,300,-150
+Laguna Quiñenco,Hualqui,970,580,-390
+Laguna Quiñenco,La Leonera,910,550,-360
+Laguna Quiñenco,Manquimávida,910,550,-360
+Laguna Quiñenco,Pedro Medina,910,550,-360
+Laguna Quiñenco,Chiguayante,910,550,-360
+Laguna Quiñenco,Concepción,880,530,-350
+Laguna Quiñenco,Lorenzo Arenas,880,530,-350
+Laguna Quiñenco,UTFSM,900,540,-360
+Laguna Quiñenco,Los Cóndores,900,550,-350
+Laguna Quiñenco,Higueras,900,550,-350
+Laguna Quiñenco,El Arenal,910,540,-370
+Laguna Quiñenco,Mercado,910,550,-360
+Laguna Quiñenco,Juan Pablo II,790,550,-240
+Laguna Quiñenco,Diagonal Biobío,790,410,-380
+Laguna Quiñenco,Alborada,790,410,-380
+Laguna Quiñenco,Costa Mar,650,420,-230
+Laguna Quiñenco,El Parque,650,400,-250
+Laguna Quiñenco,Lomas Coloradas,650,400,-250
+Laguna Quiñenco,C. Raúl Silva H.,650,400,-250
+Laguna Quiñenco,Hito Galvarino,530,390,-140
+Laguna Quiñenco,Los Canelos,530,300,-230
+Laguna Quiñenco,Huinca,450,300,-150
+Laguna Quiñenco,Cristo Redentor,450,300,-150
+Laguna Quiñenco,Intermodal Coronel,440,300,-140
+Intermodal Coronel,Hualqui,970,590,-380
+Intermodal Coronel,La Leonera,910,560,-350
+Intermodal Coronel,Manquimávida,910,560,-350
+Intermodal Coronel,Pedro Medina,910,560,-350
+Intermodal Coronel,Chiguayante,910,560,-350
+Intermodal Coronel,Concepción,880,540,-340
+Intermodal Coronel,Lorenzo Arenas,880,540,-340
+Intermodal Coronel,UTFSM,900,550,-350
+Intermodal Coronel,Los Cóndores,900,560,-340
+Intermodal Coronel,Higueras,900,560,-340
+Intermodal Coronel,El Arenal,910,550,-360
+Intermodal Coronel,Mercado,910,550,-360
+Intermodal Coronel,Juan Pablo II,790,550,-240
+Intermodal Coronel,Diagonal Biobío,790,490,-300
+Intermodal Coronel,Alborada,790,490,-300
+Intermodal Coronel,Costa Mar,650,500,-150
+Intermodal Coronel,El Parque,650,410,-240
+Intermodal Coronel,Lomas Coloradas,650,410,-240
+Intermodal Coronel,C. Raúl Silva H.,650,410,-240
+Intermodal Coronel,Hito Galvarino,530,400,-130
+Intermodal Coronel,Los Canelos,530,340,-190
+Intermodal Coronel,Huinca,450,340,-110
+Intermodal Coronel,Cristo Redentor,450,300,-150
+Intermodal Coronel,Laguna Quiñenco,440,300,-140
