@@ -36,7 +36,7 @@ Advertencias metodológicas:
 
 Regla de cálculo propuesta para subsidio estudiante:
 - Grupo estudiante: sólo `media_superior`.
-- `subsidio_estudiante = suma(MOD_media_superior_ij × tarifa_estudiante_bt_sin_subsidio_ij)`, con diagonal en cero.
+- `subsidio_estudiante = suma(MOD_media_superior_ij × max(0, tarifa_estudiante_bt_sin_subsidio_ij - tarifa_estudiante_pagada_ij))`, con diagonal en cero. La venta de pasajes de `media_superior` usa la tarifa estudiante pagada; el subsidio cubre sólo la brecha tarifaria y no modifica la afluencia proyectada.
 
 Regla de cálculo propuesta para subsidio normal:
 - Grupo normal: todas las tarjetas excepto `media_superior` y `adulto_mayor`.

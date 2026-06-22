@@ -355,10 +355,17 @@ def ejecutar_validacion() -> pd.DataFrame:
     rows.append(_ok("Diagonal estudiante tratada como cero", bool((diag["es_diagonal"].astype(int).eq(1)).all()), f"Filas diagonal: {len(diag)}"))
     rows.append(_ok("MOD normal_base excluye media_superior y adulto_mayor", not ({"media_superior", "adulto_mayor"} & set(grupos_sub["normal_base"])), f"Grupo normal_base: {grupos_sub['normal_base']}"))
     rows.append(_ok("media_superior único grupo estudiante subsidio", grupos_sub["estudiante_subsidio"] == ["media_superior"], f"Grupo estudiante: {grupos_sub['estudiante_subsidio']}"))
+    rows.append(_ok("Tarifa estudiante pagada desde matriz vigente", grupos_sub.get("tarifa_estudiante_pagada") == ["Estudiante"], f"Fuente tarifa pagada: {grupos_sub.get('tarifa_estudiante_pagada')}"))
+    rows.append(_ok("Tarifa estudiante sin subsidio desde data/tarifas_biotren", grupos_sub.get("tarifa_estudiante_sin_subsidio_path") == "data/tarifas_biotren/tarifa_estudiante_bt_sin_subsidio_long.csv", f"Fuente sin subsidio: {grupos_sub.get('tarifa_estudiante_sin_subsidio_path')}"))
+    rows.append(_ok("Brecha estudiante max(0, sin subsidio - pagada)", anual_sub["subsidio_estudiante"] <= anual_sub["subsidio_estudiante_formula_anterior"] + 1e-6, f"Anterior: {anual_sub['subsidio_estudiante_formula_anterior']:,.0f}; brecha: {anual_sub['subsidio_estudiante']:,.0f}"))
+    rows.append(_ok("Sin brechas negativas aplicadas", anual_sub["brecha_minima_aplicada"] >= -1e-9, f"Brecha mínima: {anual_sub['brecha_minima_aplicada']:,.6f}"))
+    rows.append(_ok("Diagonal brecha estudiante en cero", abs(anual_sub["diagonal_brecha_suma"]) <= 1e-9, f"Suma diagonal: {anual_sub['diagonal_brecha_suma']:,.6f}"))
     rows.append(_ok("Subsidio normal no negativo", anual_sub["subsidio_normal"] >= 0, f"Subsidio normal: {anual_sub['subsidio_normal']:,.0f}"))
     rows.append(_ok("Subsidio estudiante no negativo", anual_sub["subsidio_estudiante"] >= 0, f"Subsidio estudiante: {anual_sub['subsidio_estudiante']:,.0f}"))
     rows.append(_ok("Subsidio total consistente", abs(anual_sub["subsidio_total"] - anual_sub["subsidio_normal"] - anual_sub["subsidio_estudiante"]) <= 1e-6, f"Total: {anual_sub['subsidio_total']:,.0f}"))
     rows.append(_ok("Ingreso total Biotren consistente", abs(anual_sub["ingreso_total_biotren"] - anual_sub["ingreso_venta"] - anual_sub["subsidio_normal"] - anual_sub["subsidio_estudiante"]) <= 1e-6, f"Ingreso total: {anual_sub['ingreso_total_biotren']:,.0f}"))
+    rows.append(_ok("Ingreso estudiante corregido aproxima teórico sin subsidio", abs(anual_sub["diferencia_ingreso_corregido_vs_teorico"]) / max(anual_sub["ingreso_teorico_estudiante_sin_subsidio"], 1.0) <= 0.01, f"Diferencia: {anual_sub['diferencia_ingreso_corregido_vs_teorico']:,.0f}"))
+    rows.append(_ok("Advertencia pares media_superior con tarifa faltante", isinstance(cobertura_est.get("pares_media_superior_sin_tarifa", None), (int, float)), f"Pares con viajes y sin tarifa: {cobertura_est.get('pares_media_superior_sin_tarifa')}"))
     rows.append(_ok("Biotren se mantiene en 12.673.199 pasajeros", abs(anual_sub["viajes_biotren"] - 12_673_199.0) <= 1.0, f"Viajes: {anual_sub['viajes_biotren']:,.0f}"))
 
     subsidio_ref = resultado_tarjetas["subsidio_referencial_base"]

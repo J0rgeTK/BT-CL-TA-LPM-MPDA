@@ -160,9 +160,9 @@ La tasa de descuento queda parametrizada en `data/tarifas_biotren/parametros_sub
 
 El grupo estudiante incluye sólo `media_superior`.
 
-Subsidio_estudiante = Σ(MOD_media_superior_ij × tarifa_estudiante_BT_sin_subsidio_ij), con diagonal en cero.
+Subsidio_estudiante = Σ(MOD_media_superior_ij × max(0, tarifa_estudiante_BT_sin_subsidio_ij - tarifa_estudiante_pagada_ij)), con diagonal en cero.
 
-La matriz `data/tarifas_biotren/tarifa_estudiante_bt_sin_subsidio_long.csv` se usa sólo para este subsidio; no reemplaza la tarifa estudiante pagada de venta de pasajes. No se imputan automáticamente tarifas faltantes y las brechas de cobertura se reportan como advertencias.
+La venta de pasajes de `media_superior` se calcula con la tarifa estudiante pagada de `data/od_biotren/processed/tarifas_2026_por_tipo_long.csv`. El subsidio estudiante cubre sólo la brecha tarifaria frente a `data/tarifas_biotren/tarifa_estudiante_bt_sin_subsidio_long.csv`; no suma la tarifa sin subsidio completa como subsidio. No se imputan automáticamente tarifas faltantes, las brechas de cobertura se reportan como advertencias y el cálculo no modifica la afluencia proyectada.
 
 ### 10.3 Total
 
