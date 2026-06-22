@@ -225,7 +225,7 @@ def render_indicadores_ejecutivos_biotren_2027(serv):
     fila_2[2].metric("Tasa descuento", f"{float(anual['tasa_descuento_normal']) * 100:.1f}%".replace(".", ","))
     fila_2[3].metric("Ingreso medio por pasajero", f"$ {fmt(ingreso_medio)}")
 
-    st.caption("Lectura ejecutiva: venta de pasajes corresponde a tarifas directas; subsidio normal usa tasa 18,9%; subsidio estudiante corresponde a ingreso teórico sin subsidio sin diagonal menos venta media_superior con diagonal; ingreso total suma venta y subsidios.")
+    st.caption("Indicadores específicos de Biotren: la venta de pasajes proviene de tarifas directas; el subsidio normal usa tasa de descuento 18,9%; el subsidio estudiante corregido usa la brecha entre tarifa estudiante BT sin subsidio y tarifa estudiante pagada; el ingreso total corresponde a venta de pasajes + subsidio normal + subsidio estudiante. El cálculo financiero no modifica la afluencia proyectada.")
 
 
 @st.cache_data(show_spinner=False)
@@ -604,6 +604,17 @@ No se usa como fórmula final la brecha OD `max(0, tarifa_sin_subsidio - tarifa_
         st.warning(f"No fue posible calcular la distribución OD de Biotren por tipo de tarjeta: {e}")
         return
 
+    with st.expander("Alcance de esta vista", expanded=False):
+        st.markdown("""
+Esta subsección separa tres conceptos:
+
+- **Distribución de afluencia:** reparte la proyección mensual total de Biotren entre tipos de tarjeta y pares origen-destino con participaciones históricas.
+- **Venta de pasajes:** aplica tarifa Normal a `monedero`, tarifa Estudiante pagada a `media_superior`, tarifa Adulto Mayor a `adulto_mayor` y tarifa cero al resto.
+- **Subsidio Biotren:** calcula subsidio normal con `tasa_descuento = 18,9%` y subsidio estudiante corregido sólo para `media_superior` como brecha entre tarifa estudiante BT sin subsidio y tarifa estudiante pagada.
+
+Venta de pasajes y subsidio son conceptos distintos. `adulto_mayor` queda fuera de los grupos de subsidio indicados. La proyección mensual total de Biotren no se recalcula ni se modifica en esta vista; sólo se distribuye el mes seleccionado.
+""")
+
     viajes_long = resultado["viajes_tipo_tarjeta_long"]
     resumen_mes = resultado["resumen_tipo_tarjeta"].copy()
     M = _matriz_tarjeta(viajes_long, tipo_tarjeta, "viajes_proyectados")
@@ -630,6 +641,23 @@ No se usa como fórmula final la brecha OD `max(0, tarifa_sin_subsidio - tarifa_
         st.success(f"Validación mensual: la suma de tipos de tarjeta coincide con Biotren ({fmt(suma_tipos)} viajes).")
     else:
         st.error(f"Validación mensual: diferencia de {dif_total:,.6f} viajes entre tipos de tarjeta y Biotren.")
+
+    st.markdown("#### Ingresos y subsidio Biotren")
+    ingresos_subsidio = resultado.get("ingresos_subsidio_biotren", {})
+    mensual_sub = ingresos_subsidio.get("resumen_mensual", pd.DataFrame())
+    anual_sub = ingresos_subsidio.get("resumen_anual", {})
+    cobertura = ingresos_subsidio.get("cobertura_estudiante", {})
+    sub_mes = mensual_sub[mensual_sub["periodo"].astype(str).eq(str(periodo))] if not mensual_sub.empty else pd.DataFrame()
+    valores = sub_mes.iloc[0].to_dict() if not sub_mes.empty else anual_sub
+    csub = st.columns(5)
+    csub[0].metric("Venta pasajes", f"$ {fmt(valores.get('ingreso_venta', 0))}")
+    csub[1].metric("Subsidio normal", f"$ {fmt(valores.get('subsidio_normal', 0))}")
+    csub[2].metric("Subsidio estudiante", f"$ {fmt(valores.get('subsidio_estudiante', 0))}")
+    csub[3].metric("Subsidio total", f"$ {fmt(valores.get('subsidio_total', 0))}")
+    csub[4].metric("Ingreso total", f"$ {fmt(valores.get('ingreso_total_biotren', 0))}")
+    st.caption("Tasa_descuento usada para subsidio normal: 18,9%. El subsidio estudiante corregido se calcula como brecha entre tarifa estudiante BT sin subsidio y tarifa estudiante pagada; el cálculo no modifica la afluencia proyectada.")
+    for adv in cobertura.get("advertencias", []):
+        st.warning(adv)
 
     t1, t2, t3, t4 = st.tabs(["Matriz OD viajes", "Matriz OD ingresos", "Resumen mensual", "Base subsidio futura"])
     with t1:

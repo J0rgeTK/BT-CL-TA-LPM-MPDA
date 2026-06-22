@@ -160,13 +160,9 @@ La tasa de descuento queda parametrizada en `data/tarifas_biotren/parametros_sub
 
 El grupo estudiante incluye sólo `media_superior`.
 
-Subsidio_estudiante = Ingreso_teorico_estudiante_sin_subsidio_sin_diagonal - Ingreso_real_estimado_media_superior_con_diagonal.
+Subsidio_estudiante = Σ(MOD_media_superior_ij × max(0, tarifa_estudiante_BT_sin_subsidio_ij - tarifa_estudiante_pagada_ij)), con diagonal en cero.
 
-Ingreso_teorico_estudiante_sin_subsidio_sin_diagonal = Σ_{i≠j}(MOD_media_superior_ij × tarifa_estudiante_BT_sin_subsidio_ij).
-
-Ingreso_real_estimado_media_superior_con_diagonal = Σ_{todos i,j}(MOD_media_superior_ij × tarifa_estudiante_pagada_ij).
-
-La venta real estimada de `media_superior` se calcula con la tarifa estudiante pagada de `data/od_biotren/processed/tarifas_2026_por_tipo_long.csv` e incluye la diagonal. El ingreso teórico sin subsidio usa `data/tarifas_biotren/tarifa_estudiante_bt_sin_subsidio_long.csv` y excluye la diagonal. El subsidio estudiante es la diferencia agregada entre ambos conceptos: no se usa la tarifa sin subsidio completa como subsidio y no se usa una brecha OD con `max(0, tarifa_sin_subsidio - tarifa_pagada)` como fórmula final. No se imputan automáticamente tarifas faltantes, las brechas de cobertura se reportan como advertencias y el cálculo no modifica la afluencia proyectada.
+La venta de pasajes de `media_superior` se calcula con la tarifa estudiante pagada de `data/od_biotren/processed/tarifas_2026_por_tipo_long.csv`. El subsidio estudiante cubre sólo la brecha tarifaria frente a `data/tarifas_biotren/tarifa_estudiante_bt_sin_subsidio_long.csv`; no suma la tarifa sin subsidio completa como subsidio. No se imputan automáticamente tarifas faltantes, las brechas de cobertura se reportan como advertencias y el cálculo no modifica la afluencia proyectada.
 
 ### 10.3 Total
 
