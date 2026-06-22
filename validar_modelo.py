@@ -355,11 +355,22 @@ def ejecutar_validacion() -> pd.DataFrame:
     rows.append(_ok("Diagonal estudiante tratada como cero", bool((diag["es_diagonal"].astype(int).eq(1)).all()), f"Filas diagonal: {len(diag)}"))
     rows.append(_ok("MOD normal_base excluye media_superior y adulto_mayor", not ({"media_superior", "adulto_mayor"} & set(grupos_sub["normal_base"])), f"Grupo normal_base: {grupos_sub['normal_base']}"))
     rows.append(_ok("media_superior único grupo estudiante subsidio", grupos_sub["estudiante_subsidio"] == ["media_superior"], f"Grupo estudiante: {grupos_sub['estudiante_subsidio']}"))
+    rows.append(_ok("Tarifa estudiante pagada desde matriz vigente", grupos_sub.get("tarifa_estudiante_pagada") == ["Estudiante"], f"Fuente tarifa pagada: {grupos_sub.get('tarifa_estudiante_pagada')}"))
+    rows.append(_ok("Tarifa estudiante sin subsidio desde data/tarifas_biotren", grupos_sub.get("tarifa_estudiante_sin_subsidio_path") == "data/tarifas_biotren/tarifa_estudiante_bt_sin_subsidio_long.csv", f"Fuente sin subsidio: {grupos_sub.get('tarifa_estudiante_sin_subsidio_path')}"))
+    rows.append(_ok("Venta media_superior con diagonal usa tarifa estudiante pagada", abs(anual_sub["venta_media_superior_con_diagonal"] - ingreso_tipo.get("media_superior", 0.0)) <= 1e-6, f"Venta con diagonal: {anual_sub['venta_media_superior_con_diagonal']:,.0f}"))
+    rows.append(_ok("Ingreso teórico estudiante sin subsidio excluye diagonal", anual_sub["ingreso_teorico_estudiante_sin_subsidio_sin_diagonal"] >= 0 and abs(anual_sub["diagonal_brecha_suma"]) <= 1e-9, f"Teórico sin diagonal: {anual_sub['ingreso_teorico_estudiante_sin_subsidio_sin_diagonal']:,.0f}"))
+    rows.append(_ok("Subsidio estudiante fórmula oficial agregada", abs(anual_sub["subsidio_estudiante"] - (anual_sub["ingreso_teorico_estudiante_sin_subsidio_sin_diagonal"] - anual_sub["venta_media_superior_con_diagonal"])) <= 1e-6, f"Oficial: {anual_sub['subsidio_estudiante']:,.0f}"))
+    rows.append(_ok("Identidad venta media_superior + subsidio estudiante", abs(anual_sub["venta_media_superior_con_diagonal"] + anual_sub["subsidio_estudiante"] - anual_sub["ingreso_teorico_estudiante_sin_subsidio_sin_diagonal"]) <= 1e-6, f"Diferencia: {anual_sub['diferencia_ingreso_corregido_vs_teorico']:,.0f}"))
+    rows.append(_ok("Diagnóstico brecha OD no usado como fórmula final", abs(anual_sub["subsidio_estudiante_formula_anterior_por_brecha_od"] - anual_sub["subsidio_estudiante"]) > 1e-6, f"Brecha OD: {anual_sub['subsidio_estudiante_formula_anterior_por_brecha_od']:,.0f}; oficial: {anual_sub['subsidio_estudiante']:,.0f}"))
     rows.append(_ok("Subsidio normal no negativo", anual_sub["subsidio_normal"] >= 0, f"Subsidio normal: {anual_sub['subsidio_normal']:,.0f}"))
     rows.append(_ok("Subsidio estudiante no negativo", anual_sub["subsidio_estudiante"] >= 0, f"Subsidio estudiante: {anual_sub['subsidio_estudiante']:,.0f}"))
     rows.append(_ok("Subsidio total consistente", abs(anual_sub["subsidio_total"] - anual_sub["subsidio_normal"] - anual_sub["subsidio_estudiante"]) <= 1e-6, f"Total: {anual_sub['subsidio_total']:,.0f}"))
     rows.append(_ok("Ingreso total Biotren consistente", abs(anual_sub["ingreso_total_biotren"] - anual_sub["ingreso_venta"] - anual_sub["subsidio_normal"] - anual_sub["subsidio_estudiante"]) <= 1e-6, f"Ingreso total: {anual_sub['ingreso_total_biotren']:,.0f}"))
+    rows.append(_ok("Advertencia pares media_superior con tarifa faltante", isinstance(cobertura_est.get("pares_media_superior_sin_tarifa", None), (int, float)), f"Pares con viajes y sin tarifa: {cobertura_est.get('pares_media_superior_sin_tarifa')}"))
     rows.append(_ok("Biotren se mantiene en 12.673.199 pasajeros", abs(anual_sub["viajes_biotren"] - 12_673_199.0) <= 1.0, f"Viajes: {anual_sub['viajes_biotren']:,.0f}"))
+    streamlit_text = (BASE / "streamlit_app.py").read_text(encoding="utf-8")
+    montos_referenciales_streamlit = ["1216", "1.216", "2615", "2.615", "9154", "9.154", "1216329151", "2615122803", "9153592420"]
+    rows.append(_ok("Streamlit sin montos financieros anuales hardcodeados", not any(m in streamlit_text for m in montos_referenciales_streamlit), "Montos referenciales no encontrados en streamlit_app.py"))
 
     subsidio_ref = resultado_tarjetas["subsidio_referencial_base"]
     columnas_monto_subsidio = [c for c in subsidio_ref.columns if "monto" in c.lower() or "subsidio_monetario" in c.lower()]
