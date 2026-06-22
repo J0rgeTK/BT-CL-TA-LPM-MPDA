@@ -58,6 +58,10 @@ st.markdown("""
   button[data-baseweb="tab"] { font-weight:600; font-size:.95rem; }
   .badge { display:inline-block; padding:3px 12px; border-radius:999px; color:#fff; font-size:.78rem; font-weight:700; }
   .method { background:#fff; border:1px solid #e6ebf2; border-radius:14px; padding:18px 22px; }
+  .bt-panel { background:#fff; border:1px solid #e6ebf2; border-radius:16px; padding:16px 18px; margin:.55rem 0 1rem 0; box-shadow:0 2px 10px rgba(15,39,64,.05); }
+  .bt-panel h4 { margin:.1rem 0 .35rem 0; }
+  .bt-note { color:#5b6b7d; font-size:.92rem; margin:.1rem 0 .45rem 0; }
+  .bt-chip { display:inline-block; border-radius:999px; padding:4px 10px; margin:2px 4px 2px 0; font-size:.78rem; font-weight:700; background:#eef4ff; color:#1f4e79; }
   code { white-space: pre-wrap; }
 </style>
 """, unsafe_allow_html=True)
@@ -165,10 +169,29 @@ def calcular_od_biotren_tarjeta_mes_cached(periodo, valor):
 
 
 @st.cache_data(show_spinner=False)
-def calcular_resumen_anual_ingresos_subsidio_biotren_cached(serie_dict):
+def calcular_resultado_biotren_tarjeta_anual_cached(serie_dict):
     serie = pd.Series(serie_dict, dtype=float)
-    resultado = OD.distribuir_proyeccion_biotren_por_tipo_tarjeta(serie)
+    return OD.distribuir_proyeccion_biotren_por_tipo_tarjeta(serie)
+
+
+@st.cache_data(show_spinner=False)
+def calcular_resumen_anual_ingresos_subsidio_biotren_cached(serie_dict):
+    resultado = calcular_resultado_biotren_tarjeta_anual_cached(serie_dict)
     return resultado["ingresos_subsidio_biotren"]
+
+
+def _rol_tarjetario(tipo_tarjeta):
+    if tipo_tarjeta in {"monedero", "media_superior", "adulto_mayor"}:
+        return "Tarifa directa"
+    return "Sin ingreso directo"
+
+
+def _grupo_subsidio_tarjeta(tipo_tarjeta):
+    if tipo_tarjeta == "media_superior":
+        return "Subsidio estudiante"
+    if tipo_tarjeta == "adulto_mayor":
+        return "Fuera de subsidio"
+    return "Grupo normal"
 
 
 def render_indicadores_ejecutivos_biotren_2027(serv):
@@ -178,7 +201,18 @@ def render_indicadores_ejecutivos_biotren_2027(serv):
     pasajeros = float(anual["viajes_biotren"])
     ingreso_medio = float(anual["ingreso_total_biotren"]) / pasajeros if pasajeros > 0 else 0.0
 
-    st.markdown("#### Indicadores ejecutivos Biotren 2027")
+    st.markdown("## Biotren: afluencia, distribución e ingresos 2027")
+    st.markdown(
+        """
+<div class="bt-panel">
+  <h4>Resumen ejecutivo</h4>
+  <p class="bt-note">La proyección anual de pasajeros proviene del escenario operacional vigente. Sobre esa base se calculan la venta de pasajes, el subsidio normal y el subsidio estudiante; la distribución OD/tipo de tarjeta se aplica como capa posterior y no modifica la afluencia proyectada.</p>
+  <span class="bt-chip">Afluencia 2027</span><span class="bt-chip">Ingresos tarifarios</span><span class="bt-chip">Subsidios Biotren</span><span class="bt-chip">OD y tipo de tarjeta</span>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
+
     fila_1 = st.columns(4)
     fila_1[0].metric("Pasajeros 2027", fmt(pasajeros))
     fila_1[1].metric("Venta de pasajes", fmt_mm(anual["ingreso_venta"]))
@@ -188,10 +222,10 @@ def render_indicadores_ejecutivos_biotren_2027(serv):
     fila_2 = st.columns(4)
     fila_2[0].metric("Subsidio normal", fmt_mm(anual["subsidio_normal"]))
     fila_2[1].metric("Subsidio estudiante", fmt_mm(anual["subsidio_estudiante"]))
-    fila_2[2].metric("Tasa descuento normal", f"{float(anual['tasa_descuento_normal']) * 100:.1f}%".replace(".", ","))
+    fila_2[2].metric("Tasa descuento", f"{float(anual['tasa_descuento_normal']) * 100:.1f}%".replace(".", ","))
     fila_2[3].metric("Ingreso medio por pasajero", f"$ {fmt(ingreso_medio)}")
 
-    st.caption("Indicadores específicos de Biotren: la venta de pasajes proviene de tarifas directas; el subsidio normal usa tasa de descuento 18,9%; el subsidio estudiante usa la matriz estudiante BT sin subsidio; el ingreso total corresponde a venta de pasajes + subsidio normal + subsidio estudiante. El cálculo financiero no modifica la afluencia proyectada.")
+    st.caption("Lectura ejecutiva: venta de pasajes corresponde a tarifas directas; subsidio normal usa tasa 18,9%; subsidio estudiante corresponde a ingreso teórico sin subsidio sin diagonal menos venta media_superior con diagonal; ingreso total suma venta y subsidios.")
 
 
 @st.cache_data(show_spinner=False)
@@ -209,7 +243,7 @@ def _matriz_tarjeta(df, tipo_tarjeta, valor):
 
 
 def render_incertidumbre_biotren(serv):
-    st.markdown("#### Incertidumbre diagnóstica Biotren")
+    st.markdown("### 9. Diagnósticos de incertidumbre")
     try:
         bt = BT.ejecutar_backtesting(params, mdf)
         bandas = INC.calcular_bandas_incertidumbre(serv.astype(float), bt.metricas_servicio)
@@ -246,7 +280,8 @@ def render_incertidumbre_biotren(serv):
     st.caption("Las bandas derivan del backtesting retrospectivo diagnóstico. No son intervalos estadísticos formales y no reemplazan la base operacional vigente de Biotren.")
 
 def render_distribucion_biotren_linea_mod(serv):
-    st.markdown("#### Distribución Biotren por línea OD basada en MOD")
+    st.markdown("### 4. Composición de demanda por línea")
+    st.caption("Distribución anual 2027 de la demanda Biotren por línea OD. La suma L1 + L2 + L1-L2 conserva el total mensual y anual proyectado.")
     serie = serv["BIOTREN"].astype(float).copy()
     try:
         dist_linea = calcular_distribucion_biotren_linea_mod_cached(serie.to_dict())
@@ -281,27 +316,55 @@ def render_distribucion_biotren_linea_mod(serv):
     k[1].metric("Diferencia máxima mensual", f"{dif_max:,.6f}".replace(",", "X").replace(".", ",").replace("X", "."))
     k[2].metric("No clasificado histórico control", fmt_share(pct_no_clasificado))
 
-    st.dataframe(
-        mensual.reset_index().rename(columns={"periodo": "Periodo"}).style.format({
-            "L1": "{:,.0f}",
-            "L2": "{:,.0f}",
-            "L1-L2": "{:,.0f}",
-            "Total líneas OD": "{:,.0f}",
-            "Total Biotren": "{:,.0f}",
-            "Diferencia": "{:,.6f}",
-        }),
-        width="stretch",
-        height=260,
+    anual_vista = anual.rename(columns={
+        "linea_od": "Línea",
+        "viajes_proyectados": "Pasajeros 2027",
+        "participacion_anual": "Participación",
+    })
+    fig_linea = go.Figure()
+    fig_linea.add_bar(
+        x=anual_vista["Línea"],
+        y=anual_vista["Pasajeros 2027"],
+        marker_color=["#1f6feb", "#0e9f6e", "#d97706"],
+        text=[fmt(v) for v in anual_vista["Pasajeros 2027"]],
+        textposition="outside",
+        hovertemplate="%{x}<br>Pasajeros: %{y:,.0f}<extra></extra>",
     )
-    st.markdown("##### Resumen anual por línea OD")
-    st.dataframe(
-        anual.style.format({
-            "viajes_proyectados": "{:,.0f}",
-            "participacion_anual": "{:.4%}",
-        }),
-        width="stretch",
-        hide_index=True,
+    fig_linea.update_layout(
+        title="Distribución anual Biotren por línea OD",
+        yaxis_title="Pasajeros proyectados",
+        xaxis_title="Línea OD",
+        showlegend=False,
+        margin=dict(l=10, r=10, t=45, b=10),
+        height=330,
     )
+    g_linea, t_linea = st.columns([2, 1])
+    with g_linea:
+        st.plotly_chart(fig_linea, width="stretch")
+    with t_linea:
+        st.dataframe(
+            anual_vista,
+            width="stretch",
+            hide_index=True,
+            column_config={
+                "Pasajeros 2027": st.column_config.NumberColumn("Pasajeros 2027", format="%d"),
+                "Participación": st.column_config.NumberColumn("Participación", format="%.2%%"),
+            },
+        )
+
+    with st.expander("Detalle mensual de conservación por línea", expanded=False):
+        st.dataframe(
+            mensual.reset_index().rename(columns={"periodo": "Periodo"}).style.format({
+                "L1": "{:,.0f}",
+                "L2": "{:,.0f}",
+                "L1-L2": "{:,.0f}",
+                "Total líneas OD": "{:,.0f}",
+                "Total Biotren": "{:,.0f}",
+                "Diferencia": "{:,.6f}",
+            }),
+            width="stretch",
+            height=260,
+        )
     if dif_max <= 1e-5:
         st.success("Validación: la suma mensual L1 + L2 + L1-L2 coincide con el total mensual Biotren.")
     else:
@@ -323,10 +386,210 @@ def render_distribucion_biotren_linea_mod(serv):
 
 
 def render_od_biotren(serv):
-    st.markdown("#### Distribución OD Biotren por tipo de tarjeta")
-    st.caption("Vista mínima en memoria: muestra sólo el mes y tipo de tarjeta seleccionados, sin generar CSV long ni modificar datos procesados.")
+    st.markdown("### 5. Distribución por tipo de tarjeta y resultados financieros")
+    st.caption("Resumen ejecutivo anual y vista OD mensual en memoria. No se generan CSV long ni se modifican datos procesados.")
 
     serie = serv["BIOTREN"].astype(float).copy()
+    try:
+        resultado_anual = calcular_resultado_biotren_tarjeta_anual_cached(serie.to_dict())
+    except Exception as e:
+        st.warning(f"No fue posible calcular la distribución anual de Biotren por tipo de tarjeta: {e}")
+        return
+
+    resumen_anual_tipo = resultado_anual["resumen_tipo_tarjeta"].copy()
+    resumen_tipo = resumen_anual_tipo.groupby(
+        ["tipo_tarjeta", "nombre_visual", "tipo_pasajero_tarifa"], as_index=False
+    ).agg(
+        viajes=("viajes_proyectados", "sum"),
+        venta_pasajes=("ingresos_tarifarios_proyectados", "sum"),
+    )
+    total_viajes = float(resumen_tipo["viajes"].sum())
+    resumen_tipo["participacion"] = resumen_tipo["viajes"] / total_viajes if total_viajes else 0.0
+    resumen_tipo["rol_tarifario"] = resumen_tipo["tipo_tarjeta"].map(_rol_tarjetario)
+    resumen_tipo["grupo_subsidio"] = resumen_tipo["tipo_tarjeta"].map(_grupo_subsidio_tarjeta)
+    resumen_tipo["tarifa_media"] = resumen_tipo["venta_pasajes"] / resumen_tipo["viajes"].replace(0, pd.NA)
+    resumen_tipo = resumen_tipo.sort_values(["rol_tarifario", "grupo_subsidio", "viajes"], ascending=[True, True, False])
+
+    tabla_tarjetas = resumen_tipo.rename(columns={
+        "tipo_tarjeta": "Tipo de tarjeta",
+        "nombre_visual": "Nombre",
+        "tipo_pasajero_tarifa": "Tarifa aplicada",
+        "viajes": "Viajes 2027",
+        "participacion": "Participación",
+        "venta_pasajes": "Venta pasajes",
+        "tarifa_media": "Tarifa media",
+        "rol_tarifario": "Rol tarifario",
+        "grupo_subsidio": "Grupo subsidio",
+    })[["Tipo de tarjeta", "Nombre", "Rol tarifario", "Grupo subsidio", "Tarifa aplicada", "Viajes 2027", "Participación", "Venta pasajes", "Tarifa media"]]
+
+    fig_tarjetas = go.Figure()
+    colores = ["#0e9f6e" if r == "Tarifa directa" else "#94a3b8" for r in resumen_tipo["rol_tarifario"]]
+    fig_tarjetas.add_bar(
+        x=resumen_tipo["nombre_visual"],
+        y=resumen_tipo["viajes"],
+        marker_color=colores,
+        text=[fmt(v) for v in resumen_tipo["viajes"]],
+        textposition="outside",
+        hovertemplate="%{x}<br>Viajes: %{y:,.0f}<extra></extra>",
+    )
+    fig_tarjetas.update_layout(
+        title="Viajes anuales por tipo de tarjeta",
+        yaxis_title="Viajes proyectados",
+        xaxis_title="Tipo de tarjeta",
+        showlegend=False,
+        margin=dict(l=10, r=10, t=45, b=80),
+        height=390,
+    )
+    fig_tarjetas.update_xaxes(tickangle=-30)
+
+    g_tipo, t_tipo = st.columns([2, 3])
+    with g_tipo:
+        st.plotly_chart(fig_tarjetas, width="stretch")
+    with t_tipo:
+        st.dataframe(
+            tabla_tarjetas,
+            width="stretch",
+            hide_index=True,
+            height=390,
+            column_config={
+                "Viajes 2027": st.column_config.NumberColumn("Viajes 2027", format="%d"),
+                "Participación": st.column_config.NumberColumn("Participación", format="%.2%%"),
+                "Venta pasajes": st.column_config.NumberColumn("Venta pasajes", format="$ %d"),
+                "Tarifa media": st.column_config.NumberColumn("Tarifa media", format="$ %.0f"),
+            },
+        )
+
+    ingresos_subsidio = resultado_anual.get("ingresos_subsidio_biotren", {})
+    anual_sub = ingresos_subsidio.get("resumen_anual", {})
+    cobertura = ingresos_subsidio.get("cobertura_estudiante", {})
+    venta_por_tipo = resumen_tipo.set_index("tipo_tarjeta")["venta_pasajes"].to_dict()
+    tabla_financiera = pd.DataFrame([
+        {
+            "concepto": "Venta de pasajes",
+            "grupo": "monedero",
+            "base": "MOD monedero × tarifa normal",
+            "monto": venta_por_tipo.get("monedero", 0.0),
+            "observacion": "Tarifa directa pagada por pasajero.",
+        },
+        {
+            "concepto": "Venta de pasajes",
+            "grupo": "media_superior",
+            "base": "MOD media_superior × tarifa estudiante pagada, incluye diagonal",
+            "monto": venta_por_tipo.get("media_superior", 0.0),
+            "observacion": "Venta real estimada con tarifa estudiante vigente.",
+        },
+        {
+            "concepto": "Venta de pasajes",
+            "grupo": "adulto_mayor",
+            "base": "MOD adulto_mayor × tarifa adulto mayor",
+            "monto": venta_por_tipo.get("adulto_mayor", 0.0),
+            "observacion": "Tarifa directa pagada por pasajero.",
+        },
+        {
+            "concepto": "Venta de pasajes",
+            "grupo": "Total venta",
+            "base": "Suma de ingresos tarifarios directos",
+            "monto": anual_sub.get("ingreso_venta", 0.0),
+            "observacion": "Otros tipos de tarjeta mantienen ingreso directo cero.",
+        },
+        {
+            "concepto": "Subsidio",
+            "grupo": "normal",
+            "base": "Monto normal base / (1 - tasa_descuento_normal) - monto normal base",
+            "monto": anual_sub.get("subsidio_normal", 0.0),
+            "observacion": "Grupo normal excluye media_superior y adulto_mayor; diagonal en cero.",
+        },
+        {
+            "concepto": "Subsidio",
+            "grupo": "media_superior",
+            "base": "Ingreso teórico sin subsidio sin diagonal - venta media_superior con diagonal",
+            "monto": anual_sub.get("subsidio_estudiante", 0.0),
+            "observacion": "Fórmula oficial agregada; la diferencia de diagonal es intencional.",
+        },
+        {
+            "concepto": "Subsidio",
+            "grupo": "Total subsidio",
+            "base": "Subsidio normal + subsidio estudiante",
+            "monto": anual_sub.get("subsidio_total", 0.0),
+            "observacion": "No incluye adulto_mayor como grupo subsidiado.",
+        },
+        {
+            "concepto": "Total financiero",
+            "grupo": "Biotren",
+            "base": "Venta de pasajes + subsidio normal + subsidio estudiante",
+            "monto": anual_sub.get("ingreso_total_biotren", 0.0),
+            "observacion": "Ingreso total anual estimado Biotren.",
+        },
+    ])
+    st.markdown("### 6. Ingresos y subsidios Biotren")
+    st.dataframe(
+        tabla_financiera.rename(columns={
+            "concepto": "Concepto",
+            "grupo": "Grupo considerado",
+            "base": "Base de cálculo",
+            "monto": "Monto anual",
+            "observacion": "Observación metodológica",
+        }),
+        width="stretch",
+        hide_index=True,
+        column_config={"Monto anual": st.column_config.NumberColumn("Monto anual", format="$ %d")},
+    )
+
+    diag = pd.DataFrame([
+        {"Indicador": "Venta media_superior con diagonal", "Monto": anual_sub.get("venta_media_superior_con_diagonal", 0.0)},
+        {"Indicador": "Venta media_superior sin diagonal", "Monto": anual_sub.get("venta_media_superior_sin_diagonal", 0.0)},
+        {"Indicador": "Ingreso teórico estudiante sin subsidio sin diagonal", "Monto": anual_sub.get("ingreso_teorico_estudiante_sin_subsidio_sin_diagonal", 0.0)},
+        {"Indicador": "Subsidio estudiante oficial", "Monto": anual_sub.get("subsidio_estudiante_formula_oficial", anual_sub.get("subsidio_estudiante", 0.0))},
+        {"Indicador": "Brecha OD sólo diagnóstica", "Monto": anual_sub.get("subsidio_estudiante_formula_anterior_por_brecha_od", 0.0)},
+    ])
+    with st.expander("Diagnóstico de subsidio estudiante y tratamiento de diagonal", expanded=False):
+        st.dataframe(
+            diag,
+            width="stretch",
+            hide_index=True,
+            column_config={"Monto": st.column_config.NumberColumn("Monto", format="$ %d")},
+        )
+        st.info("Control metodológico: venta media_superior con diagonal + subsidio estudiante oficial = ingreso teórico estudiante sin subsidio sin diagonal, salvo redondeo o cobertura tarifaria reportada.")
+
+    st.markdown("### 7. Advertencias y cobertura tarifaria")
+    cobertura_cols = st.columns(3)
+    cobertura_cols[0].metric("Estaciones matriz estudiante", fmt(cobertura.get("estaciones_matriz", 0)))
+    cobertura_cols[1].metric("Estaciones modelo", fmt(cobertura.get("estaciones_modelo", 0)))
+    cobertura_cols[2].metric("Pares sin tarifa", fmt(cobertura.get("pares_media_superior_sin_tarifa", 0)))
+    if cobertura.get("sin_cobertura_modelo"):
+        st.warning("Estaciones del modelo sin cobertura en matriz estudiante BT sin subsidio: " + ", ".join(cobertura.get("sin_cobertura_modelo", [])))
+    if cobertura.get("estaciones_sin_tarifas"):
+        st.warning("Estaciones en matriz sin tarifas disponibles hacia/desde otras estaciones: " + ", ".join(cobertura.get("estaciones_sin_tarifas", [])))
+    st.info("La diagonal tiene tratamiento diferenciado: la venta media_superior considera diagonal y el ingreso teórico estudiante sin subsidio la excluye.")
+    for adv in cobertura.get("advertencias", []):
+        st.warning(adv)
+
+    with st.expander("Justificación metodológica Biotren", expanded=False):
+        st.markdown("""
+#### Proyección de afluencia
+- La proyección 2027 proviene del escenario operacional vigente.
+- La distribución OD/tipo de tarjeta se aplica después de estimar la afluencia mensual.
+- El cálculo financiero no modifica la demanda proyectada.
+
+#### Venta de pasajes
+- `monedero` usa tarifa normal.
+- `media_superior` usa tarifa estudiante pagada y considera diagonal.
+- `adulto_mayor` usa tarifa adulto mayor.
+- `estudiante_basica`, `discapacitado`, `funcionario_normal`, `funcionario_especial` y `convenio_colectivo` tienen ingreso directo cero.
+
+#### Subsidio normal
+`Subsidio_normal = Monto_normal_base / (1 - tasa_descuento_normal) - Monto_normal_base`, con grupo normal igual a todas las tarjetas excepto `media_superior` y `adulto_mayor`, tarifa normal y diagonal en cero.
+
+#### Subsidio estudiante
+`Subsidio_estudiante = Ingreso_teorico_estudiante_sin_subsidio_sin_diagonal - Venta_media_superior_con_diagonal`.
+
+No se usa como fórmula final la brecha OD `max(0, tarifa_sin_subsidio - tarifa_pagada)`.
+
+#### Ingreso total
+`Ingreso_total_Biotren = Venta_pasajes + Subsidio_normal + Subsidio_estudiante`.
+""")
+
+    st.markdown("### 8. Vista OD mensual por tipo de tarjeta")
     periodos = list(serie.index)
     meses_nombre = {f"2027-{m:02d}": f"{m:02d} - 2027" for m in range(1, 13)}
     csel1, csel2 = st.columns([1, 1])
@@ -340,17 +603,6 @@ def render_od_biotren(serv):
     except Exception as e:
         st.warning(f"No fue posible calcular la distribución OD de Biotren por tipo de tarjeta: {e}")
         return
-
-    with st.expander("Alcance de esta vista", expanded=False):
-        st.markdown("""
-Esta subsección separa tres conceptos:
-
-- **Distribución de afluencia:** reparte la proyección mensual total de Biotren entre tipos de tarjeta y pares origen-destino con participaciones históricas.
-- **Venta de pasajes:** aplica tarifa Normal a `monedero`, tarifa Estudiante pagada a `media_superior`, tarifa Adulto Mayor a `adulto_mayor` y tarifa cero al resto.
-- **Subsidio Biotren:** calcula subsidio normal con `tasa_descuento = 18,9%` y subsidio estudiante sólo para `media_superior` con la matriz estudiante BT sin subsidio.
-
-Venta de pasajes y subsidio son conceptos distintos. `adulto_mayor` queda fuera de los grupos de subsidio indicados. La proyección mensual total de Biotren no se recalcula ni se modifica en esta vista; sólo se distribuye el mes seleccionado.
-""")
 
     viajes_long = resultado["viajes_tipo_tarjeta_long"]
     resumen_mes = resultado["resumen_tipo_tarjeta"].copy()
@@ -368,8 +620,8 @@ Venta de pasajes y subsidio son conceptos distintos. `adulto_mayor` queda fuera 
     km = st.columns(4)
     km[0].metric("Afluencia Biotren mes", fmt(total_mes))
     km[1].metric(f"Viajes {tipo_tarjeta}", fmt(viajes), f"{viajes / total_mes * 100:.1f}%".replace(".", ",") if total_mes else "s/i")
-    km[2].metric("Ingreso tarifario preliminar", f"$ {fmt(ingresos)}")
-    km[3].metric("Tarifa media preliminar", f"$ {fmt(tarifa_media)}")
+    km[2].metric("Ingreso tarifario mes", f"$ {fmt(ingresos)}")
+    km[3].metric("Tarifa media mes", f"$ {fmt(tarifa_media)}")
 
     if tarifa_nombre == "Sin ingreso tarifario":
         st.warning("Este tipo de tarjeta tiene tarifa 0 en esta etapa: se distribuye afluencia, pero no se calcula ingreso tarifario directo.")
@@ -379,34 +631,35 @@ Venta de pasajes y subsidio son conceptos distintos. `adulto_mayor` queda fuera 
     else:
         st.error(f"Validación mensual: diferencia de {dif_total:,.6f} viajes entre tipos de tarjeta y Biotren.")
 
-    st.markdown("#### Ingresos y subsidio Biotren")
-    ingresos_subsidio = resultado.get("ingresos_subsidio_biotren", {})
-    mensual_sub = ingresos_subsidio.get("resumen_mensual", pd.DataFrame())
-    anual_sub = ingresos_subsidio.get("resumen_anual", {})
-    cobertura = ingresos_subsidio.get("cobertura_estudiante", {})
-    sub_mes = mensual_sub[mensual_sub["periodo"].astype(str).eq(str(periodo))] if not mensual_sub.empty else pd.DataFrame()
-    valores = sub_mes.iloc[0].to_dict() if not sub_mes.empty else anual_sub
-    csub = st.columns(5)
-    csub[0].metric("Venta pasajes", f"$ {fmt(valores.get('ingreso_venta', 0))}")
-    csub[1].metric("Subsidio normal", f"$ {fmt(valores.get('subsidio_normal', 0))}")
-    csub[2].metric("Subsidio estudiante", f"$ {fmt(valores.get('subsidio_estudiante', 0))}")
-    csub[3].metric("Subsidio total", f"$ {fmt(valores.get('subsidio_total', 0))}")
-    csub[4].metric("Ingreso total", f"$ {fmt(valores.get('ingreso_total_biotren', 0))}")
-    st.caption("Tasa_descuento usada para subsidio normal: 18,9%. El subsidio estudiante usa la matriz estudiante BT sin subsidio; el cálculo no modifica la afluencia proyectada.")
-    for adv in cobertura.get("advertencias", []):
-        st.warning(adv)
-
     t1, t2, t3, t4 = st.tabs(["Matriz OD viajes", "Matriz OD ingresos", "Resumen mensual", "Base subsidio futura"])
     with t1:
         st.markdown("**Distribución de afluencia OD para el mes y tipo de tarjeta seleccionados**")
         st.dataframe(M.round(0).astype(int).copy(deep=True), width="stretch", height=520)
     with t2:
-        st.markdown("**Ingresos tarifarios preliminares OD para el mes y tipo de tarjeta seleccionados**")
+        st.markdown("**Ingresos tarifarios OD para el mes y tipo de tarjeta seleccionado**")
         st.dataframe(R.round(0).astype(int).copy(deep=True), width="stretch", height=520)
     with t3:
         st.markdown("**Resumen agregado del mes por tipo de tarjeta**")
         cols = ["tipo_tarjeta", "nombre_visual", "tipo_pasajero_tarifa", "viajes_proyectados", "ingresos_tarifarios_proyectados", "tarifa_media_proyectada"]
-        st.dataframe(resumen_mes[cols].round(2), width="stretch", height=260)
+        resumen_vista = resumen_mes[cols].rename(columns={
+            "tipo_tarjeta": "Tipo de tarjeta",
+            "nombre_visual": "Nombre",
+            "tipo_pasajero_tarifa": "Tarifa aplicada",
+            "viajes_proyectados": "Viajes",
+            "ingresos_tarifarios_proyectados": "Ingresos tarifarios",
+            "tarifa_media_proyectada": "Tarifa media",
+        })
+        st.dataframe(
+            resumen_vista,
+            width="stretch",
+            height=260,
+            hide_index=True,
+            column_config={
+                "Viajes": st.column_config.NumberColumn("Viajes", format="%d"),
+                "Ingresos tarifarios": st.column_config.NumberColumn("Ingresos tarifarios", format="$ %d"),
+                "Tarifa media": st.column_config.NumberColumn("Tarifa media", format="$ %.0f"),
+            },
+        )
     with t4:
         st.markdown("**Base referencial para subsidio futuro — sin cálculo de montos**")
         subsidio = resultado["subsidio_referencial_base"]
@@ -1061,13 +1314,13 @@ def render_servicio(s):
     if s == "BIOTREN":
         render_indicadores_ejecutivos_biotren_2027(serv)
 
-    st.markdown("#### Evolución mensual histórica, cierre 2026 y proyección 2027")
+    st.markdown("### 2. Evolución mensual histórica, cierre 2026 y proyección 2027" if s == "BIOTREN" else "#### Evolución mensual histórica, cierre 2026 y proyección 2027")
     grafico_historico_y_proyeccion(s, serv)
     tabla_ref = tabla_referencia_anual_servicio(s, serv)
     if not tabla_ref.empty:
         st.dataframe(tabla_ref.style.format({"total anual": "{:,.0f}"}), width="stretch", hide_index=True, height=300)
 
-    st.markdown("#### Total operacional 2027 vigente")
+    st.markdown("### 3. Composición operacional 2027 vigente" if s == "BIOTREN" else "#### Total operacional 2027 vigente")
     k = st.columns(4)
     k[0].metric("Total anual 2027", fmt(serv[s].dropna().sum()))
     k[1].metric("Pax/viaje proyectado", fmt(ocup_proy))
@@ -1115,9 +1368,9 @@ def render_servicio(s):
         st.markdown("#### Promedio laboral mensual")
         st.dataframe(t[["periodo", "pasajeros", "dias_laborales_operacionales", "promedio_laboral"]].style.format({"pasajeros":"{:,.0f}", "dias_laborales_operacionales":"{:,.0f}", "promedio_laboral":"{:,.1f}"}), width="stretch", hide_index=True)
     if s == "BIOTREN":
-        render_incertidumbre_biotren(serv)
         render_distribucion_biotren_linea_mod(serv)
         render_od_biotren(serv)
+        render_incertidumbre_biotren(serv)
 
     st.download_button(f"⬇ Descargar proyección {O.NOMBRE[s]} (CSV)", out.to_csv().encode(),
                        f"proyeccion_2027_{s}.csv", key=f"dl_{s}")
