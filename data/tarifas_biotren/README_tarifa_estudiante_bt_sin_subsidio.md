@@ -36,7 +36,7 @@ Advertencias metodológicas:
 
 Regla de cálculo propuesta para subsidio estudiante:
 - Grupo estudiante: sólo `media_superior`.
-- `subsidio_estudiante = ingreso_teorico_estudiante_sin_subsidio_sin_diagonal - ingreso_real_estimado_media_superior_con_diagonal`. El ingreso teórico usa la tarifa estudiante BT sin subsidio y excluye la diagonal; la venta real estimada de `media_superior` usa la tarifa estudiante pagada e incluye la diagonal. No se usa brecha OD con `max(0, tarifa_sin_subsidio - tarifa_pagada)` como fórmula final y el cálculo no modifica la afluencia proyectada.
+- `subsidio_estudiante = suma(MOD_media_superior_ij × max(0, tarifa_estudiante_bt_sin_subsidio_ij - tarifa_estudiante_pagada_ij))`, con diagonal en cero. La venta de pasajes de `media_superior` usa la tarifa estudiante pagada; el subsidio cubre sólo la brecha tarifaria y no modifica la afluencia proyectada.
 
 Regla de cálculo propuesta para subsidio normal:
 - Grupo normal: todas las tarjetas excepto `media_superior` y `adulto_mayor`.
