@@ -367,6 +367,9 @@ def ejecutar_validacion() -> pd.DataFrame:
     rows.append(_ok("Ingreso estudiante corregido aproxima teórico sin subsidio", abs(anual_sub["diferencia_ingreso_corregido_vs_teorico"]) / max(anual_sub["ingreso_teorico_estudiante_sin_subsidio"], 1.0) <= 0.01, f"Diferencia: {anual_sub['diferencia_ingreso_corregido_vs_teorico']:,.0f}"))
     rows.append(_ok("Advertencia pares media_superior con tarifa faltante", isinstance(cobertura_est.get("pares_media_superior_sin_tarifa", None), (int, float)), f"Pares con viajes y sin tarifa: {cobertura_est.get('pares_media_superior_sin_tarifa')}"))
     rows.append(_ok("Biotren se mantiene en 12.673.199 pasajeros", abs(anual_sub["viajes_biotren"] - 12_673_199.0) <= 1.0, f"Viajes: {anual_sub['viajes_biotren']:,.0f}"))
+    streamlit_text = (BASE / "streamlit_app.py").read_text(encoding="utf-8")
+    montos_referenciales_streamlit = ["1216", "1.216", "2615", "2.615", "9154", "9.154", "1216329151", "2615122803", "9153592420"]
+    rows.append(_ok("Streamlit sin montos financieros anuales hardcodeados", not any(m in streamlit_text for m in montos_referenciales_streamlit), "Montos referenciales no encontrados en streamlit_app.py"))
 
     subsidio_ref = resultado_tarjetas["subsidio_referencial_base"]
     columnas_monto_subsidio = [c for c in subsidio_ref.columns if "monto" in c.lower() or "subsidio_monetario" in c.lower()]

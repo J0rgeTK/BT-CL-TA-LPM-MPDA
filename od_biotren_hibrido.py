@@ -837,14 +837,16 @@ def calcular_ingresos_y_subsidio_biotren(viajes_tarjeta_long: pd.DataFrame, stat
     normal = viajes_tarjeta_long[viajes_tarjeta_long["tipo_tarjeta"].astype(str).isin(normal_tipos)]
     media = viajes_tarjeta_long[viajes_tarjeta_long["tipo_tarjeta"].astype(str).isin(estudiante_tipos)]
 
-    def monto(df, mat):
+    def monto(df, mat, *, incluir_diagonal=False):
         total = 0.0
         for r in df.itertuples(index=False):
             o, d = canon(getattr(r, "origen")), canon(getattr(r, "destino"))
-            if o == d:
+            if not incluir_diagonal and o == d:
                 continue
             if o in mat.index and d in mat.columns:
-                total += float(getattr(r, "viajes_proyectados")) * float(mat.loc[o, d])
+                tarifa = mat.loc[o, d]
+                if pd.notna(tarifa):
+                    total += float(getattr(r, "viajes_proyectados")) * float(tarifa)
         return total
 
     monto_normal_base = monto(normal, tarifa_normal)
@@ -857,6 +859,8 @@ def calcular_ingresos_y_subsidio_biotren(viajes_tarjeta_long: pd.DataFrame, stat
     subsidio_total = subsidio_normal + subsidio_estudiante
     ingreso_total = venta + subsidio_total
     cobertura = validar_cobertura_tarifa_estudiante(station_order, media)
+    if subsidio_estudiante < 0:
+        cobertura.setdefault("advertencias", []).append("Subsidio estudiante oficial agregado negativo; se reporta sin truncar por instrucción metodológica.")
     resumen_mensual = viajes_tarjeta_long.groupby("periodo", as_index=False).agg(
         viajes_proyectados=("viajes_proyectados", "sum"),
         ingreso_venta=("ingresos_tarifarios_proyectados", "sum"),
