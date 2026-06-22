@@ -816,11 +816,16 @@ def calcular_ingresos_y_subsidio_biotren(viajes_tarjeta_long: pd.DataFrame, stat
         index=station_order,
         columns=station_order,
     )
-    brecha_estudiante = (tarifa_est_m - tarifa_pagada_estudiante).clip(lower=0.0)
-    for mat in (tarifa_est_m, tarifa_pagada_estudiante, brecha_estudiante):
-        for e in station_order:
-            if e in mat.index and e in mat.columns:
-                mat.loc[e, e] = 0.0
+    # Fórmula oficial estudiante: diferencia agregada entre ingreso teórico
+    # sin subsidio (sin diagonal) y venta media_superior pagada (con diagonal).
+    # La brecha OD max(0, sin_subsidio - pagada) se conserva sólo como
+    # diagnóstico comparativo, no como fórmula final.
+    brecha_estudiante_diagnostica = (tarifa_est_m - tarifa_pagada_estudiante).clip(lower=0.0)
+    for e in station_order:
+        if e in tarifa_est_m.index and e in tarifa_est_m.columns:
+            tarifa_est_m.loc[e, e] = 0.0
+        if e in brecha_estudiante_diagnostica.index and e in brecha_estudiante_diagnostica.columns:
+            brecha_estudiante_diagnostica.loc[e, e] = 0.0
     tarifa_normal = pd.DataFrame(
         tarifa_mats["Normal"].loc[station_order, station_order].astype(float).to_numpy(copy=True),
         index=station_order,
@@ -852,9 +857,9 @@ def calcular_ingresos_y_subsidio_biotren(viajes_tarjeta_long: pd.DataFrame, stat
     monto_normal_base = monto(normal, tarifa_normal)
     subsidio_normal = monto_normal_base / (1.0 - tasa) - monto_normal_base
     venta_media_superior = float(media["ingresos_tarifarios_proyectados"].sum())
-    subsidio_estudiante_formula_anterior = monto(media, tarifa_est_m)
-    subsidio_estudiante = monto(media, brecha_estudiante)
-    ingreso_teorico_estudiante_sin_subsidio = subsidio_estudiante_formula_anterior
+    subsidio_estudiante_formula_anterior = monto(media, brecha_estudiante_diagnostica)
+    ingreso_teorico_estudiante_sin_subsidio = monto(media, tarifa_est_m, incluir_diagonal=False)
+    subsidio_estudiante = ingreso_teorico_estudiante_sin_subsidio - venta_media_superior
     ingreso_total_estudiante_corregido = venta_media_superior + subsidio_estudiante
     subsidio_total = subsidio_normal + subsidio_estudiante
     ingreso_total = venta + subsidio_total
@@ -873,7 +878,9 @@ def calcular_ingresos_y_subsidio_biotren(viajes_tarjeta_long: pd.DataFrame, stat
         n = g[g["tipo_tarjeta"].astype(str).isin(normal_tipos)]
         m = g[g["tipo_tarjeta"].astype(str).isin(estudiante_tipos)]
         mn = monto(n, tarifa_normal)
-        se = monto(m, brecha_estudiante)
+        venta_ms_mes = float(m["ingresos_tarifarios_proyectados"].sum())
+        teorico_ms_mes = monto(m, tarifa_est_m, incluir_diagonal=False)
+        se = teorico_ms_mes - venta_ms_mes
         idx = resumen_mensual["periodo"].eq(periodo)
         resumen_mensual.loc[idx, "monto_normal_base"] = mn
         resumen_mensual.loc[idx, "subsidio_normal"] = mn / (1.0 - tasa) - mn
@@ -882,15 +889,18 @@ def calcular_ingresos_y_subsidio_biotren(viajes_tarjeta_long: pd.DataFrame, stat
     resumen_mensual["ingreso_total_biotren"] = resumen_mensual["ingreso_venta"] + resumen_mensual["subsidio_total"]
     diagnostico_estudiante = {
         "subsidio_estudiante_formula_anterior": subsidio_estudiante_formula_anterior,
-        "subsidio_estudiante_brecha": subsidio_estudiante,
+        "subsidio_estudiante_brecha_od_diagnostica": subsidio_estudiante_formula_anterior,
+        "subsidio_estudiante_recalculado": subsidio_estudiante,
         "diferencia_absoluta": subsidio_estudiante_formula_anterior - subsidio_estudiante,
         "diferencia_porcentual": ((subsidio_estudiante_formula_anterior - subsidio_estudiante) / subsidio_estudiante_formula_anterior * 100.0) if subsidio_estudiante_formula_anterior else 0.0,
         "venta_pasajes_media_superior": venta_media_superior,
         "ingreso_total_estudiante_corregido": ingreso_total_estudiante_corregido,
         "ingreso_teorico_estudiante_sin_subsidio": ingreso_teorico_estudiante_sin_subsidio,
         "diferencia_ingreso_corregido_vs_teorico": ingreso_total_estudiante_corregido - ingreso_teorico_estudiante_sin_subsidio,
-        "brecha_minima_aplicada": float(np.nanmin(brecha_estudiante.to_numpy(dtype=float))),
-        "diagonal_brecha_suma": float(np.nansum(np.diag(brecha_estudiante.to_numpy(dtype=float)))),
+        "brecha_minima_diagnostica": float(np.nanmin(brecha_estudiante_diagnostica.to_numpy(dtype=float))),
+        "diagonal_brecha_diagnostica_suma": float(np.nansum(np.diag(brecha_estudiante_diagnostica.to_numpy(dtype=float)))),
+        "venta_media_superior_con_diagonal": venta_media_superior,
+        "ingreso_teorico_estudiante_sin_subsidio_sin_diagonal": ingreso_teorico_estudiante_sin_subsidio,
     }
     resumen_anual = {"ingreso_venta": venta, "monto_normal_base": monto_normal_base, "subsidio_normal": subsidio_normal, "subsidio_estudiante": subsidio_estudiante, "subsidio_total": subsidio_total, "ingreso_total_biotren": ingreso_total, "tasa_descuento_normal": tasa, "viajes_biotren": float(viajes_tarjeta_long["viajes_proyectados"].sum()), **diagnostico_estudiante}
     return {"resumen_anual": resumen_anual, "resumen_mensual": resumen_mensual, "cobertura_estudiante": cobertura, "diagnostico_estudiante": diagnostico_estudiante, "grupos": {"normal_base": sorted(normal_tipos), "estudiante_subsidio": sorted(estudiante_tipos), "tarifa_directa": sorted(tarifa_directa_tipos), "tarifa_estudiante_pagada": ["Estudiante"], "tarifa_estudiante_sin_subsidio_path": str(PROCESSED_FILES["tarifa_estudiante_bt_sin_subsidio"].relative_to(BASE_DIR))}}

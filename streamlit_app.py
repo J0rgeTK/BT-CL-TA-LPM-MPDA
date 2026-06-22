@@ -225,7 +225,7 @@ def render_indicadores_ejecutivos_biotren_2027(serv):
     fila_2[2].metric("Tasa descuento", f"{float(anual['tasa_descuento_normal']) * 100:.1f}%".replace(".", ","))
     fila_2[3].metric("Ingreso medio por pasajero", f"$ {fmt(ingreso_medio)}")
 
-    st.caption("Indicadores específicos de Biotren: la venta de pasajes proviene de tarifas directas; el subsidio normal usa tasa de descuento 18,9%; el subsidio estudiante corregido usa la brecha entre tarifa estudiante BT sin subsidio y tarifa estudiante pagada; el ingreso total corresponde a venta de pasajes + subsidio normal + subsidio estudiante. El cálculo financiero no modifica la afluencia proyectada.")
+    st.caption("Indicadores específicos de Biotren: la venta de pasajes proviene de tarifas directas; el subsidio normal usa la tasa de descuento parametrizada; la matriz estudiante sin subsidio proviene del presupuesto base; la venta media_superior considera diagonal; el ingreso teórico estudiante sin subsidio excluye diagonal; el subsidio estudiante corresponde a la diferencia agregada entre ambos; el ingreso total corresponde a venta de pasajes + subsidio normal + subsidio estudiante. El cálculo financiero no modifica la afluencia proyectada.")
 
 
 @st.cache_data(show_spinner=False)
@@ -610,7 +610,7 @@ Esta subsección separa tres conceptos:
 
 - **Distribución de afluencia:** reparte la proyección mensual total de Biotren entre tipos de tarjeta y pares origen-destino con participaciones históricas.
 - **Venta de pasajes:** aplica tarifa Normal a `monedero`, tarifa Estudiante pagada a `media_superior`, tarifa Adulto Mayor a `adulto_mayor` y tarifa cero al resto.
-- **Subsidio Biotren:** calcula subsidio normal con `tasa_descuento = 18,9%` y subsidio estudiante corregido sólo para `media_superior` como brecha entre tarifa estudiante BT sin subsidio y tarifa estudiante pagada.
+- **Subsidio Biotren:** calcula subsidio normal con `tasa_descuento_normal` parametrizada y subsidio estudiante sólo para `media_superior` como diferencia agregada entre ingreso teórico estudiante sin subsidio sin diagonal y venta `media_superior` con diagonal.
 
 Venta de pasajes y subsidio son conceptos distintos. `adulto_mayor` queda fuera de los grupos de subsidio indicados. La proyección mensual total de Biotren no se recalcula ni se modifica en esta vista; sólo se distribuye el mes seleccionado.
 """)
@@ -655,7 +655,9 @@ Venta de pasajes y subsidio son conceptos distintos. `adulto_mayor` queda fuera 
     csub[2].metric("Subsidio estudiante", f"$ {fmt(valores.get('subsidio_estudiante', 0))}")
     csub[3].metric("Subsidio total", f"$ {fmt(valores.get('subsidio_total', 0))}")
     csub[4].metric("Ingreso total", f"$ {fmt(valores.get('ingreso_total_biotren', 0))}")
-    st.caption("Tasa_descuento usada para subsidio normal: 18,9%. El subsidio estudiante corregido se calcula como brecha entre tarifa estudiante BT sin subsidio y tarifa estudiante pagada; el cálculo no modifica la afluencia proyectada.")
+    tasa_caption = float(anual_sub.get("tasa_descuento_normal", valores.get("tasa_descuento_normal", 0.0))) * 100
+    tasa_caption_txt = f"{tasa_caption:.1f}%".replace(".", ",")
+    st.caption(f"Tasa_descuento usada para subsidio normal: {tasa_caption_txt}. El subsidio estudiante se calcula como diferencia agregada entre ingreso teórico estudiante sin subsidio sin diagonal y venta media_superior con diagonal; el cálculo no modifica la afluencia proyectada.")
     for adv in cobertura.get("advertencias", []):
         st.warning(adv)
 
