@@ -212,3 +212,11 @@ Laja-Talcahuano no recibe una modificación específica nueva en la recalibraci�
 Los archivos normalizados ubicados en `data/referencias_cierre_2026/` se utilizan como referencia visual para los diagramas de evolución histórica, cierre 2026 y proyección 2027. El tratamiento metodológico distingue explícitamente tres categorías: **Histórico observado**, **Cierre 2026 estimado** y **Proyección 2027 modelo**.
 
 El cierre 2026 estimado no recalibra el motor mensual-elástico, no modifica el escenario operacional 2027 vigente y no altera los insumos procesados de `data/od_biotren/processed/`. Su función es mejorar la lectura histórica, la trazabilidad visual del diagrama de proyección y la comparación entre la trayectoria observada, el cierre anual estimado y el resultado operacional vigente del modelo.
+
+### Redistribución mensual Biotren 2027 por participación anual
+
+La proyección anual Biotren se mantiene en 13.095.299 pasajeros. La revisión mensual usa la participación de cada mes sobre el total anual, calculada como afluencia mensual dividida por afluencia anual, y compara el escenario 2027 contra 2024 observado, 2025 observado y cierre 2026 estimado disponible en las referencias versionadas.
+
+La participación objetivo mensual combina el patrón reciente ponderado por cercanía temporal (2024: 25%, 2025: 35%, cierre 2026: 40%) con la participación mensual de los servicios comerciales 2027. Esta combinación conserva la estacionalidad histórica, incorpora la oferta mensual y evita meses artificialmente bajos o altos frente al comportamiento reciente.
+
+La redistribución se aplica sólo al total mensual Biotren. Las capas por línea, OD, tipo de tarjeta, venta de pasajes, subsidio normal, subsidio estudiante, subsidio total e ingreso total Biotren se calculan después de esa afluencia mensual redistribuida, conservando los totales mensuales de entrada.

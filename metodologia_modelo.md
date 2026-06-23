@@ -234,3 +234,11 @@ Las bandas bajo/base/alto se recalculan sobre la nueva base 2027. El WMAPE y el 
 Los CSV normalizados de `data/referencias_cierre_2026/` se incorporan como insumo auxiliar de visualización histórica. La lectura separa **Histórico observado**, **Cierre 2026 estimado** y **Proyección 2027 modelo**, evitando interpretar el cierre 2026 como observado definitivo.
 
 Estos archivos no forman parte de la calibración del motor de proyección, no modifican elasticidades, factores operacionales ni resultados del escenario 2027 vigente. Se usan para presentar la trayectoria anual y mensual de Biotren, Laja-Talcahuano y Tren Araucanía, manteniendo la proyección 2027 como resultado del modelo operacional vigente.
+
+### Redistribución mensual Biotren 2027 por participación anual
+
+La proyección anual Biotren se mantiene en 13.095.299 pasajeros. La revisión mensual usa la participación de cada mes sobre el total anual, calculada como afluencia mensual dividida por afluencia anual, y compara el escenario 2027 contra 2024 observado, 2025 observado y cierre 2026 estimado disponible en las referencias versionadas.
+
+La participación objetivo mensual combina el patrón reciente ponderado por cercanía temporal (2024: 25%, 2025: 35%, cierre 2026: 40%) con la participación mensual de los servicios comerciales 2027. Esta combinación conserva la estacionalidad histórica, incorpora la oferta mensual y evita meses artificialmente bajos o altos frente al comportamiento reciente.
+
+La redistribución se aplica sólo al total mensual Biotren. Las capas por línea, OD, tipo de tarjeta, venta de pasajes, subsidio normal, subsidio estudiante, subsidio total e ingreso total Biotren se calculan después de esa afluencia mensual redistribuida, conservando los totales mensuales de entrada.
