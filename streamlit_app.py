@@ -228,7 +228,7 @@ def render_indicadores_ejecutivos_biotren_2027(serv):
     fila_2[0].metric("Subsidio normal", fmt_mm(anual["subsidio_normal"]))
     fila_2[1].metric("Subsidio estudiante", fmt_mm(anual["subsidio_estudiante"]))
     fila_2[2].metric("Tasa descuento", f"{float(anual['tasa_descuento_normal']) * 100:.1f}%".replace(".", ","))
-    fila_2[3].metric("Pax/servicio promedio", f"{pasajeros_por_servicio:,.1f}".replace(",", "X").replace(".", ",").replace("X", "."), f"Δ {fmt(diferencia_pre_ajuste)} vs ref.")
+    fila_2[3].metric("Pax/servicio comercial", f"{pasajeros_por_servicio:,.1f}".replace(",", "X").replace(".", ",").replace("X", "."), f"Δ {fmt(diferencia_pre_ajuste)} vs ref.")
 
     st.caption("Indicadores específicos de Biotren: la venta de pasajes proviene de tarifas directas; el subsidio normal usa la tasa de descuento parametrizada; la matriz estudiante sin subsidio proviene del presupuesto base; la venta media_superior considera diagonal; el ingreso teórico estudiante sin subsidio excluye diagonal; el subsidio estudiante corresponde a la diferencia agregada entre ambos; el ingreso total corresponde a venta de pasajes + subsidio normal + subsidio estudiante. El cálculo financiero no modifica la afluencia proyectada.")
 
@@ -248,7 +248,7 @@ def render_participacion_redistribucion_biotren(serv):
     menores = diag.sort_values("diferencia_afluencia", ascending=True).head(2)
     c = st.columns(4)
     c[0].metric("Total anual Biotren", fmt(total))
-    c[1].metric("Pax/servicio anual", f"{pps:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+    c[1].metric("Pax/servicio comercial", f"{pps:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
     c[2].metric("Mayor aumento", ", ".join(mayores["mes"].astype(int).astype(str)))
     c[3].metric("Validación suma", fmt(diag["afluencia_2027_redistribuida"].sum()))
 
@@ -1153,6 +1153,87 @@ def _tabla_financiera_biotren(anual_sub, venta_por_tipo):
     ])
 
 
+
+def render_ocupacion_mensual_biotren(serie):
+    resumen = O.resumen_ocupacion_biotren(serie, 2027)
+    diag = resumen["diagnostico_mensual"].copy()
+    bandas_color = {
+        "Baja utilización": "#64748b",
+        "Operación estable": "#1f6feb",
+        "Alta utilización": "#0e9f6e",
+        "Tensión operacional": "#dc2626",
+    }
+
+    st.markdown("### 4. Ocupación mensual y bandas de funcionamiento")
+    st.caption("El indicador principal usa servicios comerciales programados; la capacidad equivalente se muestra sólo como diagnóstico técnico.")
+    c = st.columns(6)
+    c[0].metric("Pax/servicio comercial", f"{resumen['pax_servicio_comercial_anual']:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+    c[1].metric("Pax/capacidad equivalente", f"{resumen['pax_capacidad_equivalente_anual']:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+    c[2].metric("Mayor ocupación", f"Mes {resumen['mes_mayor_pax_servicio_comercial']}")
+    c[3].metric("Menor ocupación", f"Mes {resumen['mes_menor_pax_servicio_comercial']}")
+    c[4].metric("Meses baja utilización", int(resumen["meses_por_banda"].get("Baja utilización", 0)))
+    alta_tension = int(resumen["meses_por_banda"].get("Alta utilización", 0) + resumen["meses_por_banda"].get("Tensión operacional", 0))
+    c[5].metric("Meses alta/tensión", alta_tension)
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=diag["mes"],
+        y=diag["pax_servicio_comercial"],
+        mode="lines+markers",
+        name="Pax/servicio comercial",
+        marker=dict(color=[bandas_color[b] for b in diag["banda_funcionamiento"]], size=9),
+        line=dict(color="#1f6feb", width=2),
+    ))
+    fig.add_trace(go.Scatter(
+        x=diag["mes"],
+        y=diag["pax_capacidad_equivalente"],
+        mode="lines+markers",
+        name="Pax/capacidad equivalente (diagnóstico)",
+        marker=dict(color="#94a3b8", size=7),
+        line=dict(color="#94a3b8", width=2, dash="dot"),
+    ))
+    fig.add_hline(y=300, line_dash="dash", line_color="#dc2626", annotation_text="Referencia 300", annotation_position="top left")
+    fig.update_layout(height=360, xaxis_title="Mes", yaxis_title="Pasajeros por servicio", hovermode="x unified", margin=dict(l=10, r=10, t=20, b=10), legend=dict(orientation="h"))
+    st.plotly_chart(fig, width="stretch")
+
+    visible = diag[["mes", "afluencia_biotren", "servicios_comerciales", "pax_servicio_comercial", "banda_funcionamiento"]].rename(columns={
+        "mes": "Mes",
+        "afluencia_biotren": "Afluencia 2027",
+        "servicios_comerciales": "Servicios comerciales",
+        "pax_servicio_comercial": "Pax/servicio comercial",
+        "banda_funcionamiento": "Banda",
+    })
+    st.dataframe(
+        visible,
+        width="stretch",
+        hide_index=True,
+        height=260,
+        column_config={
+            "Afluencia 2027": st.column_config.NumberColumn("Afluencia 2027", format="%d"),
+            "Servicios comerciales": st.column_config.NumberColumn("Servicios comerciales", format="%d"),
+            "Pax/servicio comercial": st.column_config.NumberColumn("Pax/servicio comercial", format="%.1f"),
+        },
+    )
+
+    with st.expander("Diagnóstico técnico de capacidad equivalente", expanded=False):
+        st.markdown("La ocupación principal se calcula sobre servicios comerciales programados. Los servicios acoplados de L2 se incorporan sólo en el diagnóstico de capacidad equivalente, dado que aumentan la capacidad disponible sin crear una frecuencia adicional.")
+        tecnico = diag.rename(columns={
+            "mes": "Mes",
+            "afluencia_biotren": "Afluencia 2027",
+            "servicios_comerciales": "Servicios comerciales",
+            "servicios_equivalentes_capacidad": "Servicios equivalentes capacidad",
+            "servicios_acoplados_l2_lv": "Acoplados L2 L-V",
+            "servicios_acoplados_mensuales": "Acoplados mensuales equivalentes",
+            "pax_servicio_comercial": "Pax/servicio comercial",
+            "pax_capacidad_equivalente": "Pax/capacidad equivalente",
+            "diferencia_pax_comercial_vs_capacidad": "Diferencia pax comercial-capacidad",
+            "participacion_mensual_afluencia": "Participación mensual",
+            "banda_funcionamiento": "Banda",
+            "observacion_metodologica": "Observación metodológica",
+        })
+        st.dataframe(tecnico, width="stretch", hide_index=True, height=330)
+        st.markdown("Nota metodológica: las bandas son diagnósticas, no recalibran demanda ni modifican la oferta corregida de L2.")
+
 def render_biotren_ejecutivo(serv, uni, detalle):
     serie = serv["BIOTREN"].astype(float).copy()
     vigente = _serie_biotren_vigente_pre_redistribucion(serv)
@@ -1171,7 +1252,7 @@ def render_biotren_ejecutivo(serv, uni, detalle):
     st.markdown(
         """
 <div class="bt-panel">
-  <p class="bt-note">Escenario redistribuido mensualmente con total anual conservado, validación por pasajeros por servicio-viaje e ingresos/subsidios recalculados sobre la nueva distribución mensual. Las capas por línea, OD y tipo de tarjeta distribuyen la afluencia Biotren; no generan un nuevo total anual.</p>
+  <p class="bt-note">Escenario redistribuido mensualmente con total anual conservado, validación por pasajeros por servicio comercial e ingresos/subsidios recalculados sobre la nueva distribución mensual. Las capas por línea, OD y tipo de tarjeta distribuyen la afluencia Biotren; no generan un nuevo total anual.</p>
   <span class="bt-chip">Afluencia redistribuida</span><span class="bt-chip">Ocupación promedio por servicio</span><span class="bt-chip">Ingresos y subsidios Biotren</span>
 </div>
 """,
@@ -1182,7 +1263,7 @@ def render_biotren_ejecutivo(serv, uni, detalle):
     fila_1 = st.columns(4)
     fila_1[0].metric("Pasajeros Biotren 2027", fmt(pasajeros))
     fila_1[1].metric("Servicios comerciales 2027", fmt(servicios_anuales))
-    fila_1[2].metric("Pasajeros por servicio-viaje", f"{pasajeros_por_servicio:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+    fila_1[2].metric("Pax/servicio comercial", f"{pasajeros_por_servicio:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
     fila_1[3].metric("Venta de pasajes", fmt_mm(anual_sub.get("ingreso_venta", 0.0)))
     fila_2 = st.columns(4)
     fila_2[0].metric("Subsidio total", fmt_mm(anual_sub.get("subsidio_total", 0.0)))
@@ -1263,7 +1344,9 @@ def render_biotren_ejecutivo(serv, uni, detalle):
 """)
         st.dataframe(diag, width="stretch", hide_index=True, height=320)
 
-    st.markdown("### 4. Composición de demanda")
+    render_ocupacion_mensual_biotren(serie)
+
+    st.markdown("### 5. Composición de demanda")
     dist_linea = calcular_distribucion_biotren_linea_mod_cached(serie.to_dict())
     anual_linea = dist_linea.groupby("linea_od", as_index=False).agg(viajes=("viajes_proyectados", "sum"))
     anual_linea["participacion"] = anual_linea["viajes"] / anual_linea["viajes"].sum()
@@ -1303,7 +1386,7 @@ def render_biotren_ejecutivo(serv, uni, detalle):
         mensual_linea["Diferencia"] = mensual_linea["Total líneas"] - mensual_linea["Total Biotren"]
         st.dataframe(mensual_linea.reset_index().rename(columns={"periodo": "Periodo"}), width="stretch", hide_index=True, height=280)
 
-    st.markdown("### 5. Resultados financieros Biotren")
+    st.markdown("### 6. Resultados financieros Biotren")
     venta_por_tipo = resumen_tipo.set_index("tipo_tarjeta")["venta_pasajes"].to_dict()
     tabla_financiera = _tabla_financiera_biotren(anual_sub, venta_por_tipo)
     st.dataframe(
@@ -1313,7 +1396,7 @@ def render_biotren_ejecutivo(serv, uni, detalle):
         column_config={"Monto anual": st.column_config.NumberColumn("Monto anual", format="$ %d")},
     )
 
-    st.markdown("### 6. Advertencias y cobertura tarifaria")
+    st.markdown("### 7. Advertencias y cobertura tarifaria")
     advertencias = []
     if cobertura.get("sin_cobertura_modelo"):
         advertencias.append("Concepción Centro sin cobertura en matriz estudiante sin subsidio: " + ", ".join(cobertura.get("sin_cobertura_modelo", [])))
@@ -1345,7 +1428,7 @@ def render_biotren_ejecutivo(serv, uni, detalle):
     with st.expander("Justificación metodológica Biotren", expanded=False):
         st.markdown("""
 - La redistribución mensual usa participación anual reciente y conserva el total anual Biotren.
-- La validación operacional se expresa como pasajeros por servicio-viaje = pasajeros anuales / servicios comerciales anuales.
+- La validación operacional se expresa como pasajeros por servicio comercial = pasajeros anuales / servicios comerciales anuales.
 - Las capas por línea, OD, tipo de tarjeta, ingresos y subsidios se recalculan después de la afluencia mensual redistribuida.
 - Subsidio normal: `Monto_normal_base / (1 - tasa_descuento_normal) - Monto_normal_base`.
 - Subsidio estudiante: `Ingreso_teorico_estudiante_sin_subsidio_sin_diagonal - Venta_media_superior_con_diagonal`.
@@ -1363,7 +1446,7 @@ def render_servicio(s):
     plan_tramos = None
     if s == "BIOTREN":
         with st.expander("Parámetros de oferta Biotren", expanded=False):
-            st.info("Biotren se edita por línea. L1 considera 48 servicios L-V durante todo 2027; L2 considera 106 servicios L-V entre enero-abril y 109 desde mayo. La afluencia mensual queda vinculada al mes editado y luego se redistribuye conservando el total anual Biotren.")
+            st.info("Biotren se edita por línea. L1 considera 47 servicios L-V durante 2027; L2 mantiene 110 servicios L-V todo el año. Desde mayo, 3 servicios L2 L-V operan acoplados dentro de esos 110 y se registran sólo como capacidad efectiva.")
             c1, c2 = st.columns(2)
             with c1:
                 plan_l1 = editor_oferta("BIOTREN_L1", "Línea 1")
@@ -1387,8 +1470,8 @@ def render_servicio(s):
     pk = serv[s].astype(float).idxmax()
 
     if s == "BIOTREN":
-        render_indicadores_ejecutivos_biotren_2027(serv)
-        render_participacion_redistribucion_biotren(serv)
+        render_biotren_ejecutivo(serv, uni, detalle)
+        return
 
     st.markdown("#### Evolución mensual histórica, cierre 2026 y proyección 2027")
     grafico_historico_y_proyeccion(s, serv)
@@ -1399,7 +1482,7 @@ def render_servicio(s):
     st.markdown("#### Total operacional 2027 vigente")
     k = st.columns(4)
     k[0].metric("Total anual 2027", fmt(serv[s].dropna().sum()))
-    k[1].metric("Pax por viaje proyectado", fmt(ocup_proy))
+    k[1].metric("Pax/servicio comercial", fmt(ocup_proy))
     k[2].metric("Mes peak", pk, fmt(serv[s].max()))
     k[3].metric("Mes menor", serv[s].astype(float).idxmin(), fmt(serv[s].min()))
 

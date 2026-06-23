@@ -15,7 +15,7 @@ La distribución de Biotren por línea y OD se recalcula desde el total mensual 
 Estaciones Llanquihue-PM (XP-NQ): XP=La Paloma, NQ=Llanquihue, AL=Alerce, EV=Puerto Varas.
 Nota operacional: los servicios Laja-Talcahuano circulan sobre el corredor de L1,
 pero su afluencia se proyecta en CORTO_LAJA. En este escenario, por instrucción
-de planificación 2027, BIOTREN_L1 se parametriza con 48 servicios L-V para evaluar
+de planificación 2027, BIOTREN_L1 se parametriza con 47 servicios L-V para evaluar
 el crecimiento específico de Biotren.
 
 Modelo por unidad/mes:
@@ -104,7 +104,7 @@ DATA_DIR = Path(__file__).resolve().parent / 'data'
 # Criterio de planificación 2027:
 # - L1 operacional total informada: 48 LV, 16 Sab, 8 Dom, incluyendo servicios
 #   Laja-Talcahuano en un mes tipo.
-# - En el escenario 2027 actualizado, BIOTREN_L1 se parametriza con 48 servicios
+# - En el escenario 2027 actualizado, BIOTREN_L1 se parametriza con 47 servicios
 #   L-V durante todo el año, según instrucción de planificación.
 # - CORTO_LAJA usa 8 servicios base todos los dias. La excepcion operacional
 #   corresponde solo a sabado y domingo de enero-febrero, donde se consideran
@@ -113,8 +113,8 @@ DATA_DIR = Path(__file__).resolve().parent / 'data'
 #   24,6 servicios/dia: 15 Victoria-Temuco + 6,6 Pitrufquen + 3 Claret.
 # ---------------------------------------------------------------------------
 OFERTA_ACTUAL_MODELO = {
-    'BIOTREN_L1': {'LV': 48.0, 'Sab': 8.0, 'Dom': 0.0},
-    'BIOTREN_L2': {'LV': 106.0, 'Sab': 53.0, 'Dom': 32.0},
+    'BIOTREN_L1': {'LV': 47.0, 'Sab': 8.0, 'Dom': 0.0},
+    'BIOTREN_L2': {'LV': 110.0, 'Sab': 53.0, 'Dom': 32.0},
     'CORTO_LAJA': {'LV': 8.0, 'Sab': 8.0, 'Dom': 8.0},
     'TREN_ARAUCANIA': {'LV': 20.6, 'Sab': 12.0, 'Dom': 6.0},
     'LLANQUIHUE_PM': {'LV': 20.0, 'Sab': 0.0, 'Dom': 0.0},
@@ -134,23 +134,31 @@ OFERTA_ACTUAL_EXCEPCIONES = [
      'detalle': 'Febrero: 10 servicios sabado y domingo en lugar de 8'},
 ]
 
-# Mejora de oferta Biotren L2 desde mayo 2027: 106 -> 109 servicios L-V.
-for _mes_l2 in range(5, 13):
-    OFERTA_ACTUAL_EXCEPCIONES.append({
-        'unit': 'BIOTREN_L2', 'mes': _mes_l2, 'dt': 'LV', 'servicios_dia': 109.0,
-        'detalle': 'Desde mayo 2027: Biotren L2 sube de 106 a 109 servicios lunes-viernes'
-    })
-del _mes_l2
+# Excepciones operacionales Biotren L2 de fines de semana.
+# La frecuencia comercial L2 L-V se mantiene en 110 todo el año.
+# Los servicios acoplados desde mayo se modelan por separado como capacidad efectiva,
+# no como incremento de frecuencia comercial.
+for _mes_l2_fds in (1, 2):
+    for _dt_l2_fds in ('Sab', 'Dom'):
+        OFERTA_ACTUAL_EXCEPCIONES.append({
+            'unit': 'BIOTREN_L2', 'mes': _mes_l2_fds, 'dt': _dt_l2_fds, 'servicios_dia': 14.0,
+            'detalle': 'Enero-febrero 2027: Biotren L2 opera 14 servicios de fin de semana'
+        })
+del _mes_l2_fds, _dt_l2_fds
 
 OFERTA_ACTUAL_DETALLE = [
-    {'servicio': 'Biotren L2', 'unit': 'BIOTREN_L2', 'dt': 'LV', 'servicios_dia': 106.0,
-     'detalle': '106 servicios de lunes a viernes entre enero y abril'},
-    {'servicio': 'Biotren L2', 'unit': 'BIOTREN_L2', 'dt': 'LV', 'servicios_dia': 109.0,
-     'detalle': '109 servicios de lunes a viernes desde mayo a diciembre'},
+    {'servicio': 'Biotren L2', 'unit': 'BIOTREN_L2', 'dt': 'LV', 'servicios_dia': 110.0,
+     'detalle': '110 servicios comerciales lunes-viernes durante todo 2027'},
+    {'servicio': 'Biotren L2', 'unit': 'BIOTREN_L2', 'dt': 'Sab', 'servicios_dia': 14.0,
+     'detalle': 'Enero-febrero: 14 servicios sabado'},
+    {'servicio': 'Biotren L2', 'unit': 'BIOTREN_L2', 'dt': 'Dom', 'servicios_dia': 14.0,
+     'detalle': 'Enero-febrero: 14 servicios domingo'},
     {'servicio': 'Biotren L2', 'unit': 'BIOTREN_L2', 'dt': 'Sab', 'servicios_dia': 53.0,
-     'detalle': '53 servicios sabado'},
+     'detalle': 'Marzo-diciembre: 53 servicios sabado'},
     {'servicio': 'Biotren L2', 'unit': 'BIOTREN_L2', 'dt': 'Dom', 'servicios_dia': 32.0,
-     'detalle': '32 servicios domingo'},
+     'detalle': 'Marzo-diciembre: 32 servicios domingo'},
+    {'servicio': 'Biotren L2 capacidad efectiva', 'unit': 'BIOTREN_L2', 'dt': 'LV', 'servicios_dia': 3.0,
+     'detalle': 'Mayo-diciembre: 3 servicios L2 L-V acoplados en punta mañana; incluidos dentro de los 110 servicios comerciales'},
     {'servicio': 'Biotren L1 operacional total', 'unit': 'BIOTREN_L1_TOTAL_OPERACIONAL', 'dt': 'LV', 'servicios_dia': 48.0,
      'detalle': 'Incluye 8 servicios Laja-Talcahuano'},
     {'servicio': 'Biotren L1 operacional total', 'unit': 'BIOTREN_L1_TOTAL_OPERACIONAL', 'dt': 'Sab', 'servicios_dia': 16.0,
@@ -161,8 +169,8 @@ OFERTA_ACTUAL_DETALLE = [
      'detalle': 'Enero-febrero: 8 servicios Biotren L1 propios + 10 Laja-Talcahuano'},
     {'servicio': 'Biotren L1 operacional total', 'unit': 'BIOTREN_L1_TOTAL_OPERACIONAL', 'dt': 'Dom', 'servicios_dia': 10.0,
      'detalle': 'Enero-febrero: corresponde a 10 servicios Laja-Talcahuano'},
-    {'servicio': 'Biotren L1 modelo 2027', 'unit': 'BIOTREN_L1', 'dt': 'LV', 'servicios_dia': 48.0,
-     'detalle': 'Escenario 2027 actualizado: L1 opera con 48 servicios lunes-viernes durante todo el año'},
+    {'servicio': 'Biotren L1 modelo 2027', 'unit': 'BIOTREN_L1', 'dt': 'LV', 'servicios_dia': 47.0,
+     'detalle': 'Escenario 2027 actualizado: L1 opera con 47 servicios lunes-viernes durante todo el año'},
     {'servicio': 'Biotren L1 modelo 2027', 'unit': 'BIOTREN_L1', 'dt': 'Sab', 'servicios_dia': 8.0,
      'detalle': 'Oferta sabado mantenida para Biotren L1 dentro del escenario base'},
     {'servicio': 'Biotren L1 modelo 2027', 'unit': 'BIOTREN_L1', 'dt': 'Dom', 'servicios_dia': 0.0,
@@ -533,6 +541,143 @@ def servicios_comerciales_biotren_mensuales(anio=2027, oferta_df=None):
     bi['servicios_mes'] = pd.to_numeric(bi['servicios_dia'], errors='coerce').fillna(0.0) * bi['n_dias']
     return bi.groupby('mes')['servicios_mes'].sum().reindex(range(1, 13), fill_value=0.0).astype(float)
 
+
+
+def servicios_acoplados_l2_lv_mensuales(anio=2027):
+    """Servicios L2 L-V acoplados por mes como capacidad efectiva, no frecuencia."""
+    valores = {mes: (3.0 if mes >= 5 else 0.0) for mes in range(1, 13)}
+    return pd.Series(valores, dtype=float)
+
+
+def diagnostico_capacidad_biotren_mensual(anio=2027, oferta_df=None):
+    """Tabla mensual que separa frecuencia comercial y capacidad efectiva Biotren."""
+    if oferta_df is None:
+        oferta_df = oferta_actual_df(mensual=True)
+    plan = oferta_df[oferta_df['unit'].isin(['BIOTREN_L1', 'BIOTREN_L2'])].copy()
+    tabla = plan.pivot_table(index='mes', columns=['unit', 'dt'], values='servicios_dia', aggfunc='first').reindex(range(1, 13))
+    def col(unit, dt):
+        if (unit, dt) in tabla.columns:
+            return tabla[(unit, dt)].astype(float).fillna(0.0)
+        return pd.Series(0.0, index=tabla.index, dtype=float)
+    out = pd.DataFrame({
+        'mes': range(1, 13),
+        'l1_lv': col('BIOTREN_L1', 'LV').values,
+        'l1_sab': col('BIOTREN_L1', 'Sab').values,
+        'l1_dom': col('BIOTREN_L1', 'Dom').values,
+        'l2_lv': col('BIOTREN_L2', 'LV').values,
+        'l2_sab': col('BIOTREN_L2', 'Sab').values,
+        'l2_dom': col('BIOTREN_L2', 'Dom').values,
+    })
+    acoplados_dia = servicios_acoplados_l2_lv_mensuales(anio).reindex(range(1, 13)).fillna(0.0)
+    dias_lv = dias_operacionales_por_tipo(anio, units=['BIOTREN_L2'])
+    dias_lv = dias_lv[dias_lv['dt'].eq('LV')].set_index('mes')['n_dias'].reindex(range(1, 13)).fillna(0.0).astype(float)
+    comerciales = servicios_comerciales_biotren_mensuales(anio, oferta_df=oferta_df).reindex(range(1, 13)).fillna(0.0)
+    acoplados_mes = acoplados_dia * dias_lv
+    out['servicios_acoplados_l2_lv'] = acoplados_dia.values
+    out['servicios_comerciales_mensuales'] = comerciales.values
+    out['servicios_acoplados_mensuales'] = acoplados_mes.values
+    out['servicios_equivalentes_capacidad_mensuales'] = (comerciales + acoplados_mes).values
+    out['diferencia_capacidad_vs_comercial'] = acoplados_mes.values
+    return out
+
+
+BANDAS_FUNCIONAMIENTO_BIOTREN = {
+    'Baja utilización': {
+        'min': None,
+        'max': 270.0,
+        'lectura': 'Mes con baja carga relativa; revisar captación, estacionalidad u oferta.',
+    },
+    'Operación estable': {
+        'min': 270.0,
+        'max': 300.0,
+        'lectura': 'Uso razonable de la oferta; cercano al rango objetivo.',
+    },
+    'Alta utilización': {
+        'min': 300.0,
+        'max': 330.0,
+        'lectura': 'Alta eficiencia operacional; requiere monitoreo.',
+    },
+    'Tensión operacional': {
+        'min': 330.0,
+        'max': None,
+        'lectura': 'Posible tensión de capacidad, especialmente en punta o línea específica.',
+    },
+}
+
+
+def clasificar_banda_funcionamiento_biotren(pax_servicio_comercial):
+    """Clasifica la ocupación mensual Biotren según pax/servicio comercial."""
+    x = float(pax_servicio_comercial)
+    if x < 270.0:
+        return 'Baja utilización'
+    if x < 300.0:
+        return 'Operación estable'
+    if x <= 330.0:
+        return 'Alta utilización'
+    return 'Tensión operacional'
+
+
+def diagnostico_ocupacion_biotren_mensual(serie_biotren, anio=2027, oferta_df=None):
+    """Diagnóstico mensual de ocupación Biotren sin modificar demanda ni oferta.
+
+    Usa servicios comerciales como indicador principal y capacidad equivalente sólo
+    como diagnóstico técnico de los servicios L2 acoplados.
+    """
+    serie = pd.Series(serie_biotren, dtype=float).copy()
+    meses_idx = [int(str(i)[5:7]) if '-' in str(i) else int(i) for i in serie.index]
+    periodo_idx = [str(i) if '-' in str(i) else f'{anio}-{int(i):02d}' for i in serie.index]
+    serie.index = meses_idx
+    periodo = pd.Series(periodo_idx, index=meses_idx).reindex(range(1, 13))
+    periodo = periodo.combine_first(pd.Series({m: f'{anio}-{m:02d}' for m in range(1, 13)}))
+    afluencia = serie.groupby(level=0).sum().reindex(range(1, 13)).fillna(0.0)
+    capacidad = diagnostico_capacidad_biotren_mensual(anio=anio, oferta_df=oferta_df).set_index('mes').reindex(range(1, 13))
+    total_anual = float(afluencia.sum())
+    out = pd.DataFrame({
+        'periodo': periodo.values,
+        'mes': range(1, 13),
+        'afluencia_biotren': afluencia.values,
+        'servicios_comerciales': capacidad['servicios_comerciales_mensuales'].astype(float).values,
+        'servicios_equivalentes_capacidad': capacidad['servicios_equivalentes_capacidad_mensuales'].astype(float).values,
+        'servicios_acoplados_l2_lv': capacidad['servicios_acoplados_l2_lv'].astype(float).values,
+        'servicios_acoplados_mensuales': capacidad['servicios_acoplados_mensuales'].astype(float).values,
+    })
+    out['pax_servicio_comercial'] = out['afluencia_biotren'] / out['servicios_comerciales'].replace(0, np.nan)
+    out['pax_capacidad_equivalente'] = out['afluencia_biotren'] / out['servicios_equivalentes_capacidad'].replace(0, np.nan)
+    out['diferencia_pax_comercial_vs_capacidad'] = out['pax_servicio_comercial'] - out['pax_capacidad_equivalente']
+    out['participacion_mensual_afluencia'] = out['afluencia_biotren'] / total_anual if total_anual else 0.0
+    out['banda_funcionamiento'] = out['pax_servicio_comercial'].map(clasificar_banda_funcionamiento_biotren)
+    out['lectura_banda'] = out['banda_funcionamiento'].map(lambda b: BANDAS_FUNCIONAMIENTO_BIOTREN[b]['lectura'])
+    out['observacion_metodologica'] = np.where(
+        out['servicios_acoplados_l2_lv'] > 0,
+        'Servicios acoplados L2 contabilizados sólo como capacidad equivalente; no aumentan frecuencia comercial.',
+        'Sin acoplados L2 en el mes; servicios comerciales y capacidad equivalente coinciden.'
+    )
+    return out
+
+
+def resumen_ocupacion_biotren(serie_biotren, anio=2027, oferta_df=None):
+    """Resumen anual derivado exclusivamente del diagnóstico mensual Biotren."""
+    diag = diagnostico_ocupacion_biotren_mensual(serie_biotren, anio=anio, oferta_df=oferta_df)
+    total_pax = float(diag['afluencia_biotren'].sum())
+    total_com = float(diag['servicios_comerciales'].sum())
+    total_cap = float(diag['servicios_equivalentes_capacidad'].sum())
+    idx_max = diag['pax_servicio_comercial'].idxmax()
+    idx_min = diag['pax_servicio_comercial'].idxmin()
+    return {
+        'diagnostico_mensual': diag,
+        'total_anual_biotren': total_pax,
+        'servicios_comerciales_anuales': total_com,
+        'servicios_equivalentes_capacidad_anuales': total_cap,
+        'pax_servicio_comercial_anual': total_pax / total_com if total_com else np.nan,
+        'pax_capacidad_equivalente_anual': total_pax / total_cap if total_cap else np.nan,
+        'meses_por_banda': diag['banda_funcionamiento'].value_counts().reindex(BANDAS_FUNCIONAMIENTO_BIOTREN.keys(), fill_value=0).to_dict(),
+        'mes_mayor_pax_servicio_comercial': int(diag.loc[idx_max, 'mes']),
+        'valor_mayor_pax_servicio_comercial': float(diag.loc[idx_max, 'pax_servicio_comercial']),
+        'mes_menor_pax_servicio_comercial': int(diag.loc[idx_min, 'mes']),
+        'valor_menor_pax_servicio_comercial': float(diag.loc[idx_min, 'pax_servicio_comercial']),
+        'meses_sobre_330': diag.loc[diag['pax_servicio_comercial'] > 330.0, 'mes'].astype(int).tolist(),
+        'meses_bajo_270': diag.loc[diag['pax_servicio_comercial'] < 270.0, 'mes'].astype(int).tolist(),
+    }
 
 def _referencia_historica_biotren_mensual():
     """Referencia mensual observada/estimada para ponderar ajustes de Biotren."""
