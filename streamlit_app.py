@@ -1153,6 +1153,87 @@ def _tabla_financiera_biotren(anual_sub, venta_por_tipo):
     ])
 
 
+
+def render_ocupacion_mensual_biotren(serie):
+    resumen = O.resumen_ocupacion_biotren(serie, 2027)
+    diag = resumen["diagnostico_mensual"].copy()
+    bandas_color = {
+        "Baja utilización": "#64748b",
+        "Operación estable": "#1f6feb",
+        "Alta utilización": "#0e9f6e",
+        "Tensión operacional": "#dc2626",
+    }
+
+    st.markdown("### 4. Ocupación mensual y bandas de funcionamiento")
+    st.caption("El indicador principal usa servicios comerciales programados; la capacidad equivalente se muestra sólo como diagnóstico técnico.")
+    c = st.columns(6)
+    c[0].metric("Pax/servicio comercial", f"{resumen['pax_servicio_comercial_anual']:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+    c[1].metric("Pax/capacidad equivalente", f"{resumen['pax_capacidad_equivalente_anual']:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+    c[2].metric("Mayor ocupación", f"Mes {resumen['mes_mayor_pax_servicio_comercial']}")
+    c[3].metric("Menor ocupación", f"Mes {resumen['mes_menor_pax_servicio_comercial']}")
+    c[4].metric("Meses baja utilización", int(resumen["meses_por_banda"].get("Baja utilización", 0)))
+    alta_tension = int(resumen["meses_por_banda"].get("Alta utilización", 0) + resumen["meses_por_banda"].get("Tensión operacional", 0))
+    c[5].metric("Meses alta/tensión", alta_tension)
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=diag["mes"],
+        y=diag["pax_servicio_comercial"],
+        mode="lines+markers",
+        name="Pax/servicio comercial",
+        marker=dict(color=[bandas_color[b] for b in diag["banda_funcionamiento"]], size=9),
+        line=dict(color="#1f6feb", width=2),
+    ))
+    fig.add_trace(go.Scatter(
+        x=diag["mes"],
+        y=diag["pax_capacidad_equivalente"],
+        mode="lines+markers",
+        name="Pax/capacidad equivalente (diagnóstico)",
+        marker=dict(color="#94a3b8", size=7),
+        line=dict(color="#94a3b8", width=2, dash="dot"),
+    ))
+    fig.add_hline(y=300, line_dash="dash", line_color="#dc2626", annotation_text="Referencia 300", annotation_position="top left")
+    fig.update_layout(height=360, xaxis_title="Mes", yaxis_title="Pasajeros por servicio", hovermode="x unified", margin=dict(l=10, r=10, t=20, b=10), legend=dict(orientation="h"))
+    st.plotly_chart(fig, width="stretch")
+
+    visible = diag[["mes", "afluencia_biotren", "servicios_comerciales", "pax_servicio_comercial", "banda_funcionamiento"]].rename(columns={
+        "mes": "Mes",
+        "afluencia_biotren": "Afluencia 2027",
+        "servicios_comerciales": "Servicios comerciales",
+        "pax_servicio_comercial": "Pax/servicio comercial",
+        "banda_funcionamiento": "Banda",
+    })
+    st.dataframe(
+        visible,
+        width="stretch",
+        hide_index=True,
+        height=260,
+        column_config={
+            "Afluencia 2027": st.column_config.NumberColumn("Afluencia 2027", format="%d"),
+            "Servicios comerciales": st.column_config.NumberColumn("Servicios comerciales", format="%d"),
+            "Pax/servicio comercial": st.column_config.NumberColumn("Pax/servicio comercial", format="%.1f"),
+        },
+    )
+
+    with st.expander("Diagnóstico técnico de capacidad equivalente", expanded=False):
+        st.markdown("La ocupación principal se calcula sobre servicios comerciales programados. Los servicios acoplados de L2 se incorporan sólo en el diagnóstico de capacidad equivalente, dado que aumentan la capacidad disponible sin crear una frecuencia adicional.")
+        tecnico = diag.rename(columns={
+            "mes": "Mes",
+            "afluencia_biotren": "Afluencia 2027",
+            "servicios_comerciales": "Servicios comerciales",
+            "servicios_equivalentes_capacidad": "Servicios equivalentes capacidad",
+            "servicios_acoplados_l2_lv": "Acoplados L2 L-V",
+            "servicios_acoplados_mensuales": "Acoplados mensuales equivalentes",
+            "pax_servicio_comercial": "Pax/servicio comercial",
+            "pax_capacidad_equivalente": "Pax/capacidad equivalente",
+            "diferencia_pax_comercial_vs_capacidad": "Diferencia pax comercial-capacidad",
+            "participacion_mensual_afluencia": "Participación mensual",
+            "banda_funcionamiento": "Banda",
+            "observacion_metodologica": "Observación metodológica",
+        })
+        st.dataframe(tecnico, width="stretch", hide_index=True, height=330)
+        st.markdown("Nota metodológica: las bandas son diagnósticas, no recalibran demanda ni modifican la oferta corregida de L2.")
+
 def render_biotren_ejecutivo(serv, uni, detalle):
     serie = serv["BIOTREN"].astype(float).copy()
     vigente = _serie_biotren_vigente_pre_redistribucion(serv)
@@ -1263,7 +1344,9 @@ def render_biotren_ejecutivo(serv, uni, detalle):
 """)
         st.dataframe(diag, width="stretch", hide_index=True, height=320)
 
-    st.markdown("### 4. Composición de demanda")
+    render_ocupacion_mensual_biotren(serie)
+
+    st.markdown("### 5. Composición de demanda")
     dist_linea = calcular_distribucion_biotren_linea_mod_cached(serie.to_dict())
     anual_linea = dist_linea.groupby("linea_od", as_index=False).agg(viajes=("viajes_proyectados", "sum"))
     anual_linea["participacion"] = anual_linea["viajes"] / anual_linea["viajes"].sum()
@@ -1303,7 +1386,7 @@ def render_biotren_ejecutivo(serv, uni, detalle):
         mensual_linea["Diferencia"] = mensual_linea["Total líneas"] - mensual_linea["Total Biotren"]
         st.dataframe(mensual_linea.reset_index().rename(columns={"periodo": "Periodo"}), width="stretch", hide_index=True, height=280)
 
-    st.markdown("### 5. Resultados financieros Biotren")
+    st.markdown("### 6. Resultados financieros Biotren")
     venta_por_tipo = resumen_tipo.set_index("tipo_tarjeta")["venta_pasajes"].to_dict()
     tabla_financiera = _tabla_financiera_biotren(anual_sub, venta_por_tipo)
     st.dataframe(
@@ -1313,7 +1396,7 @@ def render_biotren_ejecutivo(serv, uni, detalle):
         column_config={"Monto anual": st.column_config.NumberColumn("Monto anual", format="$ %d")},
     )
 
-    st.markdown("### 6. Advertencias y cobertura tarifaria")
+    st.markdown("### 7. Advertencias y cobertura tarifaria")
     advertencias = []
     if cobertura.get("sin_cobertura_modelo"):
         advertencias.append("Concepción Centro sin cobertura en matriz estudiante sin subsidio: " + ", ".join(cobertura.get("sin_cobertura_modelo", [])))

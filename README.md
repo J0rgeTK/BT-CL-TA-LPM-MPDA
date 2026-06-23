@@ -52,6 +52,11 @@ El escenario ajustado considera una validación operacional por ocupación prome
 
 La distribución por línea OD, la distribución OD por tipo de tarjeta y los ingresos tarifarios preliminares se recalculan después de obtener el total mensual ajustado de Biotren. La base referencial de subsidio no calcula montos monetarios.
 
+
+El modelo distingue entre ocupación por servicio comercial y ocupación por capacidad equivalente. La primera corresponde al indicador principal de gestión y se calcula dividiendo la afluencia mensual por los servicios comerciales programados. La segunda incorpora el efecto de servicios acoplados como capacidad adicional y se utiliza sólo como diagnóstico técnico. La clasificación mensual por bandas permite identificar meses de baja utilización, operación estable, alta utilización o tensión operacional, sin modificar por sí misma la proyección de demanda.
+
+Las bandas de funcionamiento mensual de Biotren se calculan sobre `Pax/servicio comercial`: baja utilización bajo 270, operación estable desde 270 y menor a 300, alta utilización entre 300 y 330, y tensión operacional sobre 330. Los servicios acoplados L2 de mayo a diciembre no aumentan la frecuencia comercial; sólo elevan los servicios equivalentes de capacidad utilizados para el indicador técnico `Pax/capacidad equivalente`. Esta fase mantiene sin cambios la demanda anual Biotren 2027.
+
 ### 5.2 Tren Araucanía
 
 Tren Araucanía se modela por componente de servicio:

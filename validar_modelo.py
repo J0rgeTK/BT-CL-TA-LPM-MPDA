@@ -173,6 +173,56 @@ def ejecutar_validacion() -> pd.DataFrame:
         pd.Series({int(r['mes']): float(r.get('proyeccion_vigente_pre_redistribucion', r['proyeccion_recalibrada'])) for r in serv.attrs.get('recalibracion_2027', {}).get('mensual', []) if r.get('servicio') == 'BIOTREN'}),
         mensual_biotren,
     )
+
+    ocup_biotren = O.diagnostico_ocupacion_biotren_mensual(mensual_biotren, 2027)
+    resumen_ocup = O.resumen_ocupacion_biotren(mensual_biotren, 2027)
+    bandas_validas = set(O.BANDAS_FUNCIONAMIENTO_BIOTREN.keys())
+    rows.append(_ok(
+        "Ocupación mensual Biotren conserva demanda anual",
+        abs(resumen_ocup["total_anual_biotren"] - TOTALES_2027_VIGENTES["BIOTREN"]) <= 1.0,
+        f"Total mensual: {resumen_ocup['total_anual_biotren']:,.0f}",
+    ))
+    rows.append(_ok(
+        "Servicios comerciales anuales Biotren Fase 1",
+        abs(resumen_ocup["servicios_comerciales_anuales"] - 43_390.0) <= 1e-6,
+        f"Servicios comerciales: {resumen_ocup['servicios_comerciales_anuales']:,.0f}",
+    ))
+    rows.append(_ok(
+        "Servicios equivalentes capacidad anuales Biotren",
+        abs(resumen_ocup["servicios_equivalentes_capacidad_anuales"] - 43_891.0) <= 1e-6,
+        f"Servicios equivalentes: {resumen_ocup['servicios_equivalentes_capacidad_anuales']:,.0f}",
+    ))
+    rows.append(_ok(
+        "Pax/servicio comercial anual Biotren Fase 2",
+        abs(resumen_ocup["pax_servicio_comercial_anual"] - 301.80) <= 0.01,
+        f"Pax/servicio comercial: {resumen_ocup['pax_servicio_comercial_anual']:,.2f}",
+    ))
+    rows.append(_ok(
+        "Pax/capacidad equivalente anual Biotren diagnóstico",
+        abs(resumen_ocup["pax_capacidad_equivalente_anual"] - 298.36) <= 0.01,
+        f"Pax/capacidad equivalente: {resumen_ocup['pax_capacidad_equivalente_anual']:,.2f}",
+    ))
+    rows.append(_ok(
+        "Bandas mensuales Biotren completas",
+        len(ocup_biotren) == 12 and ocup_biotren["banda_funcionamiento"].isin(bandas_validas).all(),
+        f"Bandas: {ocup_biotren['banda_funcionamiento'].value_counts().to_dict()}",
+    ))
+    rows.append(_ok(
+        "Meses con afluencia positiva tienen servicios comerciales",
+        bool((ocup_biotren.loc[ocup_biotren["afluencia_biotren"] > 0, "servicios_comerciales"] > 0).all()),
+        "Servicios comerciales mínimos: " + f"{ocup_biotren['servicios_comerciales'].min():,.0f}",
+    ))
+    rows.append(_ok(
+        "Participación mensual ocupación Biotren suma 100%",
+        abs(float(ocup_biotren["participacion_mensual_afluencia"].sum()) - 1.0) <= 1e-10,
+        f"Suma: {float(ocup_biotren['participacion_mensual_afluencia'].sum()):.12f}",
+    ))
+    rows.append(_ok(
+        "Capacidad equivalente respeta acoplados L2",
+        bool((ocup_biotren.loc[ocup_biotren["mes"].between(1, 4), "servicios_equivalentes_capacidad"] == ocup_biotren.loc[ocup_biotren["mes"].between(1, 4), "servicios_comerciales"]).all() and (ocup_biotren.loc[ocup_biotren["mes"].between(5, 12), "servicios_equivalentes_capacidad"] > ocup_biotren.loc[ocup_biotren["mes"].between(5, 12), "servicios_comerciales"]).all()),
+        "Ene-abr igual; may-dic capacidad equivalente mayor por acoplados",
+    ))
+
     rows.append(_ok(
         "Participaciones mensuales Biotren suman 100%",
         abs(float(diag_part['participacion_2027_redistribuida'].sum()) - 1.0) <= 1e-10,
@@ -512,8 +562,13 @@ def ejecutar_validacion() -> pd.DataFrame:
     ))
     rows.append(_ok(
         "Streamlit muestra pax/servicio comercial como indicador principal",
-        "Pax/servicio comercial" in streamlit_text,
-        "Rótulo principal encontrado",
+        "Pax/servicio comercial" in streamlit_text and "Ocupación mensual y bandas de funcionamiento" in streamlit_text,
+        "Rótulo principal y bloque mensual encontrados",
+    ))
+    rows.append(_ok(
+        "Streamlit rotula capacidad equivalente como diagnóstico",
+        "Pax/capacidad equivalente" in streamlit_text and "Diagnóstico técnico de capacidad equivalente" in streamlit_text,
+        "Indicador técnico en expander encontrado",
     ))
 
     subsidio_ref = resultado_tarjetas["subsidio_referencial_base"]
