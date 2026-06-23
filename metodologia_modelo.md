@@ -44,11 +44,11 @@ Los feriados nacionales utilizados se encuentran en `data/feriados_chile_2027.cs
 
 ### 5.1 Biotren
 
-Biotren se modela separando L1 y L2 en el motor temporal. La oferta se edita por línea, mes y tipo de día. El escenario operacional 2027 considera L1 con 48 servicios lunes-viernes durante el año y L2 con 106 servicios lunes-viernes entre enero y abril, aumentando a 109 servicios lunes-viernes desde mayo.
+Biotren se modela separando L1 y L2 en el motor temporal. La oferta se edita por línea, mes y tipo de día. El escenario Biotren distingue entre frecuencia comercial y capacidad efectiva. La Línea 1 considera 47 servicios lunes-viernes durante el año. La Línea 2 mantiene 110 servicios de lunes a viernes durante 2027; desde mayo, tres servicios de punta mañana operan acoplados dentro de esa misma frecuencia. Por ello, estos servicios no se contabilizan como frecuencia adicional, sino como refuerzo de capacidad efectiva.
 
 La proyección mensual utiliza días operacionales efectivos, feriados sin operación, productividad histórica, estacionalidad mensual y elasticidad parcial de oferta. Laja-Talcahuano se mantiene como servicio independiente para evitar doble conteo dentro del corredor L1.
 
-El escenario ajustado considera una validación operacional por ocupación promedio general. La referencia objetivo es cercana a 300 pasajeros por servicio comercial, calculada con la oferta vigente mensual de L1 y L2. El ajuste mensual se distribuye según tendencia histórica, estacionalidad y oferta: enero y febrero se contrastan especialmente con el comportamiento reciente para evitar niveles estivales artificialmente bajos, mientras los demás meses reciben correcciones asociadas a brechas de ocupación. La proyección resultante para Biotren es **13.095.300 pasajeros** y mantiene una ocupación promedio anual cercana a 300 pasajeros por servicio comercial.
+El escenario ajustado considera una validación operacional por ocupación promedio general. La referencia de pasajeros por servicio comercial se calcula con la frecuencia comercial vigente de L1 y L2; la capacidad equivalente por servicios acoplados se reporta sólo como diagnóstico técnico y no aumenta el denominador comercial. El ajuste mensual se distribuye según tendencia histórica, estacionalidad y oferta: enero y febrero se contrastan especialmente con el comportamiento reciente para evitar niveles estivales artificialmente bajos, mientras los demás meses reciben correcciones asociadas a brechas de ocupación. La proyección resultante para Biotren es **13.095.300 pasajeros** y no se recalibra en esta fase para forzar una ocupación promedio anual de 300 pasajeros por servicio comercial.
 
 La distribución por línea OD, la distribución OD por tipo de tarjeta y los ingresos tarifarios preliminares se recalculan después de obtener el total mensual ajustado de Biotren. La base referencial de subsidio no calcula montos monetarios.
 
@@ -211,7 +211,7 @@ La proyección 2027 se presenta como escenario recalibrado a partir de nuevos su
 
 ### Biotren
 
-Biotren incorpora una validación operacional por ocupación promedio general. Primero se calcula una trayectoria mensual con oferta vigente, calendario operacional, estacionalidad y afectación de Línea 2 en fines de semana de enero y febrero. Luego se evalúan los servicios comerciales mensuales y se distribuye el ajuste de ocupación hacia una referencia cercana a 300 pasajeros por servicio. Enero y febrero se contrastan con el comportamiento histórico reciente; los demás meses se ajustan según brechas de ocupación y oferta mensual. La distribución por línea MOD, la distribución OD por tipo de tarjeta y los ingresos por venta de pasajes se recalculan desde el total mensual ajustado. La base referencial de subsidio continúa sin cálculo de montos.
+Biotren incorpora una validación operacional por ocupación promedio general. Primero se calcula una trayectoria mensual con oferta vigente, calendario operacional, estacionalidad y afectación de Línea 2 en fines de semana de enero y febrero. Luego se evalúan los servicios comerciales mensuales distinguiendo que los acoplados L2 son capacidad efectiva y no frecuencia adicional. Enero y febrero se contrastan con el comportamiento histórico reciente; los demás meses se ajustan según brechas de ocupación y oferta mensual. La distribución por línea MOD, la distribución OD por tipo de tarjeta y los ingresos por venta de pasajes se recalculan desde el total mensual ajustado. La base referencial de subsidio continúa sin cálculo de montos.
 
 ### Tren Araucanía
 

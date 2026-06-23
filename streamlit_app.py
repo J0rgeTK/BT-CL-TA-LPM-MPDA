@@ -228,7 +228,7 @@ def render_indicadores_ejecutivos_biotren_2027(serv):
     fila_2[0].metric("Subsidio normal", fmt_mm(anual["subsidio_normal"]))
     fila_2[1].metric("Subsidio estudiante", fmt_mm(anual["subsidio_estudiante"]))
     fila_2[2].metric("Tasa descuento", f"{float(anual['tasa_descuento_normal']) * 100:.1f}%".replace(".", ","))
-    fila_2[3].metric("Pax/servicio promedio", f"{pasajeros_por_servicio:,.1f}".replace(",", "X").replace(".", ",").replace("X", "."), f"Δ {fmt(diferencia_pre_ajuste)} vs ref.")
+    fila_2[3].metric("Pax/servicio comercial", f"{pasajeros_por_servicio:,.1f}".replace(",", "X").replace(".", ",").replace("X", "."), f"Δ {fmt(diferencia_pre_ajuste)} vs ref.")
 
     st.caption("Indicadores específicos de Biotren: la venta de pasajes proviene de tarifas directas; el subsidio normal usa la tasa de descuento parametrizada; la matriz estudiante sin subsidio proviene del presupuesto base; la venta media_superior considera diagonal; el ingreso teórico estudiante sin subsidio excluye diagonal; el subsidio estudiante corresponde a la diferencia agregada entre ambos; el ingreso total corresponde a venta de pasajes + subsidio normal + subsidio estudiante. El cálculo financiero no modifica la afluencia proyectada.")
 
@@ -248,7 +248,7 @@ def render_participacion_redistribucion_biotren(serv):
     menores = diag.sort_values("diferencia_afluencia", ascending=True).head(2)
     c = st.columns(4)
     c[0].metric("Total anual Biotren", fmt(total))
-    c[1].metric("Pax/servicio anual", f"{pps:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+    c[1].metric("Pax/servicio comercial", f"{pps:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
     c[2].metric("Mayor aumento", ", ".join(mayores["mes"].astype(int).astype(str)))
     c[3].metric("Validación suma", fmt(diag["afluencia_2027_redistribuida"].sum()))
 
@@ -1171,7 +1171,7 @@ def render_biotren_ejecutivo(serv, uni, detalle):
     st.markdown(
         """
 <div class="bt-panel">
-  <p class="bt-note">Escenario redistribuido mensualmente con total anual conservado, validación por pasajeros por servicio-viaje e ingresos/subsidios recalculados sobre la nueva distribución mensual. Las capas por línea, OD y tipo de tarjeta distribuyen la afluencia Biotren; no generan un nuevo total anual.</p>
+  <p class="bt-note">Escenario redistribuido mensualmente con total anual conservado, validación por pasajeros por servicio comercial e ingresos/subsidios recalculados sobre la nueva distribución mensual. Las capas por línea, OD y tipo de tarjeta distribuyen la afluencia Biotren; no generan un nuevo total anual.</p>
   <span class="bt-chip">Afluencia redistribuida</span><span class="bt-chip">Ocupación promedio por servicio</span><span class="bt-chip">Ingresos y subsidios Biotren</span>
 </div>
 """,
@@ -1182,7 +1182,7 @@ def render_biotren_ejecutivo(serv, uni, detalle):
     fila_1 = st.columns(4)
     fila_1[0].metric("Pasajeros Biotren 2027", fmt(pasajeros))
     fila_1[1].metric("Servicios comerciales 2027", fmt(servicios_anuales))
-    fila_1[2].metric("Pasajeros por servicio-viaje", f"{pasajeros_por_servicio:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+    fila_1[2].metric("Pax/servicio comercial", f"{pasajeros_por_servicio:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
     fila_1[3].metric("Venta de pasajes", fmt_mm(anual_sub.get("ingreso_venta", 0.0)))
     fila_2 = st.columns(4)
     fila_2[0].metric("Subsidio total", fmt_mm(anual_sub.get("subsidio_total", 0.0)))
@@ -1345,7 +1345,7 @@ def render_biotren_ejecutivo(serv, uni, detalle):
     with st.expander("Justificación metodológica Biotren", expanded=False):
         st.markdown("""
 - La redistribución mensual usa participación anual reciente y conserva el total anual Biotren.
-- La validación operacional se expresa como pasajeros por servicio-viaje = pasajeros anuales / servicios comerciales anuales.
+- La validación operacional se expresa como pasajeros por servicio comercial = pasajeros anuales / servicios comerciales anuales.
 - Las capas por línea, OD, tipo de tarjeta, ingresos y subsidios se recalculan después de la afluencia mensual redistribuida.
 - Subsidio normal: `Monto_normal_base / (1 - tasa_descuento_normal) - Monto_normal_base`.
 - Subsidio estudiante: `Ingreso_teorico_estudiante_sin_subsidio_sin_diagonal - Venta_media_superior_con_diagonal`.
@@ -1363,7 +1363,7 @@ def render_servicio(s):
     plan_tramos = None
     if s == "BIOTREN":
         with st.expander("Parámetros de oferta Biotren", expanded=False):
-            st.info("Biotren se edita por línea. L1 considera 48 servicios L-V durante todo 2027; L2 considera 106 servicios L-V entre enero-abril y 109 desde mayo. La afluencia mensual queda vinculada al mes editado y luego se redistribuye conservando el total anual Biotren.")
+            st.info("Biotren se edita por línea. L1 considera 47 servicios L-V durante 2027; L2 mantiene 110 servicios L-V todo el año. Desde mayo, 3 servicios L2 L-V operan acoplados dentro de esos 110 y se registran sólo como capacidad efectiva.")
             c1, c2 = st.columns(2)
             with c1:
                 plan_l1 = editor_oferta("BIOTREN_L1", "Línea 1")
@@ -1387,8 +1387,8 @@ def render_servicio(s):
     pk = serv[s].astype(float).idxmax()
 
     if s == "BIOTREN":
-        render_indicadores_ejecutivos_biotren_2027(serv)
-        render_participacion_redistribucion_biotren(serv)
+        render_biotren_ejecutivo(serv, uni, detalle)
+        return
 
     st.markdown("#### Evolución mensual histórica, cierre 2026 y proyección 2027")
     grafico_historico_y_proyeccion(s, serv)
@@ -1399,7 +1399,7 @@ def render_servicio(s):
     st.markdown("#### Total operacional 2027 vigente")
     k = st.columns(4)
     k[0].metric("Total anual 2027", fmt(serv[s].dropna().sum()))
-    k[1].metric("Pax por viaje proyectado", fmt(ocup_proy))
+    k[1].metric("Pax/servicio comercial", fmt(ocup_proy))
     k[2].metric("Mes peak", pk, fmt(serv[s].max()))
     k[3].metric("Mes menor", serv[s].astype(float).idxmin(), fmt(serv[s].min()))
 
