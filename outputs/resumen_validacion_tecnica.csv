@@ -1,8 +1,27 @@
 control,estado,detalle
 Compilación Python del proyecto,OK,compileall sobre el directorio del modelo
 Sin binarios/cache versionados,OK,Faltantes: ninguno
-Ejecución del motor mensual-elástico,OK,"Total sistema: 14,435,657"
-Consistencia mensual/anual del motor,OK,Diferencia mensual máxima: 0.495437; anual máxima: 1.020849
+Ejecución del motor mensual-elástico,OK,"Total sistema: 14,857,757"
+CSV normalizados cierre 2026 existentes,OK,Mensual: True; anual: True
+Columnas CSV cierre 2026,OK,"Mensual: ['afluencia', 'anio', 'fuente', 'mes', 'mes_num', 'servicio', 'tipo_dato']; anual: ['afluencia_anual', 'anio', 'servicio', 'tipo_dato']"
+Servicios esperados en referencias cierre 2026,OK,"Mensual: ['Biotren', 'Laja Talcahuano', 'Tren Araucanía']; anual: ['Biotren', 'Laja Talcahuano', 'Tren Araucanía']"
+Tipos de dato válidos en referencias cierre 2026,OK,"Tipos detectados: ['cierre_2026_estimado', 'historico_observado']"
+Totales anuales cierre 2026 consistentes,OK,"Años: [np.int64(2020), np.int64(2021), np.int64(2022), np.int64(2023), np.int64(2024), np.int64(2025), np.int64(2026)]; diferencia máxima anual vs mensual: 0.000000"
+Biotren 2027 calculado por ocupación y oferta,OK,"Total anual conservado: 13,095,299; servicios comerciales: 43,651; pasajeros/servicio: 300.00"
+Ocupación promedio Biotren cercana a 300,OK,Pasajeros por servicio: 300.00
+Participaciones mensuales Biotren suman 100%,OK,Suma redistribuida: 1.000000000000
+"Enero y febrero comparados contra 2024, 2025 y cierre 2026",OK,"[{'mes': 1, 'participacion_2024': 0.07296674593586423, 'participacion_2025': 0.07992378713961991, 'participacion_cierre_2026': 0.06376905804175942, 'participacion_2027_redistribuida': 0.07362054123391913}, {'mes': 2, 'participacion_2024': 0.0668006622463998, 'participacion_2025': 0.0656152627117252, 'participacion_cierre_2026': 0.06090282024225726, 'participacion_2027_redistribuida': 0.06703764457764576}]"
+Participación mensual Biotren positiva,OK,Mínima: 6.703764%
+Redistribución Biotren sin saltos abruptos injustificados,OK,Salto mensual máximo: 39.98%
+Evolución mensual Biotren razonable,OK,Rango pasajeros/servicio mensual: 254.3-332.2
+Enero-febrero Biotren no quedan bajo 2026,OK,"2027 ene/feb: 964,083/877,878; 2026: 774,269/740,617"
+Total BIOTREN escenario vigente,OK,"Total calculado: 13,095,299; referencia vigente: 13,095,299"
+Total TREN_ARAUCANIA escenario vigente,OK,"Total calculado: 809,484; referencia vigente: 809,484"
+Total CORTO_LAJA escenario vigente,OK,"Total calculado: 540,842; referencia vigente: 540,842"
+Total LLANQUIHUE_PM escenario vigente,OK,"Total calculado: 412,132; referencia vigente: 412,132"
+Total sistema escenario vigente,OK,"Total sistema: 14,857,757; referencia vigente: 14,857,757"
+Referencias cierre 2026 sólo como contraste histórico,OK,Los CSV de referencia no modifican data/od_biotren/processed/; Biotren usa contraste histórico para distribuir el ajuste mensual.
+Consistencia mensual/anual del motor,OK,Diferencia mensual máxima: 0.494399; anual máxima: 0.801287
 Sensibilidad mensual por oferta con recalibración trazable,OK,"Meses con cambio: ['2027-01', '2027-02', '2027-03', '2027-04', '2027-05', '2027-06', '2027-07', '2027-08', '2027-09', '2027-10', '2027-11', '2027-12']; la recalibración anual distribuye residuales, pero marzo conserva respuesta directa a la oferta editada"
 Regla de feriados Biotren,OK,Biotren queda sin operación en feriados nacionales
 Regla de feriados Laja-Talcahuano,OK,Laja-Talcahuano opera feriados con regla fin de semana
@@ -26,14 +45,50 @@ Cantidad de estaciones por línea base,OK,L1: 11; L1_L2: 1; L2: 13; SIN_CLASIFIC
 Proporción de viajes OD No clasificado,OK,"Viajes No clasificado: 157,085; proporción: 1.4499%"
 Clasificación OD por línea conserva total observado,OK,"Original: 10,834,511; clasificado: 10,834,511; diferencia: 0.00000000"
 Top pares OD No clasificado por motivo probable,OK,"Motivos: estacion_comun_a_estacion_comun: 157,085; estacion_sin_clasificar: 0. Pares No clasificado sin viajes observados: 104. Top: Concepción->Concepción: 157,085 (100.0000% No clas.; 1.4499% total; estacion_comun_a_estacion_comun)"
-Distribución por línea MOD conserva total Biotren,OK,"Diferencia máxima: 0.00000000; diferencia participación: 0.000000000000; categorías estándar: ['L1', 'L1-L2', 'L2']; total anual líneas: 12,673,199"
+Distribución por línea MOD conserva total Biotren,OK,"Diferencia máxima: 0.00000000; diferencia participación: 0.000000000000; categorías estándar: ['L1', 'L1-L2', 'L2']; total anual líneas: 13,095,299"
 No clasificado sin proyección estándar,OK,Concepción→Concepción queda como control diagnóstico histórico y no se incluye en líneas proyectadas
-Consistencia tarjeta mensual vs Biotren,OK,Diferencia máxima: 0.00000003
-Ingreso tarifario agregado por tipo de tarjeta,OK,"Adulto Mayor: 256,552,731; Estudiante: 613,506,010; Normal: 5,668,410,876; Sin ingreso tarifario: 0"
-Ingresos sólo en tipos con tarifa directa,OK,"adulto_mayor: 256,552,731; convenio_colectivo: 0; discapacitado: 0; estudiante_basica: 0; funcionario_especial: 0; funcionario_normal: 0; media_superior: 613,506,010; monedero: 5,668,410,876"
-Base referencial de subsidio en memoria,OK,Filas agregadas: 36; sin cálculo de montos
+Consistencia tarjeta mensual/anual vs Biotren,OK,"Diferencia máxima mensual: 0.00000003; total anual tarjetas: 13,095,299"
+Ingreso tarifario agregado por tipo de tarjeta,OK,"Adulto Mayor: 266,298,008; Estudiante: 625,333,228; Normal: 5,876,159,450; Sin ingreso tarifario: 0"
+Ingresos sólo en tipos con tarifa directa,OK,"adulto_mayor: 266,298,008; convenio_colectivo: 0; discapacitado: 0; estudiante_basica: 0; funcionario_especial: 0; funcionario_normal: 0; media_superior: 625,333,228; monedero: 5,876,159,450"
+Tarifa estudiante BT sin subsidio existe,OK,data/tarifas_biotren/tarifa_estudiante_bt_sin_subsidio_long.csv
+Columnas tarifa estudiante BT sin subsidio,OK,"Columnas: ['destino', 'destino_en_modelo', 'es_diagonal', 'fuente', 'origen', 'origen_en_modelo', 'tarifa_disponible', 'tarifa_estudiante_bt_sin_subsidio']"
+tasa_descuento_normal parametrizada,OK,Valor: 0.189
+tasa_descuento_normal entre 0 y 1,OK,Valor: 0.189
+Estaciones matriz estudiante contenidas en modelo,OK,Fuera modelo: ninguna
+Concepcion Centro sin cobertura estudiante,OK,Sin cobertura: ['Concepción Centro']
+Pasajero Lota sin tarifas disponibles,OK,Sin tarifas: ['Pasajero Lota']
+Diagonal estudiante tratada como cero,OK,Filas diagonal: 26
+MOD normal_base excluye media_superior y adulto_mayor,OK,"Grupo normal_base: ['convenio_colectivo', 'discapacitado', 'estudiante_basica', 'funcionario_especial', 'funcionario_normal', 'monedero']"
+media_superior único grupo estudiante subsidio,OK,Grupo estudiante: ['media_superior']
+Tarifa estudiante pagada desde matriz vigente,OK,Fuente tarifa pagada: ['Estudiante']
+Tarifa estudiante sin subsidio desde data/tarifas_biotren,OK,Fuente sin subsidio: data/tarifas_biotren/tarifa_estudiante_bt_sin_subsidio_long.csv
+Valores control tarifa presupuesto base,OK,Hualqui->La Leonera: 320.0; Hualqui->Concepción: 330.0; Hualqui->UTFSM: 340.0; Concepción->UTFSM: 300.0; Hualqui->Los Canelos: 560.0; Hito Galvarino->Hualqui: 370.0
+Matriz estudiante tiene 26 estaciones,OK,Estaciones: 26
+Matriz estudiante tiene 676 pares OD,OK,Pares: 676
+Matriz estudiante tiene 600 tarifas disponibles,OK,Disponibles: 600
+Matriz estudiante tiene 76 pares sin tarifa,OK,Sin tarifa: 76
+Venta media_superior considera diagonal,OK,"Venta MS: 625,333,228"
+Ingreso teórico estudiante sin subsidio excluye diagonal,OK,"Teórico sin diagonal: 1,149,060,107"
+Subsidio estudiante usa diferencia agregada oficial,OK,"Subsidio estudiante: 523,726,879"
+Brecha OD estudiante sólo diagnóstica,OK,"Brecha OD diagnóstica: 531,183,764"
+Sin brechas negativas diagnósticas,OK,Brecha mínima: 0.000000
+Diagonal brecha estudiante diagnóstica en cero,OK,Suma diagonal: 0.000000
+Subsidio normal no negativo,OK,"Subsidio normal: 1,449,965,634"
+Subsidio estudiante no negativo,OK,"Subsidio estudiante: 523,726,879"
+Subsidio total consistente,OK,"Total: 1,973,692,513"
+Ingreso total Biotren consistente,OK,"Ingreso total: 8,741,483,199"
+Biotren financiero vigente ingreso_venta,OK,"Calculado: 6,767,790,687; referencia: 6,767,790,687"
+Biotren financiero vigente subsidio_normal,OK,"Calculado: 1,449,965,634; referencia: 1,449,965,634"
+Biotren financiero vigente subsidio_estudiante,OK,"Calculado: 523,726,879; referencia: 523,726,879"
+Biotren financiero vigente subsidio_total,OK,"Calculado: 1,973,692,513; referencia: 1,973,692,513"
+Biotren financiero vigente ingreso_total_biotren,OK,"Calculado: 8,741,483,199; referencia: 8,741,483,199"
+Ingreso estudiante corregido iguala teórico sin subsidio,OK,Diferencia: 0
+Advertencia pares media_superior con tarifa faltante,OK,Pares con viajes y sin tarifa: 0
+Biotren conserva total ajustado en capas financieras,OK,"Viajes: 13,095,299"
+Streamlit sin montos financieros anuales hardcodeados,OK,Montos referenciales no encontrados en streamlit_app.py
+Base referencial de subsidio en memoria,OK,Filas agregadas: 36; columnas de monto: ninguna
 Exportación tipo tarjeta en modo muestra sin outputs completos,OK,Viajes: 729; ingresos: 729; archivos escritos: 0
 Backtesting histórico por servicio,OK,Servicios: 4; meses comparados: 94; advertencias: 8
-Bandas de incertidumbre sobre base recalibrada,OK,"Filas mensuales: 48; total base bandas: 14,435,657; sin valores negativos"
+Bandas de incertidumbre sobre base recalibrada,OK,"Filas mensuales: 48; total base bandas: 14,857,757; sin valores negativos"
 Carga de Streamlit,OK,Excepciones detectadas: 0
 Archivos de salida principales,OK,Faltantes: ninguno

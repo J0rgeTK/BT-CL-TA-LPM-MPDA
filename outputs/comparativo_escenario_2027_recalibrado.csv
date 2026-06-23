@@ -1,5 +1,5 @@
 servicio,total_anterior,total_recalibrado,diferencia_absoluta,diferencia_porcentual,motivo_principal_ajuste
-BIOTREN,12991160.0,12673199.0,-317961.0,-2.447518158501627,"Baja progresiva, afectación operacional L2 fines de semana enero-febrero y ajuste residual laboral"
-CORTO_LAJA,540842.0,540842.0,0.0,0.0,Sin ajuste específico nuevo; mantiene regla operacional vigente
-TREN_ARAUCANIA,950258.0,809484.0,-140774.0,-14.814292539499796,Victoria-Temuco opera 11 servicios lunes-viernes durante 2027 y perfil mensual suavizado
-LLANQUIHUE_PM,420853.0,412132.0,-8721.0,-2.072219991303381,Calibración a promedio laboral cercano a 1.500 pasajeros marzo-diciembre y menor efecto novedad enero-febrero
+BIOTREN,12991161.62555808,13095299.0,104137.37444191985,0.8016017154081512,"validación operacional por ocupación promedio, revisión estival y oferta mensual"
+CORTO_LAJA,540841.1987131999,540841.1987131998,-1.1641532182693481e-10,-2.220446049250313e-14,sin ajuste específico nuevo
+TREN_ARAUCANIA,809484.15379617,809484.15379617,0.0,0.0,Victoria-Temuco 11 servicios LV y suavizamiento de marzo
+LLANQUIHUE_PM,420852.0564,412132.00255620386,-8720.053843796137,-2.071999818270609,promedio laboral marzo-diciembre y menor efecto novedad estival

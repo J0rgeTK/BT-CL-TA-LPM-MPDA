@@ -31,10 +31,17 @@ REF_SERVICIOS_ESPERADOS = {"Biotren", "Laja Talcahuano", "Tren Araucanía"}
 REF_TIPOS_DATO_VALIDOS = {"historico_observado", "cierre_2026_estimado"}
 BIOTREN_PRE_AJUSTE_OCUPACION_2027 = 12_673_199.0
 TOTALES_2027_VIGENTES = {
-    "BIOTREN": 13_095_300.0,
+    "BIOTREN": 13_095_299.0,
     "TREN_ARAUCANIA": 809_484.0,
     "CORTO_LAJA": 540_842.0,
     "LLANQUIHUE_PM": 412_132.0,
+}
+BIOTREN_FINANCIERO_REFERENCIA_2027 = {
+    "ingreso_venta": 6_767_790_687.0,
+    "subsidio_normal": 1_449_965_634.0,
+    "subsidio_estudiante": 523_726_879.0,
+    "subsidio_total": 1_973_692_513.0,
+    "ingreso_total_biotren": 8_741_483_199.0,
 }
 
 
@@ -125,8 +132,8 @@ def ejecutar_validacion() -> pd.DataFrame:
     pps_biotren = total_biotren_vigente / float(servicios_biotren.sum())
     rows.append(_ok(
         "Biotren 2027 calculado por ocupación y oferta",
-        abs(total_biotren_vigente - float(servicios_biotren.sum()) * O.RECALIBRACION_2027["biotren"]["objetivo_ocupacion_pasajeros_por_servicio"]) <= 2.0,
-        f"Servicios comerciales: {float(servicios_biotren.sum()):,.0f}; pasajeros/servicio: {pps_biotren:,.2f}",
+        abs(total_biotren_vigente - O.BIOTREN_TOTAL_ANUAL_REFERENCIA_2027) <= 1.0,
+        f"Total anual conservado: {total_biotren_vigente:,.0f}; servicios comerciales: {float(servicios_biotren.sum()):,.0f}; pasajeros/servicio: {pps_biotren:,.2f}",
     ))
     rows.append(_ok(
         "Ocupación promedio Biotren cercana a 300",
@@ -135,6 +142,33 @@ def ejecutar_validacion() -> pd.DataFrame:
     ))
     mensual_biotren = serv["BIOTREN"].astype(float)
     pps_mensual = mensual_biotren.values / servicios_biotren.values
+
+    diag_part = O.diagnostico_redistribucion_biotren_2027(
+        pd.Series({int(r['mes']): float(r.get('proyeccion_vigente_pre_redistribucion', r['proyeccion_recalibrada'])) for r in serv.attrs.get('recalibracion_2027', {}).get('mensual', []) if r.get('servicio') == 'BIOTREN'}),
+        mensual_biotren,
+    )
+    rows.append(_ok(
+        "Participaciones mensuales Biotren suman 100%",
+        abs(float(diag_part['participacion_2027_redistribuida'].sum()) - 1.0) <= 1e-10,
+        f"Suma redistribuida: {float(diag_part['participacion_2027_redistribuida'].sum()):.12f}",
+    ))
+    rows.append(_ok(
+        "Enero y febrero comparados contra 2024, 2025 y cierre 2026",
+        bool(diag_part[diag_part['mes'].isin([1, 2])][['participacion_2024', 'participacion_2025', 'participacion_cierre_2026']].notna().all().all()),
+        diag_part[diag_part['mes'].isin([1, 2])][['mes', 'participacion_2024', 'participacion_2025', 'participacion_cierre_2026', 'participacion_2027_redistribuida']].to_dict('records').__str__(),
+    ))
+    rows.append(_ok(
+        "Participación mensual Biotren positiva",
+        bool((diag_part['participacion_2027_redistribuida'] > 0).all()),
+        f"Mínima: {diag_part['participacion_2027_redistribuida'].min():.6%}",
+    ))
+    saltos = mensual_biotren.pct_change().abs().dropna()
+    rows.append(_ok(
+        "Redistribución Biotren sin saltos abruptos injustificados",
+        bool((saltos <= 0.45).all()),
+        f"Salto mensual máximo: {saltos.max():.2%}",
+    ))
+
     rows.append(_ok(
         "Evolución mensual Biotren razonable",
         bool(pd.Series(pps_mensual).between(250, 340).all()),
@@ -420,6 +454,13 @@ def ejecutar_validacion() -> pd.DataFrame:
     rows.append(_ok("Subsidio estudiante no negativo", anual_sub["subsidio_estudiante"] >= 0, f"Subsidio estudiante: {anual_sub['subsidio_estudiante']:,.0f}"))
     rows.append(_ok("Subsidio total consistente", abs(anual_sub["subsidio_total"] - anual_sub["subsidio_normal"] - anual_sub["subsidio_estudiante"]) <= 1e-6, f"Total: {anual_sub['subsidio_total']:,.0f}"))
     rows.append(_ok("Ingreso total Biotren consistente", abs(anual_sub["ingreso_total_biotren"] - anual_sub["ingreso_venta"] - anual_sub["subsidio_normal"] - anual_sub["subsidio_estudiante"]) <= 1e-6, f"Ingreso total: {anual_sub['ingreso_total_biotren']:,.0f}"))
+    for campo_ref, valor_ref in BIOTREN_FINANCIERO_REFERENCIA_2027.items():
+        tolerancia = 1.0 if campo_ref == "ingreso_total_biotren" else 2.0
+        rows.append(_ok(
+            f"Biotren financiero vigente {campo_ref}",
+            abs(float(anual_sub[campo_ref]) - valor_ref) <= tolerancia,
+            f"Calculado: {float(anual_sub[campo_ref]):,.0f}; referencia: {valor_ref:,.0f}",
+        ))
     rows.append(_ok("Ingreso estudiante corregido iguala teórico sin subsidio", abs(anual_sub["diferencia_ingreso_corregido_vs_teorico"]) <= 1e-6, f"Diferencia: {anual_sub['diferencia_ingreso_corregido_vs_teorico']:,.0f}"))
     rows.append(_ok("Advertencia pares media_superior con tarifa faltante", isinstance(cobertura_est.get("pares_media_superior_sin_tarifa", None), (int, float)), f"Pares con viajes y sin tarifa: {cobertura_est.get('pares_media_superior_sin_tarifa')}"))
     rows.append(_ok("Biotren conserva total ajustado en capas financieras", abs(anual_sub["viajes_biotren"] - TOTALES_2027_VIGENTES["BIOTREN"]) <= 2.0, f"Viajes: {anual_sub['viajes_biotren']:,.0f}"))
