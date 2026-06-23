@@ -77,18 +77,10 @@ Subsidio normal no negativo,OK,"Subsidio normal: 1,449,965,634"
 Subsidio estudiante no negativo,OK,"Subsidio estudiante: 523,726,879"
 Subsidio total consistente,OK,"Total: 1,973,692,513"
 Ingreso total Biotren consistente,OK,"Ingreso total: 8,741,483,199"
-Biotren financiero vigente ingreso_venta,OK,"Calculado: 6,767,790,687; referencia: 6,767,790,687"
-Biotren financiero vigente subsidio_normal,OK,"Calculado: 1,449,965,634; referencia: 1,449,965,634"
-Biotren financiero vigente subsidio_estudiante,OK,"Calculado: 523,726,879; referencia: 523,726,879"
-Biotren financiero vigente subsidio_total,OK,"Calculado: 1,973,692,513; referencia: 1,973,692,513"
-Biotren financiero vigente ingreso_total_biotren,OK,"Calculado: 8,741,483,199; referencia: 8,741,483,199"
 Ingreso estudiante corregido iguala teórico sin subsidio,OK,Diferencia: 0
 Advertencia pares media_superior con tarifa faltante,OK,Pares con viajes y sin tarifa: 0
 Biotren conserva total ajustado en capas financieras,OK,"Viajes: 13,095,299"
 Streamlit sin montos financieros anuales hardcodeados,OK,Montos referenciales no encontrados en streamlit_app.py
-Streamlit usa vista ejecutiva Biotren con corte de flujo,OK,Biotren llama render_biotren_ejecutivo y retorna antes de los bloques genéricos
-Streamlit Biotren sin llamados ni rótulos redundantes,OK,Texto redundante no encontrado
-Streamlit muestra pax/servicio comercial como indicador principal,OK,Rótulo principal encontrado
 Base referencial de subsidio en memoria,OK,Filas agregadas: 36; columnas de monto: ninguna
 Exportación tipo tarjeta en modo muestra sin outputs completos,OK,Viajes: 729; ingresos: 729; archivos escritos: 0
 Backtesting histórico por servicio,OK,Servicios: 4; meses comparados: 94; advertencias: 8

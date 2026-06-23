@@ -194,6 +194,108 @@ def _grupo_subsidio_tarjeta(tipo_tarjeta):
     return "Grupo normal"
 
 
+def render_indicadores_ejecutivos_biotren_2027(serv):
+    serie = serv["BIOTREN"].astype(float).copy()
+    ingresos_subsidio = calcular_resumen_anual_ingresos_subsidio_biotren_cached(serie.to_dict())
+    anual = ingresos_subsidio["resumen_anual"]
+    pasajeros = float(anual["viajes_biotren"])
+    ingreso_medio = float(anual["ingreso_total_biotren"]) / pasajeros if pasajeros > 0 else 0.0
+    servicios_comerciales = float(O.servicios_comerciales_biotren_mensuales(2027).sum())
+    pasajeros_por_servicio = pasajeros / servicios_comerciales if servicios_comerciales > 0 else 0.0
+    diag_recal = serv.attrs.get("recalibracion_2027", {}).get("diagnostico_biotren", {})
+    referencia_pre_ajuste = float(diag_recal.get("total_pre_ajuste_ocupacion", pasajeros))
+    diferencia_pre_ajuste = pasajeros - referencia_pre_ajuste
+
+    st.markdown("## Biotren: afluencia, distribución e ingresos 2027")
+    st.markdown(
+        """
+<div class="bt-panel">
+  <h4>Resumen ejecutivo</h4>
+  <p class="bt-note">El escenario ajustado considera una validación operacional por ocupación promedio general, oferta vigente y tendencia histórica mensual. Sobre esa base se calculan la venta de pasajes, el subsidio normal y el subsidio estudiante; la distribución OD/tipo de tarjeta se aplica como capa posterior.</p>
+  <span class="bt-chip">Afluencia 2027</span><span class="bt-chip">Ingresos tarifarios</span><span class="bt-chip">Subsidios Biotren</span><span class="bt-chip">OD y tipo de tarjeta</span>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
+
+    fila_1 = st.columns(4)
+    fila_1[0].metric("Pasajeros 2027", fmt(pasajeros))
+    fila_1[1].metric("Venta de pasajes", fmt_mm(anual["ingreso_venta"]))
+    fila_1[2].metric("Subsidio total", fmt_mm(anual["subsidio_total"]))
+    fila_1[3].metric("Ingreso total Biotren", fmt_mm(anual["ingreso_total_biotren"]))
+
+    fila_2 = st.columns(4)
+    fila_2[0].metric("Subsidio normal", fmt_mm(anual["subsidio_normal"]))
+    fila_2[1].metric("Subsidio estudiante", fmt_mm(anual["subsidio_estudiante"]))
+    fila_2[2].metric("Tasa descuento", f"{float(anual['tasa_descuento_normal']) * 100:.1f}%".replace(".", ","))
+    fila_2[3].metric("Pax/servicio promedio", f"{pasajeros_por_servicio:,.1f}".replace(",", "X").replace(".", ",").replace("X", "."), f"Δ {fmt(diferencia_pre_ajuste)} vs ref.")
+
+    st.caption("Indicadores específicos de Biotren: la venta de pasajes proviene de tarifas directas; el subsidio normal usa la tasa de descuento parametrizada; la matriz estudiante sin subsidio proviene del presupuesto base; la venta media_superior considera diagonal; el ingreso teórico estudiante sin subsidio excluye diagonal; el subsidio estudiante corresponde a la diferencia agregada entre ambos; el ingreso total corresponde a venta de pasajes + subsidio normal + subsidio estudiante. El cálculo financiero no modifica la afluencia proyectada.")
+
+
+def render_participacion_redistribucion_biotren(serv):
+    st.markdown("### Participación mensual y redistribución 2027")
+    mensual_recal = pd.DataFrame(serv.attrs.get("recalibracion_2027", {}).get("mensual", []))
+    if mensual_recal.empty or "proyeccion_vigente_pre_redistribucion" not in mensual_recal.columns:
+        vigente = serv["BIOTREN"].astype(float)
+    else:
+        vigente = mensual_recal[mensual_recal["servicio"].eq("BIOTREN")].set_index("mes")["proyeccion_vigente_pre_redistribucion"].astype(float)
+    diag = O.diagnostico_redistribucion_biotren_2027(vigente, serv["BIOTREN"].astype(float))
+    total = float(serv["BIOTREN"].astype(float).sum())
+    servicios = float(O.servicios_comerciales_biotren_mensuales(2027).sum())
+    pps = total / servicios if servicios else 0.0
+    mayores = diag.sort_values("diferencia_afluencia", ascending=False).head(2)
+    menores = diag.sort_values("diferencia_afluencia", ascending=True).head(2)
+    c = st.columns(4)
+    c[0].metric("Total anual Biotren", fmt(total))
+    c[1].metric("Pax/servicio anual", f"{pps:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+    c[2].metric("Mayor aumento", ", ".join(mayores["mes"].astype(int).astype(str)))
+    c[3].metric("Validación suma", fmt(diag["afluencia_2027_redistribuida"].sum()))
+
+    chart = pd.DataFrame({
+        "Mes": diag["mes"],
+        "2024": diag["participacion_2024"],
+        "2025": diag["participacion_2025"],
+        "Cierre 2026": diag["participacion_cierre_2026"],
+        "2027 vigente": diag["participacion_2027_vigente"],
+        "2027 redistribuido": diag["participacion_2027_redistribuida"],
+    })
+    fig = go.Figure()
+    for col in ["2024", "2025", "Cierre 2026", "2027 vigente", "2027 redistribuido"]:
+        fig.add_trace(go.Scatter(x=chart["Mes"], y=chart[col] * 100, mode="lines+markers", name=col))
+    fig.update_layout(yaxis_title="Participación mensual (%)", xaxis_title="Mes", height=360, margin=dict(l=10, r=10, t=30, b=10))
+    st.plotly_chart(fig, width="stretch")
+
+    tabla = diag[[
+        "mes", "participacion_ponderada_reciente", "participacion_2027_vigente",
+        "participacion_2027_redistribuida", "afluencia_2027_vigente",
+        "afluencia_2027_redistribuida", "diferencia_afluencia",
+        "pasajeros_por_servicio_redistribuido", "observacion_metodologica",
+    ]].rename(columns={
+        "mes": "Mes",
+        "participacion_ponderada_reciente": "Participación histórica reciente",
+        "participacion_2027_vigente": "Participación 2027 vigente",
+        "participacion_2027_redistribuida": "Participación 2027 redistribuida",
+        "afluencia_2027_vigente": "Afluencia 2027 vigente",
+        "afluencia_2027_redistribuida": "Afluencia 2027 redistribuida",
+        "diferencia_afluencia": "Diferencia",
+        "pasajeros_por_servicio_redistribuido": "Pasajeros por servicio redistribuido",
+        "observacion_metodologica": "Observación metodológica",
+    })
+    st.dataframe(tabla.style.format({
+        "Participación histórica reciente": "{:.4%}",
+        "Participación 2027 vigente": "{:.4%}",
+        "Participación 2027 redistribuida": "{:.4%}",
+        "Afluencia 2027 vigente": "{:,.0f}",
+        "Afluencia 2027 redistribuida": "{:,.0f}",
+        "Diferencia": "{:+,.0f}",
+        "Pasajeros por servicio redistribuido": "{:,.1f}",
+    }), width="stretch", hide_index=True)
+    with st.expander("Detalle técnico de diagnóstico mensual", expanded=False):
+        st.write("Meses con mayor disminución: " + ", ".join(menores["mes"].astype(int).astype(str)))
+        st.dataframe(diag.style.format({c: "{:.4%}" for c in diag.columns if "participacion" in c}), width="stretch", hide_index=True)
+
+
 @st.cache_data(show_spinner=False)
 def calcular_distribucion_biotren_linea_mod_cached(serie_dict):
     serie = pd.Series(serie_dict, dtype=float)
@@ -1080,7 +1182,7 @@ def render_biotren_ejecutivo(serv, uni, detalle):
     fila_1 = st.columns(4)
     fila_1[0].metric("Pasajeros Biotren 2027", fmt(pasajeros))
     fila_1[1].metric("Servicios comerciales 2027", fmt(servicios_anuales))
-    fila_1[2].metric("Pax/servicio comercial", f"{pasajeros_por_servicio:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+    fila_1[2].metric("Pasajeros por servicio-viaje", f"{pasajeros_por_servicio:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
     fila_1[3].metric("Venta de pasajes", fmt_mm(anual_sub.get("ingreso_venta", 0.0)))
     fila_2 = st.columns(4)
     fila_2[0].metric("Subsidio total", fmt_mm(anual_sub.get("subsidio_total", 0.0)))
@@ -1104,12 +1206,18 @@ def render_biotren_ejecutivo(serv, uni, detalle):
     fig_afl.add_trace(go.Scatter(x=mensual["Periodo"], y=mensual["Afluencia redistribuida"], mode="lines+markers", name="2027 redistribuido"))
     fig_afl.update_layout(height=360, yaxis_title="Pasajeros", xaxis_title="Mes", hovermode="x unified", margin=dict(l=10, r=10, t=20, b=10))
     st.plotly_chart(fig_afl, width="stretch")
-    mensual_visible = mensual[["Mes", "Afluencia redistribuida", "Participación mensual", "Diferencia", "Pasajeros por servicio"]].copy()
-    mensual_visible["Afluencia redistribuida"] = mensual_visible["Afluencia redistribuida"].map(fmt)
-    mensual_visible["Participación mensual"] = mensual_visible["Participación mensual"].map(fmt_share)
-    mensual_visible["Diferencia"] = mensual_visible["Diferencia"].map(lambda x: f"{float(x):+,.0f}".replace(",", "."))
-    mensual_visible["Pasajeros por servicio"] = mensual_visible["Pasajeros por servicio"].map(lambda x: f"{float(x):,.1f}".replace(",", "X").replace(".", ",").replace("X", "."))
-    st.dataframe(mensual_visible, width="stretch", hide_index=True, height=260)
+    st.dataframe(
+        mensual[["Mes", "Afluencia redistribuida", "Participación mensual", "Diferencia", "Pasajeros por servicio"]],
+        width="stretch",
+        hide_index=True,
+        height=260,
+        column_config={
+            "Afluencia redistribuida": st.column_config.NumberColumn("Afluencia redistribuida", format="%d"),
+            "Participación mensual": st.column_config.NumberColumn("Participación mensual", format="%.2%%"),
+            "Diferencia": st.column_config.NumberColumn("Diferencia", format="%+d"),
+            "Pasajeros por servicio": st.column_config.NumberColumn("Pasajeros por servicio", format="%.1f"),
+        },
+    )
 
     st.markdown("### 3. Participación mensual y redistribución 2027")
     chart = pd.DataFrame({
@@ -1133,12 +1241,19 @@ def render_biotren_ejecutivo(serv, uni, detalle):
         "afluencia_2027_redistribuida": "Afluencia redistribuida",
         "pasajeros_por_servicio_redistribuido": "Pasajeros por servicio",
     })
-    tabla_diag_visible = tabla_diag.copy()
-    for col in ["Histórica reciente", "2027 vigente", "2027 redistribuida"]:
-        tabla_diag_visible[col] = tabla_diag_visible[col].map(fmt_share)
-    tabla_diag_visible["Afluencia redistribuida"] = tabla_diag_visible["Afluencia redistribuida"].map(fmt)
-    tabla_diag_visible["Pasajeros por servicio"] = tabla_diag_visible["Pasajeros por servicio"].map(lambda x: f"{float(x):,.1f}".replace(",", "X").replace(".", ",").replace("X", "."))
-    st.dataframe(tabla_diag_visible, width="stretch", hide_index=True, height=260)
+    st.dataframe(
+        tabla_diag,
+        width="stretch",
+        hide_index=True,
+        height=260,
+        column_config={
+            "Histórica reciente": st.column_config.NumberColumn("Histórica reciente", format="%.2%%"),
+            "2027 vigente": st.column_config.NumberColumn("2027 vigente", format="%.2%%"),
+            "2027 redistribuida": st.column_config.NumberColumn("2027 redistribuida", format="%.2%%"),
+            "Afluencia redistribuida": st.column_config.NumberColumn("Afluencia redistribuida", format="%d"),
+            "Pasajeros por servicio": st.column_config.NumberColumn("Pasajeros por servicio", format="%.1f"),
+        },
+    )
     with st.expander("Detalle metodológico de participación mensual", expanded=False):
         st.markdown("""
 - Participación mensual = afluencia mensual / afluencia anual.
@@ -1156,10 +1271,12 @@ def render_biotren_ejecutivo(serv, uni, detalle):
     fig_linea = go.Figure(go.Bar(x=anual_linea["linea_od"], y=anual_linea["viajes"], marker_color=["#1f6feb", "#0e9f6e", "#d97706"], text=[fmt(v) for v in anual_linea["viajes"]], textposition="outside"))
     fig_linea.update_layout(title="Distribución anual por línea", height=320, yaxis_title="Pasajeros", xaxis_title="Línea", showlegend=False, margin=dict(l=10, r=10, t=45, b=10))
     st.plotly_chart(fig_linea, width="stretch")
-    tabla_linea = anual_linea.rename(columns={"linea_od": "Línea", "viajes": "Pasajeros 2027", "participacion": "Participación"}).copy()
-    tabla_linea["Pasajeros 2027"] = tabla_linea["Pasajeros 2027"].map(fmt)
-    tabla_linea["Participación"] = tabla_linea["Participación"].map(fmt_share)
-    st.dataframe(tabla_linea[["Línea", "Pasajeros 2027", "Participación"]], width="stretch", hide_index=True)
+    st.dataframe(
+        anual_linea.rename(columns={"linea_od": "Línea", "viajes": "Pasajeros 2027", "participacion": "Participación"}),
+        width="stretch",
+        hide_index=True,
+        column_config={"Pasajeros 2027": st.column_config.NumberColumn("Pasajeros 2027", format="%d"), "Participación": st.column_config.NumberColumn("Participación", format="%.2%%")},
+    )
 
     resumen_tipo = resumen_anual_tipo.groupby(["tipo_tarjeta", "nombre_visual", "tipo_pasajero_tarifa"], as_index=False).agg(viajes=("viajes_proyectados", "sum"), venta_pasajes=("ingresos_tarifarios_proyectados", "sum"))
     total_viajes = float(resumen_tipo["viajes"].sum())
@@ -1172,10 +1289,13 @@ def render_biotren_ejecutivo(serv, uni, detalle):
     fig_tarjetas.update_xaxes(tickangle=-25)
     st.plotly_chart(fig_tarjetas, width="stretch")
     tabla_tarjetas = resumen_tipo.rename(columns={"tipo_tarjeta": "Tipo de tarjeta", "nombre_visual": "Nombre", "tipo_pasajero_tarifa": "Tarifa aplicada", "viajes": "Viajes 2027", "participacion": "Participación", "rol_tarifario": "Rol tarifario", "grupo_subsidio": "Grupo subsidio"})
-    tabla_tarjetas_visible = tabla_tarjetas[["Tipo de tarjeta", "Nombre", "Rol tarifario", "Grupo subsidio", "Tarifa aplicada", "Viajes 2027", "Participación"]].copy()
-    tabla_tarjetas_visible["Viajes 2027"] = tabla_tarjetas_visible["Viajes 2027"].map(fmt)
-    tabla_tarjetas_visible["Participación"] = tabla_tarjetas_visible["Participación"].map(fmt_share)
-    st.dataframe(tabla_tarjetas_visible, width="stretch", hide_index=True, height=300)
+    st.dataframe(
+        tabla_tarjetas[["Tipo de tarjeta", "Nombre", "Rol tarifario", "Grupo subsidio", "Tarifa aplicada", "Viajes 2027", "Participación"]],
+        width="stretch",
+        hide_index=True,
+        height=300,
+        column_config={"Viajes 2027": st.column_config.NumberColumn("Viajes 2027", format="%d"), "Participación": st.column_config.NumberColumn("Participación", format="%.2%%")},
+    )
     with st.expander("Detalle mensual de conservación por línea", expanded=False):
         mensual_linea = dist_linea.pivot_table(index="periodo", columns="linea_od", values="viajes_proyectados", aggfunc="sum", fill_value=0.0).reindex(columns=["L1", "L2", "L1-L2"], fill_value=0.0)
         mensual_linea["Total líneas"] = mensual_linea.sum(axis=1)
@@ -1267,14 +1387,8 @@ def render_servicio(s):
     pk = serv[s].astype(float).idxmax()
 
     if s == "BIOTREN":
-        render_biotren_ejecutivo(serv, uni, detalle)
-        out = pd.DataFrame(index=serv.index)
-        out["L1"] = uni.get("BIOTREN_L1")
-        out["L2"] = uni.get("BIOTREN_L2")
-        out["Total proyectado"] = serv[s]
-        st.download_button(f"⬇ Descargar proyección {O.NOMBRE[s]} (CSV)", out.to_csv().encode(),
-                           f"proyeccion_2027_{s}.csv", key=f"dl_{s}")
-        return
+        render_indicadores_ejecutivos_biotren_2027(serv)
+        render_participacion_redistribucion_biotren(serv)
 
     st.markdown("#### Evolución mensual histórica, cierre 2026 y proyección 2027")
     grafico_historico_y_proyeccion(s, serv)

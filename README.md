@@ -220,7 +220,3 @@ La proyección anual Biotren se mantiene en 13.095.299 pasajeros. La revisión m
 La participación objetivo mensual combina el patrón reciente ponderado por cercanía temporal (2024: 25%, 2025: 35%, cierre 2026: 40%) con la participación mensual de los servicios comerciales 2027. Esta combinación conserva la estacionalidad histórica, incorpora la oferta mensual y evita meses artificialmente bajos o altos frente al comportamiento reciente.
 
 La redistribución se aplica sólo al total mensual Biotren. Las capas por línea, OD, tipo de tarjeta, venta de pasajes, subsidio normal, subsidio estudiante, subsidio total e ingreso total Biotren se calculan después de esa afluencia mensual redistribuida, conservando los totales mensuales de entrada.
-
-### Presentación ejecutiva Biotren en la aplicación
-
-La vista Biotren de la aplicación se organiza como una lectura horizontal de ancho completo. El encabezado reúne afluencia anual, servicios comerciales, pasajeros por servicio-viaje e indicadores financieros principales en un único bloque ejecutivo. La evolución mensual, la participación anual, la composición por línea y tipo de tarjeta, los resultados financieros, las advertencias tarifarias y la metodología se presentan en bloques secuenciales, dejando los diagnósticos extensos y el detalle OD mensual en expanders.
