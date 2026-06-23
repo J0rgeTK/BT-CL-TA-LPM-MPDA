@@ -499,12 +499,12 @@ RECALIBRACION_2027 = {
     'activa': True,
     'biotren': {
         'objetivo_base_intermedio': 12_800_000.0,
-        'objetivo_final': 12_700_000.0,
+        'objetivo_ocupacion_pasajeros_por_servicio': 300.0,
         'meses_afectacion_l2_fds': (1, 2),
         'factor_afectacion_l2_fds': 0.32,
-        'aplicar_ajuste_residual_laboral': True,
-        'meses_ajuste_residual_laboral': tuple(range(3, 13)),
-        'tolerancia_objetivo': 30_000.0,
+        'meses_revision_estival': (1, 2),
+        'meses_ajuste_ocupacion': tuple(range(1, 13)),
+        'tolerancia_ocupacion_pasajeros_por_servicio': 2.0,
     },
     'llanquihue_pm': {
         'demanda_laboral_promedio_objetivo_mar_dic': 1_500.0,
@@ -520,6 +520,65 @@ RECALIBRACION_2027 = {
     },
 }
 
+
+
+def servicios_comerciales_biotren_mensuales(anio=2027, oferta_df=None):
+    """Calcula servicios comerciales mensuales de Biotren desde la oferta vigente."""
+    if oferta_df is None:
+        oferta_df = oferta_actual_df(mensual=True)
+    cal = dias_operacionales_por_tipo(anio, units=['BIOTREN_L1', 'BIOTREN_L2'])
+    bi = oferta_df[oferta_df['unit'].isin(['BIOTREN_L1', 'BIOTREN_L2'])].copy()
+    bi = bi.merge(cal, on=['unit', 'mes', 'dt'], how='left')
+    bi['n_dias'] = pd.to_numeric(bi['n_dias'], errors='coerce').fillna(0.0)
+    bi['servicios_mes'] = pd.to_numeric(bi['servicios_dia'], errors='coerce').fillna(0.0) * bi['n_dias']
+    return bi.groupby('mes')['servicios_mes'].sum().reindex(range(1, 13), fill_value=0.0).astype(float)
+
+
+def _referencia_historica_biotren_mensual():
+    """Referencia mensual observada/estimada para ponderar ajustes de Biotren."""
+    path = DATA_DIR / 'afluencia_mensual_modelo.csv'
+    if not path.exists():
+        return pd.DataFrame(columns=['anio', 'mes', 'pax_norm'])
+    hist = pd.read_csv(path)
+    hist = hist[hist['servicio'].eq('BIOTREN')].copy()
+    hist['periodo'] = pd.PeriodIndex(hist['mes'], freq='M')
+    hist['anio'] = hist['periodo'].dt.year.astype(int)
+    hist['mes'] = hist['periodo'].dt.month.astype(int)
+    hist['pax_norm'] = pd.to_numeric(hist['pax_norm'], errors='coerce')
+    return hist[hist['anio'].isin([2024, 2025, 2026])][['anio', 'mes', 'pax_norm']].dropna()
+
+
+def _ajustar_biotren_por_ocupacion(post, anio, cfg):
+    """Distribuye ajuste mensual para aproximar ocupación anual objetivo sin factor plano."""
+    servicios = servicios_comerciales_biotren_mensuales(anio)
+    objetivo_pps = float(cfg['objetivo_ocupacion_pasajeros_por_servicio'])
+    total_objetivo = float(servicios.sum() * objetivo_pps)
+    total_actual = float(post.sum())
+    ajuste_total = max(0.0, total_objetivo - total_actual)
+    ajuste = pd.Series(0.0, index=range(1, 13), dtype=float)
+    if ajuste_total <= 0:
+        return post.copy(), ajuste, servicios, total_objetivo, pd.Series('', index=range(1, 13), dtype=object)
+
+    hist = _referencia_historica_biotren_mensual()
+    hist_max = hist.groupby('mes')['pax_norm'].max().reindex(range(1, 13)).fillna(post)
+    pps = post / servicios.replace(0, np.nan)
+    brecha_ocupacion = ((objetivo_pps - pps).clip(lower=0.0) * servicios).fillna(0.0)
+    # Enero-febrero se revisan contra máximos históricos recientes para evitar meses estivales artificialmente bajos.
+    estival = pd.Series(0.0, index=range(1, 13), dtype=float)
+    for mes in cfg.get('meses_revision_estival', (1, 2)):
+        estival.loc[int(mes)] = max(0.0, float(hist_max.loc[int(mes)] - post.loc[int(mes)]))
+    meses = list(cfg.get('meses_ajuste_ocupacion', range(1, 13)))
+    pesos = (brecha_ocupacion.reindex(meses).fillna(0.0) + estival.reindex(meses).fillna(0.0)).clip(lower=0.0)
+    if pesos.sum() <= 0:
+        pesos = post.reindex(meses).clip(lower=0.0)
+    pesos = pesos / pesos.sum()
+    ajuste.loc[meses] = ajuste_total * pesos
+    razones = pd.Series('ajuste moderado por ocupación anual y oferta mensual', index=range(1, 13), dtype=object)
+    for mes in cfg.get('meses_revision_estival', (1, 2)):
+        razones.loc[int(mes)] = 'revisión estival contra referencia histórica reciente y ocupación mensual'
+    for mes in [m for m in meses if brecha_ocupacion.loc[m] > 0 and m not in cfg.get('meses_revision_estival', (1, 2))]:
+        razones.loc[int(mes)] = 'cierre de brecha de ocupación mensual respecto de referencia anual'
+    return post + ajuste, ajuste, servicios, total_objetivo, razones
 
 def _escalar_detalle_servicio(detalle, servicio, factores_por_mes):
     out = detalle.copy()
@@ -563,25 +622,30 @@ def recalibrar_escenario_2027(detalle, anio=2027):
     for mes in cfg['meses_afectacion_l2_fds']:
         impacto_l2.loc[mes] = inter.loc[mes] * part_l2.loc[mes] * part_fds.loc[mes] * float(cfg['factor_afectacion_l2_fds'])
         post.loc[mes] -= impacto_l2.loc[mes]
-    residual = float(post.sum() - cfg['objetivo_final'])
-    ajuste_res = pd.Series(0.0, index=range(1,13))
-    if cfg.get('aplicar_ajuste_residual_laboral', True) and residual > 0:
-        meses_lab = list(cfg['meses_ajuste_residual_laboral'])
-        lv = dias_operacionales_por_tipo(anio, units=['BIOTREN_L2'])
-        lv = lv[(lv.unit.eq('BIOTREN_L2')) & (lv.dt.eq('LV'))].set_index('mes')['n_dias'].reindex(meses_lab).fillna(0.0)
-        pesos = (post.reindex(meses_lab).astype(float) * lv).clip(lower=0)
-        pesos = pesos / pesos.sum()
-        ajuste_res.loc[meses_lab] = residual * pesos
-        post.loc[meses_lab] -= ajuste_res.loc[meses_lab]
+    post_conservador = post.copy()
+    post, ajuste_ocupacion, servicios_biotren, objetivo_total_ocupacion, razones_biotren = _ajustar_biotren_por_ocupacion(post, anio, cfg)
     factores = (post / bi.replace(0, np.nan)).replace([np.inf,-np.inf], np.nan).fillna(1.0).to_dict()
     d = _escalar_detalle_servicio(d, 'BIOTREN', factores)
     for mes in range(1,13):
-        mensual_rows.append({'mes': mes, 'servicio': 'BIOTREN', 'proyeccion_anterior': bi.loc[mes], 'proyeccion_recalibrada': post.loc[mes], 'diferencia': post.loc[mes]-bi.loc[mes], 'factor_o_ajuste_aplicado': f"base={f_base:.6f}; impacto_l2_fds={impacto_l2.loc[mes]:.0f}; residual_laboral={ajuste_res.loc[mes]:.0f}"})
-    diag.append({'servicio':'BIOTREN','indicador':'total_anterior','valor':total_ant})
+        mensual_rows.append({
+            'mes': mes,
+            'servicio': 'BIOTREN',
+            'proyeccion_anterior': post_conservador.loc[mes],
+            'proyeccion_recalibrada': post.loc[mes],
+            'diferencia': post.loc[mes]-post_conservador.loc[mes],
+            'factor_o_ajuste_aplicado': f"base={f_base:.6f}; impacto_l2_fds={impacto_l2.loc[mes]:.0f}; ajuste_ocupacion={ajuste_ocupacion.loc[mes]:.0f}; servicios_comerciales={servicios_biotren.loc[mes]:.0f}; criterio={razones_biotren.loc[mes]}",
+        })
+    diag.append({'servicio':'BIOTREN','indicador':'total_pre_ajuste_ocupacion','valor':float(post_conservador.sum())})
+    diag.append({'servicio':'BIOTREN','indicador':'total_anterior_motor','valor':total_ant})
     diag.append({'servicio':'BIOTREN','indicador':'total_intermedio_base','valor':float(inter.sum())})
     diag.append({'servicio':'BIOTREN','indicador':'total_recalibrado','valor':float(post.sum())})
+    diag.append({'servicio':'BIOTREN','indicador':'servicios_comerciales_anuales','valor':float(servicios_biotren.sum())})
+    diag.append({'servicio':'BIOTREN','indicador':'pasajeros_por_servicio_pre_ajuste_ocupacion','valor':float(post_conservador.sum()/servicios_biotren.sum())})
+    diag.append({'servicio':'BIOTREN','indicador':'pasajeros_por_servicio_recalibrado','valor':float(post.sum()/servicios_biotren.sum())})
+    diag.append({'servicio':'BIOTREN','indicador':'objetivo_ocupacion_pasajeros_por_servicio','valor':float(cfg['objetivo_ocupacion_pasajeros_por_servicio'])})
+    diag.append({'servicio':'BIOTREN','indicador':'objetivo_total_ocupacion','valor':float(objetivo_total_ocupacion)})
     diag.append({'servicio':'BIOTREN','indicador':'impacto_l2_fds_ene_feb','valor':float(impacto_l2.sum())})
-    diag.append({'servicio':'BIOTREN','indicador':'ajuste_residual_laboral','valor':float(ajuste_res.sum())})
+    diag.append({'servicio':'BIOTREN','indicador':'ajuste_ocupacion_total','valor':float(ajuste_ocupacion.sum())})
 
     # Llanquihue-Puerto Montt.
     cfg = RECALIBRACION_2027['llanquihue_pm']
@@ -633,7 +697,7 @@ def recalibrar_escenario_2027(detalle, anio=2027):
     # Comparativo anual anterior vs recalibrado dentro de esta función.
     ant = {'BIOTREN': bi.sum(), 'LLANQUIHUE_PM': ll.sum(), 'TREN_ARAUCANIA': ta.sum(), 'CORTO_LAJA': laja.sum()}
     rec = d.groupby('servicio')['afl'].sum().to_dict()
-    motivos = {'BIOTREN':'baja progresiva, afectación L2 fines de semana y residual laboral', 'TREN_ARAUCANIA':'Victoria-Temuco 11 servicios LV y suavizamiento de marzo', 'LLANQUIHUE_PM':'promedio laboral marzo-diciembre y menor efecto novedad estival', 'CORTO_LAJA':'sin ajuste específico nuevo'}
+    motivos = {'BIOTREN':'validación operacional por ocupación promedio, revisión estival y oferta mensual', 'TREN_ARAUCANIA':'Victoria-Temuco 11 servicios LV y suavizamiento de marzo', 'LLANQUIHUE_PM':'promedio laboral marzo-diciembre y menor efecto novedad estival', 'CORTO_LAJA':'sin ajuste específico nuevo'}
     comp = pd.DataFrame([{'servicio':s, 'total_anterior':float(ant.get(s,0)), 'total_recalibrado':float(rec.get(s,0)), 'diferencia_absoluta':float(rec.get(s,0)-ant.get(s,0)), 'diferencia_porcentual':float((rec.get(s,0)/ant.get(s,1)-1)*100) if ant.get(s,0) else np.nan, 'motivo_principal_ajuste':motivos[s]} for s in SERVICIOS])
     return d, comp, pd.DataFrame(mensual_rows), pd.DataFrame(diag)
 
@@ -1221,7 +1285,7 @@ def proyectar_mensual_elastico(params, mdf, plan=None, contingencia_extra=None,
         p = pd.concat([p[p['servicio'] != 'TREN_ARAUCANIA'].reindex(columns=all_cols),
                        ta_det.reindex(columns=all_cols)], ignore_index=True)
 
-    p, _, _, _ = recalibrar_escenario_2027(p, anio=anio)
+    p, comparativo_recalibracion, mensual_recalibracion, diagnostico_recalibracion = recalibrar_escenario_2027(p, anio=anio)
 
     uni = p.groupby(['unit', 'mes'])['afl'].sum().reset_index()
     uni_w = uni.pivot(index='mes', columns='unit', values='afl').fillna(0.0)
@@ -1233,9 +1297,17 @@ def proyectar_mensual_elastico(params, mdf, plan=None, contingencia_extra=None,
         if s not in serv.columns:
             serv[s] = 0.0
     serv = serv[SERVICIOS]
+    diag_bt = diagnostico_recalibracion[diagnostico_recalibracion['servicio'].eq('BIOTREN')]
+    diag_bt = dict(zip(diag_bt['indicador'].astype(str), pd.to_numeric(diag_bt['valor'], errors='coerce')))
 
     uni_w = uni_w.round(0).astype('Int64')
     serv = serv.round(0).astype('Int64')
+    serv.attrs['recalibracion_2027'] = {
+        'diagnostico_biotren': {k: float(v) for k, v in diag_bt.items()},
+        'comparativo': comparativo_recalibracion.to_dict('records'),
+        'mensual': mensual_recalibracion.to_dict('records'),
+        'diagnostico': diagnostico_recalibracion.to_dict('records'),
+    }
     detalle = p.copy()
     if return_detalle:
         return uni_w, serv, detalle

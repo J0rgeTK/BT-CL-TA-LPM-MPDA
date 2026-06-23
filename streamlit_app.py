@@ -200,13 +200,18 @@ def render_indicadores_ejecutivos_biotren_2027(serv):
     anual = ingresos_subsidio["resumen_anual"]
     pasajeros = float(anual["viajes_biotren"])
     ingreso_medio = float(anual["ingreso_total_biotren"]) / pasajeros if pasajeros > 0 else 0.0
+    servicios_comerciales = float(O.servicios_comerciales_biotren_mensuales(2027).sum())
+    pasajeros_por_servicio = pasajeros / servicios_comerciales if servicios_comerciales > 0 else 0.0
+    diag_recal = serv.attrs.get("recalibracion_2027", {}).get("diagnostico_biotren", {})
+    referencia_pre_ajuste = float(diag_recal.get("total_pre_ajuste_ocupacion", pasajeros))
+    diferencia_pre_ajuste = pasajeros - referencia_pre_ajuste
 
     st.markdown("## Biotren: afluencia, distribución e ingresos 2027")
     st.markdown(
         """
 <div class="bt-panel">
   <h4>Resumen ejecutivo</h4>
-  <p class="bt-note">La proyección anual de pasajeros proviene del escenario operacional vigente. Sobre esa base se calculan la venta de pasajes, el subsidio normal y el subsidio estudiante; la distribución OD/tipo de tarjeta se aplica como capa posterior y no modifica la afluencia proyectada.</p>
+  <p class="bt-note">El escenario ajustado considera una validación operacional por ocupación promedio general, oferta vigente y tendencia histórica mensual. Sobre esa base se calculan la venta de pasajes, el subsidio normal y el subsidio estudiante; la distribución OD/tipo de tarjeta se aplica como capa posterior.</p>
   <span class="bt-chip">Afluencia 2027</span><span class="bt-chip">Ingresos tarifarios</span><span class="bt-chip">Subsidios Biotren</span><span class="bt-chip">OD y tipo de tarjeta</span>
 </div>
 """,
@@ -223,9 +228,9 @@ def render_indicadores_ejecutivos_biotren_2027(serv):
     fila_2[0].metric("Subsidio normal", fmt_mm(anual["subsidio_normal"]))
     fila_2[1].metric("Subsidio estudiante", fmt_mm(anual["subsidio_estudiante"]))
     fila_2[2].metric("Tasa descuento", f"{float(anual['tasa_descuento_normal']) * 100:.1f}%".replace(".", ","))
-    fila_2[3].metric("Ingreso medio por pasajero", f"$ {fmt(ingreso_medio)}")
+    fila_2[3].metric("Pax/servicio promedio", f"{pasajeros_por_servicio:,.1f}".replace(",", "X").replace(".", ",").replace("X", "."), f"Δ {fmt(diferencia_pre_ajuste)} vs ref.")
 
-    st.caption("Indicadores específicos de Biotren: la venta de pasajes proviene de tarifas directas; el subsidio normal usa tasa de descuento 18,9%; el subsidio estudiante corregido usa la brecha entre tarifa estudiante BT sin subsidio y tarifa estudiante pagada; el ingreso total corresponde a venta de pasajes + subsidio normal + subsidio estudiante. El cálculo financiero no modifica la afluencia proyectada.")
+    st.caption("Indicadores específicos de Biotren: el escenario ajustado busca una ocupación promedio general coherente con la oferta y la tendencia histórica, evitando meses artificialmente bajos; la venta de pasajes proviene de tarifas directas; el subsidio normal usa la tasa de descuento parametrizada; la matriz estudiante sin subsidio proviene del presupuesto base; la venta media_superior considera diagonal; el ingreso teórico estudiante sin subsidio excluye diagonal; el subsidio estudiante corresponde a la diferencia agregada entre ambos; el ingreso total corresponde a venta de pasajes + subsidio normal + subsidio estudiante.")
 
 
 @st.cache_data(show_spinner=False)
@@ -567,7 +572,7 @@ def render_od_biotren(serv):
     with st.expander("Justificación metodológica Biotren", expanded=False):
         st.markdown("""
 #### Proyección de afluencia
-- La proyección 2027 proviene del escenario operacional vigente.
+- El escenario ajustado considera oferta vigente, tendencia histórica mensual y validación por ocupación promedio general cercana a 300 pasajeros por servicio.
 - La distribución OD/tipo de tarjeta se aplica después de estimar la afluencia mensual.
 - El cálculo financiero no modifica la demanda proyectada.
 
@@ -610,7 +615,7 @@ Esta subsección separa tres conceptos:
 
 - **Distribución de afluencia:** reparte la proyección mensual total de Biotren entre tipos de tarjeta y pares origen-destino con participaciones históricas.
 - **Venta de pasajes:** aplica tarifa Normal a `monedero`, tarifa Estudiante pagada a `media_superior`, tarifa Adulto Mayor a `adulto_mayor` y tarifa cero al resto.
-- **Subsidio Biotren:** calcula subsidio normal con `tasa_descuento = 18,9%` y subsidio estudiante corregido sólo para `media_superior` como brecha entre tarifa estudiante BT sin subsidio y tarifa estudiante pagada.
+- **Subsidio Biotren:** calcula subsidio normal con `tasa_descuento_normal` parametrizada y subsidio estudiante sólo para `media_superior` como diferencia agregada entre ingreso teórico estudiante sin subsidio sin diagonal y venta `media_superior` con diagonal.
 
 Venta de pasajes y subsidio son conceptos distintos. `adulto_mayor` queda fuera de los grupos de subsidio indicados. La proyección mensual total de Biotren no se recalcula ni se modifica en esta vista; sólo se distribuye el mes seleccionado.
 """)
@@ -655,7 +660,9 @@ Venta de pasajes y subsidio son conceptos distintos. `adulto_mayor` queda fuera 
     csub[2].metric("Subsidio estudiante", f"$ {fmt(valores.get('subsidio_estudiante', 0))}")
     csub[3].metric("Subsidio total", f"$ {fmt(valores.get('subsidio_total', 0))}")
     csub[4].metric("Ingreso total", f"$ {fmt(valores.get('ingreso_total_biotren', 0))}")
-    st.caption("Tasa_descuento usada para subsidio normal: 18,9%. El subsidio estudiante corregido se calcula como brecha entre tarifa estudiante BT sin subsidio y tarifa estudiante pagada; el cálculo no modifica la afluencia proyectada.")
+    tasa_caption = float(anual_sub.get("tasa_descuento_normal", valores.get("tasa_descuento_normal", 0.0))) * 100
+    tasa_caption_txt = f"{tasa_caption:.1f}%".replace(".", ",")
+    st.caption(f"Tasa_descuento usada para subsidio normal: {tasa_caption_txt}. El subsidio estudiante se calcula como diferencia agregada entre ingreso teórico estudiante sin subsidio sin diagonal y venta media_superior con diagonal; el cálculo no modifica la afluencia proyectada.")
     for adv in cobertura.get("advertencias", []):
         st.warning(adv)
 

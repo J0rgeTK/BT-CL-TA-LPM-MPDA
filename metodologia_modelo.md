@@ -48,9 +48,9 @@ Biotren se modela separando L1 y L2 en el motor temporal. La oferta se edita por
 
 La proyección mensual utiliza días operacionales efectivos, feriados sin operación, productividad histórica, estacionalidad mensual y elasticidad parcial de oferta. Laja-Talcahuano se mantiene como servicio independiente para evitar doble conteo dentro del corredor L1.
 
-El escenario operacional vigente proyecta **12.673.199 pasajeros** para Biotren. La proyección incorpora una baja operacional progresiva respecto del escenario de referencia inicial y se estructura en tres componentes metodológicos: ajuste base progresivo hacia un total intermedio cercano a 12,8 millones, afectación operacional de Línea 2 en fines de semana concentrada en enero y febrero, y ajuste residual distribuido en meses laborales. El resultado se mantiene cercano al objetivo operacional de 12,7 millones de pasajeros.
+El escenario ajustado considera una validación operacional por ocupación promedio general. La referencia objetivo es cercana a 300 pasajeros por servicio comercial, calculada con la oferta vigente mensual de L1 y L2. El ajuste mensual se distribuye según tendencia histórica, estacionalidad y oferta: enero y febrero se contrastan especialmente con el comportamiento reciente para evitar niveles estivales artificialmente bajos, mientras los demás meses reciben correcciones asociadas a brechas de ocupación. La proyección resultante para Biotren es **13.095.300 pasajeros** y mantiene una ocupación promedio anual cercana a 300 pasajeros por servicio comercial.
 
-La distribución por línea OD, la distribución OD por tipo de tarjeta y los ingresos tarifarios preliminares se recalculan después de obtener el total mensual vigente de Biotren. La base referencial de subsidio no calcula montos monetarios.
+La distribución por línea OD, la distribución OD por tipo de tarjeta y los ingresos tarifarios preliminares se recalculan después de obtener el total mensual ajustado de Biotren. La base referencial de subsidio no calcula montos monetarios.
 
 ### 5.2 Tren Araucanía
 
@@ -86,11 +86,11 @@ Laja-Talcahuano no utiliza MOD Biotren, categorías L1/L2/L1-L2, distribución O
 
 | Servicio | Proyección anual vigente 2027 |
 |---|---:|
-| Biotren | 12.673.199 |
+| Biotren | 13.095.300 |
 | Tren Araucanía | 809.484 |
 | Llanquihue-Puerto Montt | 412.132 |
 | Laja-Talcahuano / Corto Laja | 540.842 |
-| **Total sistema** | **14.435.657** |
+| **Total sistema** | **14.857.758** |
 
 Estos valores corresponden a la base operacional vigente sobre la cual se ejecutan los módulos OD de Biotren, el backtesting diagnóstico y las bandas de incertidumbre.
 
@@ -160,9 +160,9 @@ La tasa de descuento queda parametrizada en `data/tarifas_biotren/parametros_sub
 
 El grupo estudiante incluye sólo `media_superior`.
 
-Subsidio_estudiante = Σ(MOD_media_superior_ij × max(0, tarifa_estudiante_BT_sin_subsidio_ij - tarifa_estudiante_pagada_ij)), con diagonal en cero.
+Subsidio_estudiante = Ingreso_teorico_estudiante_sin_subsidio_sin_diagonal - Venta_media_superior_con_diagonal.
 
-La venta de pasajes de `media_superior` se calcula con la tarifa estudiante pagada de `data/od_biotren/processed/tarifas_2026_por_tipo_long.csv`. El subsidio estudiante cubre sólo la brecha tarifaria frente a `data/tarifas_biotren/tarifa_estudiante_bt_sin_subsidio_long.csv`; no suma la tarifa sin subsidio completa como subsidio. No se imputan automáticamente tarifas faltantes, las brechas de cobertura se reportan como advertencias y el cálculo no modifica la afluencia proyectada.
+Donde `Ingreso_teorico_estudiante_sin_subsidio_sin_diagonal = Σ_{i≠j}(MOD_media_superior_ij × tarifa_estudiante_BT_sin_subsidio_ij)` y `Venta_media_superior_con_diagonal = Σ_{todos i,j}(MOD_media_superior_ij × tarifa_estudiante_pagada_ij)`. La matriz estudiante sin subsidio proviene del presupuesto base `Presupuesto 2026 Biotren v4.xlsx`, hoja `Tarifa Escolar Feb-sep`, bloque `Estudiante Sin subsidio 2026`, normalizada en `data/tarifas_biotren/tarifa_estudiante_bt_sin_subsidio_long.csv`. No debe usarse como fórmula final la brecha OD `max(0, tarifa_sin_subsidio - tarifa_pagada)` por par OD. No se imputan automáticamente tarifas faltantes, las brechas de cobertura se reportan como advertencias y el cálculo no modifica la afluencia proyectada.
 
 ### 10.3 Total
 
@@ -186,7 +186,7 @@ Las bandas se calculan sobre la proyección base 2027 vigente:
 
 | Servicio | Base 2027 usada por incertidumbre |
 |---|---:|
-| Biotren | 12.673.199 |
+| Biotren | 13.095.300 |
 | Tren Araucanía | 809.484 |
 | Llanquihue-Puerto Montt | 412.132 |
 | Laja-Talcahuano | 540.842 |
@@ -211,7 +211,7 @@ La proyección 2027 se presenta como escenario recalibrado a partir de nuevos su
 
 ### Biotren
 
-Biotren incorpora dos etapas. Primero se aplica una baja progresiva mensual para llevar el total anual a un nivel intermedio cercano a 12,8 millones. Luego se descuenta una afectación operacional en Línea 2 concentrada en fines de semana de enero y febrero, calculada con la demanda mensual, la participación mensual de L2 y la participación de sábados y domingos del calendario operacional. La diferencia restante frente al objetivo anual cercano a 12,7 millones se distribuye entre meses laborales de marzo a diciembre con pesos derivados de demanda mensual y días laborales. La distribución por línea MOD, la distribución OD por tipo de tarjeta y los ingresos por venta de pasajes se recalculan desde el nuevo total mensual. La base referencial de subsidio continúa sin cálculo de montos.
+Biotren incorpora una validación operacional por ocupación promedio general. Primero se calcula una trayectoria mensual con oferta vigente, calendario operacional, estacionalidad y afectación de Línea 2 en fines de semana de enero y febrero. Luego se evalúan los servicios comerciales mensuales y se distribuye el ajuste de ocupación hacia una referencia cercana a 300 pasajeros por servicio. Enero y febrero se contrastan con el comportamiento histórico reciente; los demás meses se ajustan según brechas de ocupación y oferta mensual. La distribución por línea MOD, la distribución OD por tipo de tarjeta y los ingresos por venta de pasajes se recalculan desde el total mensual ajustado. La base referencial de subsidio continúa sin cálculo de montos.
 
 ### Tren Araucanía
 

@@ -29,8 +29,9 @@ REF_MENSUAL_CIERRE_2026 = REFERENCIAS_CIERRE_2026 / "afluencia_historica_cierre_
 REF_ANUAL_CIERRE_2026 = REFERENCIAS_CIERRE_2026 / "afluencia_historica_cierre_2026_resumen_anual.csv"
 REF_SERVICIOS_ESPERADOS = {"Biotren", "Laja Talcahuano", "Tren Araucanía"}
 REF_TIPOS_DATO_VALIDOS = {"historico_observado", "cierre_2026_estimado"}
+BIOTREN_PRE_AJUSTE_OCUPACION_2027 = 12_673_199.0
 TOTALES_2027_VIGENTES = {
-    "BIOTREN": 12_673_199.0,
+    "BIOTREN": 13_095_300.0,
     "TREN_ARAUCANIA": 809_484.0,
     "CORTO_LAJA": 540_842.0,
     "LLANQUIHUE_PM": 412_132.0,
@@ -120,6 +121,35 @@ def ejecutar_validacion() -> pd.DataFrame:
         ))
 
     total_biotren_vigente = float(serv["BIOTREN"].sum())
+    servicios_biotren = O.servicios_comerciales_biotren_mensuales(2027)
+    pps_biotren = total_biotren_vigente / float(servicios_biotren.sum())
+    rows.append(_ok(
+        "Biotren 2027 calculado por ocupación y oferta",
+        abs(total_biotren_vigente - float(servicios_biotren.sum()) * O.RECALIBRACION_2027["biotren"]["objetivo_ocupacion_pasajeros_por_servicio"]) <= 2.0,
+        f"Servicios comerciales: {float(servicios_biotren.sum()):,.0f}; pasajeros/servicio: {pps_biotren:,.2f}",
+    ))
+    rows.append(_ok(
+        "Ocupación promedio Biotren cercana a 300",
+        abs(pps_biotren - 300.0) <= O.RECALIBRACION_2027["biotren"].get("tolerancia_ocupacion_pasajeros_por_servicio", 2.0),
+        f"Pasajeros por servicio: {pps_biotren:,.2f}",
+    ))
+    mensual_biotren = serv["BIOTREN"].astype(float)
+    pps_mensual = mensual_biotren.values / servicios_biotren.values
+    rows.append(_ok(
+        "Evolución mensual Biotren razonable",
+        bool(pd.Series(pps_mensual).between(250, 340).all()),
+        "Rango pasajeros/servicio mensual: " + f"{pd.Series(pps_mensual).min():,.1f}-{pd.Series(pps_mensual).max():,.1f}",
+    ))
+    ref26 = pd.read_csv(DATA / "afluencia_mensual_modelo.csv")
+    ref26 = ref26[(ref26["servicio"].eq("BIOTREN")) & (ref26["mes"].astype(str).str.startswith("2026-"))].copy()
+    ref26["mes_num"] = pd.PeriodIndex(ref26["mes"], freq="M").month
+    ene_feb_2026 = ref26[ref26["mes_num"].isin([1, 2])].set_index("mes_num")["pax_norm"].astype(float)
+    ene_feb_2027 = pd.Series({1: float(mensual_biotren.loc["2027-01"]), 2: float(mensual_biotren.loc["2027-02"])})
+    rows.append(_ok(
+        "Enero-febrero Biotren no quedan bajo 2026",
+        bool((ene_feb_2027.reindex([1, 2]) >= ene_feb_2026.reindex([1, 2])).all()),
+        f"2027 ene/feb: {ene_feb_2027.loc[1]:,.0f}/{ene_feb_2027.loc[2]:,.0f}; 2026: {ene_feb_2026.loc[1]:,.0f}/{ene_feb_2026.loc[2]:,.0f}",
+    ))
     for servicio, objetivo in TOTALES_2027_VIGENTES.items():
         total_servicio = float(serv[servicio].sum())
         rows.append(_ok(
@@ -133,9 +163,9 @@ def ejecutar_validacion() -> pd.DataFrame:
         f"Total sistema: {float(serv.sum().sum()):,.0f}; referencia vigente: {sum(TOTALES_2027_VIGENTES.values()):,.0f}",
     ))
     rows.append(_ok(
-        "Referencias cierre 2026 sin efecto en escenario 2027",
+        "Referencias cierre 2026 sólo como contraste histórico",
         all(abs(float(serv[k].sum()) - v) <= 1.0 for k, v in TOTALES_2027_VIGENTES.items()),
-        "Los CSV de referencia no son insumo de O.proyectar_mensual_elastico ni modifican data/od_biotren/processed/.",
+        "Los CSV de referencia no modifican data/od_biotren/processed/; Biotren usa contraste histórico para distribuir el ajuste mensual.",
     ))
 
     # 4. Consistencia de totales mensuales/anuales entre detalle y resumen.
@@ -357,16 +387,42 @@ def ejecutar_validacion() -> pd.DataFrame:
     rows.append(_ok("media_superior único grupo estudiante subsidio", grupos_sub["estudiante_subsidio"] == ["media_superior"], f"Grupo estudiante: {grupos_sub['estudiante_subsidio']}"))
     rows.append(_ok("Tarifa estudiante pagada desde matriz vigente", grupos_sub.get("tarifa_estudiante_pagada") == ["Estudiante"], f"Fuente tarifa pagada: {grupos_sub.get('tarifa_estudiante_pagada')}"))
     rows.append(_ok("Tarifa estudiante sin subsidio desde data/tarifas_biotren", grupos_sub.get("tarifa_estudiante_sin_subsidio_path") == "data/tarifas_biotren/tarifa_estudiante_bt_sin_subsidio_long.csv", f"Fuente sin subsidio: {grupos_sub.get('tarifa_estudiante_sin_subsidio_path')}"))
-    rows.append(_ok("Brecha estudiante max(0, sin subsidio - pagada)", anual_sub["subsidio_estudiante"] <= anual_sub["subsidio_estudiante_formula_anterior"] + 1e-6, f"Anterior: {anual_sub['subsidio_estudiante_formula_anterior']:,.0f}; brecha: {anual_sub['subsidio_estudiante']:,.0f}"))
-    rows.append(_ok("Sin brechas negativas aplicadas", anual_sub["brecha_minima_aplicada"] >= -1e-9, f"Brecha mínima: {anual_sub['brecha_minima_aplicada']:,.6f}"))
-    rows.append(_ok("Diagonal brecha estudiante en cero", abs(anual_sub["diagonal_brecha_suma"]) <= 1e-9, f"Suma diagonal: {anual_sub['diagonal_brecha_suma']:,.6f}"))
+    estaciones_tarifa = set(tarifa_est["origen"].map(ODH.canon)) | set(tarifa_est["destino"].map(ODH.canon))
+    disponibles = int(tarifa_est["tarifa_disponible"].astype(int).sum())
+    no_disponibles = int((tarifa_est["tarifa_disponible"].astype(int) == 0).sum())
+    controles_tarifa = {
+        ("Hualqui", "La Leonera"): 320,
+        ("Hualqui", "Concepción"): 330,
+        ("Hualqui", "UTFSM"): 340,
+        ("Concepción", "UTFSM"): 300,
+        ("Hualqui", "Los Canelos"): 560,
+        ("Hito Galvarino", "Hualqui"): 370,
+    }
+    valores_ok = []
+    detalles_valores = []
+    for (origen, destino), esperado in controles_tarifa.items():
+        fila = tarifa_est[tarifa_est["origen"].map(ODH.canon).eq(ODH.canon(origen)) & tarifa_est["destino"].map(ODH.canon).eq(ODH.canon(destino))]
+        valor = None if fila.empty else float(fila.iloc[0]["tarifa_estudiante_bt_sin_subsidio"])
+        valores_ok.append(valor == esperado)
+        detalles_valores.append(f"{origen}->{destino}: {valor}")
+    rows.append(_ok("Valores control tarifa presupuesto base", all(valores_ok), "; ".join(detalles_valores)))
+    rows.append(_ok("Matriz estudiante tiene 26 estaciones", len(estaciones_tarifa) == 26, f"Estaciones: {len(estaciones_tarifa)}"))
+    rows.append(_ok("Matriz estudiante tiene 676 pares OD", len(tarifa_est) == 676, f"Pares: {len(tarifa_est)}"))
+    rows.append(_ok("Matriz estudiante tiene 600 tarifas disponibles", disponibles == 600, f"Disponibles: {disponibles}"))
+    rows.append(_ok("Matriz estudiante tiene 76 pares sin tarifa", no_disponibles == 76, f"Sin tarifa: {no_disponibles}"))
+    rows.append(_ok("Venta media_superior considera diagonal", abs(anual_sub["venta_media_superior_con_diagonal"] - anual_sub["venta_pasajes_media_superior"]) <= 1e-6, f"Venta MS: {anual_sub['venta_media_superior_con_diagonal']:,.0f}"))
+    rows.append(_ok("Ingreso teórico estudiante sin subsidio excluye diagonal", abs(anual_sub["ingreso_teorico_estudiante_sin_subsidio_sin_diagonal"] - anual_sub["ingreso_teorico_estudiante_sin_subsidio"]) <= 1e-6, f"Teórico sin diagonal: {anual_sub['ingreso_teorico_estudiante_sin_subsidio_sin_diagonal']:,.0f}"))
+    rows.append(_ok("Subsidio estudiante usa diferencia agregada oficial", abs(anual_sub["subsidio_estudiante"] - (anual_sub["ingreso_teorico_estudiante_sin_subsidio_sin_diagonal"] - anual_sub["venta_media_superior_con_diagonal"])) <= 1e-6, f"Subsidio estudiante: {anual_sub['subsidio_estudiante']:,.0f}"))
+    rows.append(_ok("Brecha OD estudiante sólo diagnóstica", anual_sub["subsidio_estudiante_formula_anterior"] == anual_sub["subsidio_estudiante_brecha_od_diagnostica"], f"Brecha OD diagnóstica: {anual_sub['subsidio_estudiante_formula_anterior']:,.0f}"))
+    rows.append(_ok("Sin brechas negativas diagnósticas", anual_sub["brecha_minima_diagnostica"] >= -1e-9, f"Brecha mínima: {anual_sub['brecha_minima_diagnostica']:,.6f}"))
+    rows.append(_ok("Diagonal brecha estudiante diagnóstica en cero", abs(anual_sub["diagonal_brecha_diagnostica_suma"]) <= 1e-9, f"Suma diagonal: {anual_sub['diagonal_brecha_diagnostica_suma']:,.6f}"))
     rows.append(_ok("Subsidio normal no negativo", anual_sub["subsidio_normal"] >= 0, f"Subsidio normal: {anual_sub['subsidio_normal']:,.0f}"))
     rows.append(_ok("Subsidio estudiante no negativo", anual_sub["subsidio_estudiante"] >= 0, f"Subsidio estudiante: {anual_sub['subsidio_estudiante']:,.0f}"))
     rows.append(_ok("Subsidio total consistente", abs(anual_sub["subsidio_total"] - anual_sub["subsidio_normal"] - anual_sub["subsidio_estudiante"]) <= 1e-6, f"Total: {anual_sub['subsidio_total']:,.0f}"))
     rows.append(_ok("Ingreso total Biotren consistente", abs(anual_sub["ingreso_total_biotren"] - anual_sub["ingreso_venta"] - anual_sub["subsidio_normal"] - anual_sub["subsidio_estudiante"]) <= 1e-6, f"Ingreso total: {anual_sub['ingreso_total_biotren']:,.0f}"))
-    rows.append(_ok("Ingreso estudiante corregido aproxima teórico sin subsidio", abs(anual_sub["diferencia_ingreso_corregido_vs_teorico"]) / max(anual_sub["ingreso_teorico_estudiante_sin_subsidio"], 1.0) <= 0.01, f"Diferencia: {anual_sub['diferencia_ingreso_corregido_vs_teorico']:,.0f}"))
+    rows.append(_ok("Ingreso estudiante corregido iguala teórico sin subsidio", abs(anual_sub["diferencia_ingreso_corregido_vs_teorico"]) <= 1e-6, f"Diferencia: {anual_sub['diferencia_ingreso_corregido_vs_teorico']:,.0f}"))
     rows.append(_ok("Advertencia pares media_superior con tarifa faltante", isinstance(cobertura_est.get("pares_media_superior_sin_tarifa", None), (int, float)), f"Pares con viajes y sin tarifa: {cobertura_est.get('pares_media_superior_sin_tarifa')}"))
-    rows.append(_ok("Biotren se mantiene en 12.673.199 pasajeros", abs(anual_sub["viajes_biotren"] - 12_673_199.0) <= 1.0, f"Viajes: {anual_sub['viajes_biotren']:,.0f}"))
+    rows.append(_ok("Biotren conserva total ajustado en capas financieras", abs(anual_sub["viajes_biotren"] - TOTALES_2027_VIGENTES["BIOTREN"]) <= 2.0, f"Viajes: {anual_sub['viajes_biotren']:,.0f}"))
     streamlit_text = (BASE / "streamlit_app.py").read_text(encoding="utf-8")
     montos_referenciales_streamlit = ["1216", "1.216", "2615", "2.615", "9154", "9.154", "1216329151", "2615122803", "9153592420"]
     rows.append(_ok("Streamlit sin montos financieros anuales hardcodeados", not any(m in streamlit_text for m in montos_referenciales_streamlit), "Montos referenciales no encontrados en streamlit_app.py"))

@@ -15,32 +15,13 @@ params = O.aplicar_oferta_actual(pd.read_csv(DATA / "oferta_params.csv"))
 diario = pd.read_csv(DATA / "afluencia_diaria_consolidada.csv", parse_dates=["fecha"])
 mdf = P.mensualizar(diario)
 uni, serv, detalle = O.proyectar_mensual_elastico(params, mdf, return_detalle=True)
-_, comparativo_recal, mensual_recal, diagnostico_recal = O.recalibrar_escenario_2027(detalle, anio=2027)
-escenario_anterior = {
-    'BIOTREN': 12_991_160.0,
-    'TREN_ARAUCANIA': 950_258.0,
-    'LLANQUIHUE_PM': 420_853.0,
-    'CORTO_LAJA': 540_842.0,
-}
-motivos_recal = {
-    'BIOTREN': 'Baja progresiva, afectación operacional L2 fines de semana enero-febrero y ajuste residual laboral',
-    'TREN_ARAUCANIA': 'Victoria-Temuco opera 11 servicios lunes-viernes durante 2027 y perfil mensual suavizado',
-    'LLANQUIHUE_PM': 'Calibración a promedio laboral cercano a 1.500 pasajeros marzo-diciembre y menor efecto novedad enero-febrero',
-    'CORTO_LAJA': 'Sin ajuste específico nuevo; mantiene regla operacional vigente',
-}
-comparativo_recal = pd.DataFrame([
-    {
-        'servicio': s,
-        'total_anterior': escenario_anterior[s],
-        'total_recalibrado': float(serv[s].sum()),
-        'diferencia_absoluta': float(serv[s].sum()) - escenario_anterior[s],
-        'diferencia_porcentual': (float(serv[s].sum()) / escenario_anterior[s] - 1.0) * 100.0,
-        'motivo_principal_ajuste': motivos_recal[s],
-    }
-    for s in O.SERVICIOS
-])
+recal_attrs = serv.attrs.get('recalibracion_2027', {})
+comparativo_recal = pd.DataFrame(recal_attrs.get('comparativo', []))
+mensual_recal = pd.DataFrame(recal_attrs.get('mensual', []))
+diagnostico_recal = pd.DataFrame(recal_attrs.get('diagnostico', []))
 mensual_recal = mensual_recal.copy()
-mensual_recal['periodo'] = mensual_recal['mes'].map(lambda m: f'2027-{int(m):02d}')
+if not mensual_recal.empty and 'mes' in mensual_recal.columns:
+    mensual_recal['periodo'] = mensual_recal['mes'].map(lambda m: f'2027-{int(m):02d}')
 mensual_recal.to_csv(OUT / 'comparativo_mensual_escenario_2027_recalibrado.csv', index=False)
 comparativo_recal.to_csv(OUT / 'comparativo_escenario_2027_recalibrado.csv', index=False)
 diagnostico_recal.to_csv(OUT / 'diagnostico_recalibracion_escenario_2027.csv', index=False)
