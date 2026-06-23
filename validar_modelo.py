@@ -467,6 +467,30 @@ def ejecutar_validacion() -> pd.DataFrame:
     streamlit_text = (BASE / "streamlit_app.py").read_text(encoding="utf-8")
     montos_referenciales_streamlit = ["1216", "1.216", "2615", "2.615", "9154", "9.154", "1216329151", "2615122803", "9153592420"]
     rows.append(_ok("Streamlit sin montos financieros anuales hardcodeados", not any(m in streamlit_text for m in montos_referenciales_streamlit), "Montos referenciales no encontrados en streamlit_app.py"))
+    rows.append(_ok(
+        "Streamlit usa vista ejecutiva Biotren con corte de flujo",
+        "render_biotren_ejecutivo(serv, uni, detalle)" in streamlit_text
+        and "return\n\n    st.markdown(\"#### Evolución mensual" in streamlit_text,
+        "Biotren llama render_biotren_ejecutivo y retorna antes de los bloques genéricos",
+    ))
+    textos_no_principales = [
+        "render_indicadores_ejecutivos_biotren_2027",
+        "render_participacion_redistribucion_biotren",
+        "render_distribucion_biotren_linea_mod",
+        "render_od_biotren",
+        "Pax/viaje proyectado",
+        "3. Composición operacional 2027 vigente",
+    ]
+    rows.append(_ok(
+        "Streamlit Biotren sin llamados ni rótulos redundantes",
+        not any(t in streamlit_text for t in textos_no_principales),
+        "Texto redundante no encontrado" if not any(t in streamlit_text for t in textos_no_principales) else "Detectado: " + ", ".join(t for t in textos_no_principales if t in streamlit_text),
+    ))
+    rows.append(_ok(
+        "Streamlit muestra pax/servicio comercial como indicador principal",
+        "Pax/servicio comercial" in streamlit_text,
+        "Rótulo principal encontrado",
+    ))
 
     subsidio_ref = resultado_tarjetas["subsidio_referencial_base"]
     columnas_monto_subsidio = [c for c in subsidio_ref.columns if "monto" in c.lower() or "subsidio_monetario" in c.lower()]
