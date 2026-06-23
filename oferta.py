@@ -548,6 +548,117 @@ def _referencia_historica_biotren_mensual():
     return hist[hist['anio'].isin([2024, 2025, 2026])][['anio', 'mes', 'pax_norm']].dropna()
 
 
+
+
+BIOTREN_TOTAL_ANUAL_REFERENCIA_2027 = 13_095_299.0
+BIOTREN_PESOS_PARTICIPACION_RECIENTE = {2024: 0.25, 2025: 0.35, 2026: 0.40}
+
+
+def participaciones_historicas_biotren():
+    """Participación mensual Biotren 2024, 2025 y cierre 2026 desde referencias versionadas."""
+    path = DATA_DIR / 'referencias_cierre_2026' / 'afluencia_historica_cierre_2026_long.csv'
+    if not path.exists():
+        return pd.DataFrame()
+    df = pd.read_csv(path)
+    df = df[df['servicio'].astype(str).eq('Biotren')].copy()
+    df['anio'] = pd.to_numeric(df['anio'], errors='coerce').astype('Int64')
+    df['mes'] = pd.to_numeric(df['mes_num'], errors='coerce').astype('Int64')
+    df['afluencia'] = pd.to_numeric(df['afluencia'], errors='coerce')
+    df = df[df['anio'].isin([2024, 2025, 2026]) & df['mes'].between(1, 12) & df['afluencia'].notna()].copy()
+    total = df.groupby('anio')['afluencia'].transform('sum')
+    df['participacion'] = df['afluencia'] / total.replace(0, np.nan)
+    return df[['anio', 'mes', 'afluencia', 'participacion', 'tipo_dato', 'fuente']]
+
+
+def diagnostico_redistribucion_biotren_2027(serie_vigente, serie_redistribuida=None, anio=2027, servicios_mensuales=None):
+    """Construye tabla mensual de participaciones históricas, escenario vigente y redistribuido."""
+    vigente = pd.Series(serie_vigente, dtype=float).copy()
+    vigente.index = [int(str(i)[5:7]) if isinstance(i, str) and '-' in str(i) else int(i) for i in vigente.index]
+    vigente = vigente.reindex(range(1, 13)).fillna(0.0)
+    if serie_redistribuida is None:
+        redis = vigente.copy()
+    else:
+        redis = pd.Series(serie_redistribuida, dtype=float).copy()
+        redis.index = [int(str(i)[5:7]) if isinstance(i, str) and '-' in str(i) else int(i) for i in redis.index]
+        redis = redis.reindex(range(1, 13)).fillna(0.0)
+    hist = participaciones_historicas_biotren()
+    piv = hist.pivot_table(index='mes', columns='anio', values='participacion', aggfunc='sum').reindex(range(1, 13))
+    for y in [2024, 2025, 2026]:
+        if y not in piv.columns:
+            piv[y] = np.nan
+    promedio = piv[[2024, 2025, 2026]].mean(axis=1)
+    pesos = pd.Series(BIOTREN_PESOS_PARTICIPACION_RECIENTE, dtype=float)
+    ponderado = piv[[2024, 2025, 2026]].mul(pesos, axis=1).sum(axis=1) / piv[[2024, 2025, 2026]].notna().mul(pesos, axis=1).sum(axis=1)
+    if servicios_mensuales is None:
+        servicios = servicios_comerciales_biotren_mensuales(anio)
+    else:
+        servicios = pd.Series(servicios_mensuales, dtype=float).copy()
+        servicios.index = [int(str(i)[5:7]) if isinstance(i, str) and '-' in str(i) else int(i) for i in servicios.index]
+        servicios = servicios.reindex(range(1, 13)).fillna(0.0)
+    vtot = float(vigente.sum()) or 1.0
+    rtot = float(redis.sum()) or 1.0
+    rows = []
+    for mes in range(1, 13):
+        dif_pp = (float(vigente.loc[mes]) / vtot - float(ponderado.loc[mes])) * 100
+        if dif_pp < -0.35:
+            diag = 'Participación 2027 vigente bajo el patrón reciente.'
+            rec = 'Aumentar participación usando promedio ponderado reciente y oferta mensual.'
+        elif dif_pp > 0.35:
+            diag = 'Participación 2027 vigente sobre el patrón reciente.'
+            rec = 'Moderar participación para conservar estacionalidad anual.'
+        else:
+            diag = 'Participación 2027 vigente dentro del rango reciente.'
+            rec = 'Mantener ajuste acotado por oferta y suavización.'
+        rows.append({
+            'mes': mes,
+            'afluencia_2027_vigente': float(vigente.loc[mes]),
+            'participacion_2027_vigente': float(vigente.loc[mes]) / vtot,
+            'participacion_2024': float(piv.loc[mes, 2024]),
+            'participacion_2025': float(piv.loc[mes, 2025]),
+            'participacion_cierre_2026': float(piv.loc[mes, 2026]),
+            'participacion_promedio_reciente': float(promedio.loc[mes]),
+            'participacion_ponderada_reciente': float(ponderado.loc[mes]),
+            'participacion_2027_redistribuida': float(redis.loc[mes]) / rtot,
+            'diferencia_pp_vs_ponderado_vigente': dif_pp,
+            'afluencia_2027_redistribuida': float(redis.loc[mes]),
+            'diferencia_afluencia': float(redis.loc[mes] - vigente.loc[mes]),
+            'servicios_comerciales_2027': float(servicios.loc[mes]),
+            'pasajeros_por_servicio_vigente': float(vigente.loc[mes] / servicios.loc[mes]) if servicios.loc[mes] else np.nan,
+            'pasajeros_por_servicio_redistribuido': float(redis.loc[mes] / servicios.loc[mes]) if servicios.loc[mes] else np.nan,
+            'diagnostico': diag,
+            'recomendacion': rec,
+            'observacion_metodologica': 'Participación objetivo combina 80% patrón histórico ponderado 2024-2026 y 20% participación de servicios comerciales 2027; total anual Biotren conservado.',
+        })
+    return pd.DataFrame(rows)
+
+
+def redistribuir_biotren_2027_por_participacion(serie_vigente, anio=2027, servicios_mensuales=None):
+    """Redistribuye el total anual Biotren según participación histórica reciente y oferta."""
+    vigente = pd.Series(serie_vigente, dtype=float).copy()
+    vigente.index = [int(str(i)[5:7]) if isinstance(i, str) and '-' in str(i) else int(i) for i in vigente.index]
+    vigente = vigente.reindex(range(1, 13)).fillna(0.0)
+    total = BIOTREN_TOTAL_ANUAL_REFERENCIA_2027
+    diag_base = diagnostico_redistribucion_biotren_2027(vigente, vigente, anio=anio, servicios_mensuales=servicios_mensuales)
+    hist_share = diag_base.set_index('mes')['participacion_ponderada_reciente'].astype(float).reindex(range(1, 13))
+    if servicios_mensuales is None:
+        servicios = servicios_comerciales_biotren_mensuales(anio)
+    else:
+        servicios = pd.Series(servicios_mensuales, dtype=float).copy()
+        servicios.index = [int(str(i)[5:7]) if isinstance(i, str) and '-' in str(i) else int(i) for i in servicios.index]
+        servicios = servicios.reindex(range(1, 13)).fillna(0.0)
+    oferta_share = servicios / servicios.sum()
+    target_share = (0.80 * hist_share + 0.20 * oferta_share).clip(lower=0.0)
+    target_share = target_share / target_share.sum()
+    raw = target_share * total
+    redondeado = np.floor(raw).astype(int)
+    residuo = int(round(total - redondeado.sum()))
+    if residuo > 0:
+        orden = (raw - redondeado).sort_values(ascending=False).index[:residuo]
+        redondeado.loc[orden] += 1
+    redis = redondeado.astype(float)
+    diagnostico = diagnostico_redistribucion_biotren_2027(vigente, redis, anio=anio, servicios_mensuales=servicios)
+    return redis, diagnostico
+
 def _ajustar_biotren_por_ocupacion(post, anio, cfg):
     """Distribuye ajuste mensual para aproximar ocupación anual objetivo sin factor plano."""
     servicios = servicios_comerciales_biotren_mensuales(anio)
@@ -623,7 +734,10 @@ def recalibrar_escenario_2027(detalle, anio=2027):
         impacto_l2.loc[mes] = inter.loc[mes] * part_l2.loc[mes] * part_fds.loc[mes] * float(cfg['factor_afectacion_l2_fds'])
         post.loc[mes] -= impacto_l2.loc[mes]
     post_conservador = post.copy()
-    post, ajuste_ocupacion, servicios_biotren, objetivo_total_ocupacion, razones_biotren = _ajustar_biotren_por_ocupacion(post, anio, cfg)
+    vigente_pre_redistribucion, ajuste_ocupacion, servicios_biotren, objetivo_total_ocupacion, razones_biotren = _ajustar_biotren_por_ocupacion(post, anio, cfg)
+    servicios_biotren_plan = d[d['servicio'].eq('BIOTREN')].groupby('mes')['viajes_programados_plan'].sum().reindex(range(1, 13)).fillna(servicios_biotren)
+    post, diagnostico_participacion_biotren = redistribuir_biotren_2027_por_participacion(vigente_pre_redistribucion, anio=anio, servicios_mensuales=servicios_biotren_plan)
+    servicios_biotren = servicios_biotren_plan.astype(float)
     factores = (post / bi.replace(0, np.nan)).replace([np.inf,-np.inf], np.nan).fillna(1.0).to_dict()
     d = _escalar_detalle_servicio(d, 'BIOTREN', factores)
     for mes in range(1,13):
@@ -632,13 +746,15 @@ def recalibrar_escenario_2027(detalle, anio=2027):
             'servicio': 'BIOTREN',
             'proyeccion_anterior': post_conservador.loc[mes],
             'proyeccion_recalibrada': post.loc[mes],
-            'diferencia': post.loc[mes]-post_conservador.loc[mes],
-            'factor_o_ajuste_aplicado': f"base={f_base:.6f}; impacto_l2_fds={impacto_l2.loc[mes]:.0f}; ajuste_ocupacion={ajuste_ocupacion.loc[mes]:.0f}; servicios_comerciales={servicios_biotren.loc[mes]:.0f}; criterio={razones_biotren.loc[mes]}",
+            'proyeccion_vigente_pre_redistribucion': vigente_pre_redistribucion.loc[mes],
+            'diferencia': post.loc[mes]-vigente_pre_redistribucion.loc[mes],
+            'factor_o_ajuste_aplicado': f"base={f_base:.6f}; impacto_l2_fds={impacto_l2.loc[mes]:.0f}; ajuste_ocupacion={ajuste_ocupacion.loc[mes]:.0f}; redistribucion_participacion={post.loc[mes]-vigente_pre_redistribucion.loc[mes]:.0f}; servicios_comerciales={servicios_biotren.loc[mes]:.0f}; criterio=participación histórica reciente, oferta mensual y conservación del total anual",
         })
     diag.append({'servicio':'BIOTREN','indicador':'total_pre_ajuste_ocupacion','valor':float(post_conservador.sum())})
     diag.append({'servicio':'BIOTREN','indicador':'total_anterior_motor','valor':total_ant})
     diag.append({'servicio':'BIOTREN','indicador':'total_intermedio_base','valor':float(inter.sum())})
     diag.append({'servicio':'BIOTREN','indicador':'total_recalibrado','valor':float(post.sum())})
+    diag.append({'servicio':'BIOTREN','indicador':'total_vigente_pre_redistribucion','valor':float(vigente_pre_redistribucion.sum())})
     diag.append({'servicio':'BIOTREN','indicador':'servicios_comerciales_anuales','valor':float(servicios_biotren.sum())})
     diag.append({'servicio':'BIOTREN','indicador':'pasajeros_por_servicio_pre_ajuste_ocupacion','valor':float(post_conservador.sum()/servicios_biotren.sum())})
     diag.append({'servicio':'BIOTREN','indicador':'pasajeros_por_servicio_recalibrado','valor':float(post.sum()/servicios_biotren.sum())})
@@ -646,6 +762,7 @@ def recalibrar_escenario_2027(detalle, anio=2027):
     diag.append({'servicio':'BIOTREN','indicador':'objetivo_total_ocupacion','valor':float(objetivo_total_ocupacion)})
     diag.append({'servicio':'BIOTREN','indicador':'impacto_l2_fds_ene_feb','valor':float(impacto_l2.sum())})
     diag.append({'servicio':'BIOTREN','indicador':'ajuste_ocupacion_total','valor':float(ajuste_ocupacion.sum())})
+    diag.append({'servicio':'BIOTREN','indicador':'participaciones_redistribuidas_suman','valor':float(diagnostico_participacion_biotren['participacion_2027_redistribuida'].sum())})
 
     # Llanquihue-Puerto Montt.
     cfg = RECALIBRACION_2027['llanquihue_pm']
