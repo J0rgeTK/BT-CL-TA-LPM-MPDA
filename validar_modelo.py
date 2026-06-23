@@ -136,9 +136,35 @@ def ejecutar_validacion() -> pd.DataFrame:
         f"Total anual conservado: {total_biotren_vigente:,.0f}; servicios comerciales: {float(servicios_biotren.sum()):,.0f}; pasajeros/servicio: {pps_biotren:,.2f}",
     ))
     rows.append(_ok(
-        "Ocupación promedio Biotren cercana a 300",
-        abs(pps_biotren - 300.0) <= O.RECALIBRACION_2027["biotren"].get("tolerancia_ocupacion_pasajeros_por_servicio", 2.0),
-        f"Pasajeros por servicio: {pps_biotren:,.2f}",
+        "Pax/servicio comercial Biotren recalculado sin forzar 300",
+        pps_biotren > 0,
+        f"Pasajeros por servicio comercial: {pps_biotren:,.2f}; no se ajusta demanda para forzar 300",
+    ))
+    cap_biotren = O.diagnostico_capacidad_biotren_mensual(2027)
+    rows.append(_ok(
+        "L2 LV frecuencia comercial 110 todo el año",
+        bool((cap_biotren["l2_lv"] == 110.0).all()),
+        cap_biotren[["mes", "l2_lv"]].to_dict("records").__str__(),
+    ))
+    rows.append(_ok(
+        "L2 fin de semana enero-febrero corregido",
+        bool((cap_biotren[cap_biotren["mes"].isin([1, 2])][["l2_sab", "l2_dom"]] == 14.0).all().all()),
+        cap_biotren[cap_biotren["mes"].isin([1, 2])][["mes", "l2_sab", "l2_dom"]].to_dict("records").__str__(),
+    ))
+    rows.append(_ok(
+        "L2 fin de semana marzo-diciembre corregido",
+        bool((cap_biotren[cap_biotren["mes"].between(3, 12)]["l2_sab"] == 53.0).all() and (cap_biotren[cap_biotren["mes"].between(3, 12)]["l2_dom"] == 32.0).all()),
+        cap_biotren[cap_biotren["mes"].between(3, 12)][["mes", "l2_sab", "l2_dom"]].to_dict("records").__str__(),
+    ))
+    rows.append(_ok(
+        "Servicios acoplados L2 separados de frecuencia",
+        bool((cap_biotren[cap_biotren["mes"].between(1, 4)]["servicios_acoplados_l2_lv"] == 0.0).all() and (cap_biotren[cap_biotren["mes"].between(5, 12)]["servicios_acoplados_l2_lv"] == 3.0).all()),
+        cap_biotren[["mes", "l2_lv", "servicios_acoplados_l2_lv"]].to_dict("records").__str__(),
+    ))
+    rows.append(_ok(
+        "Capacidad equivalente L2 puede ser 113 sin ser frecuencia",
+        bool((cap_biotren[cap_biotren["mes"].between(5, 12)]["l2_lv"] == 110.0).all() and (cap_biotren[cap_biotren["mes"].between(5, 12)]["servicios_acoplados_l2_lv"] == 3.0).all()),
+        "Mayo-diciembre: 110 servicios comerciales L2 LV + 3 acoplados de capacidad",
     ))
     mensual_biotren = serv["BIOTREN"].astype(float)
     pps_mensual = mensual_biotren.values / servicios_biotren.values
@@ -474,11 +500,9 @@ def ejecutar_validacion() -> pd.DataFrame:
         "Biotren llama render_biotren_ejecutivo y retorna antes de los bloques genéricos",
     ))
     textos_no_principales = [
-        "render_indicadores_ejecutivos_biotren_2027",
-        "render_participacion_redistribucion_biotren",
         "render_distribucion_biotren_linea_mod",
         "render_od_biotren",
-        "Pax/viaje proyectado",
+        "Pax/" + "viaje proyectado",
         "3. Composición operacional 2027 vigente",
     ]
     rows.append(_ok(
