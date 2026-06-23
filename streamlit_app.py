@@ -1805,14 +1805,8 @@ def render_servicio(s):
     pk = serv[s].astype(float).idxmax()
 
     if s == "BIOTREN":
-        render_biotren_ejecutivo(serv, uni, detalle)
-        out = pd.DataFrame(index=serv.index)
-        out["L1"] = uni.get("BIOTREN_L1")
-        out["L2"] = uni.get("BIOTREN_L2")
-        out["Total proyectado"] = serv[s]
-        st.download_button(f"⬇ Descargar proyección {O.NOMBRE[s]} (CSV)", out.to_csv().encode(),
-                           f"proyeccion_2027_{s}.csv", key=f"dl_{s}")
-        return
+        render_indicadores_ejecutivos_biotren_2027(serv)
+        render_participacion_redistribucion_biotren(serv)
 
     st.markdown("#### Evolución mensual histórica, cierre 2026 y proyección 2027")
     grafico_historico_y_proyeccion(s, serv)
