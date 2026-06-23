@@ -36,6 +36,13 @@ TOTALES_2027_VIGENTES = {
     "CORTO_LAJA": 540_842.0,
     "LLANQUIHUE_PM": 412_132.0,
 }
+BIOTREN_FINANCIERO_REFERENCIA_2027 = {
+    "ingreso_venta": 6_767_790_687.0,
+    "subsidio_normal": 1_449_965_634.0,
+    "subsidio_estudiante": 523_726_879.0,
+    "subsidio_total": 1_973_692_513.0,
+    "ingreso_total_biotren": 8_741_483_199.0,
+}
 
 
 def _ok(nombre: str, ok: bool, detalle: str = "") -> dict:
@@ -447,6 +454,13 @@ def ejecutar_validacion() -> pd.DataFrame:
     rows.append(_ok("Subsidio estudiante no negativo", anual_sub["subsidio_estudiante"] >= 0, f"Subsidio estudiante: {anual_sub['subsidio_estudiante']:,.0f}"))
     rows.append(_ok("Subsidio total consistente", abs(anual_sub["subsidio_total"] - anual_sub["subsidio_normal"] - anual_sub["subsidio_estudiante"]) <= 1e-6, f"Total: {anual_sub['subsidio_total']:,.0f}"))
     rows.append(_ok("Ingreso total Biotren consistente", abs(anual_sub["ingreso_total_biotren"] - anual_sub["ingreso_venta"] - anual_sub["subsidio_normal"] - anual_sub["subsidio_estudiante"]) <= 1e-6, f"Ingreso total: {anual_sub['ingreso_total_biotren']:,.0f}"))
+    for campo_ref, valor_ref in BIOTREN_FINANCIERO_REFERENCIA_2027.items():
+        tolerancia = 1.0 if campo_ref == "ingreso_total_biotren" else 2.0
+        rows.append(_ok(
+            f"Biotren financiero vigente {campo_ref}",
+            abs(float(anual_sub[campo_ref]) - valor_ref) <= tolerancia,
+            f"Calculado: {float(anual_sub[campo_ref]):,.0f}; referencia: {valor_ref:,.0f}",
+        ))
     rows.append(_ok("Ingreso estudiante corregido iguala teórico sin subsidio", abs(anual_sub["diferencia_ingreso_corregido_vs_teorico"]) <= 1e-6, f"Diferencia: {anual_sub['diferencia_ingreso_corregido_vs_teorico']:,.0f}"))
     rows.append(_ok("Advertencia pares media_superior con tarifa faltante", isinstance(cobertura_est.get("pares_media_superior_sin_tarifa", None), (int, float)), f"Pares con viajes y sin tarifa: {cobertura_est.get('pares_media_superior_sin_tarifa')}"))
     rows.append(_ok("Biotren conserva total ajustado en capas financieras", abs(anual_sub["viajes_biotren"] - TOTALES_2027_VIGENTES["BIOTREN"]) <= 2.0, f"Viajes: {anual_sub['viajes_biotren']:,.0f}"))
