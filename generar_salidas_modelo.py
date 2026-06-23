@@ -25,6 +25,10 @@ if not mensual_recal.empty and 'mes' in mensual_recal.columns:
 mensual_recal.to_csv(OUT / 'comparativo_mensual_escenario_2027_recalibrado.csv', index=False)
 comparativo_recal.to_csv(OUT / 'comparativo_escenario_2027_recalibrado.csv', index=False)
 diagnostico_recal.to_csv(OUT / 'diagnostico_recalibracion_escenario_2027.csv', index=False)
+O.diagnostico_redistribucion_biotren_2027(
+    mensual_recal.set_index('mes').query("servicio == 'BIOTREN'")['proyeccion_vigente_pre_redistribucion'],
+    serv['BIOTREN'],
+).to_csv(OUT / 'diagnostico_participacion_mensual_biotren_2027.csv', index=False)
 
 serv.to_csv(OUT / "proyeccion_2027_resumen_mensual_elastico.csv")
 uni.to_csv(OUT / "proyeccion_2027_unidades_mensual_elastico.csv")

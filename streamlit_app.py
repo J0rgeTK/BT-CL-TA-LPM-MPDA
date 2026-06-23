@@ -233,6 +233,69 @@ def render_indicadores_ejecutivos_biotren_2027(serv):
     st.caption("Indicadores específicos de Biotren: la venta de pasajes proviene de tarifas directas; el subsidio normal usa la tasa de descuento parametrizada; la matriz estudiante sin subsidio proviene del presupuesto base; la venta media_superior considera diagonal; el ingreso teórico estudiante sin subsidio excluye diagonal; el subsidio estudiante corresponde a la diferencia agregada entre ambos; el ingreso total corresponde a venta de pasajes + subsidio normal + subsidio estudiante. El cálculo financiero no modifica la afluencia proyectada.")
 
 
+def render_participacion_redistribucion_biotren(serv):
+    st.markdown("### Participación mensual y redistribución 2027")
+    mensual_recal = pd.DataFrame(serv.attrs.get("recalibracion_2027", {}).get("mensual", []))
+    if mensual_recal.empty or "proyeccion_vigente_pre_redistribucion" not in mensual_recal.columns:
+        vigente = serv["BIOTREN"].astype(float)
+    else:
+        vigente = mensual_recal[mensual_recal["servicio"].eq("BIOTREN")].set_index("mes")["proyeccion_vigente_pre_redistribucion"].astype(float)
+    diag = O.diagnostico_redistribucion_biotren_2027(vigente, serv["BIOTREN"].astype(float))
+    total = float(serv["BIOTREN"].astype(float).sum())
+    servicios = float(O.servicios_comerciales_biotren_mensuales(2027).sum())
+    pps = total / servicios if servicios else 0.0
+    mayores = diag.sort_values("diferencia_afluencia", ascending=False).head(2)
+    menores = diag.sort_values("diferencia_afluencia", ascending=True).head(2)
+    c = st.columns(4)
+    c[0].metric("Total anual Biotren", fmt(total))
+    c[1].metric("Pax/servicio anual", f"{pps:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+    c[2].metric("Mayor aumento", ", ".join(mayores["mes"].astype(int).astype(str)))
+    c[3].metric("Validación suma", fmt(diag["afluencia_2027_redistribuida"].sum()))
+
+    chart = pd.DataFrame({
+        "Mes": diag["mes"],
+        "2024": diag["participacion_2024"],
+        "2025": diag["participacion_2025"],
+        "Cierre 2026": diag["participacion_cierre_2026"],
+        "2027 vigente": diag["participacion_2027_vigente"],
+        "2027 redistribuido": diag["participacion_2027_redistribuida"],
+    })
+    fig = go.Figure()
+    for col in ["2024", "2025", "Cierre 2026", "2027 vigente", "2027 redistribuido"]:
+        fig.add_trace(go.Scatter(x=chart["Mes"], y=chart[col] * 100, mode="lines+markers", name=col))
+    fig.update_layout(yaxis_title="Participación mensual (%)", xaxis_title="Mes", height=360, margin=dict(l=10, r=10, t=30, b=10))
+    st.plotly_chart(fig, width="stretch")
+
+    tabla = diag[[
+        "mes", "participacion_ponderada_reciente", "participacion_2027_vigente",
+        "participacion_2027_redistribuida", "afluencia_2027_vigente",
+        "afluencia_2027_redistribuida", "diferencia_afluencia",
+        "pasajeros_por_servicio_redistribuido", "observacion_metodologica",
+    ]].rename(columns={
+        "mes": "Mes",
+        "participacion_ponderada_reciente": "Participación histórica reciente",
+        "participacion_2027_vigente": "Participación 2027 vigente",
+        "participacion_2027_redistribuida": "Participación 2027 redistribuida",
+        "afluencia_2027_vigente": "Afluencia 2027 vigente",
+        "afluencia_2027_redistribuida": "Afluencia 2027 redistribuida",
+        "diferencia_afluencia": "Diferencia",
+        "pasajeros_por_servicio_redistribuido": "Pasajeros por servicio redistribuido",
+        "observacion_metodologica": "Observación metodológica",
+    })
+    st.dataframe(tabla.style.format({
+        "Participación histórica reciente": "{:.4%}",
+        "Participación 2027 vigente": "{:.4%}",
+        "Participación 2027 redistribuida": "{:.4%}",
+        "Afluencia 2027 vigente": "{:,.0f}",
+        "Afluencia 2027 redistribuida": "{:,.0f}",
+        "Diferencia": "{:+,.0f}",
+        "Pasajeros por servicio redistribuido": "{:,.1f}",
+    }), width="stretch", hide_index=True)
+    with st.expander("Detalle técnico de diagnóstico mensual", expanded=False):
+        st.write("Meses con mayor disminución: " + ", ".join(menores["mes"].astype(int).astype(str)))
+        st.dataframe(diag.style.format({c: "{:.4%}" for c in diag.columns if "participacion" in c}), width="stretch", hide_index=True)
+
+
 @st.cache_data(show_spinner=False)
 def calcular_distribucion_biotren_linea_mod_cached(serie_dict):
     serie = pd.Series(serie_dict, dtype=float)
@@ -1491,6 +1554,7 @@ def render_servicio(s):
 
     if s == "BIOTREN":
         render_indicadores_ejecutivos_biotren_2027(serv)
+        render_participacion_redistribucion_biotren(serv)
 
     st.markdown("### 2. Evolución mensual histórica, cierre 2026 y proyección 2027" if s == "BIOTREN" else "#### Evolución mensual histórica, cierre 2026 y proyección 2027")
     grafico_historico_y_proyeccion(s, serv)
