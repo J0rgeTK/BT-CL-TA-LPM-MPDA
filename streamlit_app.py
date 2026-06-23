@@ -200,13 +200,18 @@ def render_indicadores_ejecutivos_biotren_2027(serv):
     anual = ingresos_subsidio["resumen_anual"]
     pasajeros = float(anual["viajes_biotren"])
     ingreso_medio = float(anual["ingreso_total_biotren"]) / pasajeros if pasajeros > 0 else 0.0
+    servicios_comerciales = float(O.servicios_comerciales_biotren_mensuales(2027).sum())
+    pasajeros_por_servicio = pasajeros / servicios_comerciales if servicios_comerciales > 0 else 0.0
+    diag_recal = serv.attrs.get("recalibracion_2027", {}).get("diagnostico_biotren", {})
+    referencia_pre_ajuste = float(diag_recal.get("total_pre_ajuste_ocupacion", pasajeros))
+    diferencia_pre_ajuste = pasajeros - referencia_pre_ajuste
 
     st.markdown("## Biotren: afluencia, distribución e ingresos 2027")
     st.markdown(
         """
 <div class="bt-panel">
   <h4>Resumen ejecutivo</h4>
-  <p class="bt-note">La proyección anual de pasajeros proviene del escenario operacional vigente. Sobre esa base se calculan la venta de pasajes, el subsidio normal y el subsidio estudiante; la distribución OD/tipo de tarjeta se aplica como capa posterior y no modifica la afluencia proyectada.</p>
+  <p class="bt-note">El escenario ajustado considera una validación operacional por ocupación promedio general, oferta vigente y tendencia histórica mensual. Sobre esa base se calculan la venta de pasajes, el subsidio normal y el subsidio estudiante; la distribución OD/tipo de tarjeta se aplica como capa posterior.</p>
   <span class="bt-chip">Afluencia 2027</span><span class="bt-chip">Ingresos tarifarios</span><span class="bt-chip">Subsidios Biotren</span><span class="bt-chip">OD y tipo de tarjeta</span>
 </div>
 """,
@@ -223,7 +228,7 @@ def render_indicadores_ejecutivos_biotren_2027(serv):
     fila_2[0].metric("Subsidio normal", fmt_mm(anual["subsidio_normal"]))
     fila_2[1].metric("Subsidio estudiante", fmt_mm(anual["subsidio_estudiante"]))
     fila_2[2].metric("Tasa descuento", f"{float(anual['tasa_descuento_normal']) * 100:.1f}%".replace(".", ","))
-    fila_2[3].metric("Ingreso medio por pasajero", f"$ {fmt(ingreso_medio)}")
+    fila_2[3].metric("Pax/servicio promedio", f"{pasajeros_por_servicio:,.1f}".replace(",", "X").replace(".", ",").replace("X", "."), f"Δ {fmt(diferencia_pre_ajuste)} vs ref.")
 
     st.caption("Indicadores específicos de Biotren: la venta de pasajes proviene de tarifas directas; el subsidio normal usa la tasa de descuento parametrizada; la matriz estudiante sin subsidio proviene del presupuesto base; la venta media_superior considera diagonal; el ingreso teórico estudiante sin subsidio excluye diagonal; el subsidio estudiante corresponde a la diferencia agregada entre ambos; el ingreso total corresponde a venta de pasajes + subsidio normal + subsidio estudiante. El cálculo financiero no modifica la afluencia proyectada.")
 
@@ -567,7 +572,7 @@ def render_od_biotren(serv):
     with st.expander("Justificación metodológica Biotren", expanded=False):
         st.markdown("""
 #### Proyección de afluencia
-- La proyección 2027 proviene del escenario operacional vigente.
+- El escenario ajustado considera oferta vigente, tendencia histórica mensual y validación por ocupación promedio general cercana a 300 pasajeros por servicio.
 - La distribución OD/tipo de tarjeta se aplica después de estimar la afluencia mensual.
 - El cálculo financiero no modifica la demanda proyectada.
 

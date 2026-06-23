@@ -29,8 +29,9 @@ REF_MENSUAL_CIERRE_2026 = REFERENCIAS_CIERRE_2026 / "afluencia_historica_cierre_
 REF_ANUAL_CIERRE_2026 = REFERENCIAS_CIERRE_2026 / "afluencia_historica_cierre_2026_resumen_anual.csv"
 REF_SERVICIOS_ESPERADOS = {"Biotren", "Laja Talcahuano", "Tren Araucanía"}
 REF_TIPOS_DATO_VALIDOS = {"historico_observado", "cierre_2026_estimado"}
+BIOTREN_PRE_AJUSTE_OCUPACION_2027 = 12_673_199.0
 TOTALES_2027_VIGENTES = {
-    "BIOTREN": 12_673_199.0,
+    "BIOTREN": 13_095_300.0,
     "TREN_ARAUCANIA": 809_484.0,
     "CORTO_LAJA": 540_842.0,
     "LLANQUIHUE_PM": 412_132.0,
@@ -120,6 +121,35 @@ def ejecutar_validacion() -> pd.DataFrame:
         ))
 
     total_biotren_vigente = float(serv["BIOTREN"].sum())
+    servicios_biotren = O.servicios_comerciales_biotren_mensuales(2027)
+    pps_biotren = total_biotren_vigente / float(servicios_biotren.sum())
+    rows.append(_ok(
+        "Biotren 2027 calculado por ocupación y oferta",
+        abs(total_biotren_vigente - float(servicios_biotren.sum()) * O.RECALIBRACION_2027["biotren"]["objetivo_ocupacion_pasajeros_por_servicio"]) <= 2.0,
+        f"Servicios comerciales: {float(servicios_biotren.sum()):,.0f}; pasajeros/servicio: {pps_biotren:,.2f}",
+    ))
+    rows.append(_ok(
+        "Ocupación promedio Biotren cercana a 300",
+        abs(pps_biotren - 300.0) <= O.RECALIBRACION_2027["biotren"].get("tolerancia_ocupacion_pasajeros_por_servicio", 2.0),
+        f"Pasajeros por servicio: {pps_biotren:,.2f}",
+    ))
+    mensual_biotren = serv["BIOTREN"].astype(float)
+    pps_mensual = mensual_biotren.values / servicios_biotren.values
+    rows.append(_ok(
+        "Evolución mensual Biotren razonable",
+        bool(pd.Series(pps_mensual).between(250, 340).all()),
+        "Rango pasajeros/servicio mensual: " + f"{pd.Series(pps_mensual).min():,.1f}-{pd.Series(pps_mensual).max():,.1f}",
+    ))
+    ref26 = pd.read_csv(DATA / "afluencia_mensual_modelo.csv")
+    ref26 = ref26[(ref26["servicio"].eq("BIOTREN")) & (ref26["mes"].astype(str).str.startswith("2026-"))].copy()
+    ref26["mes_num"] = pd.PeriodIndex(ref26["mes"], freq="M").month
+    ene_feb_2026 = ref26[ref26["mes_num"].isin([1, 2])].set_index("mes_num")["pax_norm"].astype(float)
+    ene_feb_2027 = pd.Series({1: float(mensual_biotren.loc["2027-01"]), 2: float(mensual_biotren.loc["2027-02"])})
+    rows.append(_ok(
+        "Enero-febrero Biotren no quedan bajo 2026",
+        bool((ene_feb_2027.reindex([1, 2]) >= ene_feb_2026.reindex([1, 2])).all()),
+        f"2027 ene/feb: {ene_feb_2027.loc[1]:,.0f}/{ene_feb_2027.loc[2]:,.0f}; 2026: {ene_feb_2026.loc[1]:,.0f}/{ene_feb_2026.loc[2]:,.0f}",
+    ))
     for servicio, objetivo in TOTALES_2027_VIGENTES.items():
         total_servicio = float(serv[servicio].sum())
         rows.append(_ok(
@@ -133,9 +163,9 @@ def ejecutar_validacion() -> pd.DataFrame:
         f"Total sistema: {float(serv.sum().sum()):,.0f}; referencia vigente: {sum(TOTALES_2027_VIGENTES.values()):,.0f}",
     ))
     rows.append(_ok(
-        "Referencias cierre 2026 sin efecto en escenario 2027",
+        "Referencias cierre 2026 sólo como contraste histórico",
         all(abs(float(serv[k].sum()) - v) <= 1.0 for k, v in TOTALES_2027_VIGENTES.items()),
-        "Los CSV de referencia no son insumo de O.proyectar_mensual_elastico ni modifican data/od_biotren/processed/.",
+        "Los CSV de referencia no modifican data/od_biotren/processed/; Biotren usa contraste histórico para distribuir el ajuste mensual.",
     ))
 
     # 4. Consistencia de totales mensuales/anuales entre detalle y resumen.
@@ -392,7 +422,7 @@ def ejecutar_validacion() -> pd.DataFrame:
     rows.append(_ok("Ingreso total Biotren consistente", abs(anual_sub["ingreso_total_biotren"] - anual_sub["ingreso_venta"] - anual_sub["subsidio_normal"] - anual_sub["subsidio_estudiante"]) <= 1e-6, f"Ingreso total: {anual_sub['ingreso_total_biotren']:,.0f}"))
     rows.append(_ok("Ingreso estudiante corregido iguala teórico sin subsidio", abs(anual_sub["diferencia_ingreso_corregido_vs_teorico"]) <= 1e-6, f"Diferencia: {anual_sub['diferencia_ingreso_corregido_vs_teorico']:,.0f}"))
     rows.append(_ok("Advertencia pares media_superior con tarifa faltante", isinstance(cobertura_est.get("pares_media_superior_sin_tarifa", None), (int, float)), f"Pares con viajes y sin tarifa: {cobertura_est.get('pares_media_superior_sin_tarifa')}"))
-    rows.append(_ok("Biotren se mantiene en 12.673.199 pasajeros", abs(anual_sub["viajes_biotren"] - 12_673_199.0) <= 1.0, f"Viajes: {anual_sub['viajes_biotren']:,.0f}"))
+    rows.append(_ok("Biotren conserva total ajustado en capas financieras", abs(anual_sub["viajes_biotren"] - TOTALES_2027_VIGENTES["BIOTREN"]) <= 2.0, f"Viajes: {anual_sub['viajes_biotren']:,.0f}"))
     streamlit_text = (BASE / "streamlit_app.py").read_text(encoding="utf-8")
     montos_referenciales_streamlit = ["1216", "1.216", "2615", "2.615", "9154", "9.154", "1216329151", "2615122803", "9153592420"]
     rows.append(_ok("Streamlit sin montos financieros anuales hardcodeados", not any(m in streamlit_text for m in montos_referenciales_streamlit), "Montos referenciales no encontrados en streamlit_app.py"))
