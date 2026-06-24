@@ -10,6 +10,7 @@ Versión metodológica mensual-elástica:
 """
 import os
 import html
+import base64
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
@@ -26,6 +27,20 @@ PAL = {"BIOTREN": "#1f6feb", "CORTO_LAJA": "#0e9f6e", "TREN_ARAUCANIA": "#d97706
 CONF = {"BIOTREN": "ALTA", "CORTO_LAJA": "ALTA", "TREN_ARAUCANIA": "MEDIA", "LLANQUIHUE_PM": "BAJA"}
 CONF_C = {"ALTA": "#0e9f6e", "MEDIA": "#d97706", "BAJA": "#dc2626"}
 DATA = os.path.join(os.path.dirname(__file__), "data")
+ASSETS = os.path.join(os.path.dirname(__file__), "assets")
+LOGO_FILENAME = "efe_trenes_chile_logo.png"
+
+
+def _read_logo_data_uri():
+    logo_path = os.path.join(ASSETS, LOGO_FILENAME)
+    try:
+        with open(logo_path, "rb") as fh:
+            return "data:image/png;base64," + base64.b64encode(fh.read()).decode("ascii")
+    except Exception:
+        return ""
+
+
+LOGO_DATA_URI = _read_logo_data_uri()
 
 REFERENCIAS_CIERRE_2026 = os.path.join(DATA, "referencias_cierre_2026")
 REF_SERVICIO_TO_MODELO = {
@@ -81,7 +96,7 @@ st.markdown("""
 
   .block-container {
     max-width: 1520px;
-    padding-top: 1.15rem;
+    padding-top: 2.35rem;
     padding-left: 1.55rem;
     padding-right: 1.55rem;
     padding-bottom: 2.5rem;
@@ -100,33 +115,22 @@ st.markdown("""
     align-items: flex-start;
     justify-content: space-between;
     gap: 1.2rem;
-    margin: .15rem 0 1.1rem;
+    margin: .45rem 0 1.25rem;
   }
 
-  .efe-logo-lockup {
+  .efe-logo-wrap {
     display: flex;
     align-items: center;
-    gap: .75rem;
-    min-width: 175px;
+    gap: 1rem;
+    min-width: 240px;
   }
 
-  .efe-logo-word {
-    color: var(--efe-blue);
-    font-size: 3.0rem;
-    line-height: .82;
-    font-weight: 900;
-    letter-spacing: -.11em;
-  }
-
-  .efe-logo-word .red-dot { color: var(--efe-red); letter-spacing: -.08em; }
-
-  .efe-logo-side {
-    color: var(--efe-red);
-    font-size: .86rem;
-    line-height: 1.05;
-    font-weight: 860;
-    text-transform: uppercase;
-    letter-spacing: .025em;
+  .efe-logo-image {
+    display: block;
+    width: min(100%, 360px);
+    max-height: 118px;
+    height: auto;
+    object-fit: contain;
   }
 
   .efe-pill {
@@ -155,6 +159,30 @@ st.markdown("""
   .efe-page-subtitle {
     color: #7A89A0;
     font-size: clamp(1.0rem, 1.2vw, 1.18rem);
+    font-weight: 720;
+    margin-top: .25rem;
+  }
+
+  .efe-service-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: .2rem 0 .95rem;
+  }
+
+  .efe-service-title {
+    color: var(--efe-blue);
+    font-size: clamp(1.8rem, 2.6vw, 2.65rem);
+    line-height: 1.05;
+    font-weight: 900;
+    margin: 0;
+    letter-spacing: -.05em;
+  }
+
+  .efe-service-subtitle {
+    color: #7A89A0;
+    font-size: 1rem;
     font-weight: 720;
     margin-top: .25rem;
   }
@@ -230,6 +258,12 @@ st.markdown("""
     line-height: 1.1;
     margin-top: .38rem;
     letter-spacing: -.025em;
+  }
+  .efe-metric-detail {
+    color: var(--efe-gray-700);
+    font-size: .82rem;
+    font-weight: 720;
+    margin-top: .22rem;
   }
   .efe-metric-delta {
     color: #0066CC;
@@ -353,20 +387,20 @@ except Exception as e:
     st.error(f"No se pudieron cargar los datos en /data: {e}")
     st.stop()
 
-st.markdown('''
-<div class="efe-app-top">
-  <div class="efe-logo-lockup">
-    <div class="efe-logo-word">e<span class="red-dot">f</span>e</div>
-    <div class="efe-logo-side">Trenes<br>de<br>Chile</div>
-  </div>
-  <div class="efe-pill">▣ Proyección 2027</div>
-</div>
-<div class="efe-title-block">
-  <div class="efe-page-title">Modelo de afluencia 2027 — EFE Sur</div>
-  <div class="efe-page-subtitle">Proyección operacional, ocupación, oferta y referencias históricas para la toma de decisiones.</div>
-</div>
-''', unsafe_allow_html=True)
-
+_logo_html = f'<img class="efe-logo-image" src="{LOGO_DATA_URI}" alt="EFE Trenes de Chile" />' if LOGO_DATA_URI else ''
+st.markdown(
+    (
+        '<div class="efe-app-top">'
+        '<div class="efe-logo-wrap">' + _logo_html + '</div>'
+        '<div class="efe-pill">▣ Proyección 2027</div>'
+        '</div>'
+        '<div class="efe-title-block">'
+        '<div class="efe-page-title">Modelo de afluencia 2027 — EFE Sur</div>'
+        '<div class="efe-page-subtitle">Proyección operacional, ocupación, oferta y referencias históricas para la toma de decisiones.</div>'
+        '</div>'
+    ),
+    unsafe_allow_html=True,
+)
 
 
 
@@ -1319,17 +1353,55 @@ def render_evolucion_historica_cierre_proyeccion(serv):
     st.dataframe(tabla.style.format({"afluencia": "{:,.0f}"}), width="stretch", hide_index=True, height=300)
 
 
+def _resumen_kpi_servicio(s, serv, detalle):
+    serie = serv[s].astype(float).copy()
+    total = float(serie.sum())
+    cierre_2026 = _cierre_2026_servicio(s, serv)
+    if s == "BIOTREN":
+        resumen_ocup = O.resumen_ocupacion_biotren(serie, 2027)
+        servicios_total = float(resumen_ocup["servicios_comerciales_anuales"])
+        pax_servicio = float(resumen_ocup["pax_servicio_comercial_anual"])
+        detalle_indicador = "pax/servicio comercial"
+    else:
+        viajes_m = _servicios_mensuales_desde_detalle(detalle, s, serie.index)
+        servicios_total = float(viajes_m.sum())
+        pax_servicio = total / servicios_total if servicios_total > 0 else 0.0
+        detalle_indicador = "pax/servicio"
+    return {
+        "nombre": O.NOMBRE[s],
+        "total": total,
+        "total_compacto": fmt_compacto_efe(total),
+        "total_detalle": fmt_num_efe(total, 0),
+        "pax_servicio": pax_servicio,
+        "pax_servicio_detalle": f"{fmt_num_efe(pax_servicio, 1)} {detalle_indicador}",
+        "servicios_total": servicios_total,
+        "servicios_compacto": fmt_compacto_efe(servicios_total),
+        "servicios_detalle": fmt_num_efe(servicios_total, 0),
+        "delta": fmt_delta_vs(total, cierre_2026),
+    }
+
+
 def render_resumen():
     uni, serv, detalle = O.proyectar_mensual_elastico(params, mdf, return_detalle=True)
-    st.markdown("### Resumen 2027 recalibrado")
+    efe_service_header(
+        "Resumen 2027 recalibrado",
+        "Vista consolidada de afluencia proyectada por servicio, con indicadores consistentes respecto de cada sección específica.",
+        "Proyección 2027",
+    )
     st.info("El total anual es la suma de los meses proyectados. El escenario 2027 recalibrado conserva trazabilidad contra el escenario anterior y aplica supuestos operacionales específicos por servicio.")
 
-    kk = st.columns(4)
-    for i, s in enumerate(O.SERVICIOS):
-        viajes = detalle[detalle.servicio == s]["viajes_operados_plan"].sum()
-        om = serv[s].sum() / max(viajes, 1)
-        kk[i].metric(O.NOMBRE[s], fmt(serv[s].sum()), f"{fmt(om)} pax/viaje")
-
+    cards = []
+    for s in O.SERVICIOS:
+        kpi = _resumen_kpi_servicio(s, serv, detalle)
+        cards.append({
+            "titulo": kpi["nombre"],
+            "valor": kpi["total_compacto"],
+            "detalle": kpi["total_detalle"],
+            "delta": kpi["delta"],
+            "nota": kpi["pax_servicio_detalle"],
+            "icono": "👥",
+        })
+    render_metric_grid(cards, cols_per_row=4)
 
     st.markdown("#### Comparación contra escenario anterior")
     escenario_anterior = {"BIOTREN": 12991160.0, "CORTO_LAJA": 540842.0, "TREN_ARAUCANIA": 950258.0, "LLANQUIHUE_PM": 420853.0}
@@ -1352,7 +1424,7 @@ def render_resumen():
     diag_detalle = detalle.groupby(["servicio", "mes"], as_index=False)["afl"].sum()
     if not diag_detalle.empty:
         bt = serv["BIOTREN"].astype(float)
-        st.caption(f"Biotren queda a {fmt(abs(bt.sum() - 12_700_000))} pasajeros del objetivo de 12,7 millones. Tren Araucanía usa 11 servicios L-V Victoria-Temuco; Laja-Talcahuano no recibe ajuste específico nuevo.")
+        st.caption(f"Biotren queda a {fmt(abs(bt.sum() - 12_700_000))} pasajeros del objetivo de 12,7 millones. Los indicadores mostrados en esta pestaña son consistentes con los reportados en la sección específica de cada servicio.")
 
     fig = go.Figure()
     for s in O.SERVICIOS:
@@ -1860,6 +1932,40 @@ def fmt_clp_m_efe(n):
     return f"$ {val:,.0f}M".replace(",", ".")
 
 
+def fmt_compacto_efe(n):
+    try:
+        val = float(n)
+    except Exception:
+        return "s/i"
+    if abs(val) >= 1_000_000:
+        return f"{val / 1_000_000:,.1f}M".replace(",", "X").replace(".", ",").replace("X", ".")
+    if abs(val) >= 1_000:
+        return f"{val / 1_000:,.1f} mil".replace(",", "X").replace(".", ",").replace("X", ".")
+    if float(val).is_integer():
+        return f"{val:,.0f}".replace(",", ".")
+    return f"{val:,.1f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+
+def fmt_clp_detalle(n):
+    try:
+        val = float(n)
+    except Exception:
+        return "$ s/i"
+    return f"$ {val:,.0f}".replace(",", ".")
+
+
+def fmt_clp_compacto(n):
+    try:
+        val = float(n)
+    except Exception:
+        return "$ s/i"
+    if abs(val) >= 1_000_000_000:
+        return f"$ {val / 1_000_000:,.0f}M".replace(",", ".")
+    if abs(val) >= 1_000_000:
+        return f"$ {val / 1_000_000:,.1f}M".replace(",", "X").replace(".", ",").replace("X", ".")
+    return fmt_clp_detalle(val)
+
+
 def fmt_delta_vs(valor, base, etiqueta="vs 2026"):
     if base is None or pd.isna(base) or float(base) == 0:
         return "Referencia no disponible"
@@ -1880,22 +1986,16 @@ def _month_labels_from_index(index):
 
 
 def efe_service_header(titulo, subtitulo, etiqueta="Proyección 2027"):
-    st.markdown(
-        f'''
-<div class="efe-app-top">
-  <div class="efe-logo-lockup">
-    <div class="efe-logo-word">e<span class="red-dot">f</span>e</div>
-    <div class="efe-logo-side">Trenes<br>de<br>Chile</div>
-  </div>
-  <div class="efe-pill">▣ {_h(etiqueta)}</div>
-</div>
-<div class="efe-title-block">
-  <div class="efe-page-title">{_h(titulo)}</div>
-  <div class="efe-page-subtitle">{_h(subtitulo)}</div>
-</div>
-''',
-        unsafe_allow_html=True,
+    html = (
+        '<div class="efe-service-top">'
+        '<div class="efe-title-block">'
+        f'<div class="efe-service-title">{_h(titulo)}</div>'
+        f'<div class="efe-service-subtitle">{_h(subtitulo)}</div>'
+        '</div>'
+        f'<div class="efe-pill">▣ {_h(etiqueta)}</div>'
+        '</div>'
     )
+    st.markdown(html, unsafe_allow_html=True)
 
 
 def efe_section(titulo, nota=None):
@@ -1903,23 +2003,21 @@ def efe_section(titulo, nota=None):
     st.markdown(f'<div class="efe-section-title">{_h(titulo)}</div>{nota_html}', unsafe_allow_html=True)
 
 
-def efe_metric_card(titulo, valor, delta=None, icono="●", nota=None):
+def efe_metric_card(titulo, valor, delta=None, icono="●", nota=None, detalle=None):
+    detalle_html = f'<div class="efe-metric-detail">{_h(detalle)}</div>' if detalle else ""
     delta_html = f'<div class="efe-metric-delta">{_h(delta)}</div>' if delta else ""
     nota_html = f'<div class="efe-metric-note">{_h(nota)}</div>' if nota else ""
-    st.markdown(
-        f'''
-<div class="efe-metric-card">
-  <div class="efe-icon-circle">{_h(icono)}</div>
-  <div>
-    <div class="efe-metric-label">{_h(titulo)}</div>
-    <div class="efe-metric-value">{_h(valor)}</div>
-    {delta_html}
-    {nota_html}
-  </div>
-</div>
-''',
-        unsafe_allow_html=True,
+    html = (
+        '<div class="efe-metric-card">'
+        f'<div class="efe-icon-circle">{_h(icono)}</div>'
+        '<div>'
+        f'<div class="efe-metric-label">{_h(titulo)}</div>'
+        f'<div class="efe-metric-value">{_h(valor)}</div>'
+        f'{detalle_html}{delta_html}{nota_html}'
+        '</div>'
+        '</div>'
     )
+    st.markdown(html, unsafe_allow_html=True)
 
 
 def render_metric_grid(cards, cols_per_row=5):
@@ -2096,11 +2194,11 @@ def render_servicio_generico_ejecutivo(s, serv, uni, detalle):
     )
 
     cards = [
-        {"titulo": "Pasajeros 2027", "valor": fmt_m_efe(total), "delta": fmt_delta_vs(total, cierre_2026), "icono": "👥"},
-        {"titulo": "Servicios comerciales", "valor": fmt_num_efe(viajes_total, 0), "delta": "Oferta operacional 2027", "icono": "🚆"},
-        {"titulo": "Pax/servicio", "valor": fmt_num_efe(pax_servicio, 1), "delta": "Indicador operacional", "icono": "●"},
-        {"titulo": "Mes peak", "valor": peak_label, "delta": fmt_num_efe(serie.max(), 0), "icono": "▴"},
-        {"titulo": "Mes menor", "valor": min_label, "delta": fmt_num_efe(serie.min(), 0), "icono": "▾"},
+        {"titulo": "Pasajeros 2027", "valor": fmt_compacto_efe(total), "detalle": fmt_num_efe(total, 0), "delta": fmt_delta_vs(total, cierre_2026), "nota": "Total anual proyectado", "icono": "👥"},
+        {"titulo": "Servicios comerciales", "valor": fmt_compacto_efe(viajes_total), "detalle": fmt_num_efe(viajes_total, 0), "delta": "Oferta operacional 2027", "nota": "Total anual de servicios", "icono": "🚆"},
+        {"titulo": "Pax/servicio", "valor": fmt_num_efe(pax_servicio, 1), "detalle": f"{fmt_num_efe(pax_servicio, 2)} pax/servicio", "delta": "Indicador operacional", "nota": "Promedio anual", "icono": "●"},
+        {"titulo": "Mes peak", "valor": peak_label, "detalle": fmt_num_efe(serie.max(), 0), "delta": "Demanda mensual máxima", "nota": "Pasajeros en mes peak", "icono": "▴"},
+        {"titulo": "Mes menor", "valor": min_label, "detalle": fmt_num_efe(serie.min(), 0), "delta": "Demanda mensual mínima", "nota": "Pasajeros en mes menor", "icono": "▾"},
     ]
     render_metric_grid(cards, cols_per_row=5)
 
@@ -2195,15 +2293,15 @@ def render_biotren_ejecutivo(serv, uni, detalle):
     )
 
     cards = [
-        {"titulo": "Pasajeros 2027", "valor": fmt_m_efe(pasajeros), "delta": fmt_delta_vs(pasajeros, cierre_2026), "icono": "👥"},
-        {"titulo": "Servicios comerciales", "valor": fmt_num_efe(servicios_anuales, 0), "delta": "Frecuencia programada", "icono": "🚆"},
-        {"titulo": "Pax/servicio", "valor": fmt_num_efe(pax_servicio, 1), "delta": "Indicador principal", "icono": "●"},
-        {"titulo": "Servicios equivalentes", "valor": fmt_num_efe(servicios_equiv, 0), "delta": "Capacidad diagnóstica", "icono": "▣"},
-        {"titulo": "Venta de pasajes", "valor": fmt_clp_m_efe(anual_sub.get("ingreso_venta", 0)), "delta": "Sólo Biotren", "icono": "▰"},
-        {"titulo": "Subsidio total", "valor": fmt_clp_m_efe(anual_sub.get("subsidio_total", 0)), "delta": "Normal + estudiante", "icono": "▣"},
-        {"titulo": "Ingreso total", "valor": fmt_clp_m_efe(anual_sub.get("ingreso_total_biotren", 0)), "delta": "Venta + subsidios", "icono": "▥"},
-        {"titulo": "Subsidio normal", "valor": fmt_clp_m_efe(anual_sub.get("subsidio_normal", 0)), "delta": "Tasa 18,9%", "icono": "◈"},
-        {"titulo": "Subsidio estudiante", "valor": fmt_clp_m_efe(anual_sub.get("subsidio_estudiante", 0)), "delta": "Media superior", "icono": "▰"},
+        {"titulo": "Pasajeros 2027", "valor": fmt_compacto_efe(pasajeros), "detalle": fmt_num_efe(pasajeros, 0), "delta": fmt_delta_vs(pasajeros, cierre_2026), "nota": "Total anual Biotren", "icono": "👥"},
+        {"titulo": "Servicios comerciales", "valor": fmt_compacto_efe(servicios_anuales), "detalle": fmt_num_efe(servicios_anuales, 0), "delta": "Frecuencia programada", "nota": "Servicios comerciales anuales", "icono": "🚆"},
+        {"titulo": "Pax/servicio", "valor": fmt_num_efe(pax_servicio, 1), "detalle": f"{fmt_num_efe(pax_servicio, 2)} pax/servicio comercial", "delta": "Indicador principal", "nota": "Consistente con Resumen", "icono": "●"},
+        {"titulo": "Servicios equivalentes", "valor": fmt_compacto_efe(servicios_equiv), "detalle": fmt_num_efe(servicios_equiv, 0), "delta": "Capacidad diagnóstica", "nota": f"Pax/capacidad eq.: {fmt_num_efe(pax_capacidad, 2)}", "icono": "▣"},
+        {"titulo": "Venta de pasajes", "valor": fmt_clp_compacto(anual_sub.get("ingreso_venta", 0)), "detalle": fmt_clp_detalle(anual_sub.get("ingreso_venta", 0)), "delta": "Sólo Biotren", "nota": "Valor anual proyectado", "icono": "▰"},
+        {"titulo": "Subsidio total", "valor": fmt_clp_compacto(anual_sub.get("subsidio_total", 0)), "detalle": fmt_clp_detalle(anual_sub.get("subsidio_total", 0)), "delta": "Normal + estudiante", "nota": "Valor anual proyectado", "icono": "▣"},
+        {"titulo": "Ingreso total", "valor": fmt_clp_compacto(anual_sub.get("ingreso_total_biotren", 0)), "detalle": fmt_clp_detalle(anual_sub.get("ingreso_total_biotren", 0)), "delta": "Venta + subsidios", "nota": "Valor anual proyectado", "icono": "▥"},
+        {"titulo": "Subsidio normal", "valor": fmt_clp_compacto(anual_sub.get("subsidio_normal", 0)), "detalle": fmt_clp_detalle(anual_sub.get("subsidio_normal", 0)), "delta": "Tasa 18,9%", "nota": "Grupo normal", "icono": "◈"},
+        {"titulo": "Subsidio estudiante", "valor": fmt_clp_compacto(anual_sub.get("subsidio_estudiante", 0)), "detalle": fmt_clp_detalle(anual_sub.get("subsidio_estudiante", 0)), "delta": "Media superior", "nota": "Brecha tarifaria", "icono": "▰"},
     ]
     render_metric_grid(cards, cols_per_row=5)
 
