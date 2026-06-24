@@ -44,13 +44,43 @@ Los feriados nacionales utilizados se encuentran en `data/feriados_chile_2027.cs
 
 ### 5.1 Biotren
 
-Biotren se modela separando L1 y L2 en el motor temporal. La oferta se edita por línea, mes y tipo de día. El escenario operacional 2027 considera L1 con 48 servicios lunes-viernes durante el año y L2 con 106 servicios lunes-viernes entre enero y abril, aumentando a 109 servicios lunes-viernes desde mayo.
+#### Marco metodológico Biotren 2027: escenario de gestión
 
-La proyección mensual utiliza días operacionales efectivos, feriados sin operación, productividad histórica, estacionalidad mensual y elasticidad parcial de oferta. Laja-Talcahuano se mantiene como servicio independiente para evitar doble conteo dentro del corredor L1.
+El escenario Biotren 2027 corresponde a un escenario de gestión operacional-comercial sustentado en la oferta programada, la capacidad efectiva disponible, la integración con buses del transporte público, la recuperación de viajes registrados mediante plan de evasión y la validación mensual de ocupación. La afluencia total proyectada se distribuye posteriormente por línea, tipo de tarjeta y matriz OD para efectos de ingresos y subsidios.
 
-El escenario ajustado considera una validación operacional por ocupación promedio general. La referencia objetivo es cercana a 300 pasajeros por servicio comercial, calculada con la oferta vigente mensual de L1 y L2. El ajuste mensual se distribuye según tendencia histórica, estacionalidad y oferta: enero y febrero se contrastan especialmente con el comportamiento reciente para evitar niveles estivales artificialmente bajos, mientras los demás meses reciben correcciones asociadas a brechas de ocupación. La proyección resultante para Biotren es **13.095.300 pasajeros** y mantiene una ocupación promedio anual cercana a 300 pasajeros por servicio comercial.
+Los factores de integración TP, plan de evasión y capacidad efectiva se interpretan como fundamentos del escenario de gestión consolidado, no como incrementos adicionales a sumar sobre la demanda anual ya proyectada. Esta fase no recalibra la demanda anual Biotren, no modifica la distribución mensual, no altera matrices OD y no cambia la metodología financiera ni de subsidios.
 
-La distribución por línea OD, la distribución OD por tipo de tarjeta y los ingresos tarifarios preliminares se recalculan después de obtener el total mensual ajustado de Biotren. La base referencial de subsidio no calcula montos monetarios.
+#### Oferta operacional corregida
+
+La oferta Biotren 2027 distingue entre frecuencia comercial y capacidad efectiva. La Línea 2 mantiene 110 servicios de lunes a viernes durante todo el año. Desde mayo a diciembre, tres servicios de punta mañana operan acoplados dentro de esa frecuencia, por lo que se modelan como capacidad efectiva adicional y no como aumento de frecuencia.
+
+| Periodo | L1 L-V | L1 sábado | L1 domingo | L2 L-V | L2 sábado | L2 domingo | L2 acoplados L-V |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Enero-febrero | 47 | 8 | 0 | 110 | 14 | 14 | 0 |
+| Marzo-abril | 47 | 8 | 0 | 110 | 53 | 32 | 0 |
+| Mayo-diciembre | 47 | 8 | 0 | 110 | 53 | 32 | 3 |
+
+Los servicios acoplados no agregan frecuencia comercial ni aumento directo de demanda, pero aumentan la capacidad efectiva del sistema. Su rol metodológico es actuar como refuerzo de capacidad, alivio de saturación y soporte para absorber viajes en meses u horarios de alta utilización, especialmente en L2 y punta mañana. Por ello, el indicador ejecutivo de ocupación se calcula sobre servicios comerciales, mientras que el indicador de capacidad equivalente se utiliza como diagnóstico técnico.
+
+#### Integración con buses del transporte público
+
+La integración con buses del transporte público se incorpora como una medida de captura y alimentación de demanda. Su efecto principal se concentra en estación Concepción, por su rol de nodo estructurante de la red Biotren y su vinculación con los flujos urbanos de mayor escala. No obstante, desde el punto de vista operacional, la integración puede extenderse al resto de estaciones, generando mejoras de accesibilidad y continuidad de viaje en toda la red.
+
+Dado que en esta etapa no se dispone de una matriz observada de transbordos bus-tren por estación, la integración TP se utiliza como fundamento del escenario de gestión y no como una redistribución OD específica.
+
+#### Plan de evasión
+
+El plan de evasión se incorpora como una medida de recuperación de viajes registrados equivalente a 1% del cierre 2026 de Biotren. Este componente no se interpreta necesariamente como demanda física completamente nueva, sino como mejora en la captura de validaciones, reducción de viajes no registrados y fortalecimiento de la trazabilidad de la demanda efectiva. El efecto del plan de evasión fundamenta el crecimiento del escenario de gestión y no debe sumarse nuevamente si la afluencia anual ya fue calibrada al escenario consolidado.
+
+#### Ocupación mensual y bandas de funcionamiento
+
+El modelo distingue entre ocupación por servicio comercial y ocupación por capacidad equivalente. La primera corresponde al indicador principal de gestión y se calcula dividiendo la afluencia mensual por los servicios comerciales programados. La segunda incorpora el efecto de servicios acoplados como capacidad adicional y se utiliza sólo como diagnóstico técnico.
+
+Las bandas de funcionamiento mensual se calculan sobre `Pax/servicio comercial`: baja utilización bajo 270, operación estable desde 270 y menor a 300, alta utilización entre 300 y 330, y tensión operacional sobre 330. La clasificación mensual por bandas permite evaluar si el promedio anual cercano a 300 pasajeros por servicio comercial se distribuye de manera razonable durante el año. Las bandas son diagnósticas, ayudan a identificar meses con baja utilización, operación estable, alta utilización o tensión operacional, y no modifican por sí mismas la demanda proyectada; el resultado vigente no presenta meses en tensión operacional.
+
+#### Distribución posterior
+
+Una vez consolidada la demanda total de Biotren, el modelo distribuye la afluencia por línea, tipo de tarjeta y matriz OD. Sobre esa distribución se estiman ingresos por venta de pasajes, subsidio normal y subsidio estudiante. Estas capas distribuyen e interpretan la demanda ya proyectada, sin recalcular la afluencia total.
 
 ### 5.2 Tren Araucanía
 
@@ -86,7 +116,7 @@ Laja-Talcahuano no utiliza MOD Biotren, categorías L1/L2/L1-L2, distribución O
 
 | Servicio | Proyección anual vigente 2027 |
 |---|---:|
-| Biotren | 13.095.300 |
+| Biotren | 13.095.299 |
 | Tren Araucanía | 809.484 |
 | Llanquihue-Puerto Montt | 412.132 |
 | Laja-Talcahuano / Corto Laja | 540.842 |
@@ -186,7 +216,7 @@ Las bandas se calculan sobre la proyección base 2027 vigente:
 
 | Servicio | Base 2027 usada por incertidumbre |
 |---|---:|
-| Biotren | 13.095.300 |
+| Biotren | 13.095.299 |
 | Tren Araucanía | 809.484 |
 | Llanquihue-Puerto Montt | 412.132 |
 | Laja-Talcahuano | 540.842 |
