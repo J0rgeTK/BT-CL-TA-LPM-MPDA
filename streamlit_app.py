@@ -1164,7 +1164,7 @@ def render_metodologia():
 <div class="method">
 <b>Propósito.</b> El modelo estima la afluencia mensual 2027 por servicio y permite analizar escenarios de oferta por mes y tipo de día.
 <br><br>
-<b>Escenario operacional vigente.</b> Biotren: 12.673.199; Tren Araucanía: 809.484; Llanquihue-Puerto Montt: 412.132; Laja-Talcahuano: 540.842; total sistema: 14.435.657 pasajeros.
+<b>Escenario operacional vigente.</b> Biotren: 12.673.199; Tren Araucanía: 840.777; Llanquihue-Puerto Montt: 412.132; Laja-Talcahuano: 540.842; total sistema: 14.889.050 pasajeros.
 <br><br>
 <b>Separación metodológica.</b> La proyección base mensual, el backtesting histórico diagnóstico y las bandas de incertidumbre se mantienen como componentes diferenciados.
 </div>
@@ -1183,7 +1183,7 @@ def render_metodologia():
     with st.expander("2. Tratamiento por servicio", expanded=False):
         st.markdown("""
 - **Biotren:** proyecta **12.673.199 pasajeros**. La proyección incorpora ajuste base progresivo hacia un nivel intermedio cercano a 12,8 millones, afectación operacional de Línea 2 en fines de semana de enero-febrero y ajuste residual en meses laborales. El resultado queda cercano al objetivo operacional de 12,7 millones.
-- **Tren Araucanía:** proyecta **809.484 pasajeros**. Victoria-Temuco opera con 11 servicios lunes-viernes durante 2027. La metodología separa Temuco-Victoria, Temuco-Pitrufquén y Claret; Claret es un componente escolar específico de marzo-diciembre. El perfil mensual combina patrón histórico, calendario, oferta y control técnico de marzo.
+- **Tren Araucanía:** proyecta **840.777 pasajeros**. Victoria-Temuco opera con 11 servicios lunes-viernes durante 2027. La metodología separa Temuco-Victoria, Temuco-Pitrufquén y Claret; Claret es un componente escolar específico de marzo-diciembre. El perfil mensual combina patrón histórico, calendario, control técnico de marzo, refuerzo de mayo por coherencia marzo-mayo 2026 e incremento marginal del resto de meses preservando el perfil 2025.
 - **Llanquihue-Puerto Montt:** proyecta **412.132 pasajeros**. Marzo-diciembre se calibra con un promedio laboral referencial cercano a 1.500 pasajeros por día laboral; el promedio del bloque es aproximadamente 1.499,85. Enero y febrero incorporan reducción por menor efecto de novedad.
 - **Laja-Talcahuano:** proyecta **540.842 pasajeros**. No recibe ajuste operacional específico nuevo; mantiene su patrón histórico, oferta operacional, calendario y regla de feriados como operación de fin de semana.
 """)
@@ -1221,7 +1221,7 @@ Los ingresos son preliminares y no incorporan subsidios, evasión, ajustes conta
         st.markdown("""
 El backtesting histórico compara observado vs estimado en periodos conocidos. Es una validación retrospectiva diagnóstica no holdout y no reemplaza la proyección operacional 2027.
 
-Las bandas de incertidumbre derivan de métricas históricas de error, especialmente WMAPE. No son intervalos estadísticos formales ni intervalos de confianza. El ajuste por sesgo es una sensibilidad diagnóstica. Las bandas se calculan sobre la base vigente: Biotren 12.673.199; Tren Araucanía 809.484; Llanquihue-Puerto Montt 412.132; Laja-Talcahuano 540.842.
+Las bandas de incertidumbre derivan de métricas históricas de error, especialmente WMAPE. No son intervalos estadísticos formales ni intervalos de confianza. El ajuste por sesgo es una sensibilidad diagnóstica. Las bandas se calculan sobre la base vigente: Biotren 12.673.199; Tren Araucanía 840.777; Llanquihue-Puerto Montt 412.132; Laja-Talcahuano 540.842.
 """)
 
     with st.expander("7. Validaciones y limitaciones", expanded=False):

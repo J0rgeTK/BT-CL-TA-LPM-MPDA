@@ -95,7 +95,7 @@ Tren Araucanía se modela por componente de servicio:
 - Temuco - Pitrufquén.
 - Claret.
 
-El escenario operacional vigente proyecta **809.484 pasajeros** para Tren Araucanía. La oferta Victoria-Temuco considera 11 servicios lunes-viernes durante todo 2027; esta condición operacional reduce la proyección respecto de escenarios de mayor oferta.
+El escenario operacional vigente proyecta **840.777 pasajeros** para Tren Araucanía. La oferta Victoria-Temuco considera 11 servicios lunes-viernes durante todo 2027; adicionalmente, se refuerza mayo para mantener coherencia con el bloque marzo-mayo 2026 y se aplica un incremento marginal al resto de los meses para preservar el perfil mensual observado en 2025, especialmente la señal estival.
 
 Cada componente responde a su propia oferta y elasticidad. Temuco-Victoria tiene mayor respuesta marginal esperada que Pitrufquén y Claret. Claret se trata como componente escolar específico y se restringe a marzo-diciembre; enero y febrero no generan oferta ni demanda para este componente. La distribución mensual combina patrón histórico, calendario operacional, oferta mensual y tratamiento escolar. El control de marzo evita concentración artificial mediante suavizamiento técnico cuando la relación frente al promedio abril-diciembre supera el umbral definido.
 
@@ -122,7 +122,7 @@ Laja-Talcahuano no utiliza MOD Biotren, categorías L1/L2/L1-L2, distribución O
 | Servicio | Proyección anual vigente 2027 |
 |---|---:|
 | Biotren | 13.095.299 |
-| Tren Araucanía | 809.484 |
+| Tren Araucanía | 840.777 |
 | Llanquihue-Puerto Montt | 412.132 |
 | Laja-Talcahuano / Corto Laja | 540.842 |
 | **Total sistema** | **14.857.758** |
@@ -222,7 +222,7 @@ Las bandas se calculan sobre la proyección base 2027 vigente:
 | Servicio | Base 2027 usada por incertidumbre |
 |---|---:|
 | Biotren | 13.095.299 |
-| Tren Araucanía | 809.484 |
+| Tren Araucanía | 840.777 |
 | Llanquihue-Puerto Montt | 412.132 |
 | Laja-Talcahuano | 540.842 |
 
@@ -236,7 +236,7 @@ La sección **Validación histórica** de Streamlit muestra los resultados agreg
 
 El escenario 2027 incorpora una recalibración operacional trazable sin modificar los datos históricos procesados. Biotren aplica una baja progresiva del total mensual, una afectación operacional adicional en Línea 2 durante fines de semana de enero-febrero y un ajuste residual distribuido en meses laborales, de modo que la demanda anual se ubica en el entorno de 12,7 millones de pasajeros.
 
-Tren Araucanía se calcula por componente de servicio. Victoria-Temuco opera con 11 servicios de lunes a viernes durante todo 2027, Temuco-Pitrufquén se mantiene separado y Claret conserva su tratamiento escolar específico de marzo a diciembre. El perfil mensual incluye diagnóstico y suavizamiento de marzo cuando corresponde para evitar concentración artificial.
+Tren Araucanía se calcula por componente de servicio. Victoria-Temuco opera con 11 servicios de lunes a viernes durante todo 2027, Temuco-Pitrufquén se mantiene separado y Claret conserva su tratamiento escolar específico de marzo a diciembre. El perfil mensual incluye diagnóstico y suavizamiento de marzo cuando corresponde para evitar concentración artificial; posteriormente se refuerza mayo por coherencia con el bloque marzo-mayo 2026 y se aplica un ajuste marginal al resto de los meses, preservando el comportamiento mensual observado en 2025.
 
 Llanquihue-Puerto Montt se calibra con un promedio de día laboral cercano a 1.500 pasajeros entre marzo y diciembre, permitiendo variación mensual por estacionalidad y calendario. Enero y febrero incorporan una reducción por menor efecto novedad del servicio y no se fuerzan al promedio laboral de meses ancla.
 

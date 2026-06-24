@@ -528,6 +528,14 @@ RECALIBRACION_2027 = {
     'tren_araucania': {
         'servicios_lv_victoria_temuco': 11.0,
         'umbral_marzo_vs_abr_dic': 1.18,
+        # Ajuste de nivel mensual previo a la futura etapa MOD TA.
+        # Mayo se refuerza para mantener una lectura coherente con el bloque
+        # marzo-mayo observado en 2026, sin replicarlo mecánicamente. El resto
+        # de los meses recibe sólo un incremento marginal para preservar el perfil
+        # mensual 2025, especialmente la lectura estival de enero-febrero.
+        'mes_foco_refuerzo': 5,
+        'afluencia_mes_foco_objetivo': 81_000.0,
+        'factor_incremento_marginal_resto_meses': 1.02,
     },
 }
 
@@ -949,24 +957,52 @@ def recalibrar_escenario_2027(detalle, anio=2027):
     diag.append({'servicio':'LLANQUIHUE_PM','indicador':'total_recalibrado','valor':float(newll.sum())})
     diag.append({'servicio':'LLANQUIHUE_PM','indicador':'promedio_laboral_mar_dic','valor':float(newll.reindex(meses).sum()/lv.reindex(meses).sum())})
 
-    # Diagnóstico Tren Araucanía: suavizado conservando total si marzo queda alto.
+    # Tren Araucanía: suavizado metodológico de marzo y refuerzo mensual 2027.
+    # El refuerzo se aplica antes de montar la MOD TA: mayo se ajusta para que
+    # el bloque marzo-abril-mayo conserve una relación similar a 2026, sin copiar
+    # exactamente los niveles 2026. El resto de los meses recibe un incremento
+    # marginal, manteniendo el perfil mensual 2025 como patrón estacional principal.
+    cfg_ta = RECALIBRACION_2027['tren_araucania']
     ta = d[d['servicio'].eq('TREN_ARAUCANIA')].groupby('mes')['afl'].sum().astype(float)
-    ta_new = ta.copy()
+    ta_suavizada = ta.copy()
     prom_abr_dic = float(ta.reindex(range(4,13)).mean())
     ratio_mar = float(ta.loc[3] / prom_abr_dic) if prom_abr_dic else 0.0
-    umbral = float(RECALIBRACION_2027['tren_araucania']['umbral_marzo_vs_abr_dic'])
+    umbral = float(cfg_ta['umbral_marzo_vs_abr_dic'])
+    ajuste_marzo = 0.0
     if ratio_mar > umbral:
         exceso = ta.loc[3] - prom_abr_dic * umbral
-        ta_new.loc[3] -= exceso
-        pesos = ta_new.reindex(range(4,13)) / ta_new.reindex(range(4,13)).sum()
-        ta_new.loc[list(range(4,13))] += exceso * pesos
-        factores = (ta_new / ta.replace(0, np.nan)).replace([np.inf,-np.inf], np.nan).fillna(1.0).to_dict()
-        d = _escalar_detalle_servicio(d, 'TREN_ARAUCANIA', factores)
+        ajuste_marzo = -float(exceso)
+        ta_suavizada.loc[3] -= exceso
+        pesos = ta_suavizada.reindex(range(4,13)) / ta_suavizada.reindex(range(4,13)).sum()
+        ta_suavizada.loc[list(range(4,13))] += exceso * pesos
+
+    ta_new = ta_suavizada.copy()
+    mes_foco = int(cfg_ta.get('mes_foco_refuerzo', 5))
+    factor_marginal = float(cfg_ta.get('factor_incremento_marginal_resto_meses', 1.0))
+    for mes in range(1, 13):
+        if mes != mes_foco:
+            ta_new.loc[mes] = ta_new.loc[mes] * factor_marginal
+    objetivo_mes_foco = cfg_ta.get('afluencia_mes_foco_objetivo')
+    if objetivo_mes_foco is not None and mes_foco in ta_new.index:
+        ta_new.loc[mes_foco] = max(float(ta_new.loc[mes_foco]), float(objetivo_mes_foco))
+
+    factores = (ta_new / ta.replace(0, np.nan)).replace([np.inf,-np.inf], np.nan).fillna(1.0).to_dict()
+    d = _escalar_detalle_servicio(d, 'TREN_ARAUCANIA', factores)
     for mes in range(1,13):
-        mensual_rows.append({'mes': mes, 'servicio': 'TREN_ARAUCANIA', 'proyeccion_anterior': ta.loc[mes], 'proyeccion_recalibrada': ta_new.loc[mes], 'diferencia': ta_new.loc[mes]-ta.loc[mes], 'factor_o_ajuste_aplicado': 'oferta_victoria_temuco_11_lv_y_suavizamiento_marzo' if mes==3 else 'oferta_victoria_temuco_11_lv'})
-    diag.append({'servicio':'TREN_ARAUCANIA','indicador':'servicios_lv_victoria_temuco','valor':float(RECALIBRACION_2027['tren_araucania']['servicios_lv_victoria_temuco'])})
+        if mes == 3 and ajuste_marzo != 0:
+            criterio = 'oferta_victoria_temuco_11_lv_suavizamiento_marzo_e_incremento_marginal'
+        elif mes == mes_foco:
+            criterio = 'refuerzo_mayo_coherencia_mar_abr_may_2026'
+        else:
+            criterio = 'incremento_marginal_preservando_perfil_2025'
+        mensual_rows.append({'mes': mes, 'servicio': 'TREN_ARAUCANIA', 'proyeccion_anterior': ta.loc[mes], 'proyeccion_recalibrada': ta_new.loc[mes], 'diferencia': ta_new.loc[mes]-ta.loc[mes], 'factor_o_ajuste_aplicado': criterio})
+    diag.append({'servicio':'TREN_ARAUCANIA','indicador':'servicios_lv_victoria_temuco','valor':float(cfg_ta['servicios_lv_victoria_temuco'])})
     diag.append({'servicio':'TREN_ARAUCANIA','indicador':'ratio_marzo_vs_promedio_abr_dic','valor':float(ta_new.loc[3]/ta_new.reindex(range(4,13)).mean())})
     diag.append({'servicio':'TREN_ARAUCANIA','indicador':'ratio_marzo_vs_promedio_anual','valor':float(ta_new.loc[3]/ta_new.mean())})
+    diag.append({'servicio':'TREN_ARAUCANIA','indicador':'total_pre_refuerzo_mensual','valor':float(ta_suavizada.sum())})
+    diag.append({'servicio':'TREN_ARAUCANIA','indicador':'total_recalibrado_refuerzo_mensual','valor':float(ta_new.sum())})
+    diag.append({'servicio':'TREN_ARAUCANIA','indicador':'afluencia_mayo_objetivo_2027','valor':float(ta_new.loc[mes_foco])})
+    diag.append({'servicio':'TREN_ARAUCANIA','indicador':'factor_incremento_marginal_resto_meses','valor':float(factor_marginal)})
 
     # Laja se deja sin ajuste específico.
     laja = d[d['servicio'].eq('CORTO_LAJA')].groupby('mes')['afl'].sum().astype(float)
@@ -976,7 +1012,7 @@ def recalibrar_escenario_2027(detalle, anio=2027):
     # Comparativo anual anterior vs recalibrado dentro de esta función.
     ant = {'BIOTREN': bi.sum(), 'LLANQUIHUE_PM': ll.sum(), 'TREN_ARAUCANIA': ta.sum(), 'CORTO_LAJA': laja.sum()}
     rec = d.groupby('servicio')['afl'].sum().to_dict()
-    motivos = {'BIOTREN':'validación operacional por ocupación promedio, revisión estival y oferta mensual', 'TREN_ARAUCANIA':'Victoria-Temuco 11 servicios LV y suavizamiento de marzo', 'LLANQUIHUE_PM':'promedio laboral marzo-diciembre y menor efecto novedad estival', 'CORTO_LAJA':'sin ajuste específico nuevo'}
+    motivos = {'BIOTREN':'validación operacional por ocupación promedio, revisión estival y oferta mensual', 'TREN_ARAUCANIA':'Victoria-Temuco 11 servicios LV, refuerzo de mayo por coherencia marzo-mayo 2026 e incremento marginal del resto de meses', 'LLANQUIHUE_PM':'promedio laboral marzo-diciembre y menor efecto novedad estival', 'CORTO_LAJA':'sin ajuste específico nuevo'}
     comp = pd.DataFrame([{'servicio':s, 'total_anterior':float(ant.get(s,0)), 'total_recalibrado':float(rec.get(s,0)), 'diferencia_absoluta':float(rec.get(s,0)-ant.get(s,0)), 'diferencia_porcentual':float((rec.get(s,0)/ant.get(s,1)-1)*100) if ant.get(s,0) else np.nan, 'motivo_principal_ajuste':motivos[s]} for s in SERVICIOS])
     return d, comp, pd.DataFrame(mensual_rows), pd.DataFrame(diag)
 
