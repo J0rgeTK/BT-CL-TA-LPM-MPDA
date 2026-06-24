@@ -1,0 +1,9 @@
+﻿tipo_pasajero,nombre_visual,hoja_mod,matriz_tarifaria_aplicada
+normal,Normal,NORMAL,Matriz Tarifaria Adulto
+adulto_mayor,Adulto mayor,Adulto Mayor,Matriz Tarifaria Tercera Edad
+discapacitado,Discapacitado,DISCAPACITADOS,"Matriz Tarifaria Estudiante Básica, Discapacitados y Funcionarios"
+delegacion,Delegación,DELEG,Matriz Tarifaria Delegaciones
+ida_y_vuelta,Ida y vuelta,IDAYVUELTA,Matriz Tarifaria Ida y Vuelta
+estudiante_media_superior,Estudiante media y superior,Estudiante,Matriz Tarifaria Estudiante Media y Superior
+estudiante_basica,Estudiante básica,E.BÁSICOS,"Matriz Tarifaria Estudiante Básica, Discapacitados y Funcionarios"
+funcionario,Funcionario,FUNCIONARIOS,"Matriz Tarifaria Estudiante Básica, Discapacitados y Funcionarios"

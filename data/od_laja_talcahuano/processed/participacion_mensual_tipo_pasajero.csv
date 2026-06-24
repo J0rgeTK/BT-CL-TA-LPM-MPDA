@@ -1,0 +1,97 @@
+﻿mes,tipo_pasajero,nombre_visual,viajes_tipo_mes,total_mes,participacion_tipo_mes
+1,adulto_mayor,Adulto mayor,12527.0,73194.0,0.1711479082984944
+1,delegacion,Delegación,17.0,73194.0,0.00023225947482034048
+1,discapacitado,Discapacitado,1363.0,73194.0,0.018621744951772004
+1,estudiante_basica,Estudiante básica,2062.0,73194.0,0.028171708063502474
+1,estudiante_media_superior,Estudiante media y superior,10223.0,73194.0,0.13966991829931416
+1,funcionario,Funcionario,979.0,73194.0,0.01337541328524196
+1,ida_y_vuelta,Ida y vuelta,24909.0,73194.0,0.3403147798999918
+1,normal,Normal,21114.0,73194.0,0.28846626772686285
+2,adulto_mayor,Adulto mayor,11256.0,73556.0,0.15302626570232203
+2,delegacion,Delegación,3.0,73556.0,4.078525205285769e-05
+2,discapacitado,Discapacitado,1415.0,73556.0,0.01923704388493121
+2,estudiante_basica,Estudiante básica,1968.0,73556.0,0.02675512534667464
+2,estudiante_media_superior,Estudiante media y superior,9979.0,73556.0,0.1356653434118223
+2,funcionario,Funcionario,760.0,73556.0,0.010332263853390615
+2,ida_y_vuelta,Ida y vuelta,26478.0,73556.0,0.35997063461852197
+2,normal,Normal,21697.0,73556.0,0.2949725379302844
+3,adulto_mayor,Adulto mayor,9332.0,54246.0,0.1720311175017513
+3,delegacion,Delegación,34.0,54246.0,0.0006267743243741474
+3,discapacitado,Discapacitado,1162.0,54246.0,0.021420934262434098
+3,estudiante_basica,Estudiante básica,1035.0,54246.0,0.019079747815507135
+3,estudiante_media_superior,Estudiante media y superior,10477.0,54246.0,0.1931386646019983
+3,funcionario,Funcionario,817.0,54246.0,0.015061018323931719
+3,ida_y_vuelta,Ida y vuelta,13849.0,54246.0,0.255299929948752
+3,normal,Normal,17540.0,54246.0,0.32334181322125133
+4,adulto_mayor,Adulto mayor,7813.0,45371.0,0.17220250821009014
+4,delegacion,Delegación,25.0,45371.0,0.0005510127614555553
+4,discapacitado,Discapacitado,1077.0,45371.0,0.02373762976350532
+4,estudiante_basica,Estudiante básica,1079.0,45371.0,0.023781710784421768
+4,estudiante_media_superior,Estudiante media y superior,9738.0,45371.0,0.2146304908421679
+4,funcionario,Funcionario,914.0,45371.0,0.020145026558815102
+4,ida_y_vuelta,Ida y vuelta,10439.0,45371.0,0.23008088867338167
+4,normal,Normal,14286.0,45371.0,0.31487073240616253
+5,adulto_mayor,Adulto mayor,6658.0,43774.0,0.1520994197468817
+5,delegacion,Delegación,33.0,43774.0,0.0007538721615570887
+5,discapacitado,Discapacitado,1027.0,43774.0,0.02346141545209485
+5,estudiante_basica,Estudiante básica,865.0,43774.0,0.019760588477178233
+5,estudiante_media_superior,Estudiante media y superior,9625.0,43774.0,0.21987938045415087
+5,funcionario,Funcionario,885.0,43774.0,0.020217480696303743
+5,ida_y_vuelta,Ida y vuelta,10497.0,43774.0,0.23979988120802304
+5,normal,Normal,14184.0,43774.0,0.3240279618038105
+6,adulto_mayor,Adulto mayor,4180.0,32281.0,0.12948793407886994
+6,delegacion,Delegación,28.0,32281.0,0.0008673832904804683
+6,discapacitado,Discapacitado,703.0,32281.0,0.02177751618599176
+6,estudiante_basica,Estudiante básica,569.0,32281.0,0.017626467581549517
+6,estudiante_media_superior,Estudiante media y superior,6108.0,32281.0,0.18921346922338217
+6,funcionario,Funcionario,749.0,32281.0,0.023202503020352528
+6,ida_y_vuelta,Ida y vuelta,8218.0,32281.0,0.2545769957560175
+6,normal,Normal,11726.0,32281.0,0.36324773086335616
+7,adulto_mayor,Adulto mayor,6433.0,43469.0,0.14799052198118198
+7,delegacion,Delegación,0.0,43469.0,0.0
+7,discapacitado,Discapacitado,939.0,43469.0,0.021601601141043043
+7,estudiante_basica,Estudiante básica,716.0,43469.0,0.016471508431295866
+7,estudiante_media_superior,Estudiante media y superior,7946.0,43469.0,0.18279693574731418
+7,funcionario,Funcionario,997.0,43469.0,0.022935885343578183
+7,ida_y_vuelta,Ida y vuelta,11496.0,43469.0,0.2644643309024822
+7,normal,Normal,14942.0,43469.0,0.3437392164531045
+8,adulto_mayor,Adulto mayor,5929.0,39348.0,0.15068110196198028
+8,delegacion,Delegación,2.0,39348.0,5.082850462539392e-05
+8,discapacitado,Discapacitado,996.0,39348.0,0.02531259530344617
+8,estudiante_basica,Estudiante básica,587.0,39348.0,0.014918166107553116
+8,estudiante_media_superior,Estudiante media y superior,8318.0,39348.0,0.2113957507370133
+8,funcionario,Funcionario,813.0,39348.0,0.02066178713022263
+8,ida_y_vuelta,Ida y vuelta,9619.0,39348.0,0.24445969299583206
+8,normal,Normal,13084.0,39348.0,0.33252007725932703
+9,adulto_mayor,Adulto mayor,6397.0,43640.0,0.14658570119156736
+9,delegacion,Delegación,49.0,43640.0,0.0011228230980751604
+9,discapacitado,Discapacitado,968.0,43640.0,0.022181484876260312
+9,estudiante_basica,Estudiante básica,736.0,43640.0,0.016865261228230982
+9,estudiante_media_superior,Estudiante media y superior,9188.0,43640.0,0.21054078826764436
+9,funcionario,Funcionario,885.0,43640.0,0.02027956003666361
+9,ida_y_vuelta,Ida y vuelta,10361.0,43640.0,0.2374197983501375
+9,normal,Normal,15056.0,43640.0,0.3450045829514207
+10,adulto_mayor,Adulto mayor,7344.0,50284.0,0.14605043353750696
+10,delegacion,Delegación,97.0,50284.0,0.0019290430355580303
+10,discapacitado,Discapacitado,1004.0,50284.0,0.0199665897701058
+10,estudiante_basica,Estudiante básica,1033.0,50284.0,0.02054331397661284
+10,estudiante_media_superior,Estudiante media y superior,9859.0,50284.0,0.19606634317078991
+10,funcionario,Funcionario,5398.0,50284.0,0.1073502505767242
+10,ida_y_vuelta,Ida y vuelta,10833.0,50284.0,0.21543632169278498
+10,normal,Normal,14716.0,50284.0,0.29265770423991727
+11,adulto_mayor,Adulto mayor,7991.0,50570.0,0.15801858809570893
+11,delegacion,Delegación,193.0,50570.0,0.0038164919912991894
+11,discapacitado,Discapacitado,1079.0,50570.0,0.021336760925449873
+11,estudiante_basica,Estudiante básica,1181.0,50570.0,0.023353767055566542
+11,estudiante_media_superior,Estudiante media y superior,9962.0,50570.0,0.1969942653747281
+11,funcionario,Funcionario,3640.0,50570.0,0.07197943444730077
+11,ida_y_vuelta,Ida y vuelta,11141.0,50570.0,0.22030848329048844
+11,normal,Normal,15383.0,50570.0,0.3041922088194582
+12,adulto_mayor,Adulto mayor,9258.0,52956.0,0.17482438250623158
+12,delegacion,Delegación,95.0,52956.0,0.001793942140645064
+12,discapacitado,Discapacitado,1186.0,52956.0,0.022395951355842585
+12,estudiante_basica,Estudiante básica,1109.0,52956.0,0.02094191404184606
+12,estudiante_media_superior,Estudiante media y superior,9277.0,52956.0,0.1751831709343606
+12,funcionario,Funcionario,952.0,52956.0,0.017977188609411585
+12,ida_y_vuelta,Ida y vuelta,14145.0,52956.0,0.26710854294130976
+12,normal,Normal,16934.0,52956.0,0.31977490747035275
