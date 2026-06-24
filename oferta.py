@@ -580,6 +580,97 @@ def diagnostico_capacidad_biotren_mensual(anio=2027, oferta_df=None):
     out['diferencia_capacidad_vs_comercial'] = acoplados_mes.values
     return out
 
+# Bandas diagnósticas de ocupación Biotren. No recalibran demanda ni modifican oferta.
+BANDAS_FUNCIONAMIENTO_BIOTREN = {
+    "Baja utilización": {"min": None, "max": 270.0, "lectura": "Mes con baja carga relativa; revisar captación, estacionalidad u oferta."},
+    "Operación estable": {"min": 270.0, "max": 300.0, "lectura": "Uso razonable de la oferta; cercano al rango objetivo."},
+    "Alta utilización": {"min": 300.0, "max": 330.0, "lectura": "Alta eficiencia operacional; requiere monitoreo."},
+    "Tensión operacional": {"min": 330.0, "max": None, "lectura": "Posible tensión de capacidad, especialmente en punta o línea específica."},
+}
+
+
+def _banda_funcionamiento_biotren(pax_servicio_comercial: float) -> str:
+    """Clasifica la ocupación mensual por servicio comercial Biotren."""
+    valor = float(pax_servicio_comercial) if pd.notna(pax_servicio_comercial) else 0.0
+    if valor < 270.0:
+        return "Baja utilización"
+    if valor < 300.0:
+        return "Operación estable"
+    if valor <= 330.0:
+        return "Alta utilización"
+    return "Tensión operacional"
+
+
+def diagnostico_ocupacion_biotren_mensual(serie_biotren, anio=2027, oferta_df=None):
+    """Construye diagnóstico mensual de ocupación Biotren.
+
+    Separa servicios comerciales de servicios equivalentes de capacidad. Los
+    servicios L2 acoplados se suman sólo al denominador técnico de capacidad
+    equivalente y no alteran la frecuencia comercial.
+    """
+    serie = pd.Series(serie_biotren, dtype=float).copy()
+    serie.index = [int(str(i)[5:7]) if isinstance(i, str) and "-" in str(i) else int(i) for i in serie.index]
+    serie = serie.reindex(range(1, 13)).fillna(0.0)
+
+    capacidad = diagnostico_capacidad_biotren_mensual(anio=anio, oferta_df=oferta_df).set_index("mes")
+    servicios_com = capacidad["servicios_comerciales_mensuales"].reindex(range(1, 13)).astype(float)
+    servicios_eq = capacidad["servicios_equivalentes_capacidad_mensuales"].reindex(range(1, 13)).astype(float)
+
+    out = pd.DataFrame({
+        "mes": range(1, 13),
+        "afluencia_biotren": serie.values,
+        "servicios_comerciales": servicios_com.values,
+        "servicios_equivalentes_capacidad": servicios_eq.values,
+        "servicios_acoplados_l2_lv": capacidad["servicios_acoplados_l2_lv"].reindex(range(1, 13)).astype(float).values,
+        "servicios_acoplados_mensuales": capacidad["servicios_acoplados_mensuales"].reindex(range(1, 13)).astype(float).values,
+    })
+    out["pax_servicio_comercial"] = np.where(
+        out["servicios_comerciales"] > 0,
+        out["afluencia_biotren"] / out["servicios_comerciales"],
+        np.nan,
+    )
+    out["pax_capacidad_equivalente"] = np.where(
+        out["servicios_equivalentes_capacidad"] > 0,
+        out["afluencia_biotren"] / out["servicios_equivalentes_capacidad"],
+        np.nan,
+    )
+    out["diferencia_pax_comercial_vs_capacidad"] = out["pax_servicio_comercial"] - out["pax_capacidad_equivalente"]
+    total = float(out["afluencia_biotren"].sum())
+    out["participacion_mensual_afluencia"] = out["afluencia_biotren"] / total if total else 0.0
+    out["banda_funcionamiento"] = out["pax_servicio_comercial"].map(_banda_funcionamiento_biotren)
+    out["observacion_metodologica"] = np.where(
+        out["servicios_acoplados_mensuales"] > 0,
+        "Incluye capacidad equivalente por acoplados L2; no aumenta frecuencia comercial.",
+        "Frecuencia comercial y capacidad equivalente coinciden en el mes.",
+    )
+    return out
+
+
+def resumen_ocupacion_biotren(serie_biotren, anio=2027, oferta_df=None):
+    """Resume ocupación anual y mensual Biotren con bandas diagnósticas."""
+    diag = diagnostico_ocupacion_biotren_mensual(serie_biotren, anio=anio, oferta_df=oferta_df)
+    total = float(diag["afluencia_biotren"].sum())
+    servicios_com = float(diag["servicios_comerciales"].sum())
+    servicios_eq = float(diag["servicios_equivalentes_capacidad"].sum())
+    pax_servicio = total / servicios_com if servicios_com else np.nan
+    pax_capacidad = total / servicios_eq if servicios_eq else np.nan
+    idx_max = diag["pax_servicio_comercial"].idxmax()
+    idx_min = diag["pax_servicio_comercial"].idxmin()
+    return {
+        "total_anual_biotren": total,
+        "servicios_comerciales_anuales": servicios_com,
+        "servicios_equivalentes_capacidad_anuales": servicios_eq,
+        "pax_servicio_comercial_anual": pax_servicio,
+        "pax_capacidad_equivalente_anual": pax_capacidad,
+        "mes_mayor_pax_servicio_comercial": int(diag.loc[idx_max, "mes"]),
+        "valor_mayor_pax_servicio_comercial": float(diag.loc[idx_max, "pax_servicio_comercial"]),
+        "mes_menor_pax_servicio_comercial": int(diag.loc[idx_min, "mes"]),
+        "valor_menor_pax_servicio_comercial": float(diag.loc[idx_min, "pax_servicio_comercial"]),
+        "meses_por_banda": diag["banda_funcionamiento"].value_counts().reindex(BANDAS_FUNCIONAMIENTO_BIOTREN.keys(), fill_value=0).astype(int).to_dict(),
+        "diagnostico_mensual": diag,
+    }
+
+
 def _referencia_historica_biotren_mensual():
     """Referencia mensual observada/estimada para ponderar ajustes de Biotren."""
     path = DATA_DIR / 'afluencia_mensual_modelo.csv'
