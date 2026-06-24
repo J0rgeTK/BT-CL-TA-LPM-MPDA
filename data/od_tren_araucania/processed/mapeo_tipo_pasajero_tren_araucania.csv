@@ -1,0 +1,10 @@
+tipo_pasajero,tipo_pasajero_visual,tipo_tarifa_venta,factor_venta,paga_tarifa,aplica_subsidio_normal,aplica_subsidio_estudiante
+normal,Normal,normal,1.0,1,1,0
+delegacion,Delegación,normal,0.7,1,1,0
+adulto_mayor,Adulto Mayor,adulto_mayor,1.0,1,0,0
+estudiante,Estudiante,estudiante,1.0,1,0,1
+claret,Claret,estudiante,1.0,1,0,1
+discapacitado,Discapacitado,sin_pago,0.0,0,1,0
+estudiante_basica,Estudiante Básica,sin_pago,0.0,0,0,1
+funcionario,Funcionario,sin_pago,0.0,0,1,0
+sindicato,Sindicato,sin_pago,0.0,0,1,0

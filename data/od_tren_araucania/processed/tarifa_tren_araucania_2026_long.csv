@@ -1,0 +1,785 @@
+﻿tipo_tarifa,origen,destino,tarifa
+normal,Victoria,Victoria,0.0
+normal,Victoria,PUA,1100.0
+normal,Victoria,Perquenco,1300.0
+normal,Victoria,Quillem,1300.0
+normal,Victoria,Lautaro,1400.0
+normal,Victoria,L. Centro,1400.0
+normal,Victoria,Pillanlelbun,1500.0
+normal,Victoria,Coleg. Claret,0.0
+normal,Victoria,Cajon,900.0
+normal,Victoria,Temuco,1800.0
+normal,Victoria,PLC,1900.0
+normal,Victoria,Quepe,2000.0
+normal,Victoria,Freire,2550.0
+normal,Victoria,Pitrufquén,2650.0
+normal,PUA,Victoria,1100.0
+normal,PUA,PUA,0.0
+normal,PUA,Perquenco,1200.0
+normal,PUA,Quillem,1200.0
+normal,PUA,Lautaro,1300.0
+normal,PUA,L. Centro,1300.0
+normal,PUA,Pillanlelbun,1400.0
+normal,PUA,Coleg. Claret,0.0
+normal,PUA,Cajon,800.0
+normal,PUA,Temuco,1500.0
+normal,PUA,PLC,1650.0
+normal,PUA,Quepe,1750.0
+normal,PUA,Freire,2300.0
+normal,PUA,Pitrufquén,2400.0
+normal,Perquenco,Victoria,1300.0
+normal,Perquenco,PUA,1200.0
+normal,Perquenco,Perquenco,0.0
+normal,Perquenco,Quillem,1100.0
+normal,Perquenco,Lautaro,1100.0
+normal,Perquenco,L. Centro,1100.0
+normal,Perquenco,Pillanlelbun,1300.0
+normal,Perquenco,Coleg. Claret,0.0
+normal,Perquenco,Cajon,800.0
+normal,Perquenco,Temuco,1400.0
+normal,Perquenco,PLC,1650.0
+normal,Perquenco,Quepe,1750.0
+normal,Perquenco,Freire,2300.0
+normal,Perquenco,Pitrufquén,2400.0
+normal,Quillem,Victoria,1300.0
+normal,Quillem,PUA,1200.0
+normal,Quillem,Perquenco,1100.0
+normal,Quillem,Quillem,0.0
+normal,Quillem,Lautaro,1100.0
+normal,Quillem,L. Centro,1100.0
+normal,Quillem,Pillanlelbun,1300.0
+normal,Quillem,Coleg. Claret,0.0
+normal,Quillem,Cajon,700.0
+normal,Quillem,Temuco,1400.0
+normal,Quillem,PLC,1650.0
+normal,Quillem,Quepe,1750.0
+normal,Quillem,Freire,2300.0
+normal,Quillem,Pitrufquén,2400.0
+normal,Lautaro,Victoria,1400.0
+normal,Lautaro,PUA,1300.0
+normal,Lautaro,Perquenco,1100.0
+normal,Lautaro,Quillem,1100.0
+normal,Lautaro,Lautaro,0.0
+normal,Lautaro,L. Centro,1100.0
+normal,Lautaro,Pillanlelbun,1100.0
+normal,Lautaro,Coleg. Claret,0.0
+normal,Lautaro,Cajon,600.0
+normal,Lautaro,Temuco,1300.0
+normal,Lautaro,PLC,1550.0
+normal,Lautaro,Quepe,1650.0
+normal,Lautaro,Freire,2200.0
+normal,Lautaro,Pitrufquén,2300.0
+normal,L. Centro,Victoria,1400.0
+normal,L. Centro,PUA,1300.0
+normal,L. Centro,Perquenco,1100.0
+normal,L. Centro,Quillem,1100.0
+normal,L. Centro,Lautaro,1100.0
+normal,L. Centro,L. Centro,0.0
+normal,L. Centro,Pillanlelbun,1100.0
+normal,L. Centro,Coleg. Claret,0.0
+normal,L. Centro,Cajon,600.0
+normal,L. Centro,Temuco,1300.0
+normal,L. Centro,PLC,1550.0
+normal,L. Centro,Quepe,1650.0
+normal,L. Centro,Freire,2200.0
+normal,L. Centro,Pitrufquén,2300.0
+normal,Pillanlelbun,Victoria,1500.0
+normal,Pillanlelbun,PUA,1400.0
+normal,Pillanlelbun,Perquenco,1300.0
+normal,Pillanlelbun,Quillem,1300.0
+normal,Pillanlelbun,Lautaro,1100.0
+normal,Pillanlelbun,L. Centro,1100.0
+normal,Pillanlelbun,Pillanlelbun,0.0
+normal,Pillanlelbun,Coleg. Claret,0.0
+normal,Pillanlelbun,Cajon,600.0
+normal,Pillanlelbun,Temuco,1200.0
+normal,Pillanlelbun,PLC,1450.0
+normal,Pillanlelbun,Quepe,1550.0
+normal,Pillanlelbun,Freire,2100.0
+normal,Pillanlelbun,Pitrufquén,2200.0
+normal,Coleg. Claret,Victoria,0.0
+normal,Coleg. Claret,PUA,0.0
+normal,Coleg. Claret,Perquenco,0.0
+normal,Coleg. Claret,Quillem,0.0
+normal,Coleg. Claret,Lautaro,0.0
+normal,Coleg. Claret,L. Centro,0.0
+normal,Coleg. Claret,Pillanlelbun,0.0
+normal,Coleg. Claret,Coleg. Claret,0.0
+normal,Coleg. Claret,Cajon,0.0
+normal,Coleg. Claret,Temuco,1000.0
+normal,Coleg. Claret,PLC,0.0
+normal,Coleg. Claret,Quepe,0.0
+normal,Coleg. Claret,Freire,0.0
+normal,Coleg. Claret,Pitrufquén,0.0
+normal,Cajon,Victoria,900.0
+normal,Cajon,PUA,800.0
+normal,Cajon,Perquenco,800.0
+normal,Cajon,Quillem,700.0
+normal,Cajon,Lautaro,600.0
+normal,Cajon,L. Centro,600.0
+normal,Cajon,Pillanlelbun,600.0
+normal,Cajon,Coleg. Claret,0.0
+normal,Cajon,Cajon,0.0
+normal,Cajon,Temuco,600.0
+normal,Cajon,PLC,1300.0
+normal,Cajon,Quepe,1400.0
+normal,Cajon,Freire,1950.0
+normal,Cajon,Pitrufquén,2050.0
+normal,Temuco,Victoria,1800.0
+normal,Temuco,PUA,1500.0
+normal,Temuco,Perquenco,1400.0
+normal,Temuco,Quillem,1400.0
+normal,Temuco,Lautaro,1300.0
+normal,Temuco,L. Centro,1300.0
+normal,Temuco,Pillanlelbun,1200.0
+normal,Temuco,Coleg. Claret,1000.0
+normal,Temuco,Cajon,600.0
+normal,Temuco,Temuco,0.0
+normal,Temuco,PLC,700.0
+normal,Temuco,Quepe,800.0
+normal,Temuco,Freire,1350.0
+normal,Temuco,Pitrufquén,1450.0
+normal,PLC,Victoria,1900.0
+normal,PLC,PUA,1650.0
+normal,PLC,Perquenco,1650.0
+normal,PLC,Quillem,1650.0
+normal,PLC,Lautaro,1550.0
+normal,PLC,L. Centro,1550.0
+normal,PLC,Pillanlelbun,1450.0
+normal,PLC,Coleg. Claret,0.0
+normal,PLC,Cajon,1300.0
+normal,PLC,Temuco,700.0
+normal,PLC,PLC,0.0
+normal,PLC,Quepe,600.0
+normal,PLC,Freire,1300.0
+normal,PLC,Pitrufquén,1400.0
+normal,Quepe,Victoria,2000.0
+normal,Quepe,PUA,1750.0
+normal,Quepe,Perquenco,1750.0
+normal,Quepe,Quillem,1750.0
+normal,Quepe,Lautaro,1650.0
+normal,Quepe,L. Centro,1650.0
+normal,Quepe,Pillanlelbun,1550.0
+normal,Quepe,Coleg. Claret,0.0
+normal,Quepe,Cajon,1400.0
+normal,Quepe,Temuco,800.0
+normal,Quepe,PLC,600.0
+normal,Quepe,Quepe,0.0
+normal,Quepe,Freire,550.0
+normal,Quepe,Pitrufquén,650.0
+normal,Freire,Victoria,2550.0
+normal,Freire,PUA,2300.0
+normal,Freire,Perquenco,2300.0
+normal,Freire,Quillem,2300.0
+normal,Freire,Lautaro,2200.0
+normal,Freire,L. Centro,2200.0
+normal,Freire,Pillanlelbun,2100.0
+normal,Freire,Coleg. Claret,0.0
+normal,Freire,Cajon,1950.0
+normal,Freire,Temuco,1350.0
+normal,Freire,PLC,1300.0
+normal,Freire,Quepe,550.0
+normal,Freire,Freire,0.0
+normal,Freire,Pitrufquén,600.0
+normal,Pitrufquén,Victoria,2650.0
+normal,Pitrufquén,PUA,2400.0
+normal,Pitrufquén,Perquenco,2400.0
+normal,Pitrufquén,Quillem,2400.0
+normal,Pitrufquén,Lautaro,2300.0
+normal,Pitrufquén,L. Centro,2300.0
+normal,Pitrufquén,Pillanlelbun,2200.0
+normal,Pitrufquén,Coleg. Claret,0.0
+normal,Pitrufquén,Cajon,2050.0
+normal,Pitrufquén,Temuco,1450.0
+normal,Pitrufquén,PLC,1400.0
+normal,Pitrufquén,Quepe,650.0
+normal,Pitrufquén,Freire,600.0
+normal,Pitrufquén,Pitrufquén,0.0
+estudiante,Victoria,Victoria,0.0
+estudiante,Victoria,PUA,350.0
+estudiante,Victoria,Perquenco,450.0
+estudiante,Victoria,Quillem,450.0
+estudiante,Victoria,Lautaro,450.0
+estudiante,Victoria,L. Centro,450.0
+estudiante,Victoria,Pillanlelbun,500.0
+estudiante,Victoria,Coleg. Claret,0.0
+estudiante,Victoria,Cajon,300.0
+estudiante,Victoria,Temuco,600.0
+estudiante,Victoria,PLC,650.0
+estudiante,Victoria,Quepe,650.0
+estudiante,Victoria,Freire,850.0
+estudiante,Victoria,Pitrufquén,900.0
+estudiante,PUA,Victoria,350.0
+estudiante,PUA,PUA,0.0
+estudiante,PUA,Perquenco,400.0
+estudiante,PUA,Quillem,400.0
+estudiante,PUA,Lautaro,450.0
+estudiante,PUA,L. Centro,450.0
+estudiante,PUA,Pillanlelbun,450.0
+estudiante,PUA,Coleg. Claret,0.0
+estudiante,PUA,Cajon,250.0
+estudiante,PUA,Temuco,500.0
+estudiante,PUA,PLC,550.0
+estudiante,PUA,Quepe,600.0
+estudiante,PUA,Freire,750.0
+estudiante,PUA,Pitrufquén,800.0
+estudiante,Perquenco,Victoria,450.0
+estudiante,Perquenco,PUA,400.0
+estudiante,Perquenco,Perquenco,0.0
+estudiante,Perquenco,Quillem,350.0
+estudiante,Perquenco,Lautaro,350.0
+estudiante,Perquenco,L. Centro,350.0
+estudiante,Perquenco,Pillanlelbun,450.0
+estudiante,Perquenco,Coleg. Claret,0.0
+estudiante,Perquenco,Cajon,250.0
+estudiante,Perquenco,Temuco,450.0
+estudiante,Perquenco,PLC,550.0
+estudiante,Perquenco,Quepe,600.0
+estudiante,Perquenco,Freire,750.0
+estudiante,Perquenco,Pitrufquén,800.0
+estudiante,Quillem,Victoria,450.0
+estudiante,Quillem,PUA,400.0
+estudiante,Quillem,Perquenco,350.0
+estudiante,Quillem,Quillem,0.0
+estudiante,Quillem,Lautaro,350.0
+estudiante,Quillem,L. Centro,350.0
+estudiante,Quillem,Pillanlelbun,450.0
+estudiante,Quillem,Coleg. Claret,0.0
+estudiante,Quillem,Cajon,250.0
+estudiante,Quillem,Temuco,450.0
+estudiante,Quillem,PLC,550.0
+estudiante,Quillem,Quepe,600.0
+estudiante,Quillem,Freire,750.0
+estudiante,Quillem,Pitrufquén,800.0
+estudiante,Lautaro,Victoria,450.0
+estudiante,Lautaro,PUA,450.0
+estudiante,Lautaro,Perquenco,350.0
+estudiante,Lautaro,Quillem,350.0
+estudiante,Lautaro,Lautaro,0.0
+estudiante,Lautaro,L. Centro,350.0
+estudiante,Lautaro,Pillanlelbun,350.0
+estudiante,Lautaro,Coleg. Claret,0.0
+estudiante,Lautaro,Cajon,200.0
+estudiante,Lautaro,Temuco,450.0
+estudiante,Lautaro,PLC,500.0
+estudiante,Lautaro,Quepe,550.0
+estudiante,Lautaro,Freire,750.0
+estudiante,Lautaro,Pitrufquén,750.0
+estudiante,L. Centro,Victoria,450.0
+estudiante,L. Centro,PUA,450.0
+estudiante,L. Centro,Perquenco,350.0
+estudiante,L. Centro,Quillem,350.0
+estudiante,L. Centro,Lautaro,350.0
+estudiante,L. Centro,L. Centro,0.0
+estudiante,L. Centro,Pillanlelbun,350.0
+estudiante,L. Centro,Coleg. Claret,0.0
+estudiante,L. Centro,Cajon,200.0
+estudiante,L. Centro,Temuco,450.0
+estudiante,L. Centro,PLC,500.0
+estudiante,L. Centro,Quepe,550.0
+estudiante,L. Centro,Freire,750.0
+estudiante,L. Centro,Pitrufquén,750.0
+estudiante,Pillanlelbun,Victoria,500.0
+estudiante,Pillanlelbun,PUA,450.0
+estudiante,Pillanlelbun,Perquenco,450.0
+estudiante,Pillanlelbun,Quillem,450.0
+estudiante,Pillanlelbun,Lautaro,350.0
+estudiante,Pillanlelbun,L. Centro,350.0
+estudiante,Pillanlelbun,Pillanlelbun,0.0
+estudiante,Pillanlelbun,Coleg. Claret,0.0
+estudiante,Pillanlelbun,Cajon,200.0
+estudiante,Pillanlelbun,Temuco,400.0
+estudiante,Pillanlelbun,PLC,500.0
+estudiante,Pillanlelbun,Quepe,500.0
+estudiante,Pillanlelbun,Freire,700.0
+estudiante,Pillanlelbun,Pitrufquén,750.0
+estudiante,Coleg. Claret,Victoria,0.0
+estudiante,Coleg. Claret,PUA,0.0
+estudiante,Coleg. Claret,Perquenco,0.0
+estudiante,Coleg. Claret,Quillem,0.0
+estudiante,Coleg. Claret,Lautaro,0.0
+estudiante,Coleg. Claret,L. Centro,0.0
+estudiante,Coleg. Claret,Pillanlelbun,0.0
+estudiante,Coleg. Claret,Coleg. Claret,0.0
+estudiante,Coleg. Claret,Cajon,0.0
+estudiante,Coleg. Claret,Temuco,350.0
+estudiante,Coleg. Claret,PLC,0.0
+estudiante,Coleg. Claret,Quepe,0.0
+estudiante,Coleg. Claret,Freire,0.0
+estudiante,Coleg. Claret,Pitrufquén,0.0
+estudiante,Cajon,Victoria,300.0
+estudiante,Cajon,PUA,250.0
+estudiante,Cajon,Perquenco,250.0
+estudiante,Cajon,Quillem,250.0
+estudiante,Cajon,Lautaro,200.0
+estudiante,Cajon,L. Centro,200.0
+estudiante,Cajon,Pillanlelbun,200.0
+estudiante,Cajon,Coleg. Claret,0.0
+estudiante,Cajon,Cajon,0.0
+estudiante,Cajon,Temuco,200.0
+estudiante,Cajon,PLC,450.0
+estudiante,Cajon,Quepe,450.0
+estudiante,Cajon,Freire,650.0
+estudiante,Cajon,Pitrufquén,700.0
+estudiante,Temuco,Victoria,600.0
+estudiante,Temuco,PUA,500.0
+estudiante,Temuco,Perquenco,450.0
+estudiante,Temuco,Quillem,450.0
+estudiante,Temuco,Lautaro,450.0
+estudiante,Temuco,L. Centro,450.0
+estudiante,Temuco,Pillanlelbun,400.0
+estudiante,Temuco,Coleg. Claret,350.0
+estudiante,Temuco,Cajon,200.0
+estudiante,Temuco,Temuco,0.0
+estudiante,Temuco,PLC,250.0
+estudiante,Temuco,Quepe,250.0
+estudiante,Temuco,Freire,450.0
+estudiante,Temuco,Pitrufquén,500.0
+estudiante,PLC,Victoria,650.0
+estudiante,PLC,PUA,550.0
+estudiante,PLC,Perquenco,550.0
+estudiante,PLC,Quillem,550.0
+estudiante,PLC,Lautaro,500.0
+estudiante,PLC,L. Centro,500.0
+estudiante,PLC,Pillanlelbun,500.0
+estudiante,PLC,Coleg. Claret,0.0
+estudiante,PLC,Cajon,450.0
+estudiante,PLC,Temuco,250.0
+estudiante,PLC,PLC,0.0
+estudiante,PLC,Quepe,200.0
+estudiante,PLC,Freire,450.0
+estudiante,PLC,Pitrufquén,450.0
+estudiante,Quepe,Victoria,650.0
+estudiante,Quepe,PUA,600.0
+estudiante,Quepe,Perquenco,600.0
+estudiante,Quepe,Quillem,600.0
+estudiante,Quepe,Lautaro,550.0
+estudiante,Quepe,L. Centro,550.0
+estudiante,Quepe,Pillanlelbun,500.0
+estudiante,Quepe,Coleg. Claret,0.0
+estudiante,Quepe,Cajon,450.0
+estudiante,Quepe,Temuco,250.0
+estudiante,Quepe,PLC,200.0
+estudiante,Quepe,Quepe,0.0
+estudiante,Quepe,Freire,200.0
+estudiante,Quepe,Pitrufquén,200.0
+estudiante,Freire,Victoria,850.0
+estudiante,Freire,PUA,750.0
+estudiante,Freire,Perquenco,750.0
+estudiante,Freire,Quillem,750.0
+estudiante,Freire,Lautaro,750.0
+estudiante,Freire,L. Centro,750.0
+estudiante,Freire,Pillanlelbun,700.0
+estudiante,Freire,Coleg. Claret,0.0
+estudiante,Freire,Cajon,650.0
+estudiante,Freire,Temuco,450.0
+estudiante,Freire,PLC,450.0
+estudiante,Freire,Quepe,200.0
+estudiante,Freire,Freire,0.0
+estudiante,Freire,Pitrufquén,200.0
+estudiante,Pitrufquén,Victoria,900.0
+estudiante,Pitrufquén,PUA,800.0
+estudiante,Pitrufquén,Perquenco,800.0
+estudiante,Pitrufquén,Quillem,800.0
+estudiante,Pitrufquén,Lautaro,750.0
+estudiante,Pitrufquén,L. Centro,750.0
+estudiante,Pitrufquén,Pillanlelbun,750.0
+estudiante,Pitrufquén,Coleg. Claret,0.0
+estudiante,Pitrufquén,Cajon,700.0
+estudiante,Pitrufquén,Temuco,500.0
+estudiante,Pitrufquén,PLC,450.0
+estudiante,Pitrufquén,Quepe,200.0
+estudiante,Pitrufquén,Freire,200.0
+estudiante,Pitrufquén,Pitrufquén,0.0
+adulto_mayor,Victoria,Victoria,0.0
+adulto_mayor,Victoria,PUA,550.0
+adulto_mayor,Victoria,Perquenco,650.0
+adulto_mayor,Victoria,Quillem,650.0
+adulto_mayor,Victoria,Lautaro,700.0
+adulto_mayor,Victoria,L. Centro,700.0
+adulto_mayor,Victoria,Pillanlelbun,750.0
+adulto_mayor,Victoria,Coleg. Claret,0.0
+adulto_mayor,Victoria,Cajon,450.0
+adulto_mayor,Victoria,Temuco,900.0
+adulto_mayor,Victoria,PLC,950.0
+adulto_mayor,Victoria,Quepe,1000.0
+adulto_mayor,Victoria,Freire,1300.0
+adulto_mayor,Victoria,Pitrufquén,1350.0
+adulto_mayor,PUA,Victoria,550.0
+adulto_mayor,PUA,PUA,0.0
+adulto_mayor,PUA,Perquenco,600.0
+adulto_mayor,PUA,Quillem,600.0
+adulto_mayor,PUA,Lautaro,650.0
+adulto_mayor,PUA,L. Centro,650.0
+adulto_mayor,PUA,Pillanlelbun,700.0
+adulto_mayor,PUA,Coleg. Claret,0.0
+adulto_mayor,PUA,Cajon,400.0
+adulto_mayor,PUA,Temuco,750.0
+adulto_mayor,PUA,PLC,850.0
+adulto_mayor,PUA,Quepe,900.0
+adulto_mayor,PUA,Freire,1150.0
+adulto_mayor,PUA,Pitrufquén,1200.0
+adulto_mayor,Perquenco,Victoria,650.0
+adulto_mayor,Perquenco,PUA,600.0
+adulto_mayor,Perquenco,Perquenco,0.0
+adulto_mayor,Perquenco,Quillem,550.0
+adulto_mayor,Perquenco,Lautaro,550.0
+adulto_mayor,Perquenco,L. Centro,550.0
+adulto_mayor,Perquenco,Pillanlelbun,650.0
+adulto_mayor,Perquenco,Coleg. Claret,0.0
+adulto_mayor,Perquenco,Cajon,400.0
+adulto_mayor,Perquenco,Temuco,700.0
+adulto_mayor,Perquenco,PLC,850.0
+adulto_mayor,Perquenco,Quepe,900.0
+adulto_mayor,Perquenco,Freire,1150.0
+adulto_mayor,Perquenco,Pitrufquén,1200.0
+adulto_mayor,Quillem,Victoria,650.0
+adulto_mayor,Quillem,PUA,600.0
+adulto_mayor,Quillem,Perquenco,550.0
+adulto_mayor,Quillem,Quillem,0.0
+adulto_mayor,Quillem,Lautaro,550.0
+adulto_mayor,Quillem,L. Centro,550.0
+adulto_mayor,Quillem,Pillanlelbun,650.0
+adulto_mayor,Quillem,Coleg. Claret,0.0
+adulto_mayor,Quillem,Cajon,350.0
+adulto_mayor,Quillem,Temuco,700.0
+adulto_mayor,Quillem,PLC,850.0
+adulto_mayor,Quillem,Quepe,900.0
+adulto_mayor,Quillem,Freire,1150.0
+adulto_mayor,Quillem,Pitrufquén,1200.0
+adulto_mayor,Lautaro,Victoria,700.0
+adulto_mayor,Lautaro,PUA,650.0
+adulto_mayor,Lautaro,Perquenco,550.0
+adulto_mayor,Lautaro,Quillem,550.0
+adulto_mayor,Lautaro,Lautaro,0.0
+adulto_mayor,Lautaro,L. Centro,550.0
+adulto_mayor,Lautaro,Pillanlelbun,550.0
+adulto_mayor,Lautaro,Coleg. Claret,0.0
+adulto_mayor,Lautaro,Cajon,300.0
+adulto_mayor,Lautaro,Temuco,650.0
+adulto_mayor,Lautaro,PLC,800.0
+adulto_mayor,Lautaro,Quepe,850.0
+adulto_mayor,Lautaro,Freire,1100.0
+adulto_mayor,Lautaro,Pitrufquén,1150.0
+adulto_mayor,L. Centro,Victoria,700.0
+adulto_mayor,L. Centro,PUA,650.0
+adulto_mayor,L. Centro,Perquenco,550.0
+adulto_mayor,L. Centro,Quillem,550.0
+adulto_mayor,L. Centro,Lautaro,550.0
+adulto_mayor,L. Centro,L. Centro,0.0
+adulto_mayor,L. Centro,Pillanlelbun,550.0
+adulto_mayor,L. Centro,Coleg. Claret,0.0
+adulto_mayor,L. Centro,Cajon,300.0
+adulto_mayor,L. Centro,Temuco,650.0
+adulto_mayor,L. Centro,PLC,800.0
+adulto_mayor,L. Centro,Quepe,850.0
+adulto_mayor,L. Centro,Freire,1100.0
+adulto_mayor,L. Centro,Pitrufquén,1150.0
+adulto_mayor,Pillanlelbun,Victoria,750.0
+adulto_mayor,Pillanlelbun,PUA,700.0
+adulto_mayor,Pillanlelbun,Perquenco,650.0
+adulto_mayor,Pillanlelbun,Quillem,650.0
+adulto_mayor,Pillanlelbun,Lautaro,550.0
+adulto_mayor,Pillanlelbun,L. Centro,550.0
+adulto_mayor,Pillanlelbun,Pillanlelbun,0.0
+adulto_mayor,Pillanlelbun,Coleg. Claret,0.0
+adulto_mayor,Pillanlelbun,Cajon,300.0
+adulto_mayor,Pillanlelbun,Temuco,600.0
+adulto_mayor,Pillanlelbun,PLC,750.0
+adulto_mayor,Pillanlelbun,Quepe,800.0
+adulto_mayor,Pillanlelbun,Freire,1050.0
+adulto_mayor,Pillanlelbun,Pitrufquén,1100.0
+adulto_mayor,Coleg. Claret,Victoria,0.0
+adulto_mayor,Coleg. Claret,PUA,0.0
+adulto_mayor,Coleg. Claret,Perquenco,0.0
+adulto_mayor,Coleg. Claret,Quillem,0.0
+adulto_mayor,Coleg. Claret,Lautaro,0.0
+adulto_mayor,Coleg. Claret,L. Centro,0.0
+adulto_mayor,Coleg. Claret,Pillanlelbun,0.0
+adulto_mayor,Coleg. Claret,Coleg. Claret,0.0
+adulto_mayor,Coleg. Claret,Cajon,0.0
+adulto_mayor,Coleg. Claret,Temuco,500.0
+adulto_mayor,Coleg. Claret,PLC,0.0
+adulto_mayor,Coleg. Claret,Quepe,0.0
+adulto_mayor,Coleg. Claret,Freire,0.0
+adulto_mayor,Coleg. Claret,Pitrufquén,0.0
+adulto_mayor,Cajon,Victoria,450.0
+adulto_mayor,Cajon,PUA,400.0
+adulto_mayor,Cajon,Perquenco,400.0
+adulto_mayor,Cajon,Quillem,350.0
+adulto_mayor,Cajon,Lautaro,300.0
+adulto_mayor,Cajon,L. Centro,300.0
+adulto_mayor,Cajon,Pillanlelbun,300.0
+adulto_mayor,Cajon,Coleg. Claret,0.0
+adulto_mayor,Cajon,Cajon,0.0
+adulto_mayor,Cajon,Temuco,300.0
+adulto_mayor,Cajon,PLC,650.0
+adulto_mayor,Cajon,Quepe,700.0
+adulto_mayor,Cajon,Freire,1000.0
+adulto_mayor,Cajon,Pitrufquén,1050.0
+adulto_mayor,Temuco,Victoria,900.0
+adulto_mayor,Temuco,PUA,750.0
+adulto_mayor,Temuco,Perquenco,700.0
+adulto_mayor,Temuco,Quillem,700.0
+adulto_mayor,Temuco,Lautaro,650.0
+adulto_mayor,Temuco,L. Centro,650.0
+adulto_mayor,Temuco,Pillanlelbun,600.0
+adulto_mayor,Temuco,Coleg. Claret,500.0
+adulto_mayor,Temuco,Cajon,300.0
+adulto_mayor,Temuco,Temuco,0.0
+adulto_mayor,Temuco,PLC,350.0
+adulto_mayor,Temuco,Quepe,400.0
+adulto_mayor,Temuco,Freire,700.0
+adulto_mayor,Temuco,Pitrufquén,750.0
+adulto_mayor,PLC,Victoria,950.0
+adulto_mayor,PLC,PUA,850.0
+adulto_mayor,PLC,Perquenco,850.0
+adulto_mayor,PLC,Quillem,850.0
+adulto_mayor,PLC,Lautaro,800.0
+adulto_mayor,PLC,L. Centro,800.0
+adulto_mayor,PLC,Pillanlelbun,750.0
+adulto_mayor,PLC,Coleg. Claret,0.0
+adulto_mayor,PLC,Cajon,650.0
+adulto_mayor,PLC,Temuco,350.0
+adulto_mayor,PLC,PLC,0.0
+adulto_mayor,PLC,Quepe,300.0
+adulto_mayor,PLC,Freire,650.0
+adulto_mayor,PLC,Pitrufquén,700.0
+adulto_mayor,Quepe,Victoria,1000.0
+adulto_mayor,Quepe,PUA,900.0
+adulto_mayor,Quepe,Perquenco,900.0
+adulto_mayor,Quepe,Quillem,900.0
+adulto_mayor,Quepe,Lautaro,850.0
+adulto_mayor,Quepe,L. Centro,850.0
+adulto_mayor,Quepe,Pillanlelbun,800.0
+adulto_mayor,Quepe,Coleg. Claret,0.0
+adulto_mayor,Quepe,Cajon,700.0
+adulto_mayor,Quepe,Temuco,400.0
+adulto_mayor,Quepe,PLC,300.0
+adulto_mayor,Quepe,Quepe,0.0
+adulto_mayor,Quepe,Freire,300.0
+adulto_mayor,Quepe,Pitrufquén,350.0
+adulto_mayor,Freire,Victoria,1300.0
+adulto_mayor,Freire,PUA,1150.0
+adulto_mayor,Freire,Perquenco,1150.0
+adulto_mayor,Freire,Quillem,1150.0
+adulto_mayor,Freire,Lautaro,1100.0
+adulto_mayor,Freire,L. Centro,1100.0
+adulto_mayor,Freire,Pillanlelbun,1050.0
+adulto_mayor,Freire,Coleg. Claret,0.0
+adulto_mayor,Freire,Cajon,1000.0
+adulto_mayor,Freire,Temuco,700.0
+adulto_mayor,Freire,PLC,650.0
+adulto_mayor,Freire,Quepe,300.0
+adulto_mayor,Freire,Freire,0.0
+adulto_mayor,Freire,Pitrufquén,300.0
+adulto_mayor,Pitrufquén,Victoria,1350.0
+adulto_mayor,Pitrufquén,PUA,1200.0
+adulto_mayor,Pitrufquén,Perquenco,1200.0
+adulto_mayor,Pitrufquén,Quillem,1200.0
+adulto_mayor,Pitrufquén,Lautaro,1150.0
+adulto_mayor,Pitrufquén,L. Centro,1150.0
+adulto_mayor,Pitrufquén,Pillanlelbun,1100.0
+adulto_mayor,Pitrufquén,Coleg. Claret,0.0
+adulto_mayor,Pitrufquén,Cajon,1050.0
+adulto_mayor,Pitrufquén,Temuco,750.0
+adulto_mayor,Pitrufquén,PLC,700.0
+adulto_mayor,Pitrufquén,Quepe,350.0
+adulto_mayor,Pitrufquén,Freire,300.0
+adulto_mayor,Pitrufquén,Pitrufquén,0.0
+estudiante_sin_subsidio,Victoria,Victoria,0.0
+estudiante_sin_subsidio,Victoria,PUA,1200.0
+estudiante_sin_subsidio,Victoria,Perquenco,1400.0
+estudiante_sin_subsidio,Victoria,Quillem,1400.0
+estudiante_sin_subsidio,Victoria,Lautaro,1500.0
+estudiante_sin_subsidio,Victoria,L. Centro,1500.0
+estudiante_sin_subsidio,Victoria,Pillanlelbun,1600.0
+estudiante_sin_subsidio,Victoria,Coleg. Claret,0.0
+estudiante_sin_subsidio,Victoria,Cajon,950.0
+estudiante_sin_subsidio,Victoria,Temuco,1950.0
+estudiante_sin_subsidio,Victoria,PLC,2050.0
+estudiante_sin_subsidio,Victoria,Quepe,2150.0
+estudiante_sin_subsidio,Victoria,Freire,2750.0
+estudiante_sin_subsidio,Victoria,Pitrufquén,2900.0
+estudiante_sin_subsidio,PUA,Victoria,1200.0
+estudiante_sin_subsidio,PUA,PUA,0.0
+estudiante_sin_subsidio,PUA,Perquenco,1300.0
+estudiante_sin_subsidio,PUA,Quillem,1300.0
+estudiante_sin_subsidio,PUA,Lautaro,1400.0
+estudiante_sin_subsidio,PUA,L. Centro,1400.0
+estudiante_sin_subsidio,PUA,Pillanlelbun,1500.0
+estudiante_sin_subsidio,PUA,Coleg. Claret,0.0
+estudiante_sin_subsidio,PUA,Cajon,900.0
+estudiante_sin_subsidio,PUA,Temuco,1600.0
+estudiante_sin_subsidio,PUA,PLC,1800.0
+estudiante_sin_subsidio,PUA,Quepe,1900.0
+estudiante_sin_subsidio,PUA,Freire,2500.0
+estudiante_sin_subsidio,PUA,Pitrufquén,2600.0
+estudiante_sin_subsidio,Perquenco,Victoria,1400.0
+estudiante_sin_subsidio,Perquenco,PUA,1300.0
+estudiante_sin_subsidio,Perquenco,Perquenco,0.0
+estudiante_sin_subsidio,Perquenco,Quillem,1200.0
+estudiante_sin_subsidio,Perquenco,Lautaro,1200.0
+estudiante_sin_subsidio,Perquenco,L. Centro,1200.0
+estudiante_sin_subsidio,Perquenco,Pillanlelbun,1400.0
+estudiante_sin_subsidio,Perquenco,Coleg. Claret,0.0
+estudiante_sin_subsidio,Perquenco,Cajon,900.0
+estudiante_sin_subsidio,Perquenco,Temuco,1500.0
+estudiante_sin_subsidio,Perquenco,PLC,1800.0
+estudiante_sin_subsidio,Perquenco,Quepe,1900.0
+estudiante_sin_subsidio,Perquenco,Freire,2500.0
+estudiante_sin_subsidio,Perquenco,Pitrufquén,2600.0
+estudiante_sin_subsidio,Quillem,Victoria,1400.0
+estudiante_sin_subsidio,Quillem,PUA,1300.0
+estudiante_sin_subsidio,Quillem,Perquenco,1200.0
+estudiante_sin_subsidio,Quillem,Quillem,0.0
+estudiante_sin_subsidio,Quillem,Lautaro,1200.0
+estudiante_sin_subsidio,Quillem,L. Centro,1200.0
+estudiante_sin_subsidio,Quillem,Pillanlelbun,1400.0
+estudiante_sin_subsidio,Quillem,Coleg. Claret,0.0
+estudiante_sin_subsidio,Quillem,Cajon,750.0
+estudiante_sin_subsidio,Quillem,Temuco,1500.0
+estudiante_sin_subsidio,Quillem,PLC,1800.0
+estudiante_sin_subsidio,Quillem,Quepe,1900.0
+estudiante_sin_subsidio,Quillem,Freire,2500.0
+estudiante_sin_subsidio,Quillem,Pitrufquén,2600.0
+estudiante_sin_subsidio,Lautaro,Victoria,1500.0
+estudiante_sin_subsidio,Lautaro,PUA,1400.0
+estudiante_sin_subsidio,Lautaro,Perquenco,1200.0
+estudiante_sin_subsidio,Lautaro,Quillem,1200.0
+estudiante_sin_subsidio,Lautaro,Lautaro,0.0
+estudiante_sin_subsidio,Lautaro,L. Centro,500.0
+estudiante_sin_subsidio,Lautaro,Pillanlelbun,1200.0
+estudiante_sin_subsidio,Lautaro,Coleg. Claret,0.0
+estudiante_sin_subsidio,Lautaro,Cajon,650.0
+estudiante_sin_subsidio,Lautaro,Temuco,1350.0
+estudiante_sin_subsidio,Lautaro,PLC,1700.0
+estudiante_sin_subsidio,Lautaro,Quepe,1800.0
+estudiante_sin_subsidio,Lautaro,Freire,2400.0
+estudiante_sin_subsidio,Lautaro,Pitrufquén,2500.0
+estudiante_sin_subsidio,L. Centro,Victoria,1500.0
+estudiante_sin_subsidio,L. Centro,PUA,1400.0
+estudiante_sin_subsidio,L. Centro,Perquenco,1200.0
+estudiante_sin_subsidio,L. Centro,Quillem,1200.0
+estudiante_sin_subsidio,L. Centro,Lautaro,500.0
+estudiante_sin_subsidio,L. Centro,L. Centro,0.0
+estudiante_sin_subsidio,L. Centro,Pillanlelbun,1200.0
+estudiante_sin_subsidio,L. Centro,Coleg. Claret,0.0
+estudiante_sin_subsidio,L. Centro,Cajon,650.0
+estudiante_sin_subsidio,L. Centro,Temuco,1350.0
+estudiante_sin_subsidio,L. Centro,PLC,1700.0
+estudiante_sin_subsidio,L. Centro,Quepe,1800.0
+estudiante_sin_subsidio,L. Centro,Freire,2400.0
+estudiante_sin_subsidio,L. Centro,Pitrufquén,2500.0
+estudiante_sin_subsidio,Pillanlelbun,Victoria,1600.0
+estudiante_sin_subsidio,Pillanlelbun,PUA,1500.0
+estudiante_sin_subsidio,Pillanlelbun,Perquenco,1400.0
+estudiante_sin_subsidio,Pillanlelbun,Quillem,1400.0
+estudiante_sin_subsidio,Pillanlelbun,Lautaro,1200.0
+estudiante_sin_subsidio,Pillanlelbun,L. Centro,1200.0
+estudiante_sin_subsidio,Pillanlelbun,Pillanlelbun,0.0
+estudiante_sin_subsidio,Pillanlelbun,Coleg. Claret,0.0
+estudiante_sin_subsidio,Pillanlelbun,Cajon,650.0
+estudiante_sin_subsidio,Pillanlelbun,Temuco,1300.0
+estudiante_sin_subsidio,Pillanlelbun,PLC,1550.0
+estudiante_sin_subsidio,Pillanlelbun,Quepe,1700.0
+estudiante_sin_subsidio,Pillanlelbun,Freire,2250.0
+estudiante_sin_subsidio,Pillanlelbun,Pitrufquén,2400.0
+estudiante_sin_subsidio,Coleg. Claret,Victoria,0.0
+estudiante_sin_subsidio,Coleg. Claret,PUA,0.0
+estudiante_sin_subsidio,Coleg. Claret,Perquenco,0.0
+estudiante_sin_subsidio,Coleg. Claret,Quillem,0.0
+estudiante_sin_subsidio,Coleg. Claret,Lautaro,0.0
+estudiante_sin_subsidio,Coleg. Claret,L. Centro,0.0
+estudiante_sin_subsidio,Coleg. Claret,Pillanlelbun,0.0
+estudiante_sin_subsidio,Coleg. Claret,Coleg. Claret,0.0
+estudiante_sin_subsidio,Coleg. Claret,Cajon,0.0
+estudiante_sin_subsidio,Coleg. Claret,Temuco,1100.0
+estudiante_sin_subsidio,Coleg. Claret,PLC,0.0
+estudiante_sin_subsidio,Coleg. Claret,Quepe,0.0
+estudiante_sin_subsidio,Coleg. Claret,Freire,0.0
+estudiante_sin_subsidio,Coleg. Claret,Pitrufquén,0.0
+estudiante_sin_subsidio,Cajon,Victoria,950.0
+estudiante_sin_subsidio,Cajon,PUA,900.0
+estudiante_sin_subsidio,Cajon,Perquenco,900.0
+estudiante_sin_subsidio,Cajon,Quillem,750.0
+estudiante_sin_subsidio,Cajon,Lautaro,650.0
+estudiante_sin_subsidio,Cajon,L. Centro,650.0
+estudiante_sin_subsidio,Cajon,Pillanlelbun,650.0
+estudiante_sin_subsidio,Cajon,Coleg. Claret,0.0
+estudiante_sin_subsidio,Cajon,Cajon,0.0
+estudiante_sin_subsidio,Cajon,Temuco,650.0
+estudiante_sin_subsidio,Cajon,PLC,1400.0
+estudiante_sin_subsidio,Cajon,Quepe,1550.0
+estudiante_sin_subsidio,Cajon,Freire,2100.0
+estudiante_sin_subsidio,Cajon,Pitrufquén,2250.0
+estudiante_sin_subsidio,Temuco,Victoria,1950.0
+estudiante_sin_subsidio,Temuco,PUA,1600.0
+estudiante_sin_subsidio,Temuco,Perquenco,1500.0
+estudiante_sin_subsidio,Temuco,Quillem,1500.0
+estudiante_sin_subsidio,Temuco,Lautaro,1350.0
+estudiante_sin_subsidio,Temuco,L. Centro,1350.0
+estudiante_sin_subsidio,Temuco,Pillanlelbun,1300.0
+estudiante_sin_subsidio,Temuco,Coleg. Claret,1100.0
+estudiante_sin_subsidio,Temuco,Cajon,650.0
+estudiante_sin_subsidio,Temuco,Temuco,0.0
+estudiante_sin_subsidio,Temuco,PLC,750.0
+estudiante_sin_subsidio,Temuco,Quepe,900.0
+estudiante_sin_subsidio,Temuco,Freire,1450.0
+estudiante_sin_subsidio,Temuco,Pitrufquén,1550.0
+estudiante_sin_subsidio,PLC,Victoria,2050.0
+estudiante_sin_subsidio,PLC,PUA,1800.0
+estudiante_sin_subsidio,PLC,Perquenco,1800.0
+estudiante_sin_subsidio,PLC,Quillem,1800.0
+estudiante_sin_subsidio,PLC,Lautaro,1700.0
+estudiante_sin_subsidio,PLC,L. Centro,1700.0
+estudiante_sin_subsidio,PLC,Pillanlelbun,1550.0
+estudiante_sin_subsidio,PLC,Coleg. Claret,0.0
+estudiante_sin_subsidio,PLC,Cajon,1400.0
+estudiante_sin_subsidio,PLC,Temuco,750.0
+estudiante_sin_subsidio,PLC,PLC,0.0
+estudiante_sin_subsidio,PLC,Quepe,650.0
+estudiante_sin_subsidio,PLC,Freire,1400.0
+estudiante_sin_subsidio,PLC,Pitrufquén,1550.0
+estudiante_sin_subsidio,Quepe,Victoria,2150.0
+estudiante_sin_subsidio,Quepe,PUA,1900.0
+estudiante_sin_subsidio,Quepe,Perquenco,1900.0
+estudiante_sin_subsidio,Quepe,Quillem,1900.0
+estudiante_sin_subsidio,Quepe,Lautaro,1800.0
+estudiante_sin_subsidio,Quepe,L. Centro,1800.0
+estudiante_sin_subsidio,Quepe,Pillanlelbun,1700.0
+estudiante_sin_subsidio,Quepe,Coleg. Claret,0.0
+estudiante_sin_subsidio,Quepe,Cajon,1550.0
+estudiante_sin_subsidio,Quepe,Temuco,900.0
+estudiante_sin_subsidio,Quepe,PLC,650.0
+estudiante_sin_subsidio,Quepe,Quepe,0.0
+estudiante_sin_subsidio,Quepe,Freire,600.0
+estudiante_sin_subsidio,Quepe,Pitrufquén,700.0
+estudiante_sin_subsidio,Freire,Victoria,2750.0
+estudiante_sin_subsidio,Freire,PUA,2500.0
+estudiante_sin_subsidio,Freire,Perquenco,2500.0
+estudiante_sin_subsidio,Freire,Quillem,2500.0
+estudiante_sin_subsidio,Freire,Lautaro,2400.0
+estudiante_sin_subsidio,Freire,L. Centro,2400.0
+estudiante_sin_subsidio,Freire,Pillanlelbun,2250.0
+estudiante_sin_subsidio,Freire,Coleg. Claret,0.0
+estudiante_sin_subsidio,Freire,Cajon,2100.0
+estudiante_sin_subsidio,Freire,Temuco,1450.0
+estudiante_sin_subsidio,Freire,PLC,1400.0
+estudiante_sin_subsidio,Freire,Quepe,600.0
+estudiante_sin_subsidio,Freire,Freire,0.0
+estudiante_sin_subsidio,Freire,Pitrufquén,650.0
+estudiante_sin_subsidio,Pitrufquén,Victoria,2900.0
+estudiante_sin_subsidio,Pitrufquén,PUA,2600.0
+estudiante_sin_subsidio,Pitrufquén,Perquenco,2600.0
+estudiante_sin_subsidio,Pitrufquén,Quillem,2600.0
+estudiante_sin_subsidio,Pitrufquén,Lautaro,2500.0
+estudiante_sin_subsidio,Pitrufquén,L. Centro,2500.0
+estudiante_sin_subsidio,Pitrufquén,Pillanlelbun,2400.0
+estudiante_sin_subsidio,Pitrufquén,Coleg. Claret,0.0
+estudiante_sin_subsidio,Pitrufquén,Cajon,2250.0
+estudiante_sin_subsidio,Pitrufquén,Temuco,1550.0
+estudiante_sin_subsidio,Pitrufquén,PLC,1550.0
+estudiante_sin_subsidio,Pitrufquén,Quepe,700.0
+estudiante_sin_subsidio,Pitrufquén,Freire,650.0
+estudiante_sin_subsidio,Pitrufquén,Pitrufquén,0.0

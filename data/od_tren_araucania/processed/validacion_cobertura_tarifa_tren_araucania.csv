@@ -1,0 +1,658 @@
+﻿tipo_pasajero,origen,destino,tipo_pasajero_visual,tipo_tarifa_venta,factor_venta,paga_tarifa,aplica_subsidio_normal,aplica_subsidio_estudiante,tarifa_venta_base,tarifa_estudiante_sin_subsidio,falta_tarifa_venta,falta_tarifa_estudiante_sin_subsidio
+adulto_mayor,Cajon,L. Centro,Adulto Mayor,adulto_mayor,1.0,1,0,0,300.0,650.0,False,False
+adulto_mayor,Cajon,Lautaro,Adulto Mayor,adulto_mayor,1.0,1,0,0,300.0,650.0,False,False
+adulto_mayor,Cajon,PLC,Adulto Mayor,adulto_mayor,1.0,1,0,0,650.0,1400.0,False,False
+adulto_mayor,Cajon,Perquenco,Adulto Mayor,adulto_mayor,1.0,1,0,0,400.0,900.0,False,False
+adulto_mayor,Cajon,Pillanlelbun,Adulto Mayor,adulto_mayor,1.0,1,0,0,300.0,650.0,False,False
+adulto_mayor,Cajon,Temuco,Adulto Mayor,adulto_mayor,1.0,1,0,0,300.0,650.0,False,False
+adulto_mayor,Cajon,Victoria,Adulto Mayor,adulto_mayor,1.0,1,0,0,450.0,950.0,False,False
+adulto_mayor,Freire,PLC,Adulto Mayor,adulto_mayor,1.0,1,0,0,650.0,1400.0,False,False
+adulto_mayor,Freire,Pitrufquén,Adulto Mayor,adulto_mayor,1.0,1,0,0,300.0,650.0,False,False
+adulto_mayor,Freire,Quepe,Adulto Mayor,adulto_mayor,1.0,1,0,0,300.0,600.0,False,False
+adulto_mayor,Freire,Temuco,Adulto Mayor,adulto_mayor,1.0,1,0,0,700.0,1450.0,False,False
+adulto_mayor,L. Centro,Cajon,Adulto Mayor,adulto_mayor,1.0,1,0,0,300.0,650.0,False,False
+adulto_mayor,L. Centro,Perquenco,Adulto Mayor,adulto_mayor,1.0,1,0,0,550.0,1200.0,False,False
+adulto_mayor,L. Centro,Pillanlelbun,Adulto Mayor,adulto_mayor,1.0,1,0,0,550.0,1200.0,False,False
+adulto_mayor,L. Centro,Quillem,Adulto Mayor,adulto_mayor,1.0,1,0,0,550.0,1200.0,False,False
+adulto_mayor,L. Centro,Temuco,Adulto Mayor,adulto_mayor,1.0,1,0,0,650.0,1350.0,False,False
+adulto_mayor,L. Centro,Victoria,Adulto Mayor,adulto_mayor,1.0,1,0,0,700.0,1500.0,False,False
+adulto_mayor,Lautaro,Cajon,Adulto Mayor,adulto_mayor,1.0,1,0,0,300.0,650.0,False,False
+adulto_mayor,Lautaro,PUA,Adulto Mayor,adulto_mayor,1.0,1,0,0,650.0,1400.0,False,False
+adulto_mayor,Lautaro,Perquenco,Adulto Mayor,adulto_mayor,1.0,1,0,0,550.0,1200.0,False,False
+adulto_mayor,Lautaro,Pillanlelbun,Adulto Mayor,adulto_mayor,1.0,1,0,0,550.0,1200.0,False,False
+adulto_mayor,Lautaro,Quillem,Adulto Mayor,adulto_mayor,1.0,1,0,0,550.0,1200.0,False,False
+adulto_mayor,Lautaro,Temuco,Adulto Mayor,adulto_mayor,1.0,1,0,0,650.0,1350.0,False,False
+adulto_mayor,Lautaro,Victoria,Adulto Mayor,adulto_mayor,1.0,1,0,0,700.0,1500.0,False,False
+adulto_mayor,PLC,Freire,Adulto Mayor,adulto_mayor,1.0,1,0,0,650.0,1400.0,False,False
+adulto_mayor,PLC,Pitrufquén,Adulto Mayor,adulto_mayor,1.0,1,0,0,700.0,1550.0,False,False
+adulto_mayor,PLC,Quepe,Adulto Mayor,adulto_mayor,1.0,1,0,0,300.0,650.0,False,False
+adulto_mayor,PLC,Temuco,Adulto Mayor,adulto_mayor,1.0,1,0,0,350.0,750.0,False,False
+adulto_mayor,PUA,L. Centro,Adulto Mayor,adulto_mayor,1.0,1,0,0,650.0,1400.0,False,False
+adulto_mayor,PUA,Lautaro,Adulto Mayor,adulto_mayor,1.0,1,0,0,650.0,1400.0,False,False
+adulto_mayor,PUA,Perquenco,Adulto Mayor,adulto_mayor,1.0,1,0,0,600.0,1300.0,False,False
+adulto_mayor,PUA,Pillanlelbun,Adulto Mayor,adulto_mayor,1.0,1,0,0,700.0,1500.0,False,False
+adulto_mayor,PUA,Quillem,Adulto Mayor,adulto_mayor,1.0,1,0,0,600.0,1300.0,False,False
+adulto_mayor,PUA,Temuco,Adulto Mayor,adulto_mayor,1.0,1,0,0,750.0,1600.0,False,False
+adulto_mayor,PUA,Victoria,Adulto Mayor,adulto_mayor,1.0,1,0,0,550.0,1200.0,False,False
+adulto_mayor,Perquenco,Cajon,Adulto Mayor,adulto_mayor,1.0,1,0,0,400.0,900.0,False,False
+adulto_mayor,Perquenco,L. Centro,Adulto Mayor,adulto_mayor,1.0,1,0,0,550.0,1200.0,False,False
+adulto_mayor,Perquenco,Lautaro,Adulto Mayor,adulto_mayor,1.0,1,0,0,550.0,1200.0,False,False
+adulto_mayor,Perquenco,PUA,Adulto Mayor,adulto_mayor,1.0,1,0,0,600.0,1300.0,False,False
+adulto_mayor,Perquenco,Pillanlelbun,Adulto Mayor,adulto_mayor,1.0,1,0,0,650.0,1400.0,False,False
+adulto_mayor,Perquenco,Quillem,Adulto Mayor,adulto_mayor,1.0,1,0,0,550.0,1200.0,False,False
+adulto_mayor,Perquenco,Temuco,Adulto Mayor,adulto_mayor,1.0,1,0,0,700.0,1500.0,False,False
+adulto_mayor,Perquenco,Victoria,Adulto Mayor,adulto_mayor,1.0,1,0,0,650.0,1400.0,False,False
+adulto_mayor,Pillanlelbun,L. Centro,Adulto Mayor,adulto_mayor,1.0,1,0,0,550.0,1200.0,False,False
+adulto_mayor,Pillanlelbun,Lautaro,Adulto Mayor,adulto_mayor,1.0,1,0,0,550.0,1200.0,False,False
+adulto_mayor,Pillanlelbun,PUA,Adulto Mayor,adulto_mayor,1.0,1,0,0,700.0,1500.0,False,False
+adulto_mayor,Pillanlelbun,Perquenco,Adulto Mayor,adulto_mayor,1.0,1,0,0,650.0,1400.0,False,False
+adulto_mayor,Pillanlelbun,Temuco,Adulto Mayor,adulto_mayor,1.0,1,0,0,600.0,1300.0,False,False
+adulto_mayor,Pillanlelbun,Victoria,Adulto Mayor,adulto_mayor,1.0,1,0,0,750.0,1600.0,False,False
+adulto_mayor,Pitrufquén,PLC,Adulto Mayor,adulto_mayor,1.0,1,0,0,700.0,1550.0,False,False
+adulto_mayor,Pitrufquén,Quepe,Adulto Mayor,adulto_mayor,1.0,1,0,0,350.0,700.0,False,False
+adulto_mayor,Pitrufquén,Temuco,Adulto Mayor,adulto_mayor,1.0,1,0,0,750.0,1550.0,False,False
+adulto_mayor,Quepe,Freire,Adulto Mayor,adulto_mayor,1.0,1,0,0,300.0,600.0,False,False
+adulto_mayor,Quepe,PLC,Adulto Mayor,adulto_mayor,1.0,1,0,0,300.0,650.0,False,False
+adulto_mayor,Quepe,Pitrufquén,Adulto Mayor,adulto_mayor,1.0,1,0,0,350.0,700.0,False,False
+adulto_mayor,Quepe,Temuco,Adulto Mayor,adulto_mayor,1.0,1,0,0,400.0,900.0,False,False
+adulto_mayor,Quillem,L. Centro,Adulto Mayor,adulto_mayor,1.0,1,0,0,550.0,1200.0,False,False
+adulto_mayor,Quillem,Lautaro,Adulto Mayor,adulto_mayor,1.0,1,0,0,550.0,1200.0,False,False
+adulto_mayor,Quillem,PUA,Adulto Mayor,adulto_mayor,1.0,1,0,0,600.0,1300.0,False,False
+adulto_mayor,Quillem,Perquenco,Adulto Mayor,adulto_mayor,1.0,1,0,0,550.0,1200.0,False,False
+adulto_mayor,Quillem,Temuco,Adulto Mayor,adulto_mayor,1.0,1,0,0,700.0,1500.0,False,False
+adulto_mayor,Quillem,Victoria,Adulto Mayor,adulto_mayor,1.0,1,0,0,650.0,1400.0,False,False
+adulto_mayor,Temuco,Cajon,Adulto Mayor,adulto_mayor,1.0,1,0,0,300.0,650.0,False,False
+adulto_mayor,Temuco,Freire,Adulto Mayor,adulto_mayor,1.0,1,0,0,700.0,1450.0,False,False
+adulto_mayor,Temuco,L. Centro,Adulto Mayor,adulto_mayor,1.0,1,0,0,650.0,1350.0,False,False
+adulto_mayor,Temuco,Lautaro,Adulto Mayor,adulto_mayor,1.0,1,0,0,650.0,1350.0,False,False
+adulto_mayor,Temuco,PLC,Adulto Mayor,adulto_mayor,1.0,1,0,0,350.0,750.0,False,False
+adulto_mayor,Temuco,PUA,Adulto Mayor,adulto_mayor,1.0,1,0,0,750.0,1600.0,False,False
+adulto_mayor,Temuco,Perquenco,Adulto Mayor,adulto_mayor,1.0,1,0,0,700.0,1500.0,False,False
+adulto_mayor,Temuco,Pillanlelbun,Adulto Mayor,adulto_mayor,1.0,1,0,0,600.0,1300.0,False,False
+adulto_mayor,Temuco,Pitrufquén,Adulto Mayor,adulto_mayor,1.0,1,0,0,750.0,1550.0,False,False
+adulto_mayor,Temuco,Quepe,Adulto Mayor,adulto_mayor,1.0,1,0,0,400.0,900.0,False,False
+adulto_mayor,Temuco,Quillem,Adulto Mayor,adulto_mayor,1.0,1,0,0,700.0,1500.0,False,False
+adulto_mayor,Temuco,Victoria,Adulto Mayor,adulto_mayor,1.0,1,0,0,900.0,1950.0,False,False
+adulto_mayor,Victoria,Cajon,Adulto Mayor,adulto_mayor,1.0,1,0,0,450.0,950.0,False,False
+adulto_mayor,Victoria,L. Centro,Adulto Mayor,adulto_mayor,1.0,1,0,0,700.0,1500.0,False,False
+adulto_mayor,Victoria,Lautaro,Adulto Mayor,adulto_mayor,1.0,1,0,0,700.0,1500.0,False,False
+adulto_mayor,Victoria,PUA,Adulto Mayor,adulto_mayor,1.0,1,0,0,550.0,1200.0,False,False
+adulto_mayor,Victoria,Perquenco,Adulto Mayor,adulto_mayor,1.0,1,0,0,650.0,1400.0,False,False
+adulto_mayor,Victoria,Pillanlelbun,Adulto Mayor,adulto_mayor,1.0,1,0,0,750.0,1600.0,False,False
+adulto_mayor,Victoria,Quillem,Adulto Mayor,adulto_mayor,1.0,1,0,0,650.0,1400.0,False,False
+adulto_mayor,Victoria,Temuco,Adulto Mayor,adulto_mayor,1.0,1,0,0,900.0,1950.0,False,False
+delegacion,PLC,Pitrufquén,Delegación,normal,0.7,1,0,0,1400.0,1550.0,False,False
+delegacion,Pitrufquén,PLC,Delegación,normal,0.7,1,0,0,1400.0,1550.0,False,False
+delegacion,Temuco,Victoria,Delegación,normal,0.7,1,0,0,1800.0,1950.0,False,False
+delegacion,Victoria,Temuco,Delegación,normal,0.7,1,0,0,1800.0,1950.0,False,False
+discapacitado,Cajon,L. Centro,Discapacitado,sin_pago,0.0,0,0,0,,650.0,False,False
+discapacitado,Cajon,Lautaro,Discapacitado,sin_pago,0.0,0,0,0,,650.0,False,False
+discapacitado,Cajon,Perquenco,Discapacitado,sin_pago,0.0,0,0,0,,900.0,False,False
+discapacitado,Cajon,Temuco,Discapacitado,sin_pago,0.0,0,0,0,,650.0,False,False
+discapacitado,Cajon,Victoria,Discapacitado,sin_pago,0.0,0,0,0,,950.0,False,False
+discapacitado,Freire,Pitrufquén,Discapacitado,sin_pago,0.0,0,0,0,,650.0,False,False
+discapacitado,Freire,Quepe,Discapacitado,sin_pago,0.0,0,0,0,,600.0,False,False
+discapacitado,Freire,Temuco,Discapacitado,sin_pago,0.0,0,0,0,,1450.0,False,False
+discapacitado,L. Centro,Perquenco,Discapacitado,sin_pago,0.0,0,0,0,,1200.0,False,False
+discapacitado,L. Centro,Pillanlelbun,Discapacitado,sin_pago,0.0,0,0,0,,1200.0,False,False
+discapacitado,L. Centro,Temuco,Discapacitado,sin_pago,0.0,0,0,0,,1350.0,False,False
+discapacitado,L. Centro,Victoria,Discapacitado,sin_pago,0.0,0,0,0,,1500.0,False,False
+discapacitado,Lautaro,Cajon,Discapacitado,sin_pago,0.0,0,0,0,,650.0,False,False
+discapacitado,Lautaro,Perquenco,Discapacitado,sin_pago,0.0,0,0,0,,1200.0,False,False
+discapacitado,Lautaro,Pillanlelbun,Discapacitado,sin_pago,0.0,0,0,0,,1200.0,False,False
+discapacitado,Lautaro,Temuco,Discapacitado,sin_pago,0.0,0,0,0,,1350.0,False,False
+discapacitado,Lautaro,Victoria,Discapacitado,sin_pago,0.0,0,0,0,,1500.0,False,False
+discapacitado,PLC,Freire,Discapacitado,sin_pago,0.0,0,0,0,,1400.0,False,False
+discapacitado,PLC,Pitrufquén,Discapacitado,sin_pago,0.0,0,0,0,,1550.0,False,False
+discapacitado,PLC,Quepe,Discapacitado,sin_pago,0.0,0,0,0,,650.0,False,False
+discapacitado,PLC,Temuco,Discapacitado,sin_pago,0.0,0,0,0,,750.0,False,False
+discapacitado,PUA,Perquenco,Discapacitado,sin_pago,0.0,0,0,0,,1300.0,False,False
+discapacitado,PUA,Temuco,Discapacitado,sin_pago,0.0,0,0,0,,1600.0,False,False
+discapacitado,PUA,Victoria,Discapacitado,sin_pago,0.0,0,0,0,,1200.0,False,False
+discapacitado,Perquenco,Cajon,Discapacitado,sin_pago,0.0,0,0,0,,900.0,False,False
+discapacitado,Perquenco,L. Centro,Discapacitado,sin_pago,0.0,0,0,0,,1200.0,False,False
+discapacitado,Perquenco,Lautaro,Discapacitado,sin_pago,0.0,0,0,0,,1200.0,False,False
+discapacitado,Perquenco,PUA,Discapacitado,sin_pago,0.0,0,0,0,,1300.0,False,False
+discapacitado,Perquenco,Pillanlelbun,Discapacitado,sin_pago,0.0,0,0,0,,1400.0,False,False
+discapacitado,Perquenco,Temuco,Discapacitado,sin_pago,0.0,0,0,0,,1500.0,False,False
+discapacitado,Perquenco,Victoria,Discapacitado,sin_pago,0.0,0,0,0,,1400.0,False,False
+discapacitado,Pillanlelbun,L. Centro,Discapacitado,sin_pago,0.0,0,0,0,,1200.0,False,False
+discapacitado,Pillanlelbun,Lautaro,Discapacitado,sin_pago,0.0,0,0,0,,1200.0,False,False
+discapacitado,Pillanlelbun,Perquenco,Discapacitado,sin_pago,0.0,0,0,0,,1400.0,False,False
+discapacitado,Pillanlelbun,Temuco,Discapacitado,sin_pago,0.0,0,0,0,,1300.0,False,False
+discapacitado,Pillanlelbun,Victoria,Discapacitado,sin_pago,0.0,0,0,0,,1600.0,False,False
+discapacitado,Pitrufquén,Freire,Discapacitado,sin_pago,0.0,0,0,0,,650.0,False,False
+discapacitado,Pitrufquén,PLC,Discapacitado,sin_pago,0.0,0,0,0,,1550.0,False,False
+discapacitado,Pitrufquén,Pillanlelbun,Discapacitado,sin_pago,0.0,0,0,0,,2400.0,False,False
+discapacitado,Pitrufquén,Quepe,Discapacitado,sin_pago,0.0,0,0,0,,700.0,False,False
+discapacitado,Pitrufquén,Temuco,Discapacitado,sin_pago,0.0,0,0,0,,1550.0,False,False
+discapacitado,Quepe,Freire,Discapacitado,sin_pago,0.0,0,0,0,,600.0,False,False
+discapacitado,Quepe,Lautaro,Discapacitado,sin_pago,0.0,0,0,0,,1800.0,False,False
+discapacitado,Quepe,PLC,Discapacitado,sin_pago,0.0,0,0,0,,650.0,False,False
+discapacitado,Quepe,Pitrufquén,Discapacitado,sin_pago,0.0,0,0,0,,700.0,False,False
+discapacitado,Quepe,Temuco,Discapacitado,sin_pago,0.0,0,0,0,,900.0,False,False
+discapacitado,Quillem,L. Centro,Discapacitado,sin_pago,0.0,0,0,0,,1200.0,False,False
+discapacitado,Quillem,Perquenco,Discapacitado,sin_pago,0.0,0,0,0,,1200.0,False,False
+discapacitado,Quillem,Temuco,Discapacitado,sin_pago,0.0,0,0,0,,1500.0,False,False
+discapacitado,Quillem,Victoria,Discapacitado,sin_pago,0.0,0,0,0,,1400.0,False,False
+discapacitado,Temuco,Cajon,Discapacitado,sin_pago,0.0,0,0,0,,650.0,False,False
+discapacitado,Temuco,Freire,Discapacitado,sin_pago,0.0,0,0,0,,1450.0,False,False
+discapacitado,Temuco,L. Centro,Discapacitado,sin_pago,0.0,0,0,0,,1350.0,False,False
+discapacitado,Temuco,Lautaro,Discapacitado,sin_pago,0.0,0,0,0,,1350.0,False,False
+discapacitado,Temuco,PLC,Discapacitado,sin_pago,0.0,0,0,0,,750.0,False,False
+discapacitado,Temuco,PUA,Discapacitado,sin_pago,0.0,0,0,0,,1600.0,False,False
+discapacitado,Temuco,Perquenco,Discapacitado,sin_pago,0.0,0,0,0,,1500.0,False,False
+discapacitado,Temuco,Pillanlelbun,Discapacitado,sin_pago,0.0,0,0,0,,1300.0,False,False
+discapacitado,Temuco,Pitrufquén,Discapacitado,sin_pago,0.0,0,0,0,,1550.0,False,False
+discapacitado,Temuco,Quepe,Discapacitado,sin_pago,0.0,0,0,0,,900.0,False,False
+discapacitado,Temuco,Quillem,Discapacitado,sin_pago,0.0,0,0,0,,1500.0,False,False
+discapacitado,Temuco,Victoria,Discapacitado,sin_pago,0.0,0,0,0,,1950.0,False,False
+discapacitado,Victoria,Cajon,Discapacitado,sin_pago,0.0,0,0,0,,950.0,False,False
+discapacitado,Victoria,L. Centro,Discapacitado,sin_pago,0.0,0,0,0,,1500.0,False,False
+discapacitado,Victoria,Lautaro,Discapacitado,sin_pago,0.0,0,0,0,,1500.0,False,False
+discapacitado,Victoria,PUA,Discapacitado,sin_pago,0.0,0,0,0,,1200.0,False,False
+discapacitado,Victoria,Perquenco,Discapacitado,sin_pago,0.0,0,0,0,,1400.0,False,False
+discapacitado,Victoria,Pillanlelbun,Discapacitado,sin_pago,0.0,0,0,0,,1600.0,False,False
+discapacitado,Victoria,Temuco,Discapacitado,sin_pago,0.0,0,0,0,,1950.0,False,False
+estudiante,Cajon,L. Centro,Estudiante,estudiante,1.0,1,0,1,200.0,650.0,False,False
+estudiante,Cajon,Lautaro,Estudiante,estudiante,1.0,1,0,1,200.0,650.0,False,False
+estudiante,Cajon,PUA,Estudiante,estudiante,1.0,1,0,1,250.0,900.0,False,False
+estudiante,Cajon,Perquenco,Estudiante,estudiante,1.0,1,0,1,250.0,900.0,False,False
+estudiante,Cajon,Pillanlelbun,Estudiante,estudiante,1.0,1,0,1,200.0,650.0,False,False
+estudiante,Cajon,Temuco,Estudiante,estudiante,1.0,1,0,1,200.0,650.0,False,False
+estudiante,Cajon,Victoria,Estudiante,estudiante,1.0,1,0,1,300.0,950.0,False,False
+estudiante,Freire,PLC,Estudiante,estudiante,1.0,1,0,1,450.0,1400.0,False,False
+estudiante,Freire,Pitrufquén,Estudiante,estudiante,1.0,1,0,1,200.0,650.0,False,False
+estudiante,Freire,Quepe,Estudiante,estudiante,1.0,1,0,1,200.0,600.0,False,False
+estudiante,Freire,Temuco,Estudiante,estudiante,1.0,1,0,1,450.0,1450.0,False,False
+estudiante,L. Centro,Cajon,Estudiante,estudiante,1.0,1,0,1,200.0,650.0,False,False
+estudiante,L. Centro,Perquenco,Estudiante,estudiante,1.0,1,0,1,350.0,1200.0,False,False
+estudiante,L. Centro,Pillanlelbun,Estudiante,estudiante,1.0,1,0,1,350.0,1200.0,False,False
+estudiante,L. Centro,Quillem,Estudiante,estudiante,1.0,1,0,1,350.0,1200.0,False,False
+estudiante,L. Centro,Temuco,Estudiante,estudiante,1.0,1,0,1,450.0,1350.0,False,False
+estudiante,L. Centro,Victoria,Estudiante,estudiante,1.0,1,0,1,450.0,1500.0,False,False
+estudiante,Lautaro,Cajon,Estudiante,estudiante,1.0,1,0,1,200.0,650.0,False,False
+estudiante,Lautaro,PUA,Estudiante,estudiante,1.0,1,0,1,450.0,1400.0,False,False
+estudiante,Lautaro,Perquenco,Estudiante,estudiante,1.0,1,0,1,350.0,1200.0,False,False
+estudiante,Lautaro,Pillanlelbun,Estudiante,estudiante,1.0,1,0,1,350.0,1200.0,False,False
+estudiante,Lautaro,Quillem,Estudiante,estudiante,1.0,1,0,1,350.0,1200.0,False,False
+estudiante,Lautaro,Temuco,Estudiante,estudiante,1.0,1,0,1,450.0,1350.0,False,False
+estudiante,Lautaro,Victoria,Estudiante,estudiante,1.0,1,0,1,450.0,1500.0,False,False
+estudiante,PLC,Freire,Estudiante,estudiante,1.0,1,0,1,450.0,1400.0,False,False
+estudiante,PLC,Pitrufquén,Estudiante,estudiante,1.0,1,0,1,450.0,1550.0,False,False
+estudiante,PLC,Quepe,Estudiante,estudiante,1.0,1,0,1,200.0,650.0,False,False
+estudiante,PLC,Temuco,Estudiante,estudiante,1.0,1,0,1,250.0,750.0,False,False
+estudiante,PUA,Cajon,Estudiante,estudiante,1.0,1,0,1,250.0,900.0,False,False
+estudiante,PUA,L. Centro,Estudiante,estudiante,1.0,1,0,1,450.0,1400.0,False,False
+estudiante,PUA,Lautaro,Estudiante,estudiante,1.0,1,0,1,450.0,1400.0,False,False
+estudiante,PUA,Perquenco,Estudiante,estudiante,1.0,1,0,1,400.0,1300.0,False,False
+estudiante,PUA,Pillanlelbun,Estudiante,estudiante,1.0,1,0,1,450.0,1500.0,False,False
+estudiante,PUA,Temuco,Estudiante,estudiante,1.0,1,0,1,500.0,1600.0,False,False
+estudiante,PUA,Victoria,Estudiante,estudiante,1.0,1,0,1,350.0,1200.0,False,False
+estudiante,Perquenco,Cajon,Estudiante,estudiante,1.0,1,0,1,250.0,900.0,False,False
+estudiante,Perquenco,L. Centro,Estudiante,estudiante,1.0,1,0,1,350.0,1200.0,False,False
+estudiante,Perquenco,Lautaro,Estudiante,estudiante,1.0,1,0,1,350.0,1200.0,False,False
+estudiante,Perquenco,PUA,Estudiante,estudiante,1.0,1,0,1,400.0,1300.0,False,False
+estudiante,Perquenco,Pillanlelbun,Estudiante,estudiante,1.0,1,0,1,450.0,1400.0,False,False
+estudiante,Perquenco,Quillem,Estudiante,estudiante,1.0,1,0,1,350.0,1200.0,False,False
+estudiante,Perquenco,Temuco,Estudiante,estudiante,1.0,1,0,1,450.0,1500.0,False,False
+estudiante,Perquenco,Victoria,Estudiante,estudiante,1.0,1,0,1,450.0,1400.0,False,False
+estudiante,Pillanlelbun,Cajon,Estudiante,estudiante,1.0,1,0,1,200.0,650.0,False,False
+estudiante,Pillanlelbun,L. Centro,Estudiante,estudiante,1.0,1,0,1,350.0,1200.0,False,False
+estudiante,Pillanlelbun,Lautaro,Estudiante,estudiante,1.0,1,0,1,350.0,1200.0,False,False
+estudiante,Pillanlelbun,PUA,Estudiante,estudiante,1.0,1,0,1,450.0,1500.0,False,False
+estudiante,Pillanlelbun,Perquenco,Estudiante,estudiante,1.0,1,0,1,450.0,1400.0,False,False
+estudiante,Pillanlelbun,Temuco,Estudiante,estudiante,1.0,1,0,1,400.0,1300.0,False,False
+estudiante,Pillanlelbun,Victoria,Estudiante,estudiante,1.0,1,0,1,500.0,1600.0,False,False
+estudiante,Pitrufquén,Freire,Estudiante,estudiante,1.0,1,0,1,200.0,650.0,False,False
+estudiante,Pitrufquén,PLC,Estudiante,estudiante,1.0,1,0,1,450.0,1550.0,False,False
+estudiante,Pitrufquén,Pillanlelbun,Estudiante,estudiante,1.0,1,0,1,750.0,2400.0,False,False
+estudiante,Pitrufquén,Quepe,Estudiante,estudiante,1.0,1,0,1,200.0,700.0,False,False
+estudiante,Pitrufquén,Temuco,Estudiante,estudiante,1.0,1,0,1,500.0,1550.0,False,False
+estudiante,Quepe,Freire,Estudiante,estudiante,1.0,1,0,1,200.0,600.0,False,False
+estudiante,Quepe,Pitrufquén,Estudiante,estudiante,1.0,1,0,1,200.0,700.0,False,False
+estudiante,Quepe,Temuco,Estudiante,estudiante,1.0,1,0,1,250.0,900.0,False,False
+estudiante,Quillem,Cajon,Estudiante,estudiante,1.0,1,0,1,250.0,750.0,False,False
+estudiante,Quillem,L. Centro,Estudiante,estudiante,1.0,1,0,1,350.0,1200.0,False,False
+estudiante,Quillem,Lautaro,Estudiante,estudiante,1.0,1,0,1,350.0,1200.0,False,False
+estudiante,Quillem,Perquenco,Estudiante,estudiante,1.0,1,0,1,350.0,1200.0,False,False
+estudiante,Quillem,Temuco,Estudiante,estudiante,1.0,1,0,1,450.0,1500.0,False,False
+estudiante,Temuco,Cajon,Estudiante,estudiante,1.0,1,0,1,200.0,650.0,False,False
+estudiante,Temuco,Freire,Estudiante,estudiante,1.0,1,0,1,450.0,1450.0,False,False
+estudiante,Temuco,L. Centro,Estudiante,estudiante,1.0,1,0,1,450.0,1350.0,False,False
+estudiante,Temuco,Lautaro,Estudiante,estudiante,1.0,1,0,1,450.0,1350.0,False,False
+estudiante,Temuco,PLC,Estudiante,estudiante,1.0,1,0,1,250.0,750.0,False,False
+estudiante,Temuco,PUA,Estudiante,estudiante,1.0,1,0,1,500.0,1600.0,False,False
+estudiante,Temuco,Perquenco,Estudiante,estudiante,1.0,1,0,1,450.0,1500.0,False,False
+estudiante,Temuco,Pillanlelbun,Estudiante,estudiante,1.0,1,0,1,400.0,1300.0,False,False
+estudiante,Temuco,Pitrufquén,Estudiante,estudiante,1.0,1,0,1,500.0,1550.0,False,False
+estudiante,Temuco,Quepe,Estudiante,estudiante,1.0,1,0,1,250.0,900.0,False,False
+estudiante,Temuco,Quillem,Estudiante,estudiante,1.0,1,0,1,450.0,1500.0,False,False
+estudiante,Temuco,Victoria,Estudiante,estudiante,1.0,1,0,1,600.0,1950.0,False,False
+estudiante,Victoria,Cajon,Estudiante,estudiante,1.0,1,0,1,300.0,950.0,False,False
+estudiante,Victoria,L. Centro,Estudiante,estudiante,1.0,1,0,1,450.0,1500.0,False,False
+estudiante,Victoria,Lautaro,Estudiante,estudiante,1.0,1,0,1,450.0,1500.0,False,False
+estudiante,Victoria,PUA,Estudiante,estudiante,1.0,1,0,1,350.0,1200.0,False,False
+estudiante,Victoria,Perquenco,Estudiante,estudiante,1.0,1,0,1,450.0,1400.0,False,False
+estudiante,Victoria,Pillanlelbun,Estudiante,estudiante,1.0,1,0,1,500.0,1600.0,False,False
+estudiante,Victoria,Temuco,Estudiante,estudiante,1.0,1,0,1,600.0,1950.0,False,False
+estudiante_basica,Cajon,L. Centro,Estudiante Básica,sin_pago,0.0,0,0,0,,650.0,False,False
+estudiante_basica,Cajon,Lautaro,Estudiante Básica,sin_pago,0.0,0,0,0,,650.0,False,False
+estudiante_basica,Cajon,Perquenco,Estudiante Básica,sin_pago,0.0,0,0,0,,900.0,False,False
+estudiante_basica,Cajon,Pillanlelbun,Estudiante Básica,sin_pago,0.0,0,0,0,,650.0,False,False
+estudiante_basica,Cajon,Temuco,Estudiante Básica,sin_pago,0.0,0,0,0,,650.0,False,False
+estudiante_basica,Cajon,Victoria,Estudiante Básica,sin_pago,0.0,0,0,0,,950.0,False,False
+estudiante_basica,Freire,PLC,Estudiante Básica,sin_pago,0.0,0,0,0,,1400.0,False,False
+estudiante_basica,Freire,Pitrufquén,Estudiante Básica,sin_pago,0.0,0,0,0,,650.0,False,False
+estudiante_basica,Freire,Quepe,Estudiante Básica,sin_pago,0.0,0,0,0,,600.0,False,False
+estudiante_basica,Freire,Temuco,Estudiante Básica,sin_pago,0.0,0,0,0,,1450.0,False,False
+estudiante_basica,L. Centro,Cajon,Estudiante Básica,sin_pago,0.0,0,0,0,,650.0,False,False
+estudiante_basica,L. Centro,PUA,Estudiante Básica,sin_pago,0.0,0,0,0,,1400.0,False,False
+estudiante_basica,L. Centro,Perquenco,Estudiante Básica,sin_pago,0.0,0,0,0,,1200.0,False,False
+estudiante_basica,L. Centro,Pillanlelbun,Estudiante Básica,sin_pago,0.0,0,0,0,,1200.0,False,False
+estudiante_basica,L. Centro,Quillem,Estudiante Básica,sin_pago,0.0,0,0,0,,1200.0,False,False
+estudiante_basica,L. Centro,Temuco,Estudiante Básica,sin_pago,0.0,0,0,0,,1350.0,False,False
+estudiante_basica,L. Centro,Victoria,Estudiante Básica,sin_pago,0.0,0,0,0,,1500.0,False,False
+estudiante_basica,Lautaro,Cajon,Estudiante Básica,sin_pago,0.0,0,0,0,,650.0,False,False
+estudiante_basica,Lautaro,PUA,Estudiante Básica,sin_pago,0.0,0,0,0,,1400.0,False,False
+estudiante_basica,Lautaro,Perquenco,Estudiante Básica,sin_pago,0.0,0,0,0,,1200.0,False,False
+estudiante_basica,Lautaro,Pillanlelbun,Estudiante Básica,sin_pago,0.0,0,0,0,,1200.0,False,False
+estudiante_basica,Lautaro,Quillem,Estudiante Básica,sin_pago,0.0,0,0,0,,1200.0,False,False
+estudiante_basica,Lautaro,Temuco,Estudiante Básica,sin_pago,0.0,0,0,0,,1350.0,False,False
+estudiante_basica,Lautaro,Victoria,Estudiante Básica,sin_pago,0.0,0,0,0,,1500.0,False,False
+estudiante_basica,PLC,Freire,Estudiante Básica,sin_pago,0.0,0,0,0,,1400.0,False,False
+estudiante_basica,PLC,Pitrufquén,Estudiante Básica,sin_pago,0.0,0,0,0,,1550.0,False,False
+estudiante_basica,PLC,Quepe,Estudiante Básica,sin_pago,0.0,0,0,0,,650.0,False,False
+estudiante_basica,PLC,Temuco,Estudiante Básica,sin_pago,0.0,0,0,0,,750.0,False,False
+estudiante_basica,PUA,L. Centro,Estudiante Básica,sin_pago,0.0,0,0,0,,1400.0,False,False
+estudiante_basica,PUA,Lautaro,Estudiante Básica,sin_pago,0.0,0,0,0,,1400.0,False,False
+estudiante_basica,PUA,Perquenco,Estudiante Básica,sin_pago,0.0,0,0,0,,1300.0,False,False
+estudiante_basica,PUA,Pillanlelbun,Estudiante Básica,sin_pago,0.0,0,0,0,,1500.0,False,False
+estudiante_basica,PUA,Quillem,Estudiante Básica,sin_pago,0.0,0,0,0,,1300.0,False,False
+estudiante_basica,PUA,Temuco,Estudiante Básica,sin_pago,0.0,0,0,0,,1600.0,False,False
+estudiante_basica,PUA,Victoria,Estudiante Básica,sin_pago,0.0,0,0,0,,1200.0,False,False
+estudiante_basica,Perquenco,Cajon,Estudiante Básica,sin_pago,0.0,0,0,0,,900.0,False,False
+estudiante_basica,Perquenco,L. Centro,Estudiante Básica,sin_pago,0.0,0,0,0,,1200.0,False,False
+estudiante_basica,Perquenco,Lautaro,Estudiante Básica,sin_pago,0.0,0,0,0,,1200.0,False,False
+estudiante_basica,Perquenco,PUA,Estudiante Básica,sin_pago,0.0,0,0,0,,1300.0,False,False
+estudiante_basica,Perquenco,Pillanlelbun,Estudiante Básica,sin_pago,0.0,0,0,0,,1400.0,False,False
+estudiante_basica,Perquenco,Quillem,Estudiante Básica,sin_pago,0.0,0,0,0,,1200.0,False,False
+estudiante_basica,Perquenco,Temuco,Estudiante Básica,sin_pago,0.0,0,0,0,,1500.0,False,False
+estudiante_basica,Perquenco,Victoria,Estudiante Básica,sin_pago,0.0,0,0,0,,1400.0,False,False
+estudiante_basica,Pillanlelbun,Cajon,Estudiante Básica,sin_pago,0.0,0,0,0,,650.0,False,False
+estudiante_basica,Pillanlelbun,L. Centro,Estudiante Básica,sin_pago,0.0,0,0,0,,1200.0,False,False
+estudiante_basica,Pillanlelbun,Lautaro,Estudiante Básica,sin_pago,0.0,0,0,0,,1200.0,False,False
+estudiante_basica,Pillanlelbun,PUA,Estudiante Básica,sin_pago,0.0,0,0,0,,1500.0,False,False
+estudiante_basica,Pillanlelbun,Perquenco,Estudiante Básica,sin_pago,0.0,0,0,0,,1400.0,False,False
+estudiante_basica,Pillanlelbun,Pitrufquén,Estudiante Básica,sin_pago,0.0,0,0,0,,2400.0,False,False
+estudiante_basica,Pillanlelbun,Temuco,Estudiante Básica,sin_pago,0.0,0,0,0,,1300.0,False,False
+estudiante_basica,Pillanlelbun,Victoria,Estudiante Básica,sin_pago,0.0,0,0,0,,1600.0,False,False
+estudiante_basica,Pitrufquén,Freire,Estudiante Básica,sin_pago,0.0,0,0,0,,650.0,False,False
+estudiante_basica,Pitrufquén,Lautaro,Estudiante Básica,sin_pago,0.0,0,0,0,,2500.0,False,False
+estudiante_basica,Pitrufquén,PLC,Estudiante Básica,sin_pago,0.0,0,0,0,,1550.0,False,False
+estudiante_basica,Pitrufquén,Quepe,Estudiante Básica,sin_pago,0.0,0,0,0,,700.0,False,False
+estudiante_basica,Pitrufquén,Temuco,Estudiante Básica,sin_pago,0.0,0,0,0,,1550.0,False,False
+estudiante_basica,Quepe,Freire,Estudiante Básica,sin_pago,0.0,0,0,0,,600.0,False,False
+estudiante_basica,Quepe,PLC,Estudiante Básica,sin_pago,0.0,0,0,0,,650.0,False,False
+estudiante_basica,Quepe,Pitrufquén,Estudiante Básica,sin_pago,0.0,0,0,0,,700.0,False,False
+estudiante_basica,Quepe,Temuco,Estudiante Básica,sin_pago,0.0,0,0,0,,900.0,False,False
+estudiante_basica,Quillem,L. Centro,Estudiante Básica,sin_pago,0.0,0,0,0,,1200.0,False,False
+estudiante_basica,Quillem,Lautaro,Estudiante Básica,sin_pago,0.0,0,0,0,,1200.0,False,False
+estudiante_basica,Quillem,PUA,Estudiante Básica,sin_pago,0.0,0,0,0,,1300.0,False,False
+estudiante_basica,Quillem,Perquenco,Estudiante Básica,sin_pago,0.0,0,0,0,,1200.0,False,False
+estudiante_basica,Quillem,Temuco,Estudiante Básica,sin_pago,0.0,0,0,0,,1500.0,False,False
+estudiante_basica,Quillem,Victoria,Estudiante Básica,sin_pago,0.0,0,0,0,,1400.0,False,False
+estudiante_basica,Temuco,Cajon,Estudiante Básica,sin_pago,0.0,0,0,0,,650.0,False,False
+estudiante_basica,Temuco,Freire,Estudiante Básica,sin_pago,0.0,0,0,0,,1450.0,False,False
+estudiante_basica,Temuco,L. Centro,Estudiante Básica,sin_pago,0.0,0,0,0,,1350.0,False,False
+estudiante_basica,Temuco,Lautaro,Estudiante Básica,sin_pago,0.0,0,0,0,,1350.0,False,False
+estudiante_basica,Temuco,PLC,Estudiante Básica,sin_pago,0.0,0,0,0,,750.0,False,False
+estudiante_basica,Temuco,PUA,Estudiante Básica,sin_pago,0.0,0,0,0,,1600.0,False,False
+estudiante_basica,Temuco,Perquenco,Estudiante Básica,sin_pago,0.0,0,0,0,,1500.0,False,False
+estudiante_basica,Temuco,Pillanlelbun,Estudiante Básica,sin_pago,0.0,0,0,0,,1300.0,False,False
+estudiante_basica,Temuco,Pitrufquén,Estudiante Básica,sin_pago,0.0,0,0,0,,1550.0,False,False
+estudiante_basica,Temuco,Quepe,Estudiante Básica,sin_pago,0.0,0,0,0,,900.0,False,False
+estudiante_basica,Temuco,Quillem,Estudiante Básica,sin_pago,0.0,0,0,0,,1500.0,False,False
+estudiante_basica,Temuco,Victoria,Estudiante Básica,sin_pago,0.0,0,0,0,,1950.0,False,False
+estudiante_basica,Victoria,Cajon,Estudiante Básica,sin_pago,0.0,0,0,0,,950.0,False,False
+estudiante_basica,Victoria,Freire,Estudiante Básica,sin_pago,0.0,0,0,0,,2750.0,False,False
+estudiante_basica,Victoria,L. Centro,Estudiante Básica,sin_pago,0.0,0,0,0,,1500.0,False,False
+estudiante_basica,Victoria,Lautaro,Estudiante Básica,sin_pago,0.0,0,0,0,,1500.0,False,False
+estudiante_basica,Victoria,PUA,Estudiante Básica,sin_pago,0.0,0,0,0,,1200.0,False,False
+estudiante_basica,Victoria,Perquenco,Estudiante Básica,sin_pago,0.0,0,0,0,,1400.0,False,False
+estudiante_basica,Victoria,Pillanlelbun,Estudiante Básica,sin_pago,0.0,0,0,0,,1600.0,False,False
+estudiante_basica,Victoria,Quillem,Estudiante Básica,sin_pago,0.0,0,0,0,,1400.0,False,False
+estudiante_basica,Victoria,Temuco,Estudiante Básica,sin_pago,0.0,0,0,0,,1950.0,False,False
+funcionario,L. Centro,Perquenco,Funcionario,sin_pago,0.0,0,0,0,,1200.0,False,False
+funcionario,L. Centro,Quillem,Funcionario,sin_pago,0.0,0,0,0,,1200.0,False,False
+funcionario,L. Centro,Temuco,Funcionario,sin_pago,0.0,0,0,0,,1350.0,False,False
+funcionario,L. Centro,Victoria,Funcionario,sin_pago,0.0,0,0,0,,1500.0,False,False
+funcionario,Lautaro,Perquenco,Funcionario,sin_pago,0.0,0,0,0,,1200.0,False,False
+funcionario,Lautaro,Temuco,Funcionario,sin_pago,0.0,0,0,0,,1350.0,False,False
+funcionario,Lautaro,Victoria,Funcionario,sin_pago,0.0,0,0,0,,1500.0,False,False
+funcionario,PUA,Cajon,Funcionario,sin_pago,0.0,0,0,0,,900.0,False,False
+funcionario,PUA,Temuco,Funcionario,sin_pago,0.0,0,0,0,,1600.0,False,False
+funcionario,Perquenco,Cajon,Funcionario,sin_pago,0.0,0,0,0,,900.0,False,False
+funcionario,Perquenco,Temuco,Funcionario,sin_pago,0.0,0,0,0,,1500.0,False,False
+funcionario,Perquenco,Victoria,Funcionario,sin_pago,0.0,0,0,0,,1400.0,False,False
+funcionario,Pitrufquén,Temuco,Funcionario,sin_pago,0.0,0,0,0,,1550.0,False,False
+funcionario,Quillem,Perquenco,Funcionario,sin_pago,0.0,0,0,0,,1200.0,False,False
+funcionario,Quillem,Victoria,Funcionario,sin_pago,0.0,0,0,0,,1400.0,False,False
+funcionario,Temuco,Cajon,Funcionario,sin_pago,0.0,0,0,0,,650.0,False,False
+funcionario,Temuco,Freire,Funcionario,sin_pago,0.0,0,0,0,,1450.0,False,False
+funcionario,Temuco,L. Centro,Funcionario,sin_pago,0.0,0,0,0,,1350.0,False,False
+funcionario,Temuco,Lautaro,Funcionario,sin_pago,0.0,0,0,0,,1350.0,False,False
+funcionario,Temuco,PLC,Funcionario,sin_pago,0.0,0,0,0,,750.0,False,False
+funcionario,Temuco,PUA,Funcionario,sin_pago,0.0,0,0,0,,1600.0,False,False
+funcionario,Temuco,Perquenco,Funcionario,sin_pago,0.0,0,0,0,,1500.0,False,False
+funcionario,Temuco,Pillanlelbun,Funcionario,sin_pago,0.0,0,0,0,,1300.0,False,False
+funcionario,Temuco,Pitrufquén,Funcionario,sin_pago,0.0,0,0,0,,1550.0,False,False
+funcionario,Temuco,Victoria,Funcionario,sin_pago,0.0,0,0,0,,1950.0,False,False
+funcionario,Victoria,L. Centro,Funcionario,sin_pago,0.0,0,0,0,,1500.0,False,False
+funcionario,Victoria,Lautaro,Funcionario,sin_pago,0.0,0,0,0,,1500.0,False,False
+funcionario,Victoria,Perquenco,Funcionario,sin_pago,0.0,0,0,0,,1400.0,False,False
+funcionario,Victoria,Temuco,Funcionario,sin_pago,0.0,0,0,0,,1950.0,False,False
+normal,Cajon,L. Centro,Normal,normal,1.0,1,1,0,600.0,650.0,False,False
+normal,Cajon,Lautaro,Normal,normal,1.0,1,1,0,600.0,650.0,False,False
+normal,Cajon,PUA,Normal,normal,1.0,1,1,0,800.0,900.0,False,False
+normal,Cajon,Perquenco,Normal,normal,1.0,1,1,0,800.0,900.0,False,False
+normal,Cajon,Pillanlelbun,Normal,normal,1.0,1,1,0,600.0,650.0,False,False
+normal,Cajon,Quillem,Normal,normal,1.0,1,1,0,700.0,750.0,False,False
+normal,Cajon,Temuco,Normal,normal,1.0,1,1,0,600.0,650.0,False,False
+normal,Cajon,Victoria,Normal,normal,1.0,1,1,0,900.0,950.0,False,False
+normal,Freire,PLC,Normal,normal,1.0,1,1,0,1300.0,1400.0,False,False
+normal,Freire,Pitrufquén,Normal,normal,1.0,1,1,0,600.0,650.0,False,False
+normal,Freire,Quepe,Normal,normal,1.0,1,1,0,550.0,600.0,False,False
+normal,Freire,Temuco,Normal,normal,1.0,1,1,0,1350.0,1450.0,False,False
+normal,L. Centro,Cajon,Normal,normal,1.0,1,1,0,600.0,650.0,False,False
+normal,L. Centro,PUA,Normal,normal,1.0,1,1,0,1300.0,1400.0,False,False
+normal,L. Centro,Perquenco,Normal,normal,1.0,1,1,0,1100.0,1200.0,False,False
+normal,L. Centro,Pillanlelbun,Normal,normal,1.0,1,1,0,1100.0,1200.0,False,False
+normal,L. Centro,Quillem,Normal,normal,1.0,1,1,0,1100.0,1200.0,False,False
+normal,L. Centro,Temuco,Normal,normal,1.0,1,1,0,1300.0,1350.0,False,False
+normal,L. Centro,Victoria,Normal,normal,1.0,1,1,0,1400.0,1500.0,False,False
+normal,Lautaro,Cajon,Normal,normal,1.0,1,1,0,600.0,650.0,False,False
+normal,Lautaro,PUA,Normal,normal,1.0,1,1,0,1300.0,1400.0,False,False
+normal,Lautaro,Perquenco,Normal,normal,1.0,1,1,0,1100.0,1200.0,False,False
+normal,Lautaro,Pillanlelbun,Normal,normal,1.0,1,1,0,1100.0,1200.0,False,False
+normal,Lautaro,Quillem,Normal,normal,1.0,1,1,0,1100.0,1200.0,False,False
+normal,Lautaro,Temuco,Normal,normal,1.0,1,1,0,1300.0,1350.0,False,False
+normal,Lautaro,Victoria,Normal,normal,1.0,1,1,0,1400.0,1500.0,False,False
+normal,PLC,Freire,Normal,normal,1.0,1,1,0,1300.0,1400.0,False,False
+normal,PLC,Pitrufquén,Normal,normal,1.0,1,1,0,1400.0,1550.0,False,False
+normal,PLC,Quepe,Normal,normal,1.0,1,1,0,600.0,650.0,False,False
+normal,PLC,Temuco,Normal,normal,1.0,1,1,0,700.0,750.0,False,False
+normal,PUA,Cajon,Normal,normal,1.0,1,1,0,800.0,900.0,False,False
+normal,PUA,L. Centro,Normal,normal,1.0,1,1,0,1300.0,1400.0,False,False
+normal,PUA,Lautaro,Normal,normal,1.0,1,1,0,1300.0,1400.0,False,False
+normal,PUA,Perquenco,Normal,normal,1.0,1,1,0,1200.0,1300.0,False,False
+normal,PUA,Pillanlelbun,Normal,normal,1.0,1,1,0,1400.0,1500.0,False,False
+normal,PUA,Quillem,Normal,normal,1.0,1,1,0,1200.0,1300.0,False,False
+normal,PUA,Temuco,Normal,normal,1.0,1,1,0,1500.0,1600.0,False,False
+normal,PUA,Victoria,Normal,normal,1.0,1,1,0,1100.0,1200.0,False,False
+normal,Perquenco,Cajon,Normal,normal,1.0,1,1,0,800.0,900.0,False,False
+normal,Perquenco,L. Centro,Normal,normal,1.0,1,1,0,1100.0,1200.0,False,False
+normal,Perquenco,Lautaro,Normal,normal,1.0,1,1,0,1100.0,1200.0,False,False
+normal,Perquenco,PUA,Normal,normal,1.0,1,1,0,1200.0,1300.0,False,False
+normal,Perquenco,Pillanlelbun,Normal,normal,1.0,1,1,0,1300.0,1400.0,False,False
+normal,Perquenco,Quillem,Normal,normal,1.0,1,1,0,1100.0,1200.0,False,False
+normal,Perquenco,Temuco,Normal,normal,1.0,1,1,0,1400.0,1500.0,False,False
+normal,Perquenco,Victoria,Normal,normal,1.0,1,1,0,1300.0,1400.0,False,False
+normal,Pillanlelbun,Cajon,Normal,normal,1.0,1,1,0,600.0,650.0,False,False
+normal,Pillanlelbun,L. Centro,Normal,normal,1.0,1,1,0,1100.0,1200.0,False,False
+normal,Pillanlelbun,Lautaro,Normal,normal,1.0,1,1,0,1100.0,1200.0,False,False
+normal,Pillanlelbun,PUA,Normal,normal,1.0,1,1,0,1400.0,1500.0,False,False
+normal,Pillanlelbun,Perquenco,Normal,normal,1.0,1,1,0,1300.0,1400.0,False,False
+normal,Pillanlelbun,Quillem,Normal,normal,1.0,1,1,0,1300.0,1400.0,False,False
+normal,Pillanlelbun,Temuco,Normal,normal,1.0,1,1,0,1200.0,1300.0,False,False
+normal,Pillanlelbun,Victoria,Normal,normal,1.0,1,1,0,1500.0,1600.0,False,False
+normal,Pitrufquén,Freire,Normal,normal,1.0,1,1,0,600.0,650.0,False,False
+normal,Pitrufquén,PLC,Normal,normal,1.0,1,1,0,1400.0,1550.0,False,False
+normal,Pitrufquén,Quepe,Normal,normal,1.0,1,1,0,650.0,700.0,False,False
+normal,Pitrufquén,Temuco,Normal,normal,1.0,1,1,0,1450.0,1550.0,False,False
+normal,Quepe,Freire,Normal,normal,1.0,1,1,0,550.0,600.0,False,False
+normal,Quepe,PLC,Normal,normal,1.0,1,1,0,600.0,650.0,False,False
+normal,Quepe,Pillanlelbun,Normal,normal,1.0,1,1,0,1550.0,1700.0,False,False
+normal,Quepe,Pitrufquén,Normal,normal,1.0,1,1,0,650.0,700.0,False,False
+normal,Quepe,Temuco,Normal,normal,1.0,1,1,0,800.0,900.0,False,False
+normal,Quillem,Cajon,Normal,normal,1.0,1,1,0,700.0,750.0,False,False
+normal,Quillem,L. Centro,Normal,normal,1.0,1,1,0,1100.0,1200.0,False,False
+normal,Quillem,Lautaro,Normal,normal,1.0,1,1,0,1100.0,1200.0,False,False
+normal,Quillem,PUA,Normal,normal,1.0,1,1,0,1200.0,1300.0,False,False
+normal,Quillem,Perquenco,Normal,normal,1.0,1,1,0,1100.0,1200.0,False,False
+normal,Quillem,Temuco,Normal,normal,1.0,1,1,0,1400.0,1500.0,False,False
+normal,Quillem,Victoria,Normal,normal,1.0,1,1,0,1300.0,1400.0,False,False
+normal,Temuco,Cajon,Normal,normal,1.0,1,1,0,600.0,650.0,False,False
+normal,Temuco,Freire,Normal,normal,1.0,1,1,0,1350.0,1450.0,False,False
+normal,Temuco,L. Centro,Normal,normal,1.0,1,1,0,1300.0,1350.0,False,False
+normal,Temuco,Lautaro,Normal,normal,1.0,1,1,0,1300.0,1350.0,False,False
+normal,Temuco,PLC,Normal,normal,1.0,1,1,0,700.0,750.0,False,False
+normal,Temuco,PUA,Normal,normal,1.0,1,1,0,1500.0,1600.0,False,False
+normal,Temuco,Perquenco,Normal,normal,1.0,1,1,0,1400.0,1500.0,False,False
+normal,Temuco,Pillanlelbun,Normal,normal,1.0,1,1,0,1200.0,1300.0,False,False
+normal,Temuco,Pitrufquén,Normal,normal,1.0,1,1,0,1450.0,1550.0,False,False
+normal,Temuco,Quepe,Normal,normal,1.0,1,1,0,800.0,900.0,False,False
+normal,Temuco,Quillem,Normal,normal,1.0,1,1,0,1400.0,1500.0,False,False
+normal,Temuco,Victoria,Normal,normal,1.0,1,1,0,1800.0,1950.0,False,False
+normal,Victoria,Cajon,Normal,normal,1.0,1,1,0,900.0,950.0,False,False
+normal,Victoria,L. Centro,Normal,normal,1.0,1,1,0,1400.0,1500.0,False,False
+normal,Victoria,Lautaro,Normal,normal,1.0,1,1,0,1400.0,1500.0,False,False
+normal,Victoria,PUA,Normal,normal,1.0,1,1,0,1100.0,1200.0,False,False
+normal,Victoria,Perquenco,Normal,normal,1.0,1,1,0,1300.0,1400.0,False,False
+normal,Victoria,Pillanlelbun,Normal,normal,1.0,1,1,0,1500.0,1600.0,False,False
+normal,Victoria,Quillem,Normal,normal,1.0,1,1,0,1300.0,1400.0,False,False
+normal,Victoria,Temuco,Normal,normal,1.0,1,1,0,1800.0,1950.0,False,False
+sindicato,L. Centro,PUA,Sindicato,sin_pago,0.0,0,0,0,,1400.0,False,False
+sindicato,L. Centro,Quillem,Sindicato,sin_pago,0.0,0,0,0,,1200.0,False,False
+sindicato,L. Centro,Temuco,Sindicato,sin_pago,0.0,0,0,0,,1350.0,False,False
+sindicato,Lautaro,PUA,Sindicato,sin_pago,0.0,0,0,0,,1400.0,False,False
+sindicato,Lautaro,Temuco,Sindicato,sin_pago,0.0,0,0,0,,1350.0,False,False
+sindicato,Lautaro,Victoria,Sindicato,sin_pago,0.0,0,0,0,,1500.0,False,False
+sindicato,PUA,L. Centro,Sindicato,sin_pago,0.0,0,0,0,,1400.0,False,False
+sindicato,PUA,Lautaro,Sindicato,sin_pago,0.0,0,0,0,,1400.0,False,False
+sindicato,PUA,Temuco,Sindicato,sin_pago,0.0,0,0,0,,1600.0,False,False
+sindicato,Perquenco,Victoria,Sindicato,sin_pago,0.0,0,0,0,,1400.0,False,False
+sindicato,Pillanlelbun,Temuco,Sindicato,sin_pago,0.0,0,0,0,,1300.0,False,False
+sindicato,Temuco,Lautaro,Sindicato,sin_pago,0.0,0,0,0,,1350.0,False,False
+sindicato,Temuco,PUA,Sindicato,sin_pago,0.0,0,0,0,,1600.0,False,False
+sindicato,Temuco,Quillem,Sindicato,sin_pago,0.0,0,0,0,,1500.0,False,False
+sindicato,Temuco,Victoria,Sindicato,sin_pago,0.0,0,0,0,,1950.0,False,False
+sindicato,Victoria,L. Centro,Sindicato,sin_pago,0.0,0,0,0,,1500.0,False,False
+sindicato,Victoria,Temuco,Sindicato,sin_pago,0.0,0,0,0,,1950.0,False,False
+adulto_mayor,L. Centro,PUA,Adulto Mayor,adulto_mayor,1.0,1,0,0,650.0,1400.0,False,False
+adulto_mayor,Pitrufquén,Freire,Adulto Mayor,adulto_mayor,1.0,1,0,0,300.0,650.0,False,False
+delegacion,L. Centro,Temuco,Delegación,normal,0.7,1,0,0,1300.0,1350.0,False,False
+discapacitado,Cajon,Quillem,Discapacitado,sin_pago,0.0,0,0,0,,750.0,False,False
+discapacitado,Freire,PLC,Discapacitado,sin_pago,0.0,0,0,0,,1400.0,False,False
+discapacitado,L. Centro,Cajon,Discapacitado,sin_pago,0.0,0,0,0,,650.0,False,False
+discapacitado,L. Centro,PUA,Discapacitado,sin_pago,0.0,0,0,0,,1400.0,False,False
+discapacitado,Lautaro,Quillem,Discapacitado,sin_pago,0.0,0,0,0,,1200.0,False,False
+discapacitado,Quillem,Lautaro,Discapacitado,sin_pago,0.0,0,0,0,,1200.0,False,False
+discapacitado,Victoria,Quillem,Discapacitado,sin_pago,0.0,0,0,0,,1400.0,False,False
+estudiante,Cajon,Quillem,Estudiante,estudiante,1.0,1,0,1,250.0,750.0,False,False
+estudiante,L. Centro,PUA,Estudiante,estudiante,1.0,1,0,1,450.0,1400.0,False,False
+estudiante,Quillem,Victoria,Estudiante,estudiante,1.0,1,0,1,450.0,1400.0,False,False
+estudiante,Victoria,Freire,Estudiante,estudiante,1.0,1,0,1,850.0,2750.0,False,False
+estudiante,Victoria,Quillem,Estudiante,estudiante,1.0,1,0,1,450.0,1400.0,False,False
+estudiante_basica,Cajon,Quillem,Estudiante Básica,sin_pago,0.0,0,0,0,,750.0,False,False
+estudiante_basica,PUA,Cajon,Estudiante Básica,sin_pago,0.0,0,0,0,,900.0,False,False
+estudiante_basica,Perquenco,Freire,Estudiante Básica,sin_pago,0.0,0,0,0,,2500.0,False,False
+estudiante_basica,Victoria,Pitrufquén,Estudiante Básica,sin_pago,0.0,0,0,0,,2900.0,False,False
+funcionario,Cajon,Lautaro,Funcionario,sin_pago,0.0,0,0,0,,650.0,False,False
+funcionario,Cajon,Quillem,Funcionario,sin_pago,0.0,0,0,0,,750.0,False,False
+funcionario,Cajon,Temuco,Funcionario,sin_pago,0.0,0,0,0,,650.0,False,False
+funcionario,Freire,PLC,Funcionario,sin_pago,0.0,0,0,0,,1400.0,False,False
+funcionario,Freire,Quepe,Funcionario,sin_pago,0.0,0,0,0,,600.0,False,False
+funcionario,Freire,Temuco,Funcionario,sin_pago,0.0,0,0,0,,1450.0,False,False
+funcionario,L. Centro,Cajon,Funcionario,sin_pago,0.0,0,0,0,,650.0,False,False
+funcionario,L. Centro,PUA,Funcionario,sin_pago,0.0,0,0,0,,1400.0,False,False
+funcionario,L. Centro,Pillanlelbun,Funcionario,sin_pago,0.0,0,0,0,,1200.0,False,False
+funcionario,Lautaro,Cajon,Funcionario,sin_pago,0.0,0,0,0,,650.0,False,False
+funcionario,Lautaro,PUA,Funcionario,sin_pago,0.0,0,0,0,,1400.0,False,False
+funcionario,Lautaro,Pillanlelbun,Funcionario,sin_pago,0.0,0,0,0,,1200.0,False,False
+funcionario,Lautaro,Quillem,Funcionario,sin_pago,0.0,0,0,0,,1200.0,False,False
+funcionario,PLC,Freire,Funcionario,sin_pago,0.0,0,0,0,,1400.0,False,False
+funcionario,PLC,Pitrufquén,Funcionario,sin_pago,0.0,0,0,0,,1550.0,False,False
+funcionario,PUA,L. Centro,Funcionario,sin_pago,0.0,0,0,0,,1400.0,False,False
+funcionario,PUA,Victoria,Funcionario,sin_pago,0.0,0,0,0,,1200.0,False,False
+funcionario,Perquenco,L. Centro,Funcionario,sin_pago,0.0,0,0,0,,1200.0,False,False
+funcionario,Perquenco,Lautaro,Funcionario,sin_pago,0.0,0,0,0,,1200.0,False,False
+funcionario,Perquenco,Pillanlelbun,Funcionario,sin_pago,0.0,0,0,0,,1400.0,False,False
+funcionario,Perquenco,Quillem,Funcionario,sin_pago,0.0,0,0,0,,1200.0,False,False
+funcionario,Pillanlelbun,Lautaro,Funcionario,sin_pago,0.0,0,0,0,,1200.0,False,False
+funcionario,Pillanlelbun,Perquenco,Funcionario,sin_pago,0.0,0,0,0,,1400.0,False,False
+funcionario,Pillanlelbun,Temuco,Funcionario,sin_pago,0.0,0,0,0,,1300.0,False,False
+funcionario,Pitrufquén,Freire,Funcionario,sin_pago,0.0,0,0,0,,650.0,False,False
+funcionario,Pitrufquén,Quepe,Funcionario,sin_pago,0.0,0,0,0,,700.0,False,False
+funcionario,Quepe,Freire,Funcionario,sin_pago,0.0,0,0,0,,600.0,False,False
+funcionario,Quepe,Temuco,Funcionario,sin_pago,0.0,0,0,0,,900.0,False,False
+funcionario,Quillem,L. Centro,Funcionario,sin_pago,0.0,0,0,0,,1200.0,False,False
+funcionario,Quillem,Lautaro,Funcionario,sin_pago,0.0,0,0,0,,1200.0,False,False
+funcionario,Quillem,Temuco,Funcionario,sin_pago,0.0,0,0,0,,1500.0,False,False
+funcionario,Temuco,Quepe,Funcionario,sin_pago,0.0,0,0,0,,900.0,False,False
+funcionario,Temuco,Quillem,Funcionario,sin_pago,0.0,0,0,0,,1500.0,False,False
+funcionario,Victoria,Cajon,Funcionario,sin_pago,0.0,0,0,0,,950.0,False,False
+funcionario,Victoria,PUA,Funcionario,sin_pago,0.0,0,0,0,,1200.0,False,False
+funcionario,Victoria,Quillem,Funcionario,sin_pago,0.0,0,0,0,,1400.0,False,False
+normal,Freire,Pillanlelbun,Normal,normal,1.0,1,1,0,2100.0,2250.0,False,False
+normal,L. Centro,Freire,Normal,normal,1.0,1,1,0,2200.0,2400.0,False,False
+normal,Perquenco,PLC,Normal,normal,1.0,1,1,0,1650.0,1800.0,False,False
+normal,Pitrufquén,Pillanlelbun,Normal,normal,1.0,1,1,0,2200.0,2400.0,False,False
+normal,Victoria,Freire,Normal,normal,1.0,1,1,0,2550.0,2750.0,False,False
+sindicato,Lautaro,Quillem,Sindicato,sin_pago,0.0,0,0,0,,1200.0,False,False
+sindicato,Temuco,Freire,Sindicato,sin_pago,0.0,0,0,0,,1450.0,False,False
+sindicato,Temuco,L. Centro,Sindicato,sin_pago,0.0,0,0,0,,1350.0,False,False
+sindicato,Temuco,Pillanlelbun,Sindicato,sin_pago,0.0,0,0,0,,1300.0,False,False
+sindicato,Temuco,Pitrufquén,Sindicato,sin_pago,0.0,0,0,0,,1550.0,False,False
+sindicato,Victoria,Perquenco,Sindicato,sin_pago,0.0,0,0,0,,1400.0,False,False
+adulto_mayor,Cajon,PUA,Adulto Mayor,adulto_mayor,1.0,1,0,0,400.0,900.0,False,False
+adulto_mayor,PUA,Cajon,Adulto Mayor,adulto_mayor,1.0,1,0,0,400.0,900.0,False,False
+adulto_mayor,Pillanlelbun,Quillem,Adulto Mayor,adulto_mayor,1.0,1,0,0,650.0,1400.0,False,False
+claret,Coleg. Claret,Temuco,Claret,estudiante,1.0,1,0,1,350.0,1100.0,False,False
+claret,Temuco,Coleg. Claret,Claret,estudiante,1.0,1,0,1,350.0,1100.0,False,False
+delegacion,Temuco,Lautaro,Delegación,normal,0.7,1,0,0,1300.0,1350.0,False,False
+discapacitado,L. Centro,Quillem,Discapacitado,sin_pago,0.0,0,0,0,,1200.0,False,False
+discapacitado,Lautaro,PUA,Discapacitado,sin_pago,0.0,0,0,0,,1400.0,False,False
+discapacitado,Perquenco,Quillem,Discapacitado,sin_pago,0.0,0,0,0,,1200.0,False,False
+discapacitado,Quillem,Pillanlelbun,Discapacitado,sin_pago,0.0,0,0,0,,1400.0,False,False
+estudiante,Coleg. Claret,Temuco,Estudiante,estudiante,1.0,1,0,1,350.0,1100.0,False,False
+estudiante,Lautaro,L. Centro,Estudiante,estudiante,1.0,1,0,1,350.0,500.0,False,False
+estudiante,PLC,Pillanlelbun,Estudiante,estudiante,1.0,1,0,1,500.0,1550.0,False,False
+estudiante,Perquenco,PLC,Estudiante,estudiante,1.0,1,0,1,550.0,1800.0,False,False
+estudiante,Quepe,PLC,Estudiante,estudiante,1.0,1,0,1,200.0,650.0,False,False
+estudiante,Quillem,Pillanlelbun,Estudiante,estudiante,1.0,1,0,1,450.0,1400.0,False,False
+estudiante,Temuco,Coleg. Claret,Estudiante,estudiante,1.0,1,0,1,350.0,1100.0,False,False
+estudiante_basica,Cajon,PUA,Estudiante Básica,sin_pago,0.0,0,0,0,,900.0,False,False
+estudiante_basica,Coleg. Claret,Temuco,Estudiante Básica,sin_pago,0.0,0,0,0,,1100.0,False,False
+estudiante_basica,Temuco,Coleg. Claret,Estudiante Básica,sin_pago,0.0,0,0,0,,1100.0,False,False
+funcionario,Cajon,Victoria,Funcionario,sin_pago,0.0,0,0,0,,950.0,False,False
+funcionario,PLC,Temuco,Funcionario,sin_pago,0.0,0,0,0,,750.0,False,False
+funcionario,PUA,Lautaro,Funcionario,sin_pago,0.0,0,0,0,,1400.0,False,False
+funcionario,Perquenco,PUA,Funcionario,sin_pago,0.0,0,0,0,,1300.0,False,False
+funcionario,Pitrufquén,PLC,Funcionario,sin_pago,0.0,0,0,0,,1550.0,False,False
+normal,L. Centro,Lautaro,Normal,normal,1.0,1,1,0,1100.0,500.0,False,False
+normal,Lautaro,Pitrufquén,Normal,normal,1.0,1,1,0,2300.0,2500.0,False,False
+normal,PLC,Pillanlelbun,Normal,normal,1.0,1,1,0,1450.0,1550.0,False,False
+sindicato,L. Centro,Victoria,Sindicato,sin_pago,0.0,0,0,0,,1500.0,False,False
+sindicato,Temuco,Perquenco,Sindicato,sin_pago,0.0,0,0,0,,1500.0,False,False
+adulto_mayor,Pillanlelbun,Cajon,Adulto Mayor,adulto_mayor,1.0,1,0,0,300.0,650.0,False,False
+delegacion,Lautaro,Temuco,Delegación,normal,0.7,1,0,0,1300.0,1350.0,False,False
+discapacitado,Cajon,Pillanlelbun,Discapacitado,sin_pago,0.0,0,0,0,,650.0,False,False
+discapacitado,PUA,L. Centro,Discapacitado,sin_pago,0.0,0,0,0,,1400.0,False,False
+estudiante,Cajon,Pitrufquén,Estudiante,estudiante,1.0,1,0,1,700.0,2250.0,False,False
+estudiante,Freire,Pillanlelbun,Estudiante,estudiante,1.0,1,0,1,700.0,2250.0,False,False
+estudiante,PLC,Lautaro,Estudiante,estudiante,1.0,1,0,1,500.0,1700.0,False,False
+estudiante,Pillanlelbun,Quillem,Estudiante,estudiante,1.0,1,0,1,450.0,1400.0,False,False
+estudiante,Quillem,PUA,Estudiante,estudiante,1.0,1,0,1,400.0,1300.0,False,False
+estudiante_basica,Freire,Pillanlelbun,Estudiante Básica,sin_pago,0.0,0,0,0,,2250.0,False,False
+estudiante_basica,PLC,Pillanlelbun,Estudiante Básica,sin_pago,0.0,0,0,0,,1550.0,False,False
+estudiante_basica,Quepe,Lautaro,Estudiante Básica,sin_pago,0.0,0,0,0,,1800.0,False,False
+estudiante_basica,Quepe,Pillanlelbun,Estudiante Básica,sin_pago,0.0,0,0,0,,1700.0,False,False
+funcionario,Freire,Pitrufquén,Funcionario,sin_pago,0.0,0,0,0,,650.0,False,False
+normal,L. Centro,Pitrufquén,Normal,normal,1.0,1,1,0,2300.0,2500.0,False,False
+normal,Quillem,Pillanlelbun,Normal,normal,1.0,1,1,0,1300.0,1400.0,False,False
+sindicato,Perquenco,Temuco,Sindicato,sin_pago,0.0,0,0,0,,1500.0,False,False
+sindicato,Pitrufquén,Temuco,Sindicato,sin_pago,0.0,0,0,0,,1550.0,False,False
+adulto_mayor,Quillem,Cajon,Adulto Mayor,adulto_mayor,1.0,1,0,0,350.0,750.0,False,False
+delegacion,L. Centro,Victoria,Delegación,normal,0.7,1,0,0,1400.0,1500.0,False,False
+delegacion,Lautaro,Victoria,Delegación,normal,0.7,1,0,0,1400.0,1500.0,False,False
+delegacion,Quepe,Temuco,Delegación,normal,0.7,1,0,0,800.0,900.0,False,False
+delegacion,Quillem,Victoria,Delegación,normal,0.7,1,0,0,1300.0,1400.0,False,False
+delegacion,Temuco,Perquenco,Delegación,normal,0.7,1,0,0,1400.0,1500.0,False,False
+delegacion,Victoria,Quillem,Delegación,normal,0.7,1,0,0,1300.0,1400.0,False,False
+estudiante,Lautaro,Quepe,Estudiante,estudiante,1.0,1,0,1,550.0,1800.0,False,False
+estudiante,PUA,Quepe,Estudiante,estudiante,1.0,1,0,1,600.0,1900.0,False,False
+adulto_mayor,PLC,Victoria,Adulto Mayor,adulto_mayor,1.0,1,0,0,950.0,2050.0,False,False
+adulto_mayor,Quillem,Pillanlelbun,Adulto Mayor,adulto_mayor,1.0,1,0,0,650.0,1400.0,False,False
+discapacitado,Cajon,Pitrufquén,Discapacitado,sin_pago,0.0,0,0,0,,2250.0,False,False
+discapacitado,L. Centro,Pitrufquén,Discapacitado,sin_pago,0.0,0,0,0,,2500.0,False,False
+discapacitado,PLC,Cajon,Discapacitado,sin_pago,0.0,0,0,0,,1400.0,False,False
+estudiante,Freire,Lautaro,Estudiante,estudiante,1.0,1,0,1,750.0,2400.0,False,False
+estudiante,PLC,Cajon,Estudiante,estudiante,1.0,1,0,1,450.0,1400.0,False,False
+estudiante,Pillanlelbun,Pitrufquén,Estudiante,estudiante,1.0,1,0,1,750.0,2400.0,False,False
+estudiante,Quepe,Lautaro,Estudiante,estudiante,1.0,1,0,1,550.0,1800.0,False,False
+estudiante_basica,Cajon,PLC,Estudiante Básica,sin_pago,0.0,0,0,0,,1400.0,False,False
+estudiante_basica,Cajon,Pitrufquén,Estudiante Básica,sin_pago,0.0,0,0,0,,2250.0,False,False
+estudiante_basica,PLC,Cajon,Estudiante Básica,sin_pago,0.0,0,0,0,,1400.0,False,False
+estudiante_basica,Quillem,Pillanlelbun,Estudiante Básica,sin_pago,0.0,0,0,0,,1400.0,False,False
+funcionario,PLC,Quepe,Funcionario,sin_pago,0.0,0,0,0,,650.0,False,False
+funcionario,Pillanlelbun,L. Centro,Funcionario,sin_pago,0.0,0,0,0,,1200.0,False,False
+normal,Cajon,Freire,Normal,normal,1.0,1,1,0,1950.0,2100.0,False,False
+normal,Cajon,PLC,Normal,normal,1.0,1,1,0,1300.0,1400.0,False,False
+normal,Cajon,Pitrufquén,Normal,normal,1.0,1,1,0,2050.0,2250.0,False,False
+normal,Lautaro,L. Centro,Normal,normal,1.0,1,1,0,1100.0,500.0,False,False
+normal,PLC,Cajon,Normal,normal,1.0,1,1,0,1300.0,1400.0,False,False
+adulto_mayor,Quepe,Lautaro,Adulto Mayor,adulto_mayor,1.0,1,0,0,850.0,1800.0,False,False
+discapacitado,Cajon,PUA,Discapacitado,sin_pago,0.0,0,0,0,,900.0,False,False
+discapacitado,Pillanlelbun,PUA,Discapacitado,sin_pago,0.0,0,0,0,,1500.0,False,False
+estudiante_basica,L. Centro,Lautaro,Estudiante Básica,sin_pago,0.0,0,0,0,,500.0,False,False
+estudiante_basica,Pillanlelbun,Quillem,Estudiante Básica,sin_pago,0.0,0,0,0,,1400.0,False,False
+funcionario,PUA,Perquenco,Funcionario,sin_pago,0.0,0,0,0,,1300.0,False,False
+sindicato,Cajon,Temuco,Sindicato,sin_pago,0.0,0,0,0,,650.0,False,False
+adulto_mayor,Perquenco,Pitrufquén,Adulto Mayor,adulto_mayor,1.0,1,0,0,1200.0,2600.0,False,False
+discapacitado,Pitrufquén,Perquenco,Discapacitado,sin_pago,0.0,0,0,0,,2600.0,False,False
+estudiante,PUA,Quillem,Estudiante,estudiante,1.0,1,0,1,400.0,1300.0,False,False
+estudiante,Quepe,Pillanlelbun,Estudiante,estudiante,1.0,1,0,1,500.0,1700.0,False,False
+funcionario,Cajon,PUA,Funcionario,sin_pago,0.0,0,0,0,,900.0,False,False
+funcionario,Pillanlelbun,Cajon,Funcionario,sin_pago,0.0,0,0,0,,650.0,False,False
+normal,Lautaro,Freire,Normal,normal,1.0,1,1,0,2200.0,2400.0,False,False
+sindicato,Cajon,Lautaro,Sindicato,sin_pago,0.0,0,0,0,,650.0,False,False
+sindicato,PUA,Cajon,Sindicato,sin_pago,0.0,0,0,0,,900.0,False,False
+sindicato,PUA,Victoria,Sindicato,sin_pago,0.0,0,0,0,,1200.0,False,False
+sindicato,Quepe,Temuco,Sindicato,sin_pago,0.0,0,0,0,,900.0,False,False
+sindicato,Temuco,PLC,Sindicato,sin_pago,0.0,0,0,0,,750.0,False,False
+sindicato,Temuco,Quepe,Sindicato,sin_pago,0.0,0,0,0,,900.0,False,False
+discapacitado,Lautaro,Freire,Discapacitado,sin_pago,0.0,0,0,0,,2400.0,False,False
+discapacitado,PUA,Lautaro,Discapacitado,sin_pago,0.0,0,0,0,,1400.0,False,False
+estudiante_basica,Lautaro,L. Centro,Estudiante Básica,sin_pago,0.0,0,0,0,,500.0,False,False
+estudiante_basica,Quillem,Freire,Estudiante Básica,sin_pago,0.0,0,0,0,,2500.0,False,False
+normal,PUA,Quepe,Normal,normal,1.0,1,1,0,1750.0,1900.0,False,False
+sindicato,Lautaro,Perquenco,Sindicato,sin_pago,0.0,0,0,0,,1200.0,False,False
+sindicato,PLC,Pitrufquén,Sindicato,sin_pago,0.0,0,0,0,,1550.0,False,False
+sindicato,Temuco,Cajon,Sindicato,sin_pago,0.0,0,0,0,,650.0,False,False
+sindicato,Victoria,PUA,Sindicato,sin_pago,0.0,0,0,0,,1200.0,False,False
+adulto_mayor,Cajon,Quepe,Adulto Mayor,adulto_mayor,1.0,1,0,0,700.0,1550.0,False,False
+adulto_mayor,Cajon,Quillem,Adulto Mayor,adulto_mayor,1.0,1,0,0,350.0,750.0,False,False
+discapacitado,PUA,Cajon,Discapacitado,sin_pago,0.0,0,0,0,,900.0,False,False
+estudiante,L. Centro,Freire,Estudiante,estudiante,1.0,1,0,1,750.0,2400.0,False,False
+estudiante_basica,Freire,Victoria,Estudiante Básica,sin_pago,0.0,0,0,0,,2750.0,False,False
+estudiante_basica,PLC,Lautaro,Estudiante Básica,sin_pago,0.0,0,0,0,,1700.0,False,False
+funcionario,Cajon,L. Centro,Funcionario,sin_pago,0.0,0,0,0,,650.0,False,False
+funcionario,Cajon,Perquenco,Funcionario,sin_pago,0.0,0,0,0,,900.0,False,False
+funcionario,Cajon,Pillanlelbun,Funcionario,sin_pago,0.0,0,0,0,,650.0,False,False
+funcionario,Pillanlelbun,PUA,Funcionario,sin_pago,0.0,0,0,0,,1500.0,False,False
+funcionario,Quepe,PLC,Funcionario,sin_pago,0.0,0,0,0,,650.0,False,False
+funcionario,Quepe,Pitrufquén,Funcionario,sin_pago,0.0,0,0,0,,700.0,False,False
+normal,Perquenco,Pitrufquén,Normal,normal,1.0,1,1,0,2400.0,2600.0,False,False
+normal,Pitrufquén,Perquenco,Normal,normal,1.0,1,1,0,2400.0,2600.0,False,False
+sindicato,Cajon,PUA,Sindicato,sin_pago,0.0,0,0,0,,900.0,False,False
+sindicato,L. Centro,Pillanlelbun,Sindicato,sin_pago,0.0,0,0,0,,1200.0,False,False
+adulto_mayor,Lautaro,L. Centro,Adulto Mayor,adulto_mayor,1.0,1,0,0,550.0,500.0,False,False
+adulto_mayor,PLC,Pillanlelbun,Adulto Mayor,adulto_mayor,1.0,1,0,0,750.0,1550.0,False,False
+discapacitado,Pillanlelbun,Pitrufquén,Discapacitado,sin_pago,0.0,0,0,0,,2400.0,False,False
+estudiante,Lautaro,Freire,Estudiante,estudiante,1.0,1,0,1,750.0,2400.0,False,False
+estudiante,Pitrufquén,Cajon,Estudiante,estudiante,1.0,1,0,1,700.0,2250.0,False,False
+funcionario,PUA,Pillanlelbun,Funcionario,sin_pago,0.0,0,0,0,,1500.0,False,False
+funcionario,Victoria,Pillanlelbun,Funcionario,sin_pago,0.0,0,0,0,,1600.0,False,False
+sindicato,Victoria,Cajon,Sindicato,sin_pago,0.0,0,0,0,,950.0,False,False
+normal,Pillanlelbun,Pitrufquén,Normal,normal,1.0,1,1,0,2200.0,2400.0,False,False
