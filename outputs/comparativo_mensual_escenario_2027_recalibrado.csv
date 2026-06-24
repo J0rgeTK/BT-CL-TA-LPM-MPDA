@@ -1,16 +1,16 @@
 mes,servicio,proyeccion_anterior,proyeccion_recalibrada,proyeccion_vigente_pre_redistribucion,diferencia,factor_o_ajuste_aplicado,periodo
-1,BIOTREN,776005.2993013947,964083.0,939864.2019511156,24218.798048884375,"base=0.985285; impacto_l2_fds=70267; ajuste_ocupacion=163859; redistribucion_participacion=24219; servicios_comerciales=3545; criterio=participación histórica reciente, oferta mensual y conservación del total anual",2027-01
-2,BIOTREN,737118.4159516896,877878.0,876200.9714540172,1677.0285459827865,"base=0.985285; impacto_l2_fds=56533; ajuste_ocupacion=139083; redistribucion_participacion=1677; servicios_comerciales=3452; criterio=participación histórica reciente, oferta mensual y conservación del total anual",2027-02
-3,BIOTREN,1235382.1781312937,1228842.0,1235382.1781312937,-6540.178131293738,"base=0.985285; impacto_l2_fds=0; ajuste_ocupacion=0; redistribucion_participacion=-6540; servicios_comerciales=3699; criterio=participación histórica reciente, oferta mensual y conservación del total anual",2027-03
-4,BIOTREN,1225538.4954370204,1211538.0,1225538.4954370204,-14000.495437020436,"base=0.985285; impacto_l2_fds=0; ajuste_ocupacion=0; redistribucion_participacion=-14000; servicios_comerciales=3760; criterio=participación histórica reciente, oferta mensual y conservación del total anual",2027-04
-5,BIOTREN,1174997.360906239,1122976.0,1174997.360906239,-52021.3609062389,"base=0.985285; impacto_l2_fds=0; ajuste_ocupacion=0; redistribucion_participacion=-52021; servicios_comerciales=3544; criterio=participación histórica reciente, oferta mensual y conservación del total anual",2027-05
-6,BIOTREN,1022044.7562630655,1035920.0,1034998.8869763782,921.1130236218451,"base=0.985285; impacto_l2_fds=0; ajuste_ocupacion=12954; redistribucion_participacion=921; servicios_comerciales=3512; criterio=participación histórica reciente, oferta mensual y conservación del total anual",2027-06
-7,BIOTREN,991824.8808192116,1045852.0,1044033.101141743,1818.8988582569873,"base=0.985285; impacto_l2_fds=0; ajuste_ocupacion=52208; redistribucion_participacion=1819; servicios_comerciales=3730; criterio=participación histórica reciente, oferta mensual y conservación del total anual",2027-07
-8,BIOTREN,1155146.1465741917,1132173.0,1155146.1465741917,-22973.14657419175,"base=0.985285; impacto_l2_fds=0; ajuste_ocupacion=0; redistribucion_participacion=-22973; servicios_comerciales=3826; criterio=participación histórica reciente, oferta mensual y conservación del total anual",2027-08
-9,BIOTREN,1084389.1535286796,1071312.0,1084389.1535286796,-13077.153528679628,"base=0.985285; impacto_l2_fds=0; ajuste_ocupacion=0; redistribucion_participacion=-13077; servicios_comerciales=3576; criterio=participación histórica reciente, oferta mensual y conservación del total anual",2027-09
-10,BIOTREN,1172083.7578422085,1171792.0,1172083.7578422085,-291.75784220849164,"base=0.985285; impacto_l2_fds=0; ajuste_ocupacion=0; redistribucion_participacion=-292; servicios_comerciales=3573; criterio=participación histórica reciente, oferta mensual y conservación del total anual",2027-10
-11,BIOTREN,1093539.622866871,1136444.0,1096479.1172378366,39964.88276216341,"base=0.985285; impacto_l2_fds=0; ajuste_ocupacion=2939; redistribucion_participacion=39965; servicios_comerciales=3669; criterio=participación histórica reciente, oferta mensual y conservación del total anual",2027-11
-12,BIOTREN,1005129.9532266565,1096489.0,1056186.628819276,40302.37118072389,"base=0.985285; impacto_l2_fds=0; ajuste_ocupacion=51057; redistribucion_participacion=40302; servicios_comerciales=3765; criterio=participación histórica reciente, oferta mensual y conservación del total anual",2027-12
+1,BIOTREN,752979.1030630699,951782.0,882812.1024885474,68969.89751145255,"base=0.986531; impacto_l2_fds=67026; ajuste_ocupacion=129833; redistribucion_participacion=68970; servicios_comerciales=3320; criterio=participación histórica reciente, oferta mensual y conservación del total anual",2027-01
+2,BIOTREN,718639.2850820761,868984.0,830478.058947181,38505.94105281902,"base=0.986531; impacto_l2_fds=54406; ajuste_ocupacion=111839; redistribucion_participacion=38506; servicios_comerciales=3284; criterio=participación histórica reciente, oferta mensual y conservación del total anual",2027-02
+3,BIOTREN,1249227.1313500947,1234161.0,1249227.1313500947,-15066.131350094685,"base=0.986531; impacto_l2_fds=0; ajuste_ocupacion=0; redistribucion_participacion=-15066; servicios_comerciales=3765; criterio=participación histórica reciente, oferta mensual y conservación del total anual",2027-03
+4,BIOTREN,1239273.1303034804,1216879.0,1239273.1303034804,-22394.13030348043,"base=0.986531; impacto_l2_fds=0; ajuste_ocupacion=0; redistribucion_participacion=-22394; servicios_comerciales=3826; criterio=participación histórica reciente, oferta mensual y conservación del total anual",2027-04
+5,BIOTREN,1177699.4476270294,1124255.0,1177699.4476270294,-53444.44762702938,"base=0.986531; impacto_l2_fds=0; ajuste_ocupacion=0; redistribucion_participacion=-53444; servicios_comerciales=3544; criterio=participación histórica reciente, oferta mensual y conservación del total anual",2027-05
+6,BIOTREN,1024473.0987523126,1037187.0,1034485.3704408163,2701.629559183726,"base=0.986531; impacto_l2_fds=0; ajuste_ocupacion=10012; redistribucion_participacion=2702; servicios_comerciales=3512; criterio=participación histórica reciente, oferta mensual y conservación del total anual",2027-06
+7,BIOTREN,994069.3351835243,1047198.0,1037013.8196561821,10184.18034381792,"base=0.986531; impacto_l2_fds=0; ajuste_ocupacion=42944; redistribucion_participacion=10184; servicios_comerciales=3730; criterio=participación histórica reciente, oferta mensual y conservación del total anual",2027-07
+8,BIOTREN,1157838.1827095556,1133554.0,1157838.1827095556,-24284.182709555607,"base=0.986531; impacto_l2_fds=0; ajuste_ocupacion=0; redistribucion_participacion=-24284; servicios_comerciales=3826; criterio=participación histórica reciente, oferta mensual y conservación del total anual",2027-08
+9,BIOTREN,1086869.1430067888,1072602.0,1086869.1430067888,-14267.1430067888,"base=0.986531; impacto_l2_fds=0; ajuste_ocupacion=0; redistribucion_participacion=-14267; servicios_comerciales=3576; criterio=participación histórica reciente, oferta mensual y conservación del total anual",2027-09
+10,BIOTREN,1174730.1818578816,1173081.0,1174730.1818578816,-1649.181857881602,"base=0.986531; impacto_l2_fds=0; ajuste_ocupacion=0; redistribucion_participacion=-1649; servicios_comerciales=3573; criterio=participación histórica reciente, oferta mensual y conservación del total anual",2027-10
+11,BIOTREN,1095755.6942547793,1137768.0,1097455.2822751873,40312.71772481268,"base=0.986531; impacto_l2_fds=0; ajuste_ocupacion=1700; redistribucion_participacion=40313; servicios_comerciales=3669; criterio=participación histórica reciente, oferta mensual y conservación del total anual",2027-11
+12,BIOTREN,1007014.0151625262,1097848.0,1049118.1493372559,48729.85066274414,"base=0.986531; impacto_l2_fds=0; ajuste_ocupacion=42104; redistribucion_participacion=48730; servicios_comerciales=3765; criterio=participación histórica reciente, oferta mensual y conservación del total anual",2027-12
 1,LLANQUIHUE_PM,61091.63543043075,47651.47563573599,,-13440.159794694766,efecto_novedad_ene_feb,2027-01
 2,LLANQUIHUE_PM,61555.73931288565,48013.47666405081,,-13542.26264883484,efecto_novedad_ene_feb,2027-02
 3,LLANQUIHUE_PM,32063.403192180587,33078.900600111556,,1015.4974079309686,calibracion_promedio_laboral_mar_dic,2027-03
@@ -23,18 +23,18 @@ mes,servicio,proyeccion_anterior,proyeccion_recalibrada,proyeccion_vigente_pre_r
 10,LLANQUIHUE_PM,31980.686206137798,30311.88639573521,,-1668.7998104025864,calibracion_promedio_laboral_mar_dic,2027-10
 11,LLANQUIHUE_PM,30816.100107251703,31593.13225463034,,777.0321473786389,calibracion_promedio_laboral_mar_dic,2027-11
 12,LLANQUIHUE_PM,34399.56485993184,33277.00157281041,,-1122.5632871214257,calibracion_promedio_laboral_mar_dic,2027-12
-1,TREN_ARAUCANIA,53868.66352592167,53868.66352592167,,0.0,oferta_victoria_temuco_11_lv,2027-01
-2,TREN_ARAUCANIA,58169.97454701997,58169.97454701997,,0.0,oferta_victoria_temuco_11_lv,2027-02
-3,TREN_ARAUCANIA,92741.0448811827,79283.4750659571,,-13457.569815225594,oferta_victoria_temuco_11_lv_y_suavizamiento_marzo,2027-03
-4,TREN_ARAUCANIA,83079.47933047227,84928.3955320435,,1848.9162015712354,oferta_victoria_temuco_11_lv,2027-04
-5,TREN_ARAUCANIA,63196.46242206402,64602.886297078425,,1406.4238750144068,oferta_victoria_temuco_11_lv,2027-05
-6,TREN_ARAUCANIA,59457.565617055574,60780.78113623418,,1323.2155191786078,oferta_victoria_temuco_11_lv,2027-06
-7,TREN_ARAUCANIA,70309.13337533252,71873.84823469016,,1564.7148593576421,oferta_victoria_temuco_11_lv,2027-07
-8,TREN_ARAUCANIA,69890.77288222904,71446.17721749541,,1555.404335266372,oferta_victoria_temuco_11_lv,2027-08
-9,TREN_ARAUCANIA,60291.70753561208,61633.48670636936,,1341.7791707572833,oferta_victoria_temuco_11_lv,2027-09
-10,TREN_ARAUCANIA,68693.29172100882,70222.04636687055,,1528.754645861729,oferta_victoria_temuco_11_lv,2027-10
-11,TREN_ARAUCANIA,70185.8214408068,71747.79201920085,,1561.9705783940444,oferta_victoria_temuco_11_lv,2027-11
-12,TREN_ARAUCANIA,59600.23651746458,60926.62714728886,,1326.39062982428,oferta_victoria_temuco_11_lv,2027-12
+1,TREN_ARAUCANIA,53868.66352592167,54946.03679644011,,1077.3732705184375,incremento_marginal_preservando_perfil_2025,2027-01
+2,TREN_ARAUCANIA,58169.97454701997,59333.37403796037,,1163.3994909403991,incremento_marginal_preservando_perfil_2025,2027-02
+3,TREN_ARAUCANIA,92741.0448811827,80869.14456727625,,-11871.900313906444,oferta_victoria_temuco_11_lv_suavizamiento_marzo_e_incremento_marginal,2027-03
+4,TREN_ARAUCANIA,83079.47933047227,86626.96344268438,,3547.4841122121143,incremento_marginal_preservando_perfil_2025,2027-04
+5,TREN_ARAUCANIA,63196.46242206402,74371.0,,11174.537577935982,refuerzo_mayo_referencia_2026,2027-05
+6,TREN_ARAUCANIA,59457.565617055574,61996.396758958865,,2538.8311419032907,incremento_marginal_preservando_perfil_2025,2027-06
+7,TREN_ARAUCANIA,70309.13337533252,73311.32519938397,,3002.1918240514497,incremento_marginal_preservando_perfil_2025,2027-07
+8,TREN_ARAUCANIA,69890.77288222904,72875.10076184531,,2984.3278796162776,incremento_marginal_preservando_perfil_2025,2027-08
+9,TREN_ARAUCANIA,60291.70753561208,62866.15644049675,,2574.4489048846735,incremento_marginal_preservando_perfil_2025,2027-09
+10,TREN_ARAUCANIA,68693.29172100882,71626.48729420797,,2933.1955731991475,incremento_marginal_preservando_perfil_2025,2027-10
+11,TREN_ARAUCANIA,70185.8214408068,73182.74785958487,,2996.9264187780645,incremento_marginal_preservando_perfil_2025,2027-11
+12,TREN_ARAUCANIA,59600.23651746458,62145.15969023464,,2544.923172770061,incremento_marginal_preservando_perfil_2025,2027-12
 1,CORTO_LAJA,59517.65763340037,59517.65763340037,,0.0,sin_ajuste_especifico_nuevo,2027-01
 2,CORTO_LAJA,64719.33337351569,64719.33337351569,,0.0,sin_ajuste_especifico_nuevo,2027-02
 3,CORTO_LAJA,45594.09978389606,45594.09978389606,,0.0,sin_ajuste_especifico_nuevo,2027-03
