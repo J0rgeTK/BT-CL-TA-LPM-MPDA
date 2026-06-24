@@ -9,6 +9,7 @@ Versión metodológica mensual-elástica:
 - El cambio de oferta en un mes afecta ese mes y el total anual, no redistribuye el resto del año.
 """
 import os
+import html
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
@@ -48,45 +49,289 @@ st.markdown("""
   :root {
     --efe-blue: #003A70;
     --efe-blue-2: #0057A8;
-    --efe-light-blue: #EAF3FA;
-    --efe-gray-bg: #F5F7FA;
-    --efe-gray-border: #D9E1E8;
-    --efe-gray-text: #5F6B7A;
+    --efe-blue-3: #0A4D8F;
+    --efe-blue-soft: #EAF3FA;
+    --efe-blue-soft-2: #F3F8FC;
     --efe-red: #D71920;
+    --efe-red-soft: #FFF3F3;
+    --efe-gray-900: #0B1F3A;
+    --efe-gray-700: #34445C;
+    --efe-gray-600: #66758A;
+    --efe-gray-300: #D9E1E8;
+    --efe-gray-200: #E8EEF4;
+    --efe-gray-100: #F6F8FB;
     --efe-white: #FFFFFF;
+    --efe-shadow: 0 10px 28px rgba(0, 58, 112, .075);
+    --efe-shadow-soft: 0 4px 16px rgba(0, 58, 112, .055);
+    --efe-radius-lg: 22px;
+    --efe-radius-md: 16px;
+    --efe-radius-sm: 12px;
   }
-  html, body, [class*="css"] { font-family: "Univia Pro", "Inter", "Segoe UI", Arial, sans-serif; }
-  .stApp { background: var(--efe-gray-bg); }
-  .block-container { padding-top:1.6rem; max-width:1280px; }
-  h1,h2,h3,h4 { font-family:"Univia Pro", "Inter", "Segoe UI", Arial, sans-serif; color:var(--efe-blue); letter-spacing:-.01em; }
-  .hero { background:linear-gradient(110deg,var(--efe-blue),var(--efe-blue-2)); color:#fff; padding:20px 26px;
-          border-radius:16px; margin-bottom:14px; box-shadow:0 8px 24px rgba(0,58,112,.16); }
-  .hero h1 { color:#fff; margin:0; font-size:1.55rem; }
-  .hero p { margin:.3rem 0 0; opacity:.88; font-size:.9rem; }
-  div[data-testid="stMetric"] { background:var(--efe-white); border:1px solid var(--efe-gray-border); border-radius:14px;
-          padding:12px 16px; box-shadow:0 2px 8px rgba(0,58,112,.04); }
-  div[data-testid="stMetricLabel"] p { color:var(--efe-gray-text); font-weight:600; }
-  button[data-baseweb="tab"] { font-weight:600; font-size:.95rem; }
-  .badge { display:inline-block; padding:3px 12px; border-radius:999px; color:#fff; font-size:.78rem; font-weight:700; }
-  .method { background:var(--efe-white); border:1px solid var(--efe-gray-border); border-radius:14px; padding:18px 22px; }
-  .bt-panel, .efe-section { background:var(--efe-white); border:1px solid var(--efe-gray-border); border-radius:16px; padding:16px 18px; margin:.65rem 0 1rem 0; box-shadow:0 2px 10px rgba(0,58,112,.04); }
-  .bt-panel h4 { margin:.1rem 0 .35rem 0; }
-  .bt-note, .efe-note { color:var(--efe-gray-text); font-size:.92rem; margin:.1rem 0 .45rem 0; }
-  .bt-chip { display:inline-block; border-radius:999px; padding:4px 10px; margin:2px 4px 2px 0; font-size:.78rem; font-weight:700; background:var(--efe-light-blue); color:var(--efe-blue); }
-  .efe-header { background:linear-gradient(135deg,var(--efe-white),var(--efe-light-blue)); border:1px solid var(--efe-gray-border); border-radius:18px; padding:22px 24px; margin:.4rem 0 1rem; }
-  .efe-header-kicker { color:var(--efe-blue-2); font-weight:800; font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.25rem; }
-  .efe-header-title { color:var(--efe-blue); font-size:1.75rem; font-weight:800; margin:0; }
-  .efe-header-subtitle { color:var(--efe-gray-text); margin:.4rem 0 .75rem; font-size:.98rem; }
-  .efe-brand { display:inline-block; border:1px solid var(--efe-gray-border); border-radius:999px; padding:5px 12px; background:var(--efe-white); color:var(--efe-blue); font-weight:800; font-size:.8rem; }
-  .efe-card { background:var(--efe-white); border:1px solid var(--efe-gray-border); border-radius:14px; padding:14px 16px; min-height:106px; box-shadow:0 1px 6px rgba(0,58,112,.035); }
-  .efe-card-primary { border-top:4px solid var(--efe-blue); }
-  .efe-card-secondary { border-top:4px solid var(--efe-blue-2); }
-  .efe-card-diagnostic { border-top:4px solid #91B7D8; }
-  .efe-kpi-title { color:var(--efe-gray-text); font-size:.78rem; font-weight:800; text-transform:uppercase; letter-spacing:.035em; }
-  .efe-kpi-value { color:var(--efe-blue); font-size:1.38rem; font-weight:800; line-height:1.15; margin-top:.35rem; }
-  .efe-kpi-note { color:var(--efe-gray-text); font-size:.78rem; margin-top:.35rem; }
-  .efe-warning { border-left:4px solid var(--efe-red); background:#FFF5F5; border-radius:12px; padding:10px 12px; color:#5F2224; margin:.4rem 0; }
-  .efe-divider { border-top:1px solid var(--efe-gray-border); margin:1rem 0; }
+
+  html, body, [class*="css"] {
+    font-family: "Univia Pro", "Inter", "Segoe UI", Arial, sans-serif !important;
+    color: var(--efe-gray-900);
+  }
+
+  .stApp {
+    background:
+      radial-gradient(circle at 10% 0%, rgba(0, 58, 112, .055), transparent 26rem),
+      linear-gradient(180deg, #FFFFFF 0%, #F7FAFD 42%, #FFFFFF 100%);
+  }
+
+  .block-container {
+    max-width: 1520px;
+    padding-top: 1.15rem;
+    padding-left: 1.55rem;
+    padding-right: 1.55rem;
+    padding-bottom: 2.5rem;
+  }
+
+  h1, h2, h3, h4, h5 {
+    color: var(--efe-blue) !important;
+    letter-spacing: -.025em;
+    font-weight: 820 !important;
+  }
+
+  h3 { margin-top: .4rem !important; }
+
+  .efe-app-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.2rem;
+    margin: .15rem 0 1.1rem;
+  }
+
+  .efe-logo-lockup {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    min-width: 175px;
+  }
+
+  .efe-logo-word {
+    color: var(--efe-blue);
+    font-size: 3.0rem;
+    line-height: .82;
+    font-weight: 900;
+    letter-spacing: -.11em;
+  }
+
+  .efe-logo-word .red-dot { color: var(--efe-red); letter-spacing: -.08em; }
+
+  .efe-logo-side {
+    color: var(--efe-red);
+    font-size: .86rem;
+    line-height: 1.05;
+    font-weight: 860;
+    text-transform: uppercase;
+    letter-spacing: .025em;
+  }
+
+  .efe-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+    background: linear-gradient(180deg, #FFFFFF 0%, #F5F8FC 100%);
+    border: 1px solid var(--efe-gray-300);
+    color: var(--efe-blue);
+    border-radius: 14px;
+    padding: .72rem 1.05rem;
+    font-weight: 800;
+    box-shadow: var(--efe-shadow-soft);
+    white-space: nowrap;
+  }
+
+  .efe-title-block { margin: .12rem 0 1.05rem; }
+  .efe-page-title {
+    color: var(--efe-blue);
+    font-size: clamp(2rem, 3.2vw, 3.05rem);
+    line-height: 1.03;
+    font-weight: 900;
+    margin: 0;
+    letter-spacing: -.055em;
+  }
+  .efe-page-subtitle {
+    color: #7A89A0;
+    font-size: clamp(1.0rem, 1.2vw, 1.18rem);
+    font-weight: 720;
+    margin-top: .25rem;
+  }
+
+  .hero {
+    background: transparent;
+    color: var(--efe-blue);
+    padding: 0;
+    border-radius: 0;
+    margin-bottom: .6rem;
+    box-shadow: none;
+  }
+  .hero h1 { color: var(--efe-blue) !important; margin: 0; font-size: 2.25rem; }
+  .hero p { color: #7A89A0; margin: .2rem 0 0; font-weight: 700; }
+
+  .efe-card, .efe-metric-card, .efe-panel, .efe-table-card, .efe-alert-list, .efe-section {
+    background: rgba(255,255,255,.94);
+    border: 1px solid var(--efe-gray-200);
+    border-radius: var(--efe-radius-md);
+    box-shadow: var(--efe-shadow-soft);
+  }
+
+  .efe-panel, .efe-table-card, .efe-alert-list, .efe-section {
+    padding: 1.0rem 1.1rem;
+    margin: .4rem 0 .85rem;
+  }
+
+  .efe-section-title {
+    color: var(--efe-blue);
+    font-size: 1.05rem;
+    font-weight: 900;
+    margin-bottom: .08rem;
+  }
+  .efe-section-note {
+    color: var(--efe-gray-600);
+    font-size: .88rem;
+    font-weight: 650;
+    margin-top: .05rem;
+  }
+
+  .efe-metric-card {
+    min-height: 112px;
+    padding: 1.0rem .95rem;
+    display: flex;
+    gap: .82rem;
+    align-items: flex-start;
+    margin-bottom: .72rem;
+  }
+  .efe-icon-circle {
+    flex: 0 0 auto;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--efe-blue);
+    background: linear-gradient(180deg, #F7FAFD 0%, #EAF3FA 100%);
+    border: 1px solid #DCE8F3;
+    font-size: 1.35rem;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.7);
+  }
+  .efe-metric-label {
+    color: var(--efe-blue);
+    font-size: .76rem;
+    font-weight: 900;
+    line-height: 1.25;
+  }
+  .efe-metric-value {
+    color: var(--efe-blue);
+    font-size: 1.35rem;
+    font-weight: 900;
+    line-height: 1.1;
+    margin-top: .38rem;
+    letter-spacing: -.025em;
+  }
+  .efe-metric-delta {
+    color: #0066CC;
+    font-size: .78rem;
+    font-weight: 830;
+    margin-top: .45rem;
+  }
+  .efe-metric-note {
+    color: var(--efe-gray-600);
+    font-size: .76rem;
+    font-weight: 650;
+    margin-top: .35rem;
+  }
+
+  .efe-alert-row {
+    display:flex;
+    align-items:center;
+    gap:.9rem;
+    border: 1px solid var(--efe-gray-200);
+    border-radius: 12px;
+    padding: .72rem .85rem;
+    margin: .52rem 0;
+    background: #FFFFFF;
+    color: var(--efe-blue);
+    font-weight: 700;
+  }
+  .efe-alert-icon {
+    width: 34px;
+    height: 34px;
+    border: 2px solid var(--efe-red);
+    border-radius: 50%;
+    color: var(--efe-red);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight: 900;
+    flex: 0 0 auto;
+  }
+
+  .efe-chip {
+    display:inline-block;
+    padding:.32rem .65rem;
+    border-radius:999px;
+    background: var(--efe-blue-soft);
+    color: var(--efe-blue);
+    border:1px solid #D6E7F6;
+    font-size:.76rem;
+    font-weight:850;
+    margin:.18rem .25rem .18rem 0;
+  }
+
+  .badge, .bt-chip {
+    display:inline-block;
+    border-radius:999px;
+    padding: .28rem .7rem;
+    background: var(--efe-blue-soft) !important;
+    color: var(--efe-blue) !important;
+    border:1px solid #D6E7F6;
+    font-size:.76rem;
+    font-weight:850;
+  }
+
+  div[data-testid="stMetric"] {
+    background: rgba(255,255,255,.94);
+    border: 1px solid var(--efe-gray-200);
+    border-radius: var(--efe-radius-md);
+    padding: .9rem 1rem;
+    box-shadow: var(--efe-shadow-soft);
+  }
+  div[data-testid="stMetricLabel"] p { color: var(--efe-blue); font-weight: 850; }
+  div[data-testid="stMetricValue"] { color: var(--efe-blue); font-weight: 900; }
+  div[data-testid="stMetricDelta"] { color: #0066CC; font-weight: 800; }
+
+  div[data-testid="stDataFrame"], div[data-testid="stTable"] {
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--efe-gray-200);
+    box-shadow: none;
+  }
+
+  div[data-testid="stExpander"] {
+    border: 1px solid var(--efe-gray-200) !important;
+    border-radius: 14px !important;
+    background: #FFFFFF !important;
+    box-shadow: var(--efe-shadow-soft);
+    margin: .5rem 0;
+  }
+
+  button[data-baseweb="tab"] {
+    font-weight: 850;
+    color: var(--efe-blue);
+    border-radius: 999px;
+  }
+
+  .stPlotlyChart {
+    background: rgba(255,255,255,.94);
+    border: 1px solid var(--efe-gray-200);
+    border-radius: var(--efe-radius-md);
+    padding: .25rem;
+    box-shadow: var(--efe-shadow-soft);
+  }
+
   code { white-space: pre-wrap; }
 </style>
 """, unsafe_allow_html=True)
@@ -108,8 +353,19 @@ except Exception as e:
     st.error(f"No se pudieron cargar los datos en /data: {e}")
     st.stop()
 
-st.markdown('<div class="hero"><h1>🚆 Modelo de afluencia 2027 — EFE/Fesur</h1>'
-            '<p>Motor mensual-elástico · feriados 2027 · escenario 2027 recalibrado · oferta editable por mes y tipo de día</p></div>', unsafe_allow_html=True)
+st.markdown('''
+<div class="efe-app-top">
+  <div class="efe-logo-lockup">
+    <div class="efe-logo-word">e<span class="red-dot">f</span>e</div>
+    <div class="efe-logo-side">Trenes<br>de<br>Chile</div>
+  </div>
+  <div class="efe-pill">▣ Proyección 2027</div>
+</div>
+<div class="efe-title-block">
+  <div class="efe-page-title">Modelo de afluencia 2027 — EFE Sur</div>
+  <div class="efe-page-subtitle">Proyección operacional, ocupación, oferta y referencias históricas para la toma de decisiones.</div>
+</div>
+''', unsafe_allow_html=True)
 
 
 
@@ -1560,98 +1816,554 @@ def render_biotren_ejecutivo(serv, uni, detalle):
     render_biotren_advertencias(cobertura)
     render_biotren_expanders_tecnicos(serie, dist_linea, resumen_tipo, cobertura, diag_ocup, serv)
 
+# -----------------------------------------------------------------------------
+# Vista ejecutiva EFE: componentes visuales reutilizables para todos los servicios
+# -----------------------------------------------------------------------------
+
+EFE_BLUE = "#003A70"
+EFE_BLUE_2 = "#0057A8"
+EFE_RED = "#D71920"
+EFE_GRID = "#D9E1E8"
+EFE_TEXT = "#0B1F3A"
+EFE_MUTED = "#66758A"
+EFE_COLORS = ["#003A70", "#3D7EDB", "#8FB7E8", "#DCE8F5", "#B8C7D8", "#E8EEF4"]
+MESES_CORTOS = {1: "Ene", 2: "Feb", 3: "Mar", 4: "Abr", 5: "May", 6: "Jun", 7: "Jul", 8: "Ago", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dic"}
+
+
+def _h(x):
+    return html.escape(str(x))
+
+
+def fmt_num_efe(n, dec=0):
+    try:
+        val = float(n)
+    except Exception:
+        return "s/i"
+    if dec == 0:
+        return f"{val:,.0f}".replace(",", ".")
+    return f"{val:,.{dec}f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+
+def fmt_m_efe(n, sufijo="M"):
+    try:
+        val = float(n) / 1_000_000
+    except Exception:
+        return "s/i"
+    return f"{val:,.1f}{sufijo}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+
+def fmt_clp_m_efe(n):
+    try:
+        val = float(n) / 1_000_000
+    except Exception:
+        return "$ s/i"
+    return f"$ {val:,.0f}M".replace(",", ".")
+
+
+def fmt_delta_vs(valor, base, etiqueta="vs 2026"):
+    if base is None or pd.isna(base) or float(base) == 0:
+        return "Referencia no disponible"
+    return f"{(float(valor) / float(base) - 1.0) * 100:+.1f}% {etiqueta}".replace(".", ",")
+
+
+def _month_labels_from_index(index):
+    labels = []
+    nums = []
+    for i, p in enumerate(index, start=1):
+        try:
+            n = int(str(p)[5:7])
+        except Exception:
+            n = i
+        nums.append(n)
+        labels.append(MESES_CORTOS.get(n, str(p)))
+    return nums, labels
+
+
+def efe_service_header(titulo, subtitulo, etiqueta="Proyección 2027"):
+    st.markdown(
+        f'''
+<div class="efe-app-top">
+  <div class="efe-logo-lockup">
+    <div class="efe-logo-word">e<span class="red-dot">f</span>e</div>
+    <div class="efe-logo-side">Trenes<br>de<br>Chile</div>
+  </div>
+  <div class="efe-pill">▣ {_h(etiqueta)}</div>
+</div>
+<div class="efe-title-block">
+  <div class="efe-page-title">{_h(titulo)}</div>
+  <div class="efe-page-subtitle">{_h(subtitulo)}</div>
+</div>
+''',
+        unsafe_allow_html=True,
+    )
+
+
+def efe_section(titulo, nota=None):
+    nota_html = f'<div class="efe-section-note">{_h(nota)}</div>' if nota else ""
+    st.markdown(f'<div class="efe-section-title">{_h(titulo)}</div>{nota_html}', unsafe_allow_html=True)
+
+
+def efe_metric_card(titulo, valor, delta=None, icono="●", nota=None):
+    delta_html = f'<div class="efe-metric-delta">{_h(delta)}</div>' if delta else ""
+    nota_html = f'<div class="efe-metric-note">{_h(nota)}</div>' if nota else ""
+    st.markdown(
+        f'''
+<div class="efe-metric-card">
+  <div class="efe-icon-circle">{_h(icono)}</div>
+  <div>
+    <div class="efe-metric-label">{_h(titulo)}</div>
+    <div class="efe-metric-value">{_h(valor)}</div>
+    {delta_html}
+    {nota_html}
+  </div>
+</div>
+''',
+        unsafe_allow_html=True,
+    )
+
+
+def render_metric_grid(cards, cols_per_row=5):
+    for i in range(0, len(cards), cols_per_row):
+        row_cards = cards[i:i + cols_per_row]
+        cols = st.columns(len(row_cards))
+        for col, card in zip(cols, row_cards):
+            with col:
+                efe_metric_card(**card)
+
+
+def apply_efe_plot_layout(fig, height=350, ytitle=None, xtitle=None, legend=True):
+    fig.update_layout(
+        height=height,
+        margin=dict(l=14, r=14, t=24, b=18),
+        plot_bgcolor="white",
+        paper_bgcolor="white",
+        font=dict(family="Univia Pro, Inter, Segoe UI, Arial", color=EFE_TEXT, size=12),
+        hovermode="x unified",
+        showlegend=legend,
+        legend=dict(orientation="h", y=1.13, x=0, font=dict(size=12)),
+    )
+    fig.update_xaxes(showgrid=False, zeroline=False, title=xtitle)
+    fig.update_yaxes(gridcolor=EFE_GRID, zeroline=False, title=ytitle)
+    return fig
+
+
+def _linea_referencia_mensual(s, serv, anios=(2025, 2026, 2027)):
+    ref = _referencia_servicio_mensual(s, serv)
+    if ref.empty:
+        return pd.DataFrame()
+    ref = ref[ref["anio"].astype(int).isin([int(a) for a in anios])].copy()
+    ref["mes_label"] = ref["mes_num"].astype(int).map(MESES_CORTOS)
+    return ref.sort_values(["anio", "mes_num"])
+
+
+def fig_evolucion_servicio(s, serv):
+    ref = _linea_referencia_mensual(s, serv)
+    fig = go.Figure()
+    if not ref.empty:
+        estilos = {
+            2025: ("#3D7EDB", "dash", 2, "2025 (pax)"),
+            2026: (EFE_BLUE, "solid", 3, "2026 (pax)"),
+            2027: (EFE_RED, "solid", 3, "2027 (pax)"),
+        }
+        for anio, (color, dash, width, label) in estilos.items():
+            d = ref[ref["anio"].astype(int).eq(anio)]
+            if not d.empty:
+                fig.add_trace(go.Scatter(
+                    x=d["mes_label"], y=d["afluencia"].astype(float),
+                    name=label, mode="lines+markers", line=dict(color=color, width=width, dash=dash),
+                    marker=dict(size=7),
+                ))
+    else:
+        _, labels = _month_labels_from_index(serv.index)
+        fig.add_trace(go.Scatter(x=labels, y=serv[s].astype(float), name="2027 (pax)", mode="lines+markers", line=dict(color=EFE_RED, width=3)))
+    return apply_efe_plot_layout(fig, height=330, ytitle="Pasajeros", xtitle=None)
+
+
+def fig_pax_servicio(labels, pax_servicio, referencia=None):
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=labels, y=pax_servicio, name="Pax/servicio", mode="lines+markers", line=dict(color=EFE_BLUE, width=3), marker=dict(size=7)))
+    if referencia is not None and referencia > 0:
+        fig.add_hline(y=float(referencia), line_dash="dash", line_color=EFE_RED, annotation_text=f"Referencia {fmt_num_efe(referencia, 0)}", annotation_position="top left")
+    return apply_efe_plot_layout(fig, height=330, ytitle="Pax/servicio", xtitle=None)
+
+
+def _servicios_mensuales_desde_detalle(detalle, s, index):
+    d = tabla_detalle_mes(detalle, s)
+    if d.empty or "viajes_operados_plan" not in d.columns:
+        return pd.Series(0.0, index=index)
+    return d.set_index("periodo")["viajes_operados_plan"].astype(float).reindex(index).fillna(0.0)
+
+
+def _cierre_2026_servicio(s, serv):
+    ref = _referencia_servicio_anual(s, serv)
+    if ref.empty:
+        return None
+    d = ref[ref["tipo_dato_label"].eq("Cierre 2026 estimado")]
+    if d.empty:
+        return None
+    return float(d.iloc[-1]["afluencia_anual"])
+
+
+def _advertencias_servicio(s):
+    if s == "BIOTREN":
+        return [
+            "La capacidad equivalente es diagnóstica y no frecuencia comercial adicional.",
+            "La integración TP no redistribuye OD por falta de matriz observada de transbordos bus-tren.",
+            "El plan evasión representa recuperación de viajes registrados y no se suma nuevamente sobre la demanda anual.",
+        ]
+    if s == "CORTO_LAJA":
+        return [
+            "Oferta base: 8 servicios todos los días; enero-febrero fin de semana considera 10 servicios cuando aplica.",
+            "El escenario incorpora recuperación parcial de confiabilidad operacional.",
+            "El modelo no implementa cálculo tarifario ni subsidios para este servicio.",
+        ]
+    if s == "TREN_ARAUCANIA":
+        return [
+            "El cálculo distingue tramos operacionales y tratamiento específico del componente Claret.",
+            "Claret se considera servicio escolar y enero-febrero quedan sin oferta proyectada.",
+            "El modelo no implementa cálculo tarifario ni subsidios para este servicio.",
+        ]
+    if s == "LLANQUIHUE_PM":
+        return [
+            "Enero-febrero incorporan moderación del efecto novedad del servicio.",
+            "Marzo-diciembre se calibran con referencia laboral sin forzar valores idénticos por mes.",
+            "El modelo no implementa cálculo tarifario ni subsidios para este servicio.",
+        ]
+    return ["Proyección sujeta a actualización de supuestos operacionales y de oferta."]
+
+
+def render_alertas(alertas):
+    rows = "".join(
+        f'<div class="efe-alert-row"><div class="efe-alert-icon">!</div><div>{_h(a)}</div></div>'
+        for a in alertas
+    )
+    st.markdown(f'<div class="efe-alert-list">{rows}</div>', unsafe_allow_html=True)
+
+
+def _componentes_por_unidad(detalle, s):
+    d = detalle[detalle.servicio.eq(s)].copy()
+    if d.empty or "unit" not in d.columns:
+        return pd.DataFrame()
+    out = d.groupby("unit", as_index=False).agg(pasajeros=("afl", "sum"), servicios=("viajes_operados_plan", "sum"))
+    labels = {
+        "BIOTREN_L1": "L1 Talcahuano/Hualqui",
+        "BIOTREN_L2": "L2 Coronel/Concepción",
+        "CORTO_LAJA": "Laja-Talcahuano",
+        "TREN_ARAUCANIA": "Tren Araucanía",
+        "LLANQUIHUE_PM": "Llanquihue-Puerto Montt",
+    }
+    labels.update(getattr(O, "TA_TRAMO_NOMBRE", {}))
+    out["componente"] = out["unit"].map(labels).fillna(out["unit"])
+    total = float(out["pasajeros"].sum())
+    out["participacion"] = out["pasajeros"] / total if total else 0.0
+    return out.sort_values("pasajeros", ascending=False)
+
+
+def render_componentes_servicio(detalle, s):
+    comp = _componentes_por_unidad(detalle, s)
+    if comp.empty:
+        st.info("No hay componentes operacionales desagregados disponibles para este servicio.")
+        return
+    fig = go.Figure(go.Pie(
+        labels=comp["componente"], values=comp["pasajeros"], hole=.58,
+        marker=dict(colors=EFE_COLORS), textinfo="percent", sort=False,
+    ))
+    fig.update_layout(height=300, margin=dict(l=8, r=8, t=8, b=8), showlegend=True, legend=dict(orientation="v", x=1.02, y=.5), paper_bgcolor="white", font=dict(color=EFE_TEXT))
+    st.plotly_chart(fig, width="stretch")
+    tabla = comp[["componente", "pasajeros", "participacion"]].rename(columns={"componente": "Componente", "pasajeros": "Pax 2027", "participacion": "Participación"})
+    st.dataframe(tabla, width="stretch", hide_index=True, height=190, column_config={"Pax 2027": st.column_config.NumberColumn("Pax 2027", format="%d"), "Participación": st.column_config.NumberColumn("Participación", format="%.1%%")})
+
+
+def render_servicio_generico_ejecutivo(s, serv, uni, detalle):
+    nombre = O.NOMBRE[s]
+    serie = serv[s].astype(float).copy()
+    total = float(serie.sum())
+    viajes_m = _servicios_mensuales_desde_detalle(detalle, s, serie.index)
+    viajes_total = float(viajes_m.sum())
+    pax_servicio = total / viajes_total if viajes_total > 0 else 0.0
+    _, mes_labels = _month_labels_from_index(serie.index)
+    pax_servicio_m = (serie / viajes_m.replace(0, pd.NA)).astype(float).fillna(0.0)
+    cierre_2026 = _cierre_2026_servicio(s, serv)
+    peak_period = str(serie.idxmax())
+    min_period = str(serie.idxmin())
+    peak_label = MESES_CORTOS.get(int(peak_period[5:7]), peak_period) if len(peak_period) >= 7 else peak_period
+    min_label = MESES_CORTOS.get(int(min_period[5:7]), min_period) if len(min_period) >= 7 else min_period
+
+    efe_service_header(
+        f"{nombre} 2027: afluencia y operación",
+        "Proyección 2027 y referencias históricas para control operacional, oferta y toma de decisiones.",
+        "Proyección 2027",
+    )
+
+    cards = [
+        {"titulo": "Pasajeros 2027", "valor": fmt_m_efe(total), "delta": fmt_delta_vs(total, cierre_2026), "icono": "👥"},
+        {"titulo": "Servicios comerciales", "valor": fmt_num_efe(viajes_total, 0), "delta": "Oferta operacional 2027", "icono": "🚆"},
+        {"titulo": "Pax/servicio", "valor": fmt_num_efe(pax_servicio, 1), "delta": "Indicador operacional", "icono": "●"},
+        {"titulo": "Mes peak", "valor": peak_label, "delta": fmt_num_efe(serie.max(), 0), "icono": "▴"},
+        {"titulo": "Mes menor", "valor": min_label, "delta": fmt_num_efe(serie.min(), 0), "icono": "▾"},
+    ]
+    render_metric_grid(cards, cols_per_row=5)
+
+    c1, c2 = st.columns([1.05, 1.0])
+    with c1:
+        efe_section("Evolución mensual y ocupación", "Histórico/cierre disponible y proyección mensual 2027.")
+        st.plotly_chart(fig_evolucion_servicio(s, serv), width="stretch")
+    with c2:
+        efe_section("Pax/servicio mensual", "Indicador mensual sobre servicios comerciales proyectados.")
+        ref = pax_servicio if pax_servicio > 0 else None
+        st.plotly_chart(fig_pax_servicio(mes_labels, pax_servicio_m.values, ref), width="stretch")
+
+    tabla = pd.DataFrame({
+        "Mes": mes_labels,
+        "Afluencia 2027": serie.values,
+        "Servicios comerciales": viajes_m.values,
+        "Pax/servicio": pax_servicio_m.values,
+        "Participación mensual": serie.values / total if total else 0.0,
+    })
+    c3, c4 = st.columns([1.0, 1.15])
+    with c3:
+        efe_section("Participación mensual 2027", "Control mensual de demanda, oferta y carga relativa.")
+        st.dataframe(tabla, width="stretch", hide_index=True, height=325, column_config={
+            "Afluencia 2027": st.column_config.NumberColumn("Afluencia 2027", format="%d"),
+            "Servicios comerciales": st.column_config.NumberColumn("Servicios comerciales", format="%d"),
+            "Pax/servicio": st.column_config.NumberColumn("Pax/servicio", format="%.1f"),
+            "Participación mensual": st.column_config.NumberColumn("Participación mensual", format="%.1%%"),
+        })
+    with c4:
+        efe_section("Distribución operacional", "Composición por unidad, tramo o servicio modelado.")
+        render_componentes_servicio(detalle, s)
+
+    c5, c6 = st.columns([1.0, 1.0])
+    with c5:
+        efe_section("Componentes que explican el resultado", "Detalle mensual del cálculo oferta-demanda.")
+        detalle_mes = tabla_detalle_mes(detalle, s)
+        if not detalle_mes.empty:
+            vista = detalle_mes[["periodo", "viajes_operados_plan", "demanda_proyectada", "var_oferta_operada_pct", "var_demanda_pct", "elasticidad_media"]].rename(columns={
+                "periodo": "Periodo",
+                "viajes_operados_plan": "Servicios",
+                "demanda_proyectada": "Demanda",
+                "var_oferta_operada_pct": "Var. oferta",
+                "var_demanda_pct": "Var. demanda",
+                "elasticidad_media": "Elasticidad",
+            })
+            st.dataframe(vista, width="stretch", hide_index=True, height=285, column_config={
+                "Servicios": st.column_config.NumberColumn("Servicios", format="%d"),
+                "Demanda": st.column_config.NumberColumn("Demanda", format="%d"),
+                "Var. oferta": st.column_config.NumberColumn("Var. oferta", format="%.1f%%"),
+                "Var. demanda": st.column_config.NumberColumn("Var. demanda", format="%.1f%%"),
+                "Elasticidad": st.column_config.NumberColumn("Elasticidad", format="%.2f"),
+            })
+        else:
+            st.info("No hay detalle mensual disponible.")
+    with c6:
+        efe_section("Advertencias y cobertura", "Alcance metodológico del servicio.")
+        render_alertas(_advertencias_servicio(s))
+
+    with st.expander("Justificación metodológica", expanded=False):
+        render_justificacion_servicio(s, serv, uni, detalle)
+    with st.expander("Ecuación específica de proyección", expanded=False):
+        render_ecuacion_servicio(s)
+    with st.expander("Calendario operacional aplicado", expanded=False):
+        st.dataframe(tabla_calendario_servicio(s), width="stretch")
+    st.download_button(f"⬇ Descargar proyección {nombre} (CSV)", pd.DataFrame({"periodo": serie.index, "pasajeros": serie.values}).to_csv(index=False).encode(), f"proyeccion_2027_{s}.csv", key=f"dl_{s}_ejecutivo")
+
+
+def render_biotren_ejecutivo(serv, uni, detalle):
+    serie = serv["BIOTREN"].astype(float).copy()
+    vigente = _serie_biotren_vigente_pre_redistribucion(serv)
+    servicios_mensuales = O.servicios_comerciales_biotren_mensuales(2027).astype(float)
+    diag_redistrib = O.diagnostico_redistribucion_biotren_2027(vigente, serie)
+    resultado_anual = calcular_resultado_biotren_tarjeta_anual_cached(serie.to_dict())
+    resumen_anual_tipo = resultado_anual["resumen_tipo_tarjeta"].copy()
+    ingresos_subsidio = resultado_anual.get("ingresos_subsidio_biotren", {})
+    anual_sub = ingresos_subsidio.get("resumen_anual", {})
+    cobertura = ingresos_subsidio.get("cobertura_estudiante", {})
+    resumen_ocup = O.resumen_ocupacion_biotren(serie, 2027)
+    diag_ocup = resumen_ocup["diagnostico_mensual"].copy()
+    pasajeros = float(anual_sub.get("viajes_biotren", serie.sum()))
+    servicios_anuales = float(resumen_ocup["servicios_comerciales_anuales"])
+    servicios_equiv = float(resumen_ocup["servicios_equivalentes_capacidad_anuales"])
+    pax_servicio = float(resumen_ocup["pax_servicio_comercial_anual"])
+    pax_capacidad = float(resumen_ocup["pax_capacidad_equivalente_anual"])
+    cierre_2026 = _cierre_2026_servicio("BIOTREN", serv)
+    _, mes_labels = _month_labels_from_index(serie.index)
+
+    efe_service_header(
+        "Biotren 2027: afluencia, ocupación e ingresos",
+        "Proyección 2027 y referencias históricas para la toma de decisiones.",
+        "Proyección 2027",
+    )
+
+    cards = [
+        {"titulo": "Pasajeros 2027", "valor": fmt_m_efe(pasajeros), "delta": fmt_delta_vs(pasajeros, cierre_2026), "icono": "👥"},
+        {"titulo": "Servicios comerciales", "valor": fmt_num_efe(servicios_anuales, 0), "delta": "Frecuencia programada", "icono": "🚆"},
+        {"titulo": "Pax/servicio", "valor": fmt_num_efe(pax_servicio, 1), "delta": "Indicador principal", "icono": "●"},
+        {"titulo": "Servicios equivalentes", "valor": fmt_num_efe(servicios_equiv, 0), "delta": "Capacidad diagnóstica", "icono": "▣"},
+        {"titulo": "Venta de pasajes", "valor": fmt_clp_m_efe(anual_sub.get("ingreso_venta", 0)), "delta": "Sólo Biotren", "icono": "▰"},
+        {"titulo": "Subsidio total", "valor": fmt_clp_m_efe(anual_sub.get("subsidio_total", 0)), "delta": "Normal + estudiante", "icono": "▣"},
+        {"titulo": "Ingreso total", "valor": fmt_clp_m_efe(anual_sub.get("ingreso_total_biotren", 0)), "delta": "Venta + subsidios", "icono": "▥"},
+        {"titulo": "Subsidio normal", "valor": fmt_clp_m_efe(anual_sub.get("subsidio_normal", 0)), "delta": "Tasa 18,9%", "icono": "◈"},
+        {"titulo": "Subsidio estudiante", "valor": fmt_clp_m_efe(anual_sub.get("subsidio_estudiante", 0)), "delta": "Media superior", "icono": "▰"},
+    ]
+    render_metric_grid(cards, cols_per_row=5)
+
+    c1, c2 = st.columns([1.04, 1.0])
+    with c1:
+        efe_section("Evolución mensual y ocupación", "Comparación mensual disponible y ocupación relativa 2027.")
+        try:
+            from plotly.subplots import make_subplots
+            ref = _linea_referencia_mensual("BIOTREN", serv, anios=(2025, 2026, 2027))
+            fig = make_subplots(specs=[[{"secondary_y": True}]])
+            estilos = {
+                2026: (EFE_BLUE, "solid", 3, "2026 (pax)"),
+                2027: (EFE_RED, "solid", 3, "2027 (pax)"),
+                2025: ("#3D7EDB", "dash", 2, "2025 (pax)"),
+            }
+            if not ref.empty:
+                for anio, (color, dash, width, label) in estilos.items():
+                    d = ref[ref["anio"].astype(int).eq(anio)]
+                    if not d.empty:
+                        fig.add_trace(go.Scatter(x=d["mes_label"], y=d["afluencia"].astype(float), mode="lines+markers", name=label, line=dict(color=color, dash=dash, width=width), marker=dict(size=6)), secondary_y=False)
+            ocup_rel = diag_ocup["pax_servicio_comercial"].astype(float) / 300.0 * 100.0
+            fig.add_trace(go.Scatter(x=mes_labels, y=ocup_rel, name="Ocupación 2027 (%)", mode="lines", fill="tozeroy", line=dict(color="#DCE8F5", width=1), fillcolor="rgba(0,58,112,.10)"), secondary_y=True)
+            fig.update_yaxes(title_text="Pasajeros", secondary_y=False, gridcolor=EFE_GRID)
+            fig.update_yaxes(title_text="Ocupación (%)", secondary_y=True, range=[0, max(115, float(ocup_rel.max()) * 1.15)], showgrid=False)
+            fig.update_layout(height=330, margin=dict(l=14, r=14, t=24, b=18), plot_bgcolor="white", paper_bgcolor="white", font=dict(family="Univia Pro, Inter, Segoe UI, Arial", color=EFE_TEXT, size=12), hovermode="x unified", legend=dict(orientation="h", y=1.15, x=0))
+            fig.update_xaxes(showgrid=False, zeroline=False)
+            st.plotly_chart(fig, width="stretch")
+        except Exception:
+            st.plotly_chart(fig_evolucion_servicio("BIOTREN", serv), width="stretch")
+    with c2:
+        efe_section("Pax/servicio mensual", "Servicios comerciales; línea roja de referencia 300 pax/servicio.")
+        st.plotly_chart(fig_pax_servicio(mes_labels, diag_ocup["pax_servicio_comercial"].astype(float).values, 300), width="stretch")
+
+    total = float(serie.sum())
+    tabla_mensual = pd.DataFrame({
+        "Mes": mes_labels,
+        "Afluencia 2027": serie.values,
+        "Servicios comerciales": servicios_mensuales.reindex(serie.index).values,
+        "Pax/servicio": diag_ocup["pax_servicio_comercial"].values,
+        "Participación mensual": serie.values / total if total else 0.0,
+    })
+    dist_linea = calcular_distribucion_biotren_linea_mod_cached(serie.to_dict())
+    anual_linea = dist_linea.groupby("linea_od", as_index=False).agg(viajes=("viajes_proyectados", "sum"))
+    anual_linea = anual_linea.set_index("linea_od").reindex(["L2", "L1", "L1-L2"]).fillna(0.0).reset_index()
+    mapa_linea = {"L2": "L2 Concepción/Coronel", "L1": "L1 Talcahuano/Hualqui", "L1-L2": "Interlínea L1-L2"}
+    anual_linea["linea"] = anual_linea["linea_od"].map(mapa_linea).fillna(anual_linea["linea_od"])
+    anual_linea["participacion"] = anual_linea["viajes"] / float(anual_linea["viajes"].sum()) if float(anual_linea["viajes"].sum()) else 0.0
+
+    resumen_tipo = resumen_anual_tipo.groupby(["tipo_tarjeta", "nombre_visual", "tipo_pasajero_tarifa"], as_index=False).agg(viajes=("viajes_proyectados", "sum"), venta_pasajes=("ingresos_tarifarios_proyectados", "sum"))
+    resumen_tipo = resumen_tipo.sort_values("viajes", ascending=False)
+    resumen_tipo["participacion"] = resumen_tipo["viajes"] / float(resumen_tipo["viajes"].sum()) if float(resumen_tipo["viajes"].sum()) else 0.0
+    resumen_tipo["rol_tarifario"] = resumen_tipo["tipo_tarjeta"].map(_rol_tarjetario)
+    resumen_tipo["grupo_subsidio"] = resumen_tipo["tipo_tarjeta"].map(_grupo_subsidio_tarjeta)
+
+    c3, c4, c5 = st.columns([1.0, 1.0, 1.05])
+    with c3:
+        efe_section("Participación mensual y redistribución 2027", "Control mensual de afluencia, oferta y carga.")
+        st.dataframe(tabla_mensual, width="stretch", hide_index=True, height=315, column_config={
+            "Afluencia 2027": st.column_config.NumberColumn("Afluencia 2027", format="%d"),
+            "Servicios comerciales": st.column_config.NumberColumn("Servicios comerciales", format="%d"),
+            "Pax/servicio": st.column_config.NumberColumn("Pax/servicio", format="%.1f"),
+            "Participación mensual": st.column_config.NumberColumn("Participación mensual", format="%.1%%"),
+        })
+    with c4:
+        efe_section("Distribución por línea", "Distribución MOD posterior al total Biotren.")
+        fig_linea = go.Figure(go.Pie(labels=anual_linea["linea"], values=anual_linea["viajes"], hole=.60, marker=dict(colors=EFE_COLORS), textinfo="percent", sort=False))
+        fig_linea.update_layout(height=240, margin=dict(l=8, r=8, t=8, b=8), showlegend=False, paper_bgcolor="white", annotations=[dict(text=f"{fmt_m_efe(pasajeros)}<br>Pax 2027", x=.5, y=.5, showarrow=False, font=dict(color=EFE_BLUE, size=15))])
+        st.plotly_chart(fig_linea, width="stretch")
+        st.dataframe(anual_linea[["linea", "viajes", "participacion"]].rename(columns={"linea": "Línea", "viajes": "Pax 2027", "participacion": "Participación"}), width="stretch", hide_index=True, height=150, column_config={"Pax 2027": st.column_config.NumberColumn("Pax 2027", format="%d"), "Participación": st.column_config.NumberColumn("Participación", format="%.1%%")})
+    with c5:
+        efe_section("Distribución por tipo de tarjeta", "Viajes e ingresos tarifarios proyectados.")
+        top_tipo = resumen_tipo.head(5).copy()
+        fig_tipo = go.Figure(go.Pie(labels=top_tipo["nombre_visual"], values=top_tipo["viajes"], hole=.60, marker=dict(colors=EFE_COLORS), textinfo="percent", sort=False))
+        fig_tipo.update_layout(height=240, margin=dict(l=8, r=8, t=8, b=8), showlegend=False, paper_bgcolor="white", annotations=[dict(text=f"{fmt_m_efe(pasajeros)}<br>Pax 2027", x=.5, y=.5, showarrow=False, font=dict(color=EFE_BLUE, size=15))])
+        st.plotly_chart(fig_tipo, width="stretch")
+        st.dataframe(resumen_tipo[["nombre_visual", "viajes", "participacion"]].rename(columns={"nombre_visual": "Tipo de tarjeta", "viajes": "Pax 2027", "participacion": "Participación"}).head(7), width="stretch", hide_index=True, height=150, column_config={"Pax 2027": st.column_config.NumberColumn("Pax 2027", format="%d"), "Participación": st.column_config.NumberColumn("Participación", format="%.1%%")})
+
+    venta_por_tipo = resumen_tipo.set_index("tipo_tarjeta")["venta_pasajes"].to_dict()
+    tabla_fin = _tabla_financiera_biotren(anual_sub, venta_por_tipo)
+    c6, c7 = st.columns([1.0, 1.0])
+    with c6:
+        efe_section("Resultados financieros Biotren", "Millones de CLP; cálculo tarifario implementado sólo para Biotren.")
+        vista_fin = tabla_fin[["Concepto", "Monto anual"]].copy()
+        vista_fin["Monto anual"] = vista_fin["Monto anual"].astype(float)
+        st.dataframe(vista_fin, width="stretch", hide_index=True, height=275, column_config={"Monto anual": st.column_config.NumberColumn("Monto anual", format="$ %d")})
+    with c7:
+        efe_section("Advertencias y cobertura", "Controles metodológicos y límites de interpretación.")
+        advertencias = _advertencias_servicio("BIOTREN")
+        if cobertura.get("sin_cobertura_modelo"):
+            advertencias.append("Concepción Centro sin cobertura en matriz estudiante sin subsidio: " + ", ".join(cobertura.get("sin_cobertura_modelo", [])))
+        if cobertura.get("estaciones_sin_tarifas"):
+            advertencias.append("Estaciones sin tarifas disponibles en matriz estudiante sin subsidio: " + ", ".join(cobertura.get("estaciones_sin_tarifas", [])))
+        render_alertas(advertencias)
+
+    with st.expander("Detalle OD mensual por tipo de tarjeta", expanded=False):
+        periodos = list(serie.index)
+        periodo = st.selectbox("Mes proyectado", periodos, format_func=lambda x: f"{str(x)[5:7]} - 2027", key="od_biotren_periodo_ejecutivo")
+        tipo_tarjeta = st.selectbox("Tipo de tarjeta", OD.TIPOS_TARJETA_ESPERADOS, key="od_biotren_tipo_tarjeta_ejecutivo")
+        resultado_mes = calcular_od_biotren_tarjeta_mes_cached(periodo, float(serie.loc[periodo]))
+        viajes_long = resultado_mes["viajes_tipo_tarjeta_long"]
+        resumen_mes = resultado_mes["resumen_tipo_tarjeta"].copy()
+        M = _matriz_tarjeta(viajes_long, tipo_tarjeta, "viajes_proyectados")
+        R = _matriz_tarjeta(viajes_long, tipo_tarjeta, "ingresos_tarifarios_proyectados")
+        t1, t2, t3 = st.tabs(["Matriz OD viajes", "Matriz OD ingresos", "Resumen mensual"])
+        with t1:
+            st.dataframe(M.round(0).astype(int).copy(deep=True), width="stretch", height=420)
+        with t2:
+            st.dataframe(R.round(0).astype(int).copy(deep=True), width="stretch", height=420)
+        with t3:
+            st.dataframe(resumen_mes, width="stretch", height=260)
+    with st.expander("Justificación metodológica", expanded=False):
+        st.markdown("""
+- El escenario Biotren 2027 se formula como un escenario de gestión operacional-comercial.
+- La frecuencia comercial distingue servicios comerciales de capacidad efectiva.
+- L2 mantiene 110 servicios L-V; los 3 acoplados desde mayo son capacidad equivalente y no frecuencia adicional.
+- Integración TP y plan evasión fundamentan el escenario consolidado; no se suman nuevamente sobre la demanda anual.
+- Las bandas mensuales son diagnósticas y no recalibran la demanda.
+""")
+        render_biotren_fundamento_gestion()
+    with st.expander("Diagnóstico técnico de capacidad equivalente", expanded=False):
+        tecnico = diag_ocup.rename(columns={"mes": "Mes", "afluencia_biotren": "Afluencia 2027", "servicios_comerciales": "Servicios comerciales", "servicios_equivalentes_capacidad": "Servicios equivalentes capacidad", "pax_servicio_comercial": "Pax/servicio comercial", "pax_capacidad_equivalente": "Pax/capacidad equivalente", "banda_funcionamiento": "Banda"})
+        st.dataframe(tecnico, width="stretch", hide_index=True, height=330)
+    with st.expander("Detalle de redistribución mensual", expanded=False):
+        st.dataframe(diag_redistrib, width="stretch", hide_index=True, height=320)
+    with st.expander("Ecuaciones y controles internos", expanded=False):
+        render_incertidumbre_biotren(serv)
+
+
 def render_servicio(s):
     cf = CONF[s]
-    st.markdown(f"### {O.NOMBRE[s]} &nbsp;<span class='badge' style='background:{CONF_C[cf]}'>Confianza {cf}</span>", unsafe_allow_html=True)
+    st.markdown(f"<span class='badge'>Confianza {cf}</span>", unsafe_allow_html=True)
 
-    st.markdown("#### Oferta 2027")
-    ce = {}
-    plan_tramos = None
-    if s == "BIOTREN":
-        with st.expander("Parámetros de oferta Biotren", expanded=False):
+    with st.expander("Parámetros de oferta 2027", expanded=False):
+        ce = {}
+        plan_tramos = None
+        if s == "BIOTREN":
             st.info("Biotren se edita por línea. L1 considera 47 servicios L-V durante 2027; L2 mantiene 110 servicios L-V todo el año. Desde mayo, 3 servicios L2 L-V operan acoplados dentro de esos 110 y se registran sólo como capacidad efectiva.")
             c1, c2 = st.columns(2)
             with c1:
                 plan_l1 = editor_oferta("BIOTREN_L1", "Línea 1")
             with c2:
                 plan_l2 = editor_oferta("BIOTREN_L2", "Línea 2")
-        plan = pd.concat([plan_l1, plan_l2], ignore_index=True)
-    elif s == "TREN_ARAUCANIA":
-        plan_tramos, plan = editor_tren_araucania()
-    else:
-        plan = editor_oferta(O.UNIDADES_DE[s][0], O.NOMBRE[s])
+            plan = pd.concat([plan_l1, plan_l2], ignore_index=True)
+        elif s == "TREN_ARAUCANIA":
+            plan_tramos, plan = editor_tren_araucania()
+        else:
+            plan = editor_oferta(O.UNIDADES_DE[s][0], O.NOMBRE[s])
 
-    with st.expander("Contingencia adicional sobre supresión histórica"):
+        st.markdown("**Contingencia adicional sobre supresión histórica**")
         unidades_ce = O.UNIDADES_DE[s]
         cc = st.columns(len(unidades_ce))
         for i, u in enumerate(unidades_ce):
             ce[u] = cc[i].number_input(f"{u} (+% supresión)", 0.0, 30.0, 0.0, 1.0, key=f"ce_{u}") / 100.0
 
     uni, serv, detalle = O.proyectar_mensual_elastico(params, mdf, plan=plan, contingencia_extra=ce, return_detalle=True)
-    viajes = detalle[detalle.servicio == s]["viajes_operados_plan"].sum()
-    ocup_proy = serv[s].dropna().sum() / max(viajes, 1)
-    pk = serv[s].astype(float).idxmax()
 
     if s == "BIOTREN":
         render_biotren_ejecutivo(serv, uni, detalle)
-        return
-
-    st.markdown("#### Evolución mensual histórica, cierre 2026 y proyección 2027")
-    grafico_historico_y_proyeccion(s, serv)
-    tabla_ref = tabla_referencia_anual_servicio(s, serv)
-    if not tabla_ref.empty:
-        st.dataframe(tabla_ref.style.format({"total anual": "{:,.0f}"}), width="stretch", hide_index=True, height=300)
-
-    st.markdown("#### Total operacional 2027 vigente")
-    k = st.columns(4)
-    k[0].metric("Total anual 2027", fmt(serv[s].dropna().sum()))
-    k[1].metric("Pax/servicio comercial", fmt(ocup_proy))
-    k[2].metric("Mes peak", pk, fmt(serv[s].max()))
-    k[3].metric("Mes menor", serv[s].astype(float).idxmin(), fmt(serv[s].min()))
-
-    g, t = st.columns([3, 2])
-    with g:
-        render_justificacion_servicio(s, serv, uni, detalle)
-        render_ecuacion_servicio(s)
-    with t:
-        st.markdown("#### Proyección mensual 2027")
-        out = pd.DataFrame(index=serv.index)
-        if s == "BIOTREN":
-            out["L1"] = uni.get("BIOTREN_L1")
-            out["L2"] = uni.get("BIOTREN_L2")
-        elif s == "TREN_ARAUCANIA":
-            out["Temuco - Victoria"] = uni.get("TA_TEMUCO_VICTORIA")
-            out["Temuco - Pitrufquén"] = uni.get("TA_TEMUCO_PITRUFQUEN")
-            out["Claret"] = uni.get("TA_CLARET")
-        out["Total proyectado"] = serv[s]
-        st.dataframe(out, width="stretch", height=330)
-
-    st.markdown("#### Detalle mensual del cálculo oferta-demanda")
-    st.dataframe(tabla_detalle_mes(detalle, s), width="stretch")
-
-    with st.expander("Calendario operacional aplicado al servicio"):
-        st.dataframe(tabla_calendario_servicio(s), width="stretch")
-    st.caption("La columna impacto_mes_vs_base permite verificar que un cambio de oferta afecta el mes modificado y que el total anual resulta de la suma mensual.")
-
-    if s == "CORTO_LAJA":
-        st.warning("Oferta base: 8 servicios todos los días; sólo sábados y domingos de enero-febrero tienen 10 servicios. El escenario incorpora recuperación parcial de confiabilidad, supresión base acotada y mayor peso del patrón histórico de mejor desempeño.")
-    if s == "TREN_ARAUCANIA":
-        st.warning("Claret se considera servicio escolar: enero y febrero quedan sin oferta ni demanda proyectada para este tipo de servicio. Las modificaciones de oferta se evalúan por tramo con elasticidad diferenciada.")
-    if s == "LLANQUIHUE_PM":
-        st.warning("Enero y febrero se reducen por menor efecto novedad; marzo-diciembre se calibran hacia un promedio laboral cercano a 1.500 pasajeros, sin forzar exactamente el mismo valor cada mes.")
-
-    if s == "LLANQUIHUE_PM":
-        cal = O.dias_operacionales_por_tipo(2027, units=["LLANQUIHUE_PM"])
-        lv = cal[(cal.unit.eq("LLANQUIHUE_PM")) & (cal.dt.eq("LV"))].set_index("mes")["n_dias"]
-        t = pd.DataFrame({"periodo": serv.index, "pasajeros": serv[s].astype(float).values})
-        t["mes"] = range(1, 13)
-        t["dias_laborales_operacionales"] = t["mes"].map(lv.to_dict()).astype(float)
-        t["promedio_laboral"] = t["pasajeros"] / t["dias_laborales_operacionales"].replace(0, pd.NA)
-        st.markdown("#### Promedio laboral mensual")
-        st.dataframe(t[["periodo", "pasajeros", "dias_laborales_operacionales", "promedio_laboral"]].style.format({"pasajeros":"{:,.0f}", "dias_laborales_operacionales":"{:,.0f}", "promedio_laboral":"{:,.1f}"}), width="stretch", hide_index=True)
-    st.download_button(f"⬇ Descargar proyección {O.NOMBRE[s]} (CSV)", out.to_csv().encode(),
-                       f"proyeccion_2027_{s}.csv", key=f"dl_{s}")
-
+    else:
+        render_servicio_generico_ejecutivo(s, serv, uni, detalle)
 
 tabs = st.tabs(["📘 Metodología", "📊 Resumen", "🧪 Validación histórica"] + [O.NOMBRE[s] for s in O.SERVICIOS])
 with tabs[0]:
