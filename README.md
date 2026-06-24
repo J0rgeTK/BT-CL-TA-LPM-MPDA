@@ -44,11 +44,11 @@ Los feriados nacionales utilizados se encuentran en `data/feriados_chile_2027.cs
 
 ### 5.1 Biotren
 
-#### Marco metodológico Biotren 2027: escenario de gestión
+Biotren se modela separando L1 y L2 en el motor temporal. La oferta se edita por línea, mes y tipo de día. El escenario Biotren distingue entre frecuencia comercial y capacidad efectiva. La Línea 1 considera 47 servicios lunes-viernes durante el año. La Línea 2 mantiene 110 servicios de lunes a viernes durante 2027; desde mayo, tres servicios de punta mañana operan acoplados dentro de esa misma frecuencia. Por ello, estos servicios no se contabilizan como frecuencia adicional, sino como refuerzo de capacidad efectiva.
 
 El escenario Biotren 2027 corresponde a un escenario de gestión operacional-comercial sustentado en la oferta programada, la capacidad efectiva disponible, la integración con buses del transporte público, la recuperación de viajes registrados mediante plan de evasión y la validación mensual de ocupación. La afluencia total proyectada se distribuye posteriormente por línea, tipo de tarjeta y matriz OD para efectos de ingresos y subsidios.
 
-Los factores de integración TP, plan de evasión y capacidad efectiva se interpretan como fundamentos del escenario de gestión consolidado, no como incrementos adicionales a sumar sobre la demanda anual ya proyectada. Esta fase no recalibra la demanda anual Biotren, no modifica la distribución mensual, no altera matrices OD y no cambia la metodología financiera ni de subsidios.
+El escenario ajustado considera una validación operacional por ocupación promedio general. La referencia de pasajeros por servicio comercial se calcula con la frecuencia comercial vigente de L1 y L2; la capacidad equivalente por servicios acoplados se reporta sólo como diagnóstico técnico y no aumenta el denominador comercial. El ajuste mensual se distribuye según tendencia histórica, estacionalidad y oferta: enero y febrero se contrastan especialmente con el comportamiento reciente para evitar niveles estivales artificialmente bajos, mientras los demás meses reciben correcciones asociadas a brechas de ocupación. La proyección resultante para Biotren es **13.095.300 pasajeros** y no se recalibra en esta fase para forzar una ocupación promedio anual de 300 pasajeros por servicio comercial.
 
 #### Oferta operacional corregida
 
@@ -81,6 +81,11 @@ Las bandas de funcionamiento mensual se calculan sobre `Pax/servicio comercial`:
 #### Distribución posterior
 
 Una vez consolidada la demanda total de Biotren, el modelo distribuye la afluencia por línea, tipo de tarjeta y matriz OD. Sobre esa distribución se estiman ingresos por venta de pasajes, subsidio normal y subsidio estudiante. Estas capas distribuyen e interpretan la demanda ya proyectada, sin recalcular la afluencia total.
+
+
+El modelo distingue entre ocupación por servicio comercial y ocupación por capacidad equivalente. La primera corresponde al indicador principal de gestión y se calcula dividiendo la afluencia mensual por los servicios comerciales programados. La segunda incorpora el efecto de servicios acoplados como capacidad adicional y se utiliza sólo como diagnóstico técnico. La clasificación mensual por bandas permite identificar meses de baja utilización, operación estable, alta utilización o tensión operacional, sin modificar por sí misma la proyección de demanda.
+
+Las bandas de funcionamiento mensual de Biotren se calculan sobre `Pax/servicio comercial`: baja utilización bajo 270, operación estable desde 270 y menor a 300, alta utilización entre 300 y 330, y tensión operacional sobre 330. Los servicios acoplados L2 de mayo a diciembre no aumentan la frecuencia comercial; sólo elevan los servicios equivalentes de capacidad utilizados para el indicador técnico `Pax/capacidad equivalente`. Esta fase mantiene sin cambios la demanda anual Biotren 2027.
 
 ### 5.2 Tren Araucanía
 
