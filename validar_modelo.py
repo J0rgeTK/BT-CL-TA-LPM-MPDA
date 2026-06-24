@@ -37,11 +37,11 @@ TOTALES_2027_VIGENTES = {
     "LLANQUIHUE_PM": 412_132.0,
 }
 BIOTREN_FINANCIERO_REFERENCIA_2027 = {
-    "ingreso_venta": 6_767_790_687.0,
-    "subsidio_normal": 1_449_965_634.0,
-    "subsidio_estudiante": 523_726_879.0,
-    "subsidio_total": 1_973_692_513.0,
-    "ingreso_total_biotren": 8_741_483_199.0,
+    "ingreso_venta": 6_767_275_267.0,
+    "subsidio_normal": 1_449_760_160.0,
+    "subsidio_estudiante": 524_083_425.0,
+    "subsidio_total": 1_973_843_585.0,
+    "ingreso_total_biotren": 8_741_118_852.0,
 }
 
 

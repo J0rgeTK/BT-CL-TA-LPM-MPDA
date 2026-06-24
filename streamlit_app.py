@@ -45,23 +45,48 @@ REF_TIPO_COLOR = {
 
 st.markdown("""
 <style>
-  .stApp { background:#f6f8fb; }
+  :root {
+    --efe-blue: #003A70;
+    --efe-blue-2: #0057A8;
+    --efe-light-blue: #EAF3FA;
+    --efe-gray-bg: #F5F7FA;
+    --efe-gray-border: #D9E1E8;
+    --efe-gray-text: #5F6B7A;
+    --efe-red: #D71920;
+    --efe-white: #FFFFFF;
+  }
+  html, body, [class*="css"] { font-family: "Univia Pro", "Inter", "Segoe UI", Arial, sans-serif; }
+  .stApp { background: var(--efe-gray-bg); }
   .block-container { padding-top:1.6rem; max-width:1280px; }
-  h1,h2,h3,h4 { font-family:'Segoe UI',system-ui,sans-serif; color:#0f2740; }
-  .hero { background:linear-gradient(110deg,#0f2740,#1f4e79); color:#fff; padding:20px 26px;
-          border-radius:16px; margin-bottom:14px; box-shadow:0 8px 24px rgba(15,39,64,.18); }
+  h1,h2,h3,h4 { font-family:"Univia Pro", "Inter", "Segoe UI", Arial, sans-serif; color:var(--efe-blue); letter-spacing:-.01em; }
+  .hero { background:linear-gradient(110deg,var(--efe-blue),var(--efe-blue-2)); color:#fff; padding:20px 26px;
+          border-radius:16px; margin-bottom:14px; box-shadow:0 8px 24px rgba(0,58,112,.16); }
   .hero h1 { color:#fff; margin:0; font-size:1.55rem; }
-  .hero p { margin:.3rem 0 0; opacity:.85; font-size:.9rem; }
-  div[data-testid="stMetric"] { background:#fff; border:1px solid #e6ebf2; border-radius:14px;
-          padding:12px 16px; box-shadow:0 2px 8px rgba(15,39,64,.05); }
-  div[data-testid="stMetricLabel"] p { color:#5b6b7d; font-weight:600; }
+  .hero p { margin:.3rem 0 0; opacity:.88; font-size:.9rem; }
+  div[data-testid="stMetric"] { background:var(--efe-white); border:1px solid var(--efe-gray-border); border-radius:14px;
+          padding:12px 16px; box-shadow:0 2px 8px rgba(0,58,112,.04); }
+  div[data-testid="stMetricLabel"] p { color:var(--efe-gray-text); font-weight:600; }
   button[data-baseweb="tab"] { font-weight:600; font-size:.95rem; }
   .badge { display:inline-block; padding:3px 12px; border-radius:999px; color:#fff; font-size:.78rem; font-weight:700; }
-  .method { background:#fff; border:1px solid #e6ebf2; border-radius:14px; padding:18px 22px; }
-  .bt-panel { background:#fff; border:1px solid #e6ebf2; border-radius:16px; padding:16px 18px; margin:.55rem 0 1rem 0; box-shadow:0 2px 10px rgba(15,39,64,.05); }
+  .method { background:var(--efe-white); border:1px solid var(--efe-gray-border); border-radius:14px; padding:18px 22px; }
+  .bt-panel, .efe-section { background:var(--efe-white); border:1px solid var(--efe-gray-border); border-radius:16px; padding:16px 18px; margin:.65rem 0 1rem 0; box-shadow:0 2px 10px rgba(0,58,112,.04); }
   .bt-panel h4 { margin:.1rem 0 .35rem 0; }
-  .bt-note { color:#5b6b7d; font-size:.92rem; margin:.1rem 0 .45rem 0; }
-  .bt-chip { display:inline-block; border-radius:999px; padding:4px 10px; margin:2px 4px 2px 0; font-size:.78rem; font-weight:700; background:#eef4ff; color:#1f4e79; }
+  .bt-note, .efe-note { color:var(--efe-gray-text); font-size:.92rem; margin:.1rem 0 .45rem 0; }
+  .bt-chip { display:inline-block; border-radius:999px; padding:4px 10px; margin:2px 4px 2px 0; font-size:.78rem; font-weight:700; background:var(--efe-light-blue); color:var(--efe-blue); }
+  .efe-header { background:linear-gradient(135deg,var(--efe-white),var(--efe-light-blue)); border:1px solid var(--efe-gray-border); border-radius:18px; padding:22px 24px; margin:.4rem 0 1rem; }
+  .efe-header-kicker { color:var(--efe-blue-2); font-weight:800; font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.25rem; }
+  .efe-header-title { color:var(--efe-blue); font-size:1.75rem; font-weight:800; margin:0; }
+  .efe-header-subtitle { color:var(--efe-gray-text); margin:.4rem 0 .75rem; font-size:.98rem; }
+  .efe-brand { display:inline-block; border:1px solid var(--efe-gray-border); border-radius:999px; padding:5px 12px; background:var(--efe-white); color:var(--efe-blue); font-weight:800; font-size:.8rem; }
+  .efe-card { background:var(--efe-white); border:1px solid var(--efe-gray-border); border-radius:14px; padding:14px 16px; min-height:106px; box-shadow:0 1px 6px rgba(0,58,112,.035); }
+  .efe-card-primary { border-top:4px solid var(--efe-blue); }
+  .efe-card-secondary { border-top:4px solid var(--efe-blue-2); }
+  .efe-card-diagnostic { border-top:4px solid #91B7D8; }
+  .efe-kpi-title { color:var(--efe-gray-text); font-size:.78rem; font-weight:800; text-transform:uppercase; letter-spacing:.035em; }
+  .efe-kpi-value { color:var(--efe-blue); font-size:1.38rem; font-weight:800; line-height:1.15; margin-top:.35rem; }
+  .efe-kpi-note { color:var(--efe-gray-text); font-size:.78rem; margin-top:.35rem; }
+  .efe-warning { border-left:4px solid var(--efe-red); background:#FFF5F5; border-radius:12px; padding:10px 12px; color:#5F2224; margin:.4rem 0; }
+  .efe-divider { border-top:1px solid var(--efe-gray-border); margin:1rem 0; }
   code { white-space: pre-wrap; }
 </style>
 """, unsafe_allow_html=True)
@@ -234,7 +259,7 @@ def render_indicadores_ejecutivos_biotren_2027(serv):
 
 
 def render_participacion_redistribucion_biotren(serv):
-    st.markdown("### Participación mensual y redistribución 2027")
+    st.markdown("### Detalle histórico de participación mensual")
     mensual_recal = pd.DataFrame(serv.attrs.get("recalibracion_2027", {}).get("mensual", []))
     if mensual_recal.empty or "proyeccion_vigente_pre_redistribucion" not in mensual_recal.columns:
         vigente = serv["BIOTREN"].astype(float)
@@ -1248,7 +1273,9 @@ def render_biotren_ejecutivo(serv, uni, detalle):
     pasajeros = float(anual_sub.get("viajes_biotren", serie.sum()))
     pasajeros_por_servicio = pasajeros / servicios_anuales if servicios_anuales else 0.0
 
-    st.markdown("## Biotren 2027: afluencia, ocupación e ingresos")
+
+
+def _efe_card(titulo, valor, nota="", estilo="primary"):
     st.markdown(
         """
 <div class="bt-panel">
@@ -1300,42 +1327,106 @@ def render_biotren_ejecutivo(serv, uni, detalle):
         },
     )
 
-    st.markdown("### 3. Participación mensual y redistribución 2027")
-    chart = pd.DataFrame({
-        "Mes": diag["mes"],
-        "2024": diag["participacion_2024"],
-        "2025": diag["participacion_2025"],
-        "Cierre 2026": diag["participacion_cierre_2026"],
-        "2027 vigente": diag["participacion_2027_vigente"],
-        "2027 redistribuido": diag["participacion_2027_redistribuida"],
-    })
-    fig_part = go.Figure()
-    for col in ["2024", "2025", "Cierre 2026", "2027 vigente", "2027 redistribuido"]:
-        fig_part.add_trace(go.Scatter(x=chart["Mes"], y=chart[col] * 100, mode="lines+markers", name=col))
-    fig_part.update_layout(yaxis_title="Participación mensual (%)", xaxis_title="Mes", height=360, margin=dict(l=10, r=10, t=20, b=10), hovermode="x unified")
-    st.plotly_chart(fig_part, width="stretch")
-    tabla_diag = diag[["mes", "participacion_ponderada_reciente", "participacion_2027_vigente", "participacion_2027_redistribuida", "afluencia_2027_redistribuida", "pasajeros_por_servicio_redistribuido"]].rename(columns={
-        "mes": "Mes",
-        "participacion_ponderada_reciente": "Histórica reciente",
-        "participacion_2027_vigente": "2027 vigente",
-        "participacion_2027_redistribuida": "2027 redistribuida",
-        "afluencia_2027_redistribuida": "Afluencia redistribuida",
-        "pasajeros_por_servicio_redistribuido": "Pasajeros por servicio",
-    })
-    st.dataframe(
-        tabla_diag,
-        width="stretch",
-        hide_index=True,
-        height=260,
-        column_config={
-            "Histórica reciente": st.column_config.NumberColumn("Histórica reciente", format="%.2%%"),
-            "2027 vigente": st.column_config.NumberColumn("2027 vigente", format="%.2%%"),
-            "2027 redistribuida": st.column_config.NumberColumn("2027 redistribuida", format="%.2%%"),
-            "Afluencia redistribuida": st.column_config.NumberColumn("Afluencia redistribuida", format="%d"),
-            "Pasajeros por servicio": st.column_config.NumberColumn("Pasajeros por servicio", format="%.1f"),
-        },
+
+def render_biotren_kpis(pasajeros, servicios_anuales, resumen_ocup, anual_sub):
+    _efe_section_title("1. Indicadores ejecutivos")
+    servicios_equiv = float(resumen_ocup["servicios_equivalentes_capacidad_anuales"])
+    pax_servicio = float(resumen_ocup["pax_servicio_comercial_anual"])
+    pax_capacidad = float(resumen_ocup["pax_capacidad_equivalente_anual"])
+    cards = [
+        ("Pasajeros 2027", fmt(pasajeros), "Demanda anual Biotren", "primary"),
+        ("Servicios comerciales", fmt(servicios_anuales), "Frecuencia programada", "primary"),
+        ("Pax/servicio comercial", f"{pax_servicio:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."), "Indicador principal", "primary"),
+        ("Servicios equivalentes", fmt(servicios_equiv), "Diagnóstico de capacidad", "diagnostic"),
+        ("Venta de pasajes", fmt_mm(anual_sub.get("ingreso_venta", 0.0)), "Sólo Biotren", "secondary"),
+        ("Subsidio total", fmt_mm(anual_sub.get("subsidio_total", 0.0)), "Normal + estudiante", "secondary"),
+        ("Ingreso total", fmt_mm(anual_sub.get("ingreso_total_biotren", 0.0)), "Venta + subsidios", "secondary"),
+        ("Subsidio normal", fmt_mm(anual_sub.get("subsidio_normal", 0.0)), "Tasa parametrizada", "secondary"),
+        ("Subsidio estudiante", fmt_mm(anual_sub.get("subsidio_estudiante", 0.0)), "Brecha agregada", "secondary"),
+    ]
+    for i in range(0, len(cards), 3):
+        cols = st.columns(3)
+        for col, card in zip(cols, cards[i:i + 3]):
+            with col:
+                _efe_card(*card)
+    st.caption(
+        "La ocupación principal se calcula sobre servicios comerciales programados. "
+        f"Los servicios acoplados de L2 se incorporan sólo como capacidad equivalente diagnóstica; "
+        f"Pax/capacidad equivalente: {pax_capacidad:,.2f}.".replace(",", "X").replace(".", ",").replace("X", ".")
     )
-    with st.expander("Detalle metodológico de participación mensual", expanded=False):
+
+
+def render_biotren_fundamento_gestion():
+    _efe_section_title("2. Fundamento del escenario de gestión Biotren 2027")
+    factores = pd.DataFrame([
+        {"Factor": "Oferta L1/L2", "Aplicación 2027": "L1 47 L-V; L2 110 L-V; fines de semana según periodo", "Rol metodológico": "Base operacional"},
+        {"Factor": "Acoplados L2", "Aplicación 2027": "3 servicios L2 L-V desde mayo", "Rol metodológico": "Capacidad efectiva"},
+        {"Factor": "Integración buses TP", "Aplicación 2027": "Principalmente Concepción; extensible operacionalmente a estaciones", "Rol metodológico": "Captura de demanda alimentadora"},
+        {"Factor": "Plan evasión", "Aplicación 2027": "1% del cierre 2026", "Rol metodológico": "Recuperación de viajes registrados"},
+        {"Factor": "Bandas de funcionamiento", "Aplicación 2027": "Diagnóstico mensual", "Rol metodológico": "Validación de eficiencia"},
+    ])
+    st.dataframe(factores, width="stretch", hide_index=True, height=210)
+    st.caption("Estos factores fundamentan el escenario de gestión consolidado y no se suman nuevamente sobre la demanda anual proyectada.")
+    with st.expander("Detalle metodológico del escenario Biotren", expanded=False):
+        st.markdown("""
+El escenario Biotren 2027 se formula como un escenario de gestión operacional-comercial. La demanda anual proyectada se sustenta en la oferta operacional programada, la capacidad efectiva disponible, la integración con buses del transporte público, el plan de evasión y la validación mensual de ocupación.
+
+La oferta operacional distingue entre frecuencia comercial y capacidad efectiva. La Línea 1 considera 47 servicios de lunes a viernes, 8 servicios los sábados y sin operación dominical. La Línea 2 considera 110 servicios de lunes a viernes durante todo el año. En fines de semana, la Línea 2 opera con 14 servicios sábado y 14 domingo en enero-febrero, y con 53 servicios sábado y 32 domingo desde marzo. Desde mayo a diciembre, tres servicios L2 de lunes a viernes en punta mañana operan acoplados dentro de los 110 servicios comerciales. Estos servicios no se contabilizan como frecuencia adicional, sino como capacidad efectiva.
+
+La integración con buses del transporte público se considera como una medida de captura de demanda alimentadora, concentrada principalmente en estación Concepción por su rol de nodo estructurante de la red Biotren. Operacionalmente, la integración puede extenderse al resto de estaciones, permitiendo mejorar la accesibilidad y continuidad de viaje del sistema. Dado que en esta etapa no se dispone de una matriz observada de transbordos bus-tren por estación, la integración TP se utiliza como fundamento del escenario de gestión y no como redistribución OD específica.
+
+El plan de evasión se incorpora como recuperación de viajes registrados equivalente a 1% del cierre 2026 de Biotren. Este componente representa una mejora en la captura de validaciones y trazabilidad de la demanda efectiva, sin interpretarse necesariamente como demanda física completamente nueva. Su efecto fundamenta el escenario de gestión consolidado y no debe sumarse nuevamente si la afluencia anual ya fue calibrada al escenario consolidado.
+
+La coherencia del escenario se valida mediante indicadores de ocupación mensual. El indicador principal corresponde a pasajeros por servicio comercial; como diagnóstico técnico se calcula también pasajeros por capacidad equivalente, incorporando el efecto de los servicios acoplados. Adicionalmente, los meses se clasifican en bandas de baja utilización, operación estable, alta utilización y tensión operacional. Estas bandas permiten evaluar la distribución mensual de la carga, sin modificar por sí mismas la demanda proyectada.
+
+Una vez consolidada la demanda total de Biotren, el modelo distribuye la afluencia por línea, tipo de tarjeta y matriz OD. Sobre esa distribución se estiman ingresos por venta de pasajes, subsidio normal y subsidio estudiante; estos cálculos financieros no modifican la afluencia.
+""")
+
+
+def render_biotren_ocupacion_mensual(serie):
+    resumen = O.resumen_ocupacion_biotren(serie, 2027)
+    diag = resumen["diagnostico_mensual"].copy()
+    bandas_color = {"Baja utilización": "#5F6B7A", "Operación estable": "#0057A8", "Alta utilización": "#007A5E", "Tensión operacional": "#D71920"}
+    _efe_section_title("3. Ocupación mensual y bandas de funcionamiento", "El indicador principal usa servicios comerciales programados; la capacidad equivalente se muestra sólo como diagnóstico técnico.")
+    cols = st.columns(7)
+    metrics = [
+        ("Pax/servicio comercial", f"{resumen['pax_servicio_comercial_anual']:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")),
+        ("Pax/capacidad equivalente", f"{resumen['pax_capacidad_equivalente_anual']:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")),
+        ("Mes mayor", f"Mes {resumen['mes_mayor_pax_servicio_comercial']}"),
+        ("Mes menor", f"Mes {resumen['mes_menor_pax_servicio_comercial']}"),
+        ("Baja utilización", int(resumen["meses_por_banda"].get("Baja utilización", 0))),
+        ("Alta utilización", int(resumen["meses_por_banda"].get("Alta utilización", 0))),
+        ("Tensión", int(resumen["meses_por_banda"].get("Tensión operacional", 0))),
+    ]
+    for col, (label, value) in zip(cols, metrics):
+        col.metric(label, value)
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=diag["mes"], y=diag["pax_servicio_comercial"], mode="lines+markers", name="Pax/servicio comercial", marker=dict(color=[bandas_color[b] for b in diag["banda_funcionamiento"]], size=9), line=dict(color="#003A70", width=3)))
+    fig.add_trace(go.Scatter(x=diag["mes"], y=diag["pax_capacidad_equivalente"], mode="lines+markers", name="Pax/capacidad equivalente (diagnóstico)", marker=dict(color="#91B7D8", size=7), line=dict(color="#91B7D8", width=2, dash="dot")))
+    fig.add_hline(y=300, line_dash="dash", line_color="#D71920", annotation_text="Referencia 300", annotation_position="top left")
+    fig.update_layout(height=360, xaxis_title="Mes", yaxis_title="Pasajeros por servicio", hovermode="x unified", margin=dict(l=10, r=10, t=20, b=10), legend=dict(orientation="h"), plot_bgcolor="white", paper_bgcolor="white")
+    st.plotly_chart(fig, width="stretch")
+    visible = diag[["mes", "afluencia_biotren", "servicios_comerciales", "pax_servicio_comercial", "banda_funcionamiento"]].rename(columns={"mes": "Mes", "afluencia_biotren": "Afluencia 2027", "servicios_comerciales": "Servicios comerciales", "pax_servicio_comercial": "Pax/servicio comercial", "banda_funcionamiento": "Banda"})
+    st.dataframe(visible, width="stretch", hide_index=True, height=250, column_config={"Afluencia 2027": st.column_config.NumberColumn("Afluencia 2027", format="%d"), "Servicios comerciales": st.column_config.NumberColumn("Servicios comerciales", format="%d"), "Pax/servicio comercial": st.column_config.NumberColumn("Pax/servicio comercial", format="%.1f")})
+    return resumen, diag
+
+
+def render_biotren_evolucion_redistribucion(serie, vigente, diag, servicios_mensuales, serv_completo):
+    _efe_section_title("4. Evolución mensual y redistribución 2027")
+    ref = construir_referencia_mensual_visual(serv_completo)
+    ref_b = ref[(ref["servicio_modelo"].eq("BIOTREN")) & (ref["anio"].isin([2026, 2027]))].copy().sort_values(["anio", "mes_num"])
+    fig = go.Figure()
+    for label, color, dash in [("Cierre 2026 estimado", "#5F6B7A", "solid"), ("Proyección 2027 modelo", "#003A70", "dash")]:
+        d = ref_b[ref_b["tipo_dato_label"].eq(label)]
+        if not d.empty:
+            fig.add_trace(go.Scatter(x=d["mes_num"].astype(int), y=d["afluencia"].astype(float), name=label, mode="lines+markers", line=dict(color=color, width=3, dash=dash)))
+    fig.update_layout(height=330, margin=dict(l=8, r=8, t=8, b=8), plot_bgcolor="white", paper_bgcolor="white", legend=dict(orientation="h", y=1.12, x=0), hovermode="x unified")
+    fig.update_xaxes(dtick=1, range=[0.7, 12.3], showgrid=False, title="Mes")
+    fig.update_yaxes(gridcolor="#D9E1E8", title="Pasajeros/mes")
+    st.plotly_chart(fig, width="stretch")
+    tabla = pd.DataFrame({"Mes": diag["mes"], "Afluencia 2027": serie.values, "Participación anual": serie.values / float(serie.sum()) if float(serie.sum()) else 0.0, "Variación vs referencia": serie.values - vigente.values, "Servicios comerciales": servicios_mensuales.values})
+    st.dataframe(tabla, width="stretch", hide_index=True, height=250, column_config={"Afluencia 2027": st.column_config.NumberColumn("Afluencia 2027", format="%d"), "Participación anual": st.column_config.NumberColumn("Participación anual", format="%.2%%"), "Variación vs referencia": st.column_config.NumberColumn("Variación vs referencia", format="%+d"), "Servicios comerciales": st.column_config.NumberColumn("Servicios comerciales", format="%d")})
+    with st.expander("Detalle de redistribución mensual", expanded=False):
         st.markdown("""
 - Participación mensual = afluencia mensual / afluencia anual.
 - Pesos del patrón reciente: 2024 = 25%, 2025 = 35%, cierre 2026 = 40%.
@@ -1351,16 +1442,16 @@ def render_biotren_ejecutivo(serv, uni, detalle):
     anual_linea = dist_linea.groupby("linea_od", as_index=False).agg(viajes=("viajes_proyectados", "sum"))
     anual_linea["participacion"] = anual_linea["viajes"] / anual_linea["viajes"].sum()
     anual_linea = anual_linea.set_index("linea_od").reindex(["L1", "L2", "L1-L2"]).reset_index()
-    fig_linea = go.Figure(go.Bar(x=anual_linea["linea_od"], y=anual_linea["viajes"], marker_color=["#1f6feb", "#0e9f6e", "#d97706"], text=[fmt(v) for v in anual_linea["viajes"]], textposition="outside"))
-    fig_linea.update_layout(title="Distribución anual por línea", height=320, yaxis_title="Pasajeros", xaxis_title="Línea", showlegend=False, margin=dict(l=10, r=10, t=45, b=10))
-    st.plotly_chart(fig_linea, width="stretch")
-    st.dataframe(
-        anual_linea.rename(columns={"linea_od": "Línea", "viajes": "Pasajeros 2027", "participacion": "Participación"}),
-        width="stretch",
-        hide_index=True,
-        column_config={"Pasajeros 2027": st.column_config.NumberColumn("Pasajeros 2027", format="%d"), "Participación": st.column_config.NumberColumn("Participación", format="%.2%%")},
-    )
+    fig = go.Figure(go.Bar(x=anual_linea["linea_od"], y=anual_linea["viajes"], marker_color=["#003A70", "#0057A8", "#91B7D8"], text=[fmt(v) for v in anual_linea["viajes"]], textposition="outside"))
+    fig.update_layout(height=310, yaxis_title="Pasajeros", xaxis_title="Línea", showlegend=False, margin=dict(l=10, r=10, t=20, b=10), plot_bgcolor="white", paper_bgcolor="white")
+    st.plotly_chart(fig, width="stretch")
+    tabla = anual_linea.rename(columns={"linea_od": "Línea", "viajes": "Pasajeros 2027", "participacion": "Participación"})
+    st.dataframe(tabla, width="stretch", hide_index=True, column_config={"Pasajeros 2027": st.column_config.NumberColumn("Pasajeros 2027", format="%d"), "Participación": st.column_config.NumberColumn("Participación", format="%.1%%")})
+    return dist_linea
 
+
+def render_biotren_distribucion_tarjeta(resumen_anual_tipo):
+    _efe_section_title("6. Distribución por tipo de tarjeta")
     resumen_tipo = resumen_anual_tipo.groupby(["tipo_tarjeta", "nombre_visual", "tipo_pasajero_tarifa"], as_index=False).agg(viajes=("viajes_proyectados", "sum"), venta_pasajes=("ingresos_tarifarios_proyectados", "sum"))
     total_viajes = float(resumen_tipo["viajes"].sum())
     resumen_tipo["participacion"] = resumen_tipo["viajes"] / total_viajes if total_viajes else 0.0
@@ -1402,11 +1493,11 @@ def render_biotren_ejecutivo(serv, uni, detalle):
         advertencias.append("Concepción Centro sin cobertura en matriz estudiante sin subsidio: " + ", ".join(cobertura.get("sin_cobertura_modelo", [])))
     if cobertura.get("estaciones_sin_tarifas"):
         advertencias.append("Pasajero Lota sin tarifas disponibles: " + ", ".join(cobertura.get("estaciones_sin_tarifas", [])))
-    advertencias.append("La diagonal tiene tratamiento diferenciado: venta media_superior con diagonal e ingreso teórico estudiante sin subsidio sin diagonal.")
-    advertencias.append(f"Matriz estudiante sin subsidio: {fmt(cobertura.get('estaciones_matriz', 0))} estaciones; las capas OD/tarjeta distribuyen la afluencia y no generan el total anual.")
     for adv in advertencias:
-        st.info(adv)
+        st.markdown(f'<div class="efe-warning">{adv}</div>', unsafe_allow_html=True)
 
+
+def render_biotren_expanders_tecnicos(serie, dist_linea, resumen_tipo, cobertura, diag_ocup, serv):
     with st.expander("Detalle OD mensual por tipo de tarjeta", expanded=False):
         periodos = list(serie.index)
         periodo = st.selectbox("Mes proyectado", periodos, format_func=lambda x: f"{str(x)[5:7]} - 2027", key="od_biotren_periodo_compacto")
@@ -1424,8 +1515,17 @@ def render_biotren_ejecutivo(serv, uni, detalle):
             st.dataframe(R.round(0).astype(int).copy(deep=True), width="stretch", height=420)
         with t3:
             st.dataframe(resumen_mes, width="stretch", height=260)
-
-    with st.expander("Justificación metodológica Biotren", expanded=False):
+    with st.expander("Diagnóstico técnico de capacidad equivalente", expanded=False):
+        st.markdown("La ocupación principal se calcula sobre servicios comerciales programados. Los servicios acoplados de L2 se incorporan sólo en el diagnóstico de capacidad equivalente, dado que aumentan la capacidad disponible sin crear una frecuencia adicional.")
+        tecnico = diag_ocup.rename(columns={"mes": "Mes", "afluencia_biotren": "Afluencia 2027", "servicios_comerciales": "Servicios comerciales", "servicios_equivalentes_capacidad": "Servicios equivalentes capacidad", "servicios_acoplados_l2_lv": "Acoplados L2 L-V", "servicios_acoplados_mensuales": "Acoplados mensuales equivalentes", "pax_servicio_comercial": "Pax/servicio comercial", "pax_capacidad_equivalente": "Pax/capacidad equivalente", "diferencia_pax_comercial_vs_capacidad": "Diferencia pax comercial-capacidad", "participacion_mensual_afluencia": "Participación mensual", "banda_funcionamiento": "Banda", "observacion_metodologica": "Observación metodológica"})
+        st.dataframe(tecnico, width="stretch", hide_index=True, height=330)
+    with st.expander("Detalle de conservación por línea", expanded=False):
+        mensual_linea = dist_linea.pivot_table(index="periodo", columns="linea_od", values="viajes_proyectados", aggfunc="sum", fill_value=0.0).reindex(columns=["L1", "L2", "L1-L2"], fill_value=0.0)
+        mensual_linea["Total líneas"] = mensual_linea.sum(axis=1)
+        mensual_linea["Total Biotren"] = serie.reindex(mensual_linea.index).astype(float)
+        mensual_linea["Diferencia"] = mensual_linea["Total líneas"] - mensual_linea["Total Biotren"]
+        st.dataframe(mensual_linea.reset_index().rename(columns={"periodo": "Periodo"}), width="stretch", hide_index=True, height=280)
+    with st.expander("Justificación metodológica", expanded=False):
         st.markdown("""
 - La redistribución mensual usa participación anual reciente y conserva el total anual Biotren.
 - La validación operacional se expresa como pasajeros por servicio comercial = pasajeros anuales / servicios comerciales anuales.
@@ -1433,9 +1533,35 @@ def render_biotren_ejecutivo(serv, uni, detalle):
 - Subsidio normal: `Monto_normal_base / (1 - tasa_descuento_normal) - Monto_normal_base`.
 - Subsidio estudiante: `Ingreso_teorico_estudiante_sin_subsidio_sin_diagonal - Venta_media_superior_con_diagonal`.
 """)
-
-    with st.expander("Diagnóstico de incertidumbre", expanded=False):
+        st.write(f"Matriz estudiante sin subsidio: {fmt(cobertura.get('estaciones_matriz', 0))} estaciones.")
+    with st.expander("Ecuaciones y controles internos", expanded=False):
         render_incertidumbre_biotren(serv)
+
+
+def render_biotren_ejecutivo(serv, uni, detalle):
+    serie = serv["BIOTREN"].astype(float).copy()
+    vigente = _serie_biotren_vigente_pre_redistribucion(serv)
+    servicios_mensuales = O.servicios_comerciales_biotren_mensuales(2027)
+    servicios_anuales = float(servicios_mensuales.sum())
+    diag = O.diagnostico_redistribucion_biotren_2027(vigente, serie)
+    resultado_anual = calcular_resultado_biotren_tarjeta_anual_cached(serie.to_dict())
+    resumen_anual_tipo = resultado_anual["resumen_tipo_tarjeta"].copy()
+    ingresos_subsidio = resultado_anual.get("ingresos_subsidio_biotren", {})
+    anual_sub = ingresos_subsidio.get("resumen_anual", {})
+    cobertura = ingresos_subsidio.get("cobertura_estudiante", {})
+    pasajeros = float(anual_sub.get("viajes_biotren", serie.sum()))
+    render_biotren_header()
+    resumen_ocup = O.resumen_ocupacion_biotren(serie, 2027)
+    render_biotren_kpis(pasajeros, servicios_anuales, resumen_ocup, anual_sub)
+    render_biotren_fundamento_gestion()
+    _, diag_ocup = render_biotren_ocupacion_mensual(serie)
+    render_biotren_evolucion_redistribucion(serie, vigente, diag, servicios_mensuales, serv)
+    dist_linea = render_biotren_distribucion_linea(serie)
+    resumen_tipo = render_biotren_distribucion_tarjeta(resumen_anual_tipo)
+    venta_por_tipo = resumen_tipo.set_index("tipo_tarjeta")["venta_pasajes"].to_dict()
+    render_biotren_finanzas(anual_sub, venta_por_tipo)
+    render_biotren_advertencias(cobertura)
+    render_biotren_expanders_tecnicos(serie, dist_linea, resumen_tipo, cobertura, diag_ocup, serv)
 
 def render_servicio(s):
     cf = CONF[s]
