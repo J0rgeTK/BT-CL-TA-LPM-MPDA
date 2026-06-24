@@ -36,6 +36,9 @@ UNIT = {'BIOTREN L1': 'BIOTREN_L1', 'BIOTREN L2': 'BIOTREN_L2', 'CORTO LJ': 'COR
         'XP - NQ': 'LLANQUIHUE_PM', 'XP-NQ': 'LLANQUIHUE_PM',
         'VI - TM': 'TREN_ARAUCANIA', 'VI-TM': 'TREN_ARAUCANIA'}
 SERVICIOS = ['BIOTREN', 'CORTO_LAJA', 'TREN_ARAUCANIA', 'LLANQUIHUE_PM']
+
+CAPACIDAD_REFERENCIA_BIOTREN_PAX_TREN = 605.0
+CAPACIDAD_REFERENCIA_LAJA_TALCAHUANO_PAX_TREN = 578.0
 UNIDADES_DE = {'BIOTREN': ['BIOTREN_L1', 'BIOTREN_L2'], 'CORTO_LAJA': ['CORTO_LAJA'],
                'TREN_ARAUCANIA': ['TREN_ARAUCANIA'], 'LLANQUIHUE_PM': ['LLANQUIHUE_PM']}
 
@@ -635,6 +638,19 @@ def diagnostico_ocupacion_biotren_mensual(serie_biotren, anio=2027, oferta_df=No
         np.nan,
     )
     out["diferencia_pax_comercial_vs_capacidad"] = out["pax_servicio_comercial"] - out["pax_capacidad_equivalente"]
+    out["capacidad_pax_comercial"] = out["servicios_comerciales"] * CAPACIDAD_REFERENCIA_BIOTREN_PAX_TREN
+    out["capacidad_pax_equivalente"] = out["servicios_equivalentes_capacidad"] * CAPACIDAD_REFERENCIA_BIOTREN_PAX_TREN
+    out["tasa_ocupacion_comercial_pct"] = np.where(
+        out["capacidad_pax_comercial"] > 0,
+        out["afluencia_biotren"] / out["capacidad_pax_comercial"],
+        np.nan,
+    )
+    out["tasa_ocupacion_equivalente_pct"] = np.where(
+        out["capacidad_pax_equivalente"] > 0,
+        out["afluencia_biotren"] / out["capacidad_pax_equivalente"],
+        np.nan,
+    )
+    out["capacidad_referencia_tren"] = CAPACIDAD_REFERENCIA_BIOTREN_PAX_TREN
     total = float(out["afluencia_biotren"].sum())
     out["participacion_mensual_afluencia"] = out["afluencia_biotren"] / total if total else 0.0
     out["banda_funcionamiento"] = out["pax_servicio_comercial"].map(_banda_funcionamiento_biotren)
@@ -654,6 +670,10 @@ def resumen_ocupacion_biotren(serie_biotren, anio=2027, oferta_df=None):
     servicios_eq = float(diag["servicios_equivalentes_capacidad"].sum())
     pax_servicio = total / servicios_com if servicios_com else np.nan
     pax_capacidad = total / servicios_eq if servicios_eq else np.nan
+    capacidad_pax_com = float(diag["capacidad_pax_comercial"].sum())
+    capacidad_pax_eq = float(diag["capacidad_pax_equivalente"].sum())
+    tasa_ocup_com = total / capacidad_pax_com if capacidad_pax_com else np.nan
+    tasa_ocup_eq = total / capacidad_pax_eq if capacidad_pax_eq else np.nan
     idx_max = diag["pax_servicio_comercial"].idxmax()
     idx_min = diag["pax_servicio_comercial"].idxmin()
     return {
@@ -662,6 +682,11 @@ def resumen_ocupacion_biotren(serie_biotren, anio=2027, oferta_df=None):
         "servicios_equivalentes_capacidad_anuales": servicios_eq,
         "pax_servicio_comercial_anual": pax_servicio,
         "pax_capacidad_equivalente_anual": pax_capacidad,
+        "capacidad_pax_comercial_anual": capacidad_pax_com,
+        "capacidad_pax_equivalente_anual": capacidad_pax_eq,
+        "tasa_ocupacion_comercial_anual": tasa_ocup_com,
+        "tasa_ocupacion_equivalente_anual": tasa_ocup_eq,
+        "capacidad_referencia_tren": CAPACIDAD_REFERENCIA_BIOTREN_PAX_TREN,
         "mes_mayor_pax_servicio_comercial": int(diag.loc[idx_max, "mes"]),
         "valor_mayor_pax_servicio_comercial": float(diag.loc[idx_max, "pax_servicio_comercial"]),
         "mes_menor_pax_servicio_comercial": int(diag.loc[idx_min, "mes"]),

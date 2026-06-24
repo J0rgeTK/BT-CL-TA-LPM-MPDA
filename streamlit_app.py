@@ -18,6 +18,7 @@ import plotly.graph_objects as go
 import pipeline_afluencia as P
 import oferta as O
 import od_biotren_hibrido as OD
+import od_laja_talcahuano as OL
 import backtesting as BT
 import incertidumbre as INC
 
@@ -487,6 +488,17 @@ def calcular_od_biotren_tarjeta_mes_cached(periodo, valor):
 def calcular_resultado_biotren_tarjeta_anual_cached(serie_dict):
     serie = pd.Series(serie_dict, dtype=float)
     return OD.distribuir_proyeccion_biotren_por_tipo_tarjeta(serie)
+
+
+@st.cache_data(show_spinner=False)
+def calcular_resultado_laja_anual_cached(serie_dict):
+    serie = pd.Series(serie_dict, dtype=float)
+    return OL.calcular_resultado_laja_anual(serie)
+
+
+@st.cache_data(show_spinner=False)
+def calcular_od_laja_mes_cached(periodo, valor):
+    return OL.distribuir_laja_talcahuano_mes(periodo, float(valor))
 
 
 @st.cache_data(show_spinner=False)
@@ -1863,6 +1875,138 @@ def render_biotren_expanders_tecnicos(serie, dist_linea, resumen_tipo, cobertura
         render_incertidumbre_biotren(serv)
 
 
+
+def render_laja_talcahuano_ejecutivo(serv, uni, detalle):
+    s = "CORTO_LAJA"
+    nombre = O.NOMBRE[s]
+    serie = serv[s].astype(float).copy()
+    total = float(serie.sum())
+    viajes_m = _servicios_mensuales_desde_detalle(detalle, s, serie.index)
+    viajes_total = float(viajes_m.sum())
+    pax_servicio = total / viajes_total if viajes_total > 0 else 0.0
+    ocupacion = OL.ocupacion_laja_talcahuano_mensual(serie, viajes_m)
+    capacidad_total = float(ocupacion["capacidad_pax"].sum())
+    ocupacion_anual = total / capacidad_total if capacidad_total else 0.0
+    resultado = calcular_resultado_laja_anual_cached(serie.to_dict())
+    resumen_anual = resultado["resumen_anual"]
+    resumen_tipo = resultado["resumen_anual_tipo_pasajero"].copy()
+    resumen_mensual = resultado["resumen_mensual"].copy()
+    control = resultado["control_conservacion"].copy()
+    cierre_2026 = _cierre_2026_servicio(s, serv)
+    _, mes_labels = _month_labels_from_index(serie.index)
+    peak_period = str(serie.idxmax())
+    peak_label = MESES_CORTOS.get(int(peak_period[5:7]), peak_period) if len(peak_period) >= 7 else peak_period
+
+    efe_service_header(
+        f"{nombre} 2027: afluencia, ocupación e ingresos",
+        "Distribución OD y venta de pasajes mediante MOD 2024 por tipo de pasajero y matriz tarifaria 2026 EFESUR. No aplica subsidio por pasajero transportado.",
+        "Proyección 2027",
+    )
+
+    cards = [
+        {"titulo": "Pasajeros 2027", "valor": fmt_compacto_efe(total), "detalle": fmt_num_efe(total, 0), "delta": fmt_delta_vs(total, cierre_2026), "nota": "Total anual proyectado", "icono": "👥"},
+        {"titulo": "Servicios comerciales", "valor": fmt_compacto_efe(viajes_total), "detalle": fmt_num_efe(viajes_total, 0), "delta": "Oferta operacional 2027", "nota": "Total anual de servicios", "icono": "🚆"},
+        {"titulo": "Pax/servicio", "valor": fmt_num_efe(pax_servicio, 1), "detalle": f"{fmt_num_efe(pax_servicio, 2)} pax/servicio", "delta": "Indicador operacional", "nota": "Promedio anual", "icono": "●"},
+        {"titulo": "Ocupación capacidad", "valor": f"{fmt_num_efe(ocupacion_anual * 100, 1)}%", "detalle": "578 pax/tren", "delta": "Capacidad referencial", "nota": "Afluencia/capacidad anual", "icono": "%"},
+        {"titulo": "Venta de pasajes", "valor": fmt_clp_compacto(resumen_anual.get("ingreso_venta", 0.0)), "detalle": fmt_clp_detalle(resumen_anual.get("ingreso_venta", 0.0)), "delta": "Sin subsidio", "nota": "Sólo ingreso tarifario", "icono": "▰"},
+        {"titulo": "Tarifa media", "valor": fmt_clp_compacto(resumen_anual.get("tarifa_media", 0.0)), "detalle": fmt_clp_detalle(resumen_anual.get("tarifa_media", 0.0)), "delta": "Ingreso/viaje", "nota": "Promedio ponderado", "icono": "$"},
+        {"titulo": "Mes peak", "valor": peak_label, "detalle": fmt_num_efe(serie.max(), 0), "delta": "Demanda mensual máxima", "nota": "Pasajeros en mes peak", "icono": "▴"},
+    ]
+    render_metric_grid(cards, cols_per_row=5)
+
+    c1, c2 = st.columns([1.05, 1.0])
+    with c1:
+        efe_section("Evolución mensual y ocupación", "Histórico/cierre disponible y proyección mensual 2027.")
+        st.plotly_chart(fig_evolucion_servicio(s, serv), width="stretch")
+    with c2:
+        efe_section("Ocupación mensual sobre capacidad", "Capacidad referencial: 578 pasajeros por tren.")
+        st.plotly_chart(fig_ocupacion_pct(mes_labels, ocupacion["ocupacion_pct"].astype(float).values * 100.0, 100.0), width="stretch")
+
+    tabla_mensual = pd.DataFrame({
+        "Mes": mes_labels,
+        "Afluencia 2027": serie.values,
+        "Servicios comerciales": viajes_m.values,
+        "Capacidad pax": ocupacion["capacidad_pax"].values,
+        "Pax/servicio": ocupacion["pax_servicio"].values,
+        "Ocupación": ocupacion["ocupacion_pct"].values,
+    })
+    c3, c4, c5 = st.columns([1.0, 1.0, 1.05])
+    with c3:
+        efe_section("Participación mensual 2027", "Control mensual de demanda, oferta y ocupación.")
+        st.dataframe(tabla_mensual, width="stretch", hide_index=True, height=315, column_config={
+            "Afluencia 2027": st.column_config.NumberColumn("Afluencia 2027", format="%d"),
+            "Servicios comerciales": st.column_config.NumberColumn("Servicios comerciales", format="%d"),
+            "Capacidad pax": st.column_config.NumberColumn("Capacidad pax", format="%d"),
+            "Pax/servicio": st.column_config.NumberColumn("Pax/servicio", format="%.1f"),
+            "Ocupación": st.column_config.NumberColumn("Ocupación", format="%.1%%"),
+        })
+    with c4:
+        efe_section("Distribución por tipo de pasajero", "MOD histórica 2024 escalada al total mensual proyectado.")
+        top_tipo = resumen_tipo.sort_values("viajes", ascending=False).copy()
+        fig_tipo = go.Figure(go.Pie(labels=top_tipo["nombre_visual"], values=top_tipo["viajes"], hole=.60, marker=dict(colors=EFE_COLORS), textinfo="percent", sort=False))
+        fig_tipo.update_layout(height=240, margin=dict(l=8, r=8, t=8, b=8), showlegend=False, paper_bgcolor="white", annotations=[dict(text=f"{fmt_compacto_efe(total)}<br>Pax 2027", x=.5, y=.5, showarrow=False, font=dict(color=EFE_BLUE, size=15))])
+        st.plotly_chart(fig_tipo, width="stretch")
+        st.dataframe(top_tipo[["nombre_visual", "viajes", "participacion"]].rename(columns={"nombre_visual": "Tipo de pasajero", "viajes": "Pax 2027", "participacion": "Participación"}), width="stretch", hide_index=True, height=150, column_config={"Pax 2027": st.column_config.NumberColumn("Pax 2027", format="%d"), "Participación": st.column_config.NumberColumn("Participación", format="%.1%%")})
+    with c5:
+        efe_section("Principales pares OD", "Top OD anual por viajes proyectados.")
+        od_top = resultado["viajes_od_tipo_long"].groupby(["origen", "destino"], as_index=False).agg(viajes=("viajes_proyectados", "sum"), ingreso=("ingreso_tarifario_proyectado", "sum"))
+        od_top = od_top.sort_values("viajes", ascending=False).head(12)
+        od_top["OD"] = od_top["origen"] + " → " + od_top["destino"]
+        st.dataframe(od_top[["OD", "viajes", "ingreso"]], width="stretch", hide_index=True, height=390, column_config={"viajes": st.column_config.NumberColumn("Pax 2027", format="%d"), "ingreso": st.column_config.NumberColumn("Venta", format="$ %d")})
+
+    c6, c7 = st.columns([1.0, 1.0])
+    with c6:
+        efe_section("Resultados financieros Laja-Talcahuano", "Sólo venta de pasajes; no aplica subsidio por pasajero transportado.")
+        fin = pd.DataFrame([
+            {"Concepto": "Venta de pasajes", "Monto anual": resumen_anual.get("ingreso_venta", 0.0)},
+            {"Concepto": "Subsidio por pasajero", "Monto anual": 0.0},
+            {"Concepto": "Ingreso total reportado", "Monto anual": resumen_anual.get("ingreso_venta", 0.0)},
+        ])
+        st.dataframe(fin, width="stretch", hide_index=True, height=190, column_config={"Monto anual": st.column_config.NumberColumn("Monto anual", format="$ %d")})
+        st.caption("La matriz tarifaria se usa sólo para venta de pasajes. No se calcula subsidio normal, estudiante ni total.")
+    with c7:
+        efe_section("Advertencias y cobertura", "Controles metodológicos y límites de interpretación.")
+        alertas = _advertencias_servicio(s) + [
+            "MOD 2024 por tipo de pasajero usada como estructura de distribución; no modifica el total mensual proyectado.",
+            "Conservación mensual: la suma OD por tipo coincide con la afluencia mensual proyectada.",
+            "Ida y vuelta: la tarifa comercial se imputa con factor 0,5 porque la MOD representa viajes transportados, no boletos comerciales.",
+        ]
+        if int(control.get("od_sin_tarifa", pd.Series([0])).sum()) > 0:
+            alertas.append("Existen pares OD sin tarifa en la matriz 2026; revisar cobertura tarifaria.")
+        render_alertas(alertas)
+
+    with st.expander("Detalle OD mensual por tipo de pasajero", expanded=False):
+        periodos = list(serie.index)
+        periodo = st.selectbox("Mes proyectado", periodos, format_func=lambda x: f"{str(x)[5:7]} - 2027", key="od_laja_periodo")
+        tipos = list(OL.TIPOS_PASAJERO_LAJA)
+        tipo = st.selectbox("Tipo de pasajero", tipos, key="od_laja_tipo")
+        res_mes = calcular_od_laja_mes_cached(periodo, float(serie.loc[periodo]))
+        viajes_long = res_mes["viajes_od_tipo_long"]
+        M = OL.matriz_od(viajes_long, tipo_pasajero=tipo, valor_col="viajes_proyectados")
+        R = OL.matriz_od(viajes_long, tipo_pasajero=tipo, valor_col="ingreso_tarifario_proyectado")
+        t1, t2, t3 = st.tabs(["Matriz OD viajes", "Matriz OD ingresos", "Resumen mensual"])
+        with t1:
+            st.dataframe(M.round(0).astype(int), width="stretch", height=420)
+        with t2:
+            st.dataframe(R.round(0).astype(int), width="stretch", height=420)
+        with t3:
+            st.dataframe(res_mes["resumen_tipo_pasajero"], width="stretch", height=260)
+    with st.expander("Validación de conservación y cobertura", expanded=False):
+        st.markdown("La redistribución conserva el total mensual proyectado y aplica tarifas 2026 EFESUR por tipo de pasajero y OD. No calcula subsidios.")
+        st.dataframe(control, width="stretch", hide_index=True, height=260)
+        st.dataframe(resumen_mensual, width="stretch", hide_index=True, height=260)
+    with st.expander("Metodología matricial aplicada", expanded=False):
+        st.markdown("""
+- Se utiliza la MOD 2024 mensual por tipo de pasajero como estructura histórica de distribución.
+- Para cada mes, se calcula la participación de cada tipo de pasajero sobre el total observado.
+- Dentro de cada tipo, se calcula la participación de cada par OD.
+- La afluencia mensual 2027 proyectada se distribuye como: total mensual × participación tipo × participación OD condicionada al tipo.
+- La suma resultante por mes, tipo y OD se ajusta proporcionalmente para conservar exactamente el total mensual proyectado.
+- La matriz tarifaria 2026 EFESUR se aplica a cada OD/tipo para estimar venta de pasajes.
+- Para ida y vuelta, la tarifa comercial se divide por 2 para obtener la tarifa imputable por viaje transportado.
+- No se calcula subsidio por pasajero transportado para este servicio.
+""")
+
 def render_biotren_ejecutivo(serv, uni, detalle):
     serie = serv["BIOTREN"].astype(float).copy()
     vigente = _serie_biotren_vigente_pre_redistribucion(serv)
@@ -2085,6 +2229,14 @@ def fig_pax_servicio(labels, pax_servicio, referencia=None):
     return apply_efe_plot_layout(fig, height=330, ytitle="Pax/servicio", xtitle=None)
 
 
+def fig_ocupacion_pct(labels, ocupacion_pct, referencia=100.0):
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=labels, y=ocupacion_pct, name="Ocupación (%)", mode="lines+markers", line=dict(color=EFE_BLUE, width=3), marker=dict(size=7)))
+    if referencia is not None and referencia > 0:
+        fig.add_hline(y=float(referencia), line_dash="dash", line_color=EFE_RED, annotation_text=f"Referencia {fmt_num_efe(referencia, 0)}%", annotation_position="top left")
+    return apply_efe_plot_layout(fig, height=330, ytitle="Ocupación (%)", xtitle=None)
+
+
 def _servicios_mensuales_desde_detalle(detalle, s, index):
     d = tabla_detalle_mes(detalle, s)
     if d.empty or "viajes_operados_plan" not in d.columns:
@@ -2292,10 +2444,12 @@ def render_biotren_ejecutivo(serv, uni, detalle):
         "Proyección 2027",
     )
 
+    tasa_ocup_eq = float(resumen_ocup.get("tasa_ocupacion_equivalente_anual", 0.0))
     cards = [
         {"titulo": "Pasajeros 2027", "valor": fmt_compacto_efe(pasajeros), "detalle": fmt_num_efe(pasajeros, 0), "delta": fmt_delta_vs(pasajeros, cierre_2026), "nota": "Total anual Biotren", "icono": "👥"},
         {"titulo": "Servicios comerciales", "valor": fmt_compacto_efe(servicios_anuales), "detalle": fmt_num_efe(servicios_anuales, 0), "delta": "Frecuencia programada", "nota": "Servicios comerciales anuales", "icono": "🚆"},
         {"titulo": "Pax/servicio", "valor": fmt_num_efe(pax_servicio, 1), "detalle": f"{fmt_num_efe(pax_servicio, 2)} pax/servicio comercial", "delta": "Indicador principal", "nota": "Consistente con Resumen", "icono": "●"},
+        {"titulo": "Ocupación capacidad", "valor": f"{fmt_num_efe(tasa_ocup_eq * 100, 1)}%", "detalle": "605 pax/tren; acoplados duplican capacidad", "delta": "Capacidad equivalente", "nota": "Tasa anual referencial", "icono": "%"},
         {"titulo": "Servicios equivalentes", "valor": fmt_compacto_efe(servicios_equiv), "detalle": fmt_num_efe(servicios_equiv, 0), "delta": "Capacidad diagnóstica", "nota": f"Pax/capacidad eq.: {fmt_num_efe(pax_capacidad, 2)}", "icono": "▣"},
         {"titulo": "Venta de pasajes", "valor": fmt_clp_compacto(anual_sub.get("ingreso_venta", 0)), "detalle": fmt_clp_detalle(anual_sub.get("ingreso_venta", 0)), "delta": "Sólo Biotren", "nota": "Valor anual proyectado", "icono": "▰"},
         {"titulo": "Subsidio total", "valor": fmt_clp_compacto(anual_sub.get("subsidio_total", 0)), "detalle": fmt_clp_detalle(anual_sub.get("subsidio_total", 0)), "delta": "Normal + estudiante", "nota": "Valor anual proyectado", "icono": "▣"},
@@ -2322,10 +2476,10 @@ def render_biotren_ejecutivo(serv, uni, detalle):
                     d = ref[ref["anio"].astype(int).eq(anio)]
                     if not d.empty:
                         fig.add_trace(go.Scatter(x=d["mes_label"], y=d["afluencia"].astype(float), mode="lines+markers", name=label, line=dict(color=color, dash=dash, width=width), marker=dict(size=6)), secondary_y=False)
-            ocup_rel = diag_ocup["pax_servicio_comercial"].astype(float) / 300.0 * 100.0
+            ocup_rel = diag_ocup["tasa_ocupacion_equivalente_pct"].astype(float) * 100.0
             fig.add_trace(go.Scatter(x=mes_labels, y=ocup_rel, name="Ocupación 2027 (%)", mode="lines", fill="tozeroy", line=dict(color="#DCE8F5", width=1), fillcolor="rgba(0,58,112,.10)"), secondary_y=True)
             fig.update_yaxes(title_text="Pasajeros", secondary_y=False, gridcolor=EFE_GRID)
-            fig.update_yaxes(title_text="Ocupación (%)", secondary_y=True, range=[0, max(115, float(ocup_rel.max()) * 1.15)], showgrid=False)
+            fig.update_yaxes(title_text="Ocupación capacidad (%)", secondary_y=True, range=[0, max(100, float(ocup_rel.max()) * 1.20)], showgrid=False)
             fig.update_layout(height=330, margin=dict(l=14, r=14, t=24, b=18), plot_bgcolor="white", paper_bgcolor="white", font=dict(family="Univia Pro, Inter, Segoe UI, Arial", color=EFE_TEXT, size=12), hovermode="x unified", legend=dict(orientation="h", y=1.15, x=0))
             fig.update_xaxes(showgrid=False, zeroline=False)
             st.plotly_chart(fig, width="stretch")
@@ -2460,6 +2614,8 @@ def render_servicio(s):
 
     if s == "BIOTREN":
         render_biotren_ejecutivo(serv, uni, detalle)
+    elif s == "CORTO_LAJA":
+        render_laja_talcahuano_ejecutivo(serv, uni, detalle)
     else:
         render_servicio_generico_ejecutivo(s, serv, uni, detalle)
 
