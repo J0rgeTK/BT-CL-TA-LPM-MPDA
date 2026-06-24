@@ -19,6 +19,7 @@ import pipeline_afluencia as P
 import oferta as O
 import od_biotren_hibrido as OD
 import od_laja_talcahuano as OL
+import od_tren_araucania as TAOD
 import backtesting as BT
 import incertidumbre as INC
 
@@ -499,6 +500,17 @@ def calcular_resultado_laja_anual_cached(serie_dict):
 @st.cache_data(show_spinner=False)
 def calcular_od_laja_mes_cached(periodo, valor):
     return OL.distribuir_laja_talcahuano_mes(periodo, float(valor))
+
+
+@st.cache_data(show_spinner=False)
+def calcular_resultado_tren_araucania_anual_cached(serie_dict):
+    serie = pd.Series(serie_dict, dtype=float)
+    return TAOD.calcular_resultado_anual(serie)
+
+
+@st.cache_data(show_spinner=False)
+def calcular_od_tren_araucania_mes_cached(periodo, valor):
+    return TAOD.distribuir_mes(periodo, float(valor))
 
 
 @st.cache_data(show_spinner=False)
@@ -2269,9 +2281,11 @@ def _advertencias_servicio(s):
         ]
     if s == "TREN_ARAUCANIA":
         return [
-            "El cálculo distingue tramos operacionales y tratamiento específico del componente Claret.",
-            "Claret se considera servicio escolar y enero-febrero quedan sin oferta proyectada.",
-            "El modelo no implementa cálculo tarifario ni subsidios para este servicio.",
+            "La MOD distribuye la afluencia proyectada por mes, tipo de pasajero y par OD; no recalibra la demanda total.",
+            "Normal paga tarifa normal; Delegación paga 70% de tarifa normal; Adulto Mayor paga tarifa adulto mayor; Estudiante y Claret pagan tarifa estudiante.",
+            "Discapacitado, Estudiante Básica, Funcionario y Sindicato se modelan sin ingreso tarifario directo.",
+            "El subsidio normal usa tasa de descuento 12,7% y considera Normal, Discapacitado, Funcionario, Sindicato y Delegación sobre tarifa normal completa.",
+            "El subsidio estudiante considera Estudiante, Claret y Estudiante Básica; usa tarifa estudiante sin subsidio y descuenta sólo la tarifa efectivamente pagada.",
         ]
     if s == "LLANQUIHUE_PM":
         return [
@@ -2352,6 +2366,16 @@ def render_servicio_generico_ejecutivo(s, serv, uni, detalle):
         {"titulo": "Mes peak", "valor": peak_label, "detalle": fmt_num_efe(serie.max(), 0), "delta": "Demanda mensual máxima", "nota": "Pasajeros en mes peak", "icono": "▴"},
         {"titulo": "Mes menor", "valor": min_label, "detalle": fmt_num_efe(serie.min(), 0), "delta": "Demanda mensual mínima", "nota": "Pasajeros en mes menor", "icono": "▾"},
     ]
+    resultado_ta = None
+    if s == "TREN_ARAUCANIA":
+        resultado_ta = calcular_resultado_tren_araucania_anual_cached(serie.to_dict())
+        anual_ta = resultado_ta["resumen_anual"]
+        cards.extend([
+            {"titulo": "Venta de pasajes", "valor": fmt_clp_compacto(anual_ta.get("ingreso_venta", 0)), "detalle": fmt_clp_detalle(anual_ta.get("ingreso_venta", 0)), "delta": "Ingreso tarifario", "nota": "Normal, Adulto Mayor, Estudiante, Claret y Delegación", "icono": "▰"},
+            {"titulo": "Subsidio total", "valor": fmt_clp_compacto(anual_ta.get("subsidio_total", 0)), "detalle": fmt_clp_detalle(anual_ta.get("subsidio_total", 0)), "delta": "Normal + estudiante", "nota": "Tasa normal 12,7%", "icono": "▣"},
+            {"titulo": "Ingreso total", "valor": fmt_clp_compacto(anual_ta.get("ingreso_total_tren_araucania", 0)), "detalle": fmt_clp_detalle(anual_ta.get("ingreso_total_tren_araucania", 0)), "delta": "Venta + subsidio", "nota": f"Tarifa media total: {fmt_num_efe(anual_ta.get('tarifa_media_total', 0), 0)}", "icono": "▥"},
+        ])
+
     render_metric_grid(cards, cols_per_row=5)
 
     c1, c2 = st.columns([1.05, 1.0])
@@ -2408,6 +2432,71 @@ def render_servicio_generico_ejecutivo(s, serv, uni, detalle):
     with c6:
         efe_section("Advertencias y cobertura", "Alcance metodológico del servicio.")
         render_alertas(_advertencias_servicio(s))
+
+    if s == "TREN_ARAUCANIA" and resultado_ta is not None:
+        anual_ta = resultado_ta["resumen_anual"]
+        resumen_tipo_ta = resultado_ta["resumen_tipo_pasajero"].copy()
+        resumen_mensual_ta = resultado_ta["resumen_mensual"].copy()
+        cta1, cta2 = st.columns([1.0, 1.0])
+        with cta1:
+            efe_section("Resultados financieros Tren Araucanía", "Venta de pasajes y subsidios calculados sobre distribución OD/tipo de pasajero.")
+            tabla_fin = pd.DataFrame([
+                {"Concepto": "Venta de pasajes", "Monto anual": anual_ta.get("ingreso_venta", 0)},
+                {"Concepto": "Base normal subsidio", "Monto anual": anual_ta.get("monto_base_subsidio_normal", 0)},
+                {"Concepto": "Base estudiante sin subsidio", "Monto anual": anual_ta.get("ingreso_teorico_estudiante_sin_subsidio", 0)},
+                {"Concepto": "Subsidio normal", "Monto anual": anual_ta.get("subsidio_normal", 0)},
+                {"Concepto": "Subsidio estudiante", "Monto anual": anual_ta.get("subsidio_estudiante", 0)},
+                {"Concepto": "Subsidio total", "Monto anual": anual_ta.get("subsidio_total", 0)},
+                {"Concepto": "Ingreso total", "Monto anual": anual_ta.get("ingreso_total_tren_araucania", 0)},
+            ])
+            st.dataframe(tabla_fin, width="stretch", hide_index=True, height=225, column_config={"Monto anual": st.column_config.NumberColumn("Monto anual", format="$ %d")})
+        with cta2:
+            efe_section("Distribución por tipo de pasajero", "Viajes, venta y subsidio por tipo.")
+            vista_tipo = resumen_tipo_ta[["tipo_pasajero_visual", "viajes", "ingreso_venta", "monto_base_subsidio_normal", "ingreso_teorico_estudiante_sin_subsidio", "subsidio_total", "participacion"]].rename(columns={
+                "tipo_pasajero_visual": "Tipo pasajero",
+                "viajes": "Viajes",
+                "ingreso_venta": "Venta",
+                "monto_base_subsidio_normal": "Base normal",
+                "ingreso_teorico_estudiante_sin_subsidio": "Base estudiante",
+                "subsidio_total": "Subsidio",
+                "participacion": "Participación",
+            })
+            st.dataframe(vista_tipo, width="stretch", hide_index=True, height=225, column_config={
+                "Viajes": st.column_config.NumberColumn("Viajes", format="%d"),
+                "Venta": st.column_config.NumberColumn("Venta", format="$ %d"),
+                "Base normal": st.column_config.NumberColumn("Base normal", format="$ %d"),
+                "Base estudiante": st.column_config.NumberColumn("Base estudiante", format="$ %d"),
+                "Subsidio": st.column_config.NumberColumn("Subsidio", format="$ %d"),
+                "Participación": st.column_config.NumberColumn("Participación", format="%.1%%"),
+            })
+        with st.expander("Detalle OD mensual Tren Araucanía", expanded=False):
+            periodos = list(serie.index)
+            periodo = st.selectbox("Mes proyectado", periodos, format_func=lambda x: f"{str(x)[5:7]} - 2027", key="od_ta_periodo")
+            tipos = [t for t in TAOD.TIPOS_PASAJERO_ESPERADOS if t in set(resumen_tipo_ta["tipo_pasajero"])]
+            tipo = st.selectbox("Tipo de pasajero", tipos, key="od_ta_tipo")
+            res_mes = calcular_od_tren_araucania_mes_cached(periodo, float(serie.loc[periodo]))
+            viajes_long = res_mes["viajes_long"]
+            t1, t2, t3 = st.tabs(["Matriz OD viajes", "Matriz OD venta", "Resumen mensual"])
+            with t1:
+                st.dataframe(TAOD.matriz_tipo(viajes_long, tipo, "viajes_proyectados").round(0).astype(int), width="stretch", height=390)
+            with t2:
+                st.dataframe(TAOD.matriz_tipo(viajes_long, tipo, "ingreso_venta").round(0).astype(int), width="stretch", height=390)
+            with t3:
+                st.dataframe(pd.DataFrame([res_mes["resumen_mes"]]), width="stretch", hide_index=True)
+        with st.expander("Control financiero mensual Tren Araucanía", expanded=False):
+            st.dataframe(resumen_mensual_ta, width="stretch", hide_index=True, height=300, column_config={
+                "viajes_tren_araucania": st.column_config.NumberColumn("Viajes", format="%d"),
+                "ingreso_venta": st.column_config.NumberColumn("Venta", format="$ %d"),
+                "monto_base_subsidio_normal": st.column_config.NumberColumn("Base normal subsidio", format="$ %d"),
+                "viajes_base_subsidio_normal": st.column_config.NumberColumn("Viajes base normal", format="%d"),
+                "ingreso_teorico_estudiante_sin_subsidio": st.column_config.NumberColumn("Base estudiante sin subsidio", format="$ %d"),
+                "venta_base_estudiante_subsidio": st.column_config.NumberColumn("Venta base estudiante", format="$ %d"),
+                "viajes_base_subsidio_estudiante": st.column_config.NumberColumn("Viajes base estudiante", format="%d"),
+                "subsidio_normal": st.column_config.NumberColumn("Subsidio normal", format="$ %d"),
+                "subsidio_estudiante": st.column_config.NumberColumn("Subsidio estudiante", format="$ %d"),
+                "subsidio_total": st.column_config.NumberColumn("Subsidio total", format="$ %d"),
+                "ingreso_total_tren_araucania": st.column_config.NumberColumn("Ingreso total", format="$ %d"),
+            })
 
     with st.expander("Justificación metodológica", expanded=False):
         render_justificacion_servicio(s, serv, uni, detalle)

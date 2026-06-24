@@ -7,10 +7,10 @@ El modelo estima la afluencia mensual proyectada de pasajeros para los servicios
 La metodología separa tres componentes:
 
 1. **Modelo temporal mensual:** estima la demanda mensual total por servicio.
-2. **Módulos OD de Biotren:** distribuyen la demanda mensual ya proyectada por línea OD, pares origen-destino y tipo de tarjeta.
-3. **Ingresos preliminares y base referencial:** calculan ingresos tarifarios sólo donde existe tarifa directa y preparan una base referencial de subsidio sin calcular montos.
+2. **Módulos OD por servicio:** distribuyen la demanda mensual ya proyectada por pares origen-destino y tipo de pasajero/tarjeta cuando existen matrices disponibles.
+3. **Ingresos y subsidios:** calculan venta de pasajes y subsidios sólo para los servicios con regla tarifaria implementada. Biotren y Tren Araucanía incluyen subsidio normal y estudiante; Laja-Talcahuano sólo calcula venta de pasajes; Llanquihue-Puerto Montt no tiene módulo tarifario implementado en esta etapa.
 
-Los módulos OD, ingresos y subsidio referencial son específicos de Biotren. No reemplazan la proyección temporal, no generan el total mensual de demanda y no se aplican a Tren Araucanía, Llanquihue-Puerto Montt ni Laja-Talcahuano.
+Los módulos OD no reemplazan la proyección temporal ni generan el total mensual de demanda; sólo distribuyen la afluencia mensual proyectada y calculan ingresos sobre esa distribución.
 
 ## 2. Insumos y fuentes de información
 
@@ -99,7 +99,7 @@ El escenario operacional vigente proyecta **840.777 pasajeros** para Tren Arauca
 
 Cada componente responde a su propia oferta y elasticidad. Temuco-Victoria tiene mayor respuesta marginal esperada que Pitrufquén y Claret. Claret se trata como componente escolar específico y se restringe a marzo-diciembre; enero y febrero no generan oferta ni demanda para este componente. La distribución mensual combina patrón histórico, calendario operacional, oferta mensual y tratamiento escolar. El control de marzo evita concentración artificial mediante suavizamiento técnico cuando la relación frente al promedio abril-diciembre supera el umbral definido.
 
-Tren Araucanía no utiliza MOD Biotren, categorías L1/L2/L1-L2, distribución OD Biotren, tipo de tarjeta Biotren, ingresos Biotren ni base referencial de subsidio Biotren.
+Tren Araucanía utiliza su propia MOD y reglas tarifarias/subsidio. No utiliza MOD Biotren, categorías L1/L2/L1-L2, distribución OD Biotren ni tipo de tarjeta Biotren.
 
 ### 5.3 Llanquihue-Puerto Montt
 
@@ -206,6 +206,32 @@ Subsidio_total = Subsidio_normal + Subsidio_estudiante
 Ingreso_total_Biotren = Ingreso_venta + Subsidio_normal + Subsidio_estudiante
 
 `adulto_mayor` queda fuera de los grupos de subsidio indicados.
+
+## 10A. Subsidio e ingreso total Tren Araucanía
+
+La distribución OD de Tren Araucanía conserva la afluencia mensual proyectada y la reparte por tipo de pasajero y par OD según la MOD base. La venta de pasajes y la base de subsidio son conceptos distintos.
+
+### 10A.1 Venta de pasajes
+
+- `normal`: paga 100% de tarifa normal.
+- `delegacion`: paga 70% de tarifa normal.
+- `adulto_mayor`: paga tarifa adulto mayor.
+- `estudiante` y `claret`: pagan tarifa estudiante.
+- `discapacitado`, `estudiante_basica`, `funcionario` y `sindicato`: no generan venta directa.
+
+### 10A.2 Subsidio normal
+
+El grupo normal para subsidio incluye `normal`, `discapacitado`, `funcionario`, `sindicato` y `delegacion`. La base se calcula con tarifa normal completa, por lo que puede ser mayor que la venta normal directa.
+
+Subsidio_normal = Monto_normal_base / (1 - 0,127) - Monto_normal_base
+
+### 10A.3 Subsidio estudiante
+
+El grupo estudiante para subsidio incluye `estudiante`, `claret` y `estudiante_basica`. Se utiliza la tarifa estudiante sin subsidio del archivo tarifario correspondiente y se descuenta la tarifa efectivamente pagada. Para `estudiante_basica`, la tarifa pagada directa es cero.
+
+Subsidio_estudiante = Ingreso_teorico_estudiante_sin_subsidio - Venta_base_estudiante_subsidio
+
+`adulto_mayor` no integra subsidio normal ni estudiante.
 
 ## 11. Backtesting histórico diagnóstico
 
