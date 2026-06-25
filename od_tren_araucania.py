@@ -116,7 +116,15 @@ def distribuir_mes(periodo, afluencia_mes: float) -> dict[str, pd.DataFrame | di
     tarifa_normal_subsidio = tarifa_normal_subsidio.drop(columns=["tipo_tarifa"])
     detalle = detalle.merge(tarifa_normal_subsidio, on=["origen", "destino"], how="left")
 
-    # Tarifa estudiante sin subsidio para subsidio de Estudiante/Claret/Estudiante Básica.
+    # Tarifas estudiante para base de subsidio estudiantil.
+    # La base de subsidio se calcula con matrices propias, no con la venta directa.
+    # Esto permite que Estudiante Básica pueda no generar venta, pero sí formar parte
+    # de la base estudiante con subsidio y sin subsidio.
+    tarifa_est_con = tarifas[tarifas["tipo_tarifa"].eq("estudiante")].copy()
+    tarifa_est_con = tarifa_est_con.rename(columns={"tarifa": "tarifa_estudiante_con_subsidio"})
+    tarifa_est_con = tarifa_est_con.drop(columns=["tipo_tarifa"])
+    detalle = detalle.merge(tarifa_est_con, on=["origen", "destino"], how="left")
+
     tarifa_sin = tarifas[tarifas["tipo_tarifa"].eq("estudiante_sin_subsidio")].copy()
     tarifa_sin = tarifa_sin.rename(columns={"tarifa": "tarifa_estudiante_sin_subsidio"})
     tarifa_sin = tarifa_sin.drop(columns=["tipo_tarifa"])
@@ -126,6 +134,7 @@ def distribuir_mes(periodo, afluencia_mes: float) -> dict[str, pd.DataFrame | di
         detalle[col] = detalle[col].fillna(0).astype(float)
     detalle["tarifa_venta_base"] = detalle["tarifa_venta_base"].fillna(0).astype(float)
     detalle["tarifa_normal_subsidio_base"] = detalle["tarifa_normal_subsidio_base"].fillna(0).astype(float)
+    detalle["tarifa_estudiante_con_subsidio"] = detalle["tarifa_estudiante_con_subsidio"].fillna(0).astype(float)
     detalle["tarifa_estudiante_sin_subsidio"] = detalle["tarifa_estudiante_sin_subsidio"].fillna(0).astype(float)
 
     detalle["tarifa_pagada"] = detalle["tarifa_venta_base"] * detalle["factor_venta"]
@@ -145,21 +154,23 @@ def distribuir_mes(periodo, afluencia_mes: float) -> dict[str, pd.DataFrame | di
     )
 
     # Subsidio estudiante: Estudiante, Claret y Estudiante Básica.
-    # La venta puede ser distinta de la base de subsidio; Estudiante Básica no paga tarifa directa,
-    # por lo que su tarifa pagada queda en cero y la brecha equivale a la tarifa sin subsidio.
+    # La base de subsidio no es necesariamente igual a la venta de pasajes.
+    # Se calcula como diferencia entre matriz estudiante sin subsidio y matriz estudiante con subsidio,
+    # aplicada sobre la matriz de viajes del grupo estudiantil de subsidio.
     detalle["ingreso_teorico_estudiante_sin_subsidio"] = (
         detalle["viajes_proyectados"]
         * detalle["tarifa_estudiante_sin_subsidio"]
         * detalle["aplica_subsidio_estudiante"]
     )
-    detalle["venta_base_estudiante_subsidio"] = (
+    detalle["base_estudiante_con_subsidio"] = (
         detalle["viajes_proyectados"]
-        * detalle["tarifa_pagada"]
+        * detalle["tarifa_estudiante_con_subsidio"]
         * detalle["aplica_subsidio_estudiante"]
     )
+    detalle["venta_base_estudiante_subsidio"] = detalle["base_estudiante_con_subsidio"]
     detalle["subsidio_estudiante"] = (
         detalle["ingreso_teorico_estudiante_sin_subsidio"]
-        - detalle["venta_base_estudiante_subsidio"]
+        - detalle["base_estudiante_con_subsidio"]
     )
 
     detalle["subsidio_total"] = detalle["subsidio_normal"] + detalle["subsidio_estudiante"]

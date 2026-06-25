@@ -227,9 +227,9 @@ Subsidio_normal = Monto_normal_base / (1 - 0,127) - Monto_normal_base
 
 ### 10A.3 Subsidio estudiante
 
-El grupo estudiante para subsidio incluye `estudiante`, `claret` y `estudiante_basica`. Se utiliza la tarifa estudiante sin subsidio del archivo tarifario correspondiente y se descuenta la tarifa efectivamente pagada. Para `estudiante_basica`, la tarifa pagada directa es cero.
+El grupo estudiante para subsidio incluye `estudiante`, `claret` y `estudiante_basica`. El subsidio se calcula con la diferencia entre la matriz estudiante sin subsidio y la matriz estudiante con subsidio. Esta base es independiente de la venta directa; por lo tanto, `estudiante_basica` puede no generar venta de pasajes, pero sí participa en la base de subsidio estudiantil.
 
-Subsidio_estudiante = Ingreso_teorico_estudiante_sin_subsidio - Venta_base_estudiante_subsidio
+Subsidio_estudiante = Base_estudiante_sin_subsidio - Base_estudiante_con_subsidio
 
 `adulto_mayor` no integra subsidio normal ni estudiante.
 
@@ -303,3 +303,19 @@ La proyección anual Biotren se mantiene en 13.095.299 pasajeros. La revisión m
 La participación objetivo mensual combina el patrón reciente ponderado por cercanía temporal (2024: 25%, 2025: 35%, cierre 2026: 40%) con la participación mensual de los servicios comerciales 2027. Esta combinación conserva la estacionalidad histórica, incorpora la oferta mensual y evita meses artificialmente bajos o altos frente al comportamiento reciente.
 
 La redistribución se aplica sólo al total mensual Biotren. Las capas por línea, OD, tipo de tarjeta, venta de pasajes, subsidio normal, subsidio estudiante, subsidio total e ingreso total Biotren se calculan después de esa afluencia mensual redistribuida, conservando los totales mensuales de entrada.
+
+### Indicador pax-km y distancia media por pasajero
+
+El modelo incorpora un indicador de producción de transporte expresado en pax-km. Para cada servicio con distribución OD disponible, se cruza la matriz de viajes proyectados por origen-destino con la matriz de distancias normalizada del servicio:
+
+```text
+Pax-km_m = Σ_i Σ_j Viajes_ijm × Distancia_ij
+```
+
+La distancia media por pasajero se define como:
+
+```text
+Distancia_media_m = Pax-km_m / Pasajeros_m
+```
+
+La matriz de distancias se toma desde la primera matriz de cada hoja del archivo de referencia de pax-km, homologando los nombres de estaciones al estándar del modelo. En Laja-Talcahuano se fija `Los Acacios - Manquimávida` en 33 km. En Tren Araucanía, la estación Claret se mantiene porque su operación se limita al servicio Claret-Temuco y queda controlada por las matrices de demanda y tarifa. Para Llanquihue-Puerto Montt se deja la matriz de distancias normalizada, pero el pax-km no se reporta hasta incorporar una MOD/distribución OD del servicio.

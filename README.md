@@ -227,9 +227,9 @@ Subsidio_normal = Monto_normal_base / (1 - 0,127) - Monto_normal_base
 
 ### 10A.3 Subsidio estudiante
 
-El grupo estudiante para subsidio incluye `estudiante`, `claret` y `estudiante_basica`. Se utiliza la tarifa estudiante sin subsidio del archivo tarifario correspondiente y se descuenta la tarifa efectivamente pagada. Para `estudiante_basica`, la tarifa pagada directa es cero.
+El grupo estudiante para subsidio incluye `estudiante`, `claret` y `estudiante_basica`. El subsidio se calcula con la diferencia entre la matriz estudiante sin subsidio y la matriz estudiante con subsidio. Esta base es independiente de la venta directa; por lo tanto, `estudiante_basica` puede no generar venta de pasajes, pero sí participa en la base de subsidio estudiantil.
 
-Subsidio_estudiante = Ingreso_teorico_estudiante_sin_subsidio - Venta_base_estudiante_subsidio
+Subsidio_estudiante = Base_estudiante_sin_subsidio - Base_estudiante_con_subsidio
 
 `adulto_mayor` no integra subsidio normal ni estudiante.
 
@@ -281,3 +281,20 @@ La proyección anual Biotren se mantiene en 13.095.299 pasajeros. La revisión m
 La participación objetivo mensual combina el patrón reciente ponderado por cercanía temporal (2024: 25%, 2025: 35%, cierre 2026: 40%) con la participación mensual de los servicios comerciales 2027. Esta combinación conserva la estacionalidad histórica, incorpora la oferta mensual y evita meses artificialmente bajos o altos frente al comportamiento reciente.
 
 La redistribución se aplica sólo al total mensual Biotren. Las capas por línea, OD, tipo de tarjeta, venta de pasajes, subsidio normal, subsidio estudiante, subsidio total e ingreso total Biotren se calculan después de esa afluencia mensual redistribuida, conservando los totales mensuales de entrada.
+
+## Indicador pax-km por servicio
+
+Se incorporan matrices de distancia OD para los cuatro servicios desde `Libro1 2.xlsx`, usando la primera matriz de cada hoja como referencia. Las distancias se normalizan a los nombres de estaciones del modelo y se almacenan en `data/distancias/`.
+
+El indicador pax-km se calcula como:
+
+```text
+pax_km_ijm = viajes_proyectados_ijm × distancia_km_ij
+```
+
+El total mensual/anual corresponde a la suma OD de ese producto, y la distancia media por pasajero se calcula como `pax_km_total / pasajeros`. Para Biotren, Laja-Talcahuano y Tren Araucanía el cálculo se realiza sobre las MOD/distribuciones OD implementadas. Para Llanquihue-Puerto Montt sólo queda disponible la matriz de distancias; el pax-km queda pendiente hasta incorporar su MOD/distribución OD.
+
+Controles específicos:
+
+- Laja-Talcahuano: `Los Acacios ↔ Manquimávida = 33 km`.
+- Tren Araucanía: `Coleg. Claret` se mantiene porque el servicio Claret opera entre Claret y Temuco y ya está considerado en matrices de demanda/tarifa.

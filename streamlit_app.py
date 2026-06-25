@@ -12,6 +12,7 @@ import os
 import html
 import base64
 import pandas as pd
+import numpy as np
 import streamlit as st
 import plotly.graph_objects as go
 
@@ -20,6 +21,7 @@ import oferta as O
 import od_biotren_hibrido as OD
 import od_laja_talcahuano as OL
 import od_tren_araucania as TAOD
+import pax_km as PK
 import backtesting as BT
 import incertidumbre as INC
 
@@ -1405,6 +1407,34 @@ def _resumen_kpi_servicio(s, serv, detalle):
     }
 
 
+def _resumen_pax_km_servicios(serv):
+    """Construye tabla resumen de pax-km consistente con las vistas por servicio."""
+    rows = []
+    specs = [
+        ("BIOTREN", lambda serie: PK.resumen_pax_km("BIOTREN", calcular_resultado_biotren_tarjeta_anual_cached(serie.to_dict())["viajes_tipo_tarjeta_long"])),
+        ("CORTO_LAJA", lambda serie: PK.resumen_pax_km("CORTO_LAJA", calcular_resultado_laja_anual_cached(serie.to_dict())["viajes_od_tipo_long"])),
+        ("TREN_ARAUCANIA", lambda serie: PK.resumen_pax_km("TREN_ARAUCANIA", calcular_resultado_tren_araucania_anual_cached(serie.to_dict())["viajes_long"])),
+    ]
+    for servicio, fn in specs:
+        serie = serv[servicio].astype(float).copy()
+        pk = fn(serie)["resumen_anual"]
+        rows.append({
+            "Servicio": O.NOMBRE[servicio],
+            "Pasajeros 2027": float(serie.sum()),
+            "Pax-km total": pk.get("pax_km_total"),
+            "Distancia media por pax (km)": pk.get("distancia_media_km"),
+            "Estado": "Calculado con MOD/distribución OD",
+        })
+    rows.append({
+        "Servicio": O.NOMBRE["LLANQUIHUE_PM"],
+        "Pasajeros 2027": float(serv["LLANQUIHUE_PM"].astype(float).sum()),
+        "Pax-km total": np.nan,
+        "Distancia media por pax (km)": np.nan,
+        "Estado": "Pendiente: falta incorporar MOD/distribución OD",
+    })
+    return pd.DataFrame(rows)
+
+
 def render_resumen():
     uni, serv, detalle = O.proyectar_mensual_elastico(params, mdf, return_detalle=True)
     efe_service_header(
@@ -1426,6 +1456,14 @@ def render_resumen():
             "icono": "👥",
         })
     render_metric_grid(cards, cols_per_row=4)
+
+    efe_section("Indicadores pax-km", "Distancia total recorrida por pasajeros y distancia media por pasajero. Llanquihue-Puerto Montt queda pendiente hasta incorporar MOD/distribución OD.")
+    resumen_pax_km = _resumen_pax_km_servicios(serv)
+    st.dataframe(resumen_pax_km, width="stretch", hide_index=True, height=180, column_config={
+        "Pasajeros 2027": st.column_config.NumberColumn("Pasajeros 2027", format="%d"),
+        "Pax-km total": st.column_config.NumberColumn("Pax-km total", format="%.0f"),
+        "Distancia media por pax (km)": st.column_config.NumberColumn("Distancia media por pax (km)", format="%.2f"),
+    })
 
     st.markdown("#### Comparación contra escenario anterior")
     escenario_anterior = {"BIOTREN": 12991160.0, "CORTO_LAJA": 540842.0, "TREN_ARAUCANIA": 950258.0, "LLANQUIHUE_PM": 420853.0}
@@ -1900,6 +1938,8 @@ def render_laja_talcahuano_ejecutivo(serv, uni, detalle):
     capacidad_total = float(ocupacion["capacidad_pax"].sum())
     ocupacion_anual = total / capacidad_total if capacidad_total else 0.0
     resultado = calcular_resultado_laja_anual_cached(serie.to_dict())
+    paxkm_laja = PK.resumen_pax_km("CORTO_LAJA", resultado["viajes_od_tipo_long"])
+    paxkm_laja_anual = paxkm_laja["resumen_anual"]
     resumen_anual = resultado["resumen_anual"]
     resumen_tipo = resultado["resumen_anual_tipo_pasajero"].copy()
     resumen_mensual = resultado["resumen_mensual"].copy()
@@ -1920,6 +1960,8 @@ def render_laja_talcahuano_ejecutivo(serv, uni, detalle):
         {"titulo": "Servicios comerciales", "valor": fmt_compacto_efe(viajes_total), "detalle": fmt_num_efe(viajes_total, 0), "delta": "Oferta operacional 2027", "nota": "Total anual de servicios", "icono": "🚆"},
         {"titulo": "Pax/servicio", "valor": fmt_num_efe(pax_servicio, 1), "detalle": f"{fmt_num_efe(pax_servicio, 2)} pax/servicio", "delta": "Indicador operacional", "nota": "Promedio anual", "icono": "●"},
         {"titulo": "Ocupación capacidad", "valor": f"{fmt_num_efe(ocupacion_anual * 100, 1)}%", "detalle": "578 pax/tren", "delta": "Capacidad referencial", "nota": "Afluencia/capacidad anual", "icono": "%"},
+        {"titulo": "Pax-km total", "valor": fmt_compacto_efe(paxkm_laja_anual.get("pax_km_total", 0)), "detalle": fmt_num_efe(paxkm_laja_anual.get("pax_km_total", 0), 0), "delta": "Distancia total", "nota": "Viajes OD × km", "icono": "km"},
+        {"titulo": "Distancia media", "valor": f"{fmt_num_efe(paxkm_laja_anual.get('distancia_media_km', 0), 1)} km", "detalle": f"{fmt_num_efe(paxkm_laja_anual.get('distancia_media_km', 0), 2)} km/pax", "delta": "Pax-km/pasajeros", "nota": "Promedio ponderado", "icono": "↔"},
         {"titulo": "Venta de pasajes", "valor": fmt_clp_compacto(resumen_anual.get("ingreso_venta", 0.0)), "detalle": fmt_clp_detalle(resumen_anual.get("ingreso_venta", 0.0)), "delta": "Sin subsidio", "nota": "Sólo ingreso tarifario", "icono": "▰"},
         {"titulo": "Tarifa media", "valor": fmt_clp_compacto(resumen_anual.get("tarifa_media", 0.0)), "detalle": fmt_clp_detalle(resumen_anual.get("tarifa_media", 0.0)), "delta": "Ingreso/viaje", "nota": "Promedio ponderado", "icono": "$"},
         {"titulo": "Mes peak", "valor": peak_label, "detalle": fmt_num_efe(serie.max(), 0), "delta": "Demanda mensual máxima", "nota": "Pasajeros en mes peak", "icono": "▴"},
@@ -1996,17 +2038,27 @@ def render_laja_talcahuano_ejecutivo(serv, uni, detalle):
         viajes_long = res_mes["viajes_od_tipo_long"]
         M = OL.matriz_od(viajes_long, tipo_pasajero=tipo, valor_col="viajes_proyectados")
         R = OL.matriz_od(viajes_long, tipo_pasajero=tipo, valor_col="ingreso_tarifario_proyectado")
-        t1, t2, t3 = st.tabs(["Matriz OD viajes", "Matriz OD ingresos", "Resumen mensual"])
+        detalle_pk_mes = PK.anexar_distancia_y_pax_km("CORTO_LAJA", viajes_long)
+        PKM = PK.matriz_pax_km(detalle_pk_mes, "tipo_pasajero", tipo)
+        t1, t2, t3, t4 = st.tabs(["Matriz OD viajes", "Matriz OD ingresos", "Matriz OD pax-km", "Resumen mensual"])
         with t1:
             st.dataframe(M.round(0).astype(int), width="stretch", height=420)
         with t2:
             st.dataframe(R.round(0).astype(int), width="stretch", height=420)
         with t3:
+            st.dataframe(PKM.round(0).astype(int), width="stretch", height=420)
+        with t4:
             st.dataframe(res_mes["resumen_tipo_pasajero"], width="stretch", height=260)
-    with st.expander("Validación de conservación y cobertura", expanded=False):
-        st.markdown("La redistribución conserva el total mensual proyectado y aplica tarifas 2026 EFESUR por tipo de pasajero y OD. No calcula subsidios.")
-        st.dataframe(control, width="stretch", hide_index=True, height=260)
-        st.dataframe(resumen_mensual, width="stretch", hide_index=True, height=260)
+    with st.expander("Validación de conservación, cobertura y pax-km", expanded=False):
+        st.markdown("La redistribución conserva el total mensual proyectado y aplica tarifas 2026 EFESUR por tipo de pasajero y OD. No calcula subsidios. El pax-km usa la matriz de distancia normalizada de la hoja PAX KM CL.")
+        st.dataframe(control, width="stretch", hide_index=True, height=220)
+        st.dataframe(resumen_mensual, width="stretch", hide_index=True, height=220)
+        st.dataframe(paxkm_laja["resumen_mensual"], width="stretch", hide_index=True, height=220, column_config={
+            "viajes_total": st.column_config.NumberColumn("Viajes", format="%d"),
+            "pax_km_total": st.column_config.NumberColumn("Pax-km", format="%.0f"),
+            "distancia_media_km": st.column_config.NumberColumn("Distancia media km", format="%.2f"),
+            "pares_sin_distancia": st.column_config.NumberColumn("Pares sin distancia", format="%d"),
+        })
     with st.expander("Metodología matricial aplicada", expanded=False):
         st.markdown("""
 - Se utiliza la MOD 2024 mensual por tipo de pasajero como estructura histórica de distribución.
@@ -2285,7 +2337,7 @@ def _advertencias_servicio(s):
             "Normal paga tarifa normal; Delegación paga 70% de tarifa normal; Adulto Mayor paga tarifa adulto mayor; Estudiante y Claret pagan tarifa estudiante.",
             "Discapacitado, Estudiante Básica, Funcionario y Sindicato se modelan sin ingreso tarifario directo.",
             "El subsidio normal usa tasa de descuento 12,7% y considera Normal, Discapacitado, Funcionario, Sindicato y Delegación sobre tarifa normal completa.",
-            "El subsidio estudiante considera Estudiante, Claret y Estudiante Básica; usa tarifa estudiante sin subsidio y descuenta sólo la tarifa efectivamente pagada.",
+            "El subsidio estudiante considera Estudiante, Claret y Estudiante Básica; usa la diferencia entre la matriz estudiante sin subsidio y la matriz estudiante con subsidio, independiente de la venta directa.",
         ]
     if s == "LLANQUIHUE_PM":
         return [
@@ -2367,13 +2419,23 @@ def render_servicio_generico_ejecutivo(s, serv, uni, detalle):
         {"titulo": "Mes menor", "valor": min_label, "detalle": fmt_num_efe(serie.min(), 0), "delta": "Demanda mensual mínima", "nota": "Pasajeros en mes menor", "icono": "▾"},
     ]
     resultado_ta = None
+    paxkm_ta = None
     if s == "TREN_ARAUCANIA":
         resultado_ta = calcular_resultado_tren_araucania_anual_cached(serie.to_dict())
+        paxkm_ta = PK.resumen_pax_km("TREN_ARAUCANIA", resultado_ta["viajes_long"])
+        paxkm_ta_anual = paxkm_ta["resumen_anual"]
         anual_ta = resultado_ta["resumen_anual"]
         cards.extend([
+            {"titulo": "Pax-km total", "valor": fmt_compacto_efe(paxkm_ta_anual.get("pax_km_total", 0)), "detalle": fmt_num_efe(paxkm_ta_anual.get("pax_km_total", 0), 0), "delta": "Distancia total", "nota": "Viajes OD × km", "icono": "km"},
+            {"titulo": "Distancia media", "valor": f"{fmt_num_efe(paxkm_ta_anual.get('distancia_media_km', 0), 1)} km", "detalle": f"{fmt_num_efe(paxkm_ta_anual.get('distancia_media_km', 0), 2)} km/pax", "delta": "Pax-km/pasajeros", "nota": "Promedio ponderado", "icono": "↔"},
             {"titulo": "Venta de pasajes", "valor": fmt_clp_compacto(anual_ta.get("ingreso_venta", 0)), "detalle": fmt_clp_detalle(anual_ta.get("ingreso_venta", 0)), "delta": "Ingreso tarifario", "nota": "Normal, Adulto Mayor, Estudiante, Claret y Delegación", "icono": "▰"},
             {"titulo": "Subsidio total", "valor": fmt_clp_compacto(anual_ta.get("subsidio_total", 0)), "detalle": fmt_clp_detalle(anual_ta.get("subsidio_total", 0)), "delta": "Normal + estudiante", "nota": "Tasa normal 12,7%", "icono": "▣"},
             {"titulo": "Ingreso total", "valor": fmt_clp_compacto(anual_ta.get("ingreso_total_tren_araucania", 0)), "detalle": fmt_clp_detalle(anual_ta.get("ingreso_total_tren_araucania", 0)), "delta": "Venta + subsidio", "nota": f"Tarifa media total: {fmt_num_efe(anual_ta.get('tarifa_media_total', 0), 0)}", "icono": "▥"},
+        ])
+    elif s == "LLANQUIHUE_PM":
+        cards.extend([
+            {"titulo": "Pax-km total", "valor": "s/i", "detalle": "Pendiente MOD", "delta": "No calculado", "nota": "Existe matriz de distancia, falta distribución OD", "icono": "km"},
+            {"titulo": "Distancia media", "valor": "s/i", "detalle": "Pendiente MOD", "delta": "No calculado", "nota": "Se calculará al incorporar MOD", "icono": "↔"},
         ])
 
     render_metric_grid(cards, cols_per_row=5)
@@ -2444,6 +2506,7 @@ def render_servicio_generico_ejecutivo(s, serv, uni, detalle):
                 {"Concepto": "Venta de pasajes", "Monto anual": anual_ta.get("ingreso_venta", 0)},
                 {"Concepto": "Base normal subsidio", "Monto anual": anual_ta.get("monto_base_subsidio_normal", 0)},
                 {"Concepto": "Base estudiante sin subsidio", "Monto anual": anual_ta.get("ingreso_teorico_estudiante_sin_subsidio", 0)},
+                {"Concepto": "Base estudiante con subsidio", "Monto anual": anual_ta.get("venta_base_estudiante_subsidio", 0)},
                 {"Concepto": "Subsidio normal", "Monto anual": anual_ta.get("subsidio_normal", 0)},
                 {"Concepto": "Subsidio estudiante", "Monto anual": anual_ta.get("subsidio_estudiante", 0)},
                 {"Concepto": "Subsidio total", "Monto anual": anual_ta.get("subsidio_total", 0)},
@@ -2452,12 +2515,13 @@ def render_servicio_generico_ejecutivo(s, serv, uni, detalle):
             st.dataframe(tabla_fin, width="stretch", hide_index=True, height=225, column_config={"Monto anual": st.column_config.NumberColumn("Monto anual", format="$ %d")})
         with cta2:
             efe_section("Distribución por tipo de pasajero", "Viajes, venta y subsidio por tipo.")
-            vista_tipo = resumen_tipo_ta[["tipo_pasajero_visual", "viajes", "ingreso_venta", "monto_base_subsidio_normal", "ingreso_teorico_estudiante_sin_subsidio", "subsidio_total", "participacion"]].rename(columns={
+            vista_tipo = resumen_tipo_ta[["tipo_pasajero_visual", "viajes", "ingreso_venta", "monto_base_subsidio_normal", "ingreso_teorico_estudiante_sin_subsidio", "venta_base_estudiante_subsidio", "subsidio_total", "participacion"]].rename(columns={
                 "tipo_pasajero_visual": "Tipo pasajero",
                 "viajes": "Viajes",
                 "ingreso_venta": "Venta",
                 "monto_base_subsidio_normal": "Base normal",
-                "ingreso_teorico_estudiante_sin_subsidio": "Base estudiante",
+                "ingreso_teorico_estudiante_sin_subsidio": "Base estudiante sin subsidio",
+                "venta_base_estudiante_subsidio": "Base estudiante con subsidio",
                 "subsidio_total": "Subsidio",
                 "participacion": "Participación",
             })
@@ -2465,7 +2529,8 @@ def render_servicio_generico_ejecutivo(s, serv, uni, detalle):
                 "Viajes": st.column_config.NumberColumn("Viajes", format="%d"),
                 "Venta": st.column_config.NumberColumn("Venta", format="$ %d"),
                 "Base normal": st.column_config.NumberColumn("Base normal", format="$ %d"),
-                "Base estudiante": st.column_config.NumberColumn("Base estudiante", format="$ %d"),
+                "Base estudiante sin subsidio": st.column_config.NumberColumn("Base estudiante sin subsidio", format="$ %d"),
+                "Base estudiante con subsidio": st.column_config.NumberColumn("Base estudiante con subsidio", format="$ %d"),
                 "Subsidio": st.column_config.NumberColumn("Subsidio", format="$ %d"),
                 "Participación": st.column_config.NumberColumn("Participación", format="%.1%%"),
             })
@@ -2476,27 +2541,42 @@ def render_servicio_generico_ejecutivo(s, serv, uni, detalle):
             tipo = st.selectbox("Tipo de pasajero", tipos, key="od_ta_tipo")
             res_mes = calcular_od_tren_araucania_mes_cached(periodo, float(serie.loc[periodo]))
             viajes_long = res_mes["viajes_long"]
-            t1, t2, t3 = st.tabs(["Matriz OD viajes", "Matriz OD venta", "Resumen mensual"])
+            detalle_pk_mes = PK.anexar_distancia_y_pax_km("TREN_ARAUCANIA", viajes_long)
+            t1, t2, t3, t4 = st.tabs(["Matriz OD viajes", "Matriz OD venta", "Matriz OD pax-km", "Resumen mensual"])
             with t1:
                 st.dataframe(TAOD.matriz_tipo(viajes_long, tipo, "viajes_proyectados").round(0).astype(int), width="stretch", height=390)
             with t2:
                 st.dataframe(TAOD.matriz_tipo(viajes_long, tipo, "ingreso_venta").round(0).astype(int), width="stretch", height=390)
             with t3:
+                st.dataframe(PK.matriz_pax_km(detalle_pk_mes, "tipo_pasajero", tipo).round(0).astype(int), width="stretch", height=390)
+            with t4:
                 st.dataframe(pd.DataFrame([res_mes["resumen_mes"]]), width="stretch", hide_index=True)
-        with st.expander("Control financiero mensual Tren Araucanía", expanded=False):
-            st.dataframe(resumen_mensual_ta, width="stretch", hide_index=True, height=300, column_config={
+        with st.expander("Control financiero mensual y pax-km Tren Araucanía", expanded=False):
+            st.dataframe(resumen_mensual_ta, width="stretch", hide_index=True, height=260, column_config={
                 "viajes_tren_araucania": st.column_config.NumberColumn("Viajes", format="%d"),
                 "ingreso_venta": st.column_config.NumberColumn("Venta", format="$ %d"),
                 "monto_base_subsidio_normal": st.column_config.NumberColumn("Base normal subsidio", format="$ %d"),
                 "viajes_base_subsidio_normal": st.column_config.NumberColumn("Viajes base normal", format="%d"),
                 "ingreso_teorico_estudiante_sin_subsidio": st.column_config.NumberColumn("Base estudiante sin subsidio", format="$ %d"),
-                "venta_base_estudiante_subsidio": st.column_config.NumberColumn("Venta base estudiante", format="$ %d"),
+                "venta_base_estudiante_subsidio": st.column_config.NumberColumn("Base estudiante con subsidio", format="$ %d"),
                 "viajes_base_subsidio_estudiante": st.column_config.NumberColumn("Viajes base estudiante", format="%d"),
                 "subsidio_normal": st.column_config.NumberColumn("Subsidio normal", format="$ %d"),
                 "subsidio_estudiante": st.column_config.NumberColumn("Subsidio estudiante", format="$ %d"),
                 "subsidio_total": st.column_config.NumberColumn("Subsidio total", format="$ %d"),
                 "ingreso_total_tren_araucania": st.column_config.NumberColumn("Ingreso total", format="$ %d"),
             })
+            st.dataframe(paxkm_ta["resumen_mensual"], width="stretch", hide_index=True, height=220, column_config={
+                "viajes_total": st.column_config.NumberColumn("Viajes", format="%d"),
+                "pax_km_total": st.column_config.NumberColumn("Pax-km", format="%.0f"),
+                "distancia_media_km": st.column_config.NumberColumn("Distancia media km", format="%.2f"),
+                "pares_sin_distancia": st.column_config.NumberColumn("Pares sin distancia", format="%d"),
+            })
+
+    if s == "LLANQUIHUE_PM":
+        with st.expander("Matriz de distancias Llanquihue-Puerto Montt", expanded=False):
+            st.markdown("La matriz de distancias fue normalizada desde la primera matriz de la hoja PAX KM LL-LP. El pax-km queda pendiente hasta incorporar la MOD/distribución OD del servicio.")
+            dist_ll = PK.cargar_distancias()
+            st.dataframe(dist_ll[dist_ll["servicio"].eq("LLANQUIHUE_PM")][["origen", "destino", "distancia_km"]], width="stretch", hide_index=True, height=260)
 
     with st.expander("Justificación metodológica", expanded=False):
         render_justificacion_servicio(s, serv, uni, detalle)
@@ -2520,6 +2600,8 @@ def render_biotren_ejecutivo(serv, uni, detalle):
     resumen_ocup = O.resumen_ocupacion_biotren(serie, 2027)
     diag_ocup = resumen_ocup["diagnostico_mensual"].copy()
     pasajeros = float(anual_sub.get("viajes_biotren", serie.sum()))
+    paxkm_biotren = PK.resumen_pax_km("BIOTREN", resultado_anual["viajes_tipo_tarjeta_long"])
+    paxkm_biotren_anual = paxkm_biotren["resumen_anual"]
     servicios_anuales = float(resumen_ocup["servicios_comerciales_anuales"])
     servicios_equiv = float(resumen_ocup["servicios_equivalentes_capacidad_anuales"])
     pax_servicio = float(resumen_ocup["pax_servicio_comercial_anual"])
@@ -2540,6 +2622,8 @@ def render_biotren_ejecutivo(serv, uni, detalle):
         {"titulo": "Pax/servicio", "valor": fmt_num_efe(pax_servicio, 1), "detalle": f"{fmt_num_efe(pax_servicio, 2)} pax/servicio comercial", "delta": "Indicador principal", "nota": "Consistente con Resumen", "icono": "●"},
         {"titulo": "Ocupación capacidad", "valor": f"{fmt_num_efe(tasa_ocup_eq * 100, 1)}%", "detalle": "605 pax/tren; acoplados duplican capacidad", "delta": "Capacidad equivalente", "nota": "Tasa anual referencial", "icono": "%"},
         {"titulo": "Servicios equivalentes", "valor": fmt_compacto_efe(servicios_equiv), "detalle": fmt_num_efe(servicios_equiv, 0), "delta": "Capacidad diagnóstica", "nota": f"Pax/capacidad eq.: {fmt_num_efe(pax_capacidad, 2)}", "icono": "▣"},
+        {"titulo": "Pax-km total", "valor": fmt_compacto_efe(paxkm_biotren_anual.get("pax_km_total", 0)), "detalle": fmt_num_efe(paxkm_biotren_anual.get("pax_km_total", 0), 0), "delta": "Distancia total", "nota": "Viajes OD × km", "icono": "km"},
+        {"titulo": "Distancia media", "valor": f"{fmt_num_efe(paxkm_biotren_anual.get('distancia_media_km', 0), 1)} km", "detalle": f"{fmt_num_efe(paxkm_biotren_anual.get('distancia_media_km', 0), 2)} km/pax", "delta": "Pax-km/pasajeros", "nota": "Promedio ponderado", "icono": "↔"},
         {"titulo": "Venta de pasajes", "valor": fmt_clp_compacto(anual_sub.get("ingreso_venta", 0)), "detalle": fmt_clp_detalle(anual_sub.get("ingreso_venta", 0)), "delta": "Sólo Biotren", "nota": "Valor anual proyectado", "icono": "▰"},
         {"titulo": "Subsidio total", "valor": fmt_clp_compacto(anual_sub.get("subsidio_total", 0)), "detalle": fmt_clp_detalle(anual_sub.get("subsidio_total", 0)), "delta": "Normal + estudiante", "nota": "Valor anual proyectado", "icono": "▣"},
         {"titulo": "Ingreso total", "valor": fmt_clp_compacto(anual_sub.get("ingreso_total_biotren", 0)), "detalle": fmt_clp_detalle(anual_sub.get("ingreso_total_biotren", 0)), "delta": "Venta + subsidios", "nota": "Valor anual proyectado", "icono": "▥"},
@@ -2655,6 +2739,22 @@ def render_biotren_ejecutivo(serv, uni, detalle):
             st.dataframe(R.round(0).astype(int).copy(deep=True), width="stretch", height=420)
         with t3:
             st.dataframe(resumen_mes, width="stretch", height=260)
+    with st.expander("Detalle pax-km Biotren", expanded=False):
+        st.markdown("El pax-km se calcula como viajes OD proyectados por distancia OD normalizada. La matriz de distancia proviene de la primera matriz de la hoja PAX KM BT.")
+        st.dataframe(paxkm_biotren["resumen_mensual"], width="stretch", hide_index=True, height=260, column_config={
+            "viajes_total": st.column_config.NumberColumn("Viajes", format="%d"),
+            "pax_km_total": st.column_config.NumberColumn("Pax-km", format="%.0f"),
+            "distancia_media_km": st.column_config.NumberColumn("Distancia media km", format="%.2f"),
+            "pares_sin_distancia": st.column_config.NumberColumn("Pares sin distancia", format="%d"),
+        })
+        periodos_pk = list(serie.index)
+        periodo_pk = st.selectbox("Mes pax-km", periodos_pk, format_func=lambda x: f"{str(x)[5:7]} - 2027", key="paxkm_biotren_periodo")
+        tipo_pk = st.selectbox("Tipo de tarjeta pax-km", sorted(resultado_anual["viajes_tipo_tarjeta_long"]["tipo_tarjeta"].astype(str).unique()), key="paxkm_biotren_tipo")
+        detalle_pk = paxkm_biotren["detalle"]
+        detalle_pk_mes = detalle_pk[detalle_pk["periodo"].astype(str).eq(str(periodo_pk))]
+        mat_pk = PK.matriz_pax_km(detalle_pk_mes, "tipo_tarjeta", tipo_pk)
+        st.dataframe(mat_pk.round(0).astype(int), width="stretch", height=360)
+
     with st.expander("Justificación metodológica", expanded=False):
         st.markdown("""
 - El escenario Biotren 2027 se formula como un escenario de gestión operacional-comercial.
