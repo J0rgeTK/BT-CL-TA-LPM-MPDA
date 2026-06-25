@@ -1,0 +1,485 @@
+servicio,origen,destino,distancia_km,fuente_hoja
+CORTO_LAJA,Mercado,Mercado,0.0,PAX KM CL
+CORTO_LAJA,Mercado,El Arenal,1.4,PAX KM CL
+CORTO_LAJA,Mercado,Higueras,4.6,PAX KM CL
+CORTO_LAJA,Mercado,Los Cóndores,6.6,PAX KM CL
+CORTO_LAJA,Mercado,UTFSM,8.6,PAX KM CL
+CORTO_LAJA,Mercado,Lorenzo Arenas,11.5,PAX KM CL
+CORTO_LAJA,Mercado,Concepción,14.5,PAX KM CL
+CORTO_LAJA,Mercado,Chiguayante,24.6,PAX KM CL
+CORTO_LAJA,Mercado,Pedro Medina,25.7,PAX KM CL
+CORTO_LAJA,Mercado,Manquimávida,27.7,PAX KM CL
+CORTO_LAJA,Mercado,La Leonera,30.1,PAX KM CL
+CORTO_LAJA,Mercado,Hualqui,38.0,PAX KM CL
+CORTO_LAJA,Mercado,Quilacoya,47.7,PAX KM CL
+CORTO_LAJA,Mercado,San Miguel,50.8,PAX KM CL
+CORTO_LAJA,Mercado,Unihue,55.4,PAX KM CL
+CORTO_LAJA,Mercado,Valle Chanco,62.7,PAX KM CL
+CORTO_LAJA,Mercado,Los Acacios,60.7,PAX KM CL
+CORTO_LAJA,Mercado,Talcamávida,61.7,PAX KM CL
+CORTO_LAJA,Mercado,Gomero,69.4,PAX KM CL
+CORTO_LAJA,Mercado,Buenuraqui,76.4,PAX KM CL
+CORTO_LAJA,Mercado,San Rosendo,84.7,PAX KM CL
+CORTO_LAJA,Mercado,Laja,86.95,PAX KM CL
+CORTO_LAJA,El Arenal,Mercado,1.4,PAX KM CL
+CORTO_LAJA,El Arenal,El Arenal,0.0,PAX KM CL
+CORTO_LAJA,El Arenal,Higueras,3.2,PAX KM CL
+CORTO_LAJA,El Arenal,Los Cóndores,5.2,PAX KM CL
+CORTO_LAJA,El Arenal,UTFSM,7.2,PAX KM CL
+CORTO_LAJA,El Arenal,Lorenzo Arenas,10.1,PAX KM CL
+CORTO_LAJA,El Arenal,Concepción,13.1,PAX KM CL
+CORTO_LAJA,El Arenal,Chiguayante,23.2,PAX KM CL
+CORTO_LAJA,El Arenal,Pedro Medina,24.3,PAX KM CL
+CORTO_LAJA,El Arenal,Manquimávida,26.3,PAX KM CL
+CORTO_LAJA,El Arenal,La Leonera,28.7,PAX KM CL
+CORTO_LAJA,El Arenal,Hualqui,36.6,PAX KM CL
+CORTO_LAJA,El Arenal,Quilacoya,46.3,PAX KM CL
+CORTO_LAJA,El Arenal,San Miguel,49.4,PAX KM CL
+CORTO_LAJA,El Arenal,Unihue,54.0,PAX KM CL
+CORTO_LAJA,El Arenal,Valle Chanco,61.3,PAX KM CL
+CORTO_LAJA,El Arenal,Los Acacios,59.3,PAX KM CL
+CORTO_LAJA,El Arenal,Talcamávida,60.3,PAX KM CL
+CORTO_LAJA,El Arenal,Gomero,68.0,PAX KM CL
+CORTO_LAJA,El Arenal,Buenuraqui,75.0,PAX KM CL
+CORTO_LAJA,El Arenal,San Rosendo,83.3,PAX KM CL
+CORTO_LAJA,El Arenal,Laja,85.55,PAX KM CL
+CORTO_LAJA,Higueras,Mercado,4.6,PAX KM CL
+CORTO_LAJA,Higueras,El Arenal,3.2,PAX KM CL
+CORTO_LAJA,Higueras,Higueras,0.0,PAX KM CL
+CORTO_LAJA,Higueras,Los Cóndores,2.0,PAX KM CL
+CORTO_LAJA,Higueras,UTFSM,4.0,PAX KM CL
+CORTO_LAJA,Higueras,Lorenzo Arenas,6.9,PAX KM CL
+CORTO_LAJA,Higueras,Concepción,9.9,PAX KM CL
+CORTO_LAJA,Higueras,Chiguayante,20.0,PAX KM CL
+CORTO_LAJA,Higueras,Pedro Medina,21.1,PAX KM CL
+CORTO_LAJA,Higueras,Manquimávida,23.1,PAX KM CL
+CORTO_LAJA,Higueras,La Leonera,25.5,PAX KM CL
+CORTO_LAJA,Higueras,Hualqui,33.4,PAX KM CL
+CORTO_LAJA,Higueras,Quilacoya,43.1,PAX KM CL
+CORTO_LAJA,Higueras,San Miguel,46.2,PAX KM CL
+CORTO_LAJA,Higueras,Unihue,50.8,PAX KM CL
+CORTO_LAJA,Higueras,Valle Chanco,58.1,PAX KM CL
+CORTO_LAJA,Higueras,Los Acacios,56.1,PAX KM CL
+CORTO_LAJA,Higueras,Talcamávida,57.1,PAX KM CL
+CORTO_LAJA,Higueras,Gomero,64.8,PAX KM CL
+CORTO_LAJA,Higueras,Buenuraqui,71.8,PAX KM CL
+CORTO_LAJA,Higueras,San Rosendo,80.1,PAX KM CL
+CORTO_LAJA,Higueras,Laja,82.35,PAX KM CL
+CORTO_LAJA,Los Cóndores,Mercado,6.6,PAX KM CL
+CORTO_LAJA,Los Cóndores,El Arenal,5.2,PAX KM CL
+CORTO_LAJA,Los Cóndores,Higueras,2.0,PAX KM CL
+CORTO_LAJA,Los Cóndores,Los Cóndores,0.0,PAX KM CL
+CORTO_LAJA,Los Cóndores,UTFSM,2.0,PAX KM CL
+CORTO_LAJA,Los Cóndores,Lorenzo Arenas,4.9,PAX KM CL
+CORTO_LAJA,Los Cóndores,Concepción,7.9,PAX KM CL
+CORTO_LAJA,Los Cóndores,Chiguayante,18.0,PAX KM CL
+CORTO_LAJA,Los Cóndores,Pedro Medina,19.1,PAX KM CL
+CORTO_LAJA,Los Cóndores,Manquimávida,21.1,PAX KM CL
+CORTO_LAJA,Los Cóndores,La Leonera,23.5,PAX KM CL
+CORTO_LAJA,Los Cóndores,Hualqui,31.4,PAX KM CL
+CORTO_LAJA,Los Cóndores,Quilacoya,41.1,PAX KM CL
+CORTO_LAJA,Los Cóndores,San Miguel,44.2,PAX KM CL
+CORTO_LAJA,Los Cóndores,Unihue,48.8,PAX KM CL
+CORTO_LAJA,Los Cóndores,Valle Chanco,56.1,PAX KM CL
+CORTO_LAJA,Los Cóndores,Los Acacios,54.1,PAX KM CL
+CORTO_LAJA,Los Cóndores,Talcamávida,55.1,PAX KM CL
+CORTO_LAJA,Los Cóndores,Gomero,62.8,PAX KM CL
+CORTO_LAJA,Los Cóndores,Buenuraqui,69.8,PAX KM CL
+CORTO_LAJA,Los Cóndores,San Rosendo,78.1,PAX KM CL
+CORTO_LAJA,Los Cóndores,Laja,80.35,PAX KM CL
+CORTO_LAJA,UTFSM,Mercado,8.6,PAX KM CL
+CORTO_LAJA,UTFSM,El Arenal,7.2,PAX KM CL
+CORTO_LAJA,UTFSM,Higueras,4.0,PAX KM CL
+CORTO_LAJA,UTFSM,Los Cóndores,2.0,PAX KM CL
+CORTO_LAJA,UTFSM,UTFSM,0.0,PAX KM CL
+CORTO_LAJA,UTFSM,Lorenzo Arenas,2.9,PAX KM CL
+CORTO_LAJA,UTFSM,Concepción,5.9,PAX KM CL
+CORTO_LAJA,UTFSM,Chiguayante,16.0,PAX KM CL
+CORTO_LAJA,UTFSM,Pedro Medina,17.1,PAX KM CL
+CORTO_LAJA,UTFSM,Manquimávida,19.1,PAX KM CL
+CORTO_LAJA,UTFSM,La Leonera,21.5,PAX KM CL
+CORTO_LAJA,UTFSM,Hualqui,29.4,PAX KM CL
+CORTO_LAJA,UTFSM,Quilacoya,39.1,PAX KM CL
+CORTO_LAJA,UTFSM,San Miguel,42.2,PAX KM CL
+CORTO_LAJA,UTFSM,Unihue,46.8,PAX KM CL
+CORTO_LAJA,UTFSM,Valle Chanco,54.1,PAX KM CL
+CORTO_LAJA,UTFSM,Los Acacios,52.1,PAX KM CL
+CORTO_LAJA,UTFSM,Talcamávida,53.1,PAX KM CL
+CORTO_LAJA,UTFSM,Gomero,60.8,PAX KM CL
+CORTO_LAJA,UTFSM,Buenuraqui,67.8,PAX KM CL
+CORTO_LAJA,UTFSM,San Rosendo,76.1,PAX KM CL
+CORTO_LAJA,UTFSM,Laja,78.35,PAX KM CL
+CORTO_LAJA,Lorenzo Arenas,Mercado,11.5,PAX KM CL
+CORTO_LAJA,Lorenzo Arenas,El Arenal,10.1,PAX KM CL
+CORTO_LAJA,Lorenzo Arenas,Higueras,6.9,PAX KM CL
+CORTO_LAJA,Lorenzo Arenas,Los Cóndores,4.9,PAX KM CL
+CORTO_LAJA,Lorenzo Arenas,UTFSM,2.9,PAX KM CL
+CORTO_LAJA,Lorenzo Arenas,Lorenzo Arenas,0.0,PAX KM CL
+CORTO_LAJA,Lorenzo Arenas,Concepción,3.0,PAX KM CL
+CORTO_LAJA,Lorenzo Arenas,Chiguayante,13.1,PAX KM CL
+CORTO_LAJA,Lorenzo Arenas,Pedro Medina,14.2,PAX KM CL
+CORTO_LAJA,Lorenzo Arenas,Manquimávida,16.2,PAX KM CL
+CORTO_LAJA,Lorenzo Arenas,La Leonera,18.6,PAX KM CL
+CORTO_LAJA,Lorenzo Arenas,Hualqui,26.5,PAX KM CL
+CORTO_LAJA,Lorenzo Arenas,Quilacoya,36.2,PAX KM CL
+CORTO_LAJA,Lorenzo Arenas,San Miguel,39.3,PAX KM CL
+CORTO_LAJA,Lorenzo Arenas,Unihue,43.9,PAX KM CL
+CORTO_LAJA,Lorenzo Arenas,Valle Chanco,51.2,PAX KM CL
+CORTO_LAJA,Lorenzo Arenas,Los Acacios,49.2,PAX KM CL
+CORTO_LAJA,Lorenzo Arenas,Talcamávida,50.2,PAX KM CL
+CORTO_LAJA,Lorenzo Arenas,Gomero,57.9,PAX KM CL
+CORTO_LAJA,Lorenzo Arenas,Buenuraqui,64.9,PAX KM CL
+CORTO_LAJA,Lorenzo Arenas,San Rosendo,73.2,PAX KM CL
+CORTO_LAJA,Lorenzo Arenas,Laja,75.45,PAX KM CL
+CORTO_LAJA,Concepción,Mercado,14.5,PAX KM CL
+CORTO_LAJA,Concepción,El Arenal,13.1,PAX KM CL
+CORTO_LAJA,Concepción,Higueras,9.9,PAX KM CL
+CORTO_LAJA,Concepción,Los Cóndores,7.9,PAX KM CL
+CORTO_LAJA,Concepción,UTFSM,5.9,PAX KM CL
+CORTO_LAJA,Concepción,Lorenzo Arenas,3.0,PAX KM CL
+CORTO_LAJA,Concepción,Concepción,0.0,PAX KM CL
+CORTO_LAJA,Concepción,Chiguayante,10.1,PAX KM CL
+CORTO_LAJA,Concepción,Pedro Medina,11.2,PAX KM CL
+CORTO_LAJA,Concepción,Manquimávida,13.2,PAX KM CL
+CORTO_LAJA,Concepción,La Leonera,15.6,PAX KM CL
+CORTO_LAJA,Concepción,Hualqui,23.5,PAX KM CL
+CORTO_LAJA,Concepción,Quilacoya,33.2,PAX KM CL
+CORTO_LAJA,Concepción,San Miguel,36.3,PAX KM CL
+CORTO_LAJA,Concepción,Unihue,40.9,PAX KM CL
+CORTO_LAJA,Concepción,Valle Chanco,48.2,PAX KM CL
+CORTO_LAJA,Concepción,Los Acacios,46.2,PAX KM CL
+CORTO_LAJA,Concepción,Talcamávida,47.2,PAX KM CL
+CORTO_LAJA,Concepción,Gomero,54.9,PAX KM CL
+CORTO_LAJA,Concepción,Buenuraqui,61.9,PAX KM CL
+CORTO_LAJA,Concepción,San Rosendo,70.2,PAX KM CL
+CORTO_LAJA,Concepción,Laja,72.45,PAX KM CL
+CORTO_LAJA,Chiguayante,Mercado,24.6,PAX KM CL
+CORTO_LAJA,Chiguayante,El Arenal,23.2,PAX KM CL
+CORTO_LAJA,Chiguayante,Higueras,20.0,PAX KM CL
+CORTO_LAJA,Chiguayante,Los Cóndores,18.0,PAX KM CL
+CORTO_LAJA,Chiguayante,UTFSM,16.0,PAX KM CL
+CORTO_LAJA,Chiguayante,Lorenzo Arenas,13.1,PAX KM CL
+CORTO_LAJA,Chiguayante,Concepción,10.1,PAX KM CL
+CORTO_LAJA,Chiguayante,Chiguayante,0.0,PAX KM CL
+CORTO_LAJA,Chiguayante,Pedro Medina,1.1,PAX KM CL
+CORTO_LAJA,Chiguayante,Manquimávida,3.1,PAX KM CL
+CORTO_LAJA,Chiguayante,La Leonera,5.5,PAX KM CL
+CORTO_LAJA,Chiguayante,Hualqui,13.4,PAX KM CL
+CORTO_LAJA,Chiguayante,Quilacoya,23.1,PAX KM CL
+CORTO_LAJA,Chiguayante,San Miguel,26.2,PAX KM CL
+CORTO_LAJA,Chiguayante,Unihue,30.8,PAX KM CL
+CORTO_LAJA,Chiguayante,Valle Chanco,38.1,PAX KM CL
+CORTO_LAJA,Chiguayante,Los Acacios,36.1,PAX KM CL
+CORTO_LAJA,Chiguayante,Talcamávida,37.1,PAX KM CL
+CORTO_LAJA,Chiguayante,Gomero,44.8,PAX KM CL
+CORTO_LAJA,Chiguayante,Buenuraqui,51.8,PAX KM CL
+CORTO_LAJA,Chiguayante,San Rosendo,60.1,PAX KM CL
+CORTO_LAJA,Chiguayante,Laja,62.35,PAX KM CL
+CORTO_LAJA,Pedro Medina,Mercado,25.7,PAX KM CL
+CORTO_LAJA,Pedro Medina,El Arenal,24.3,PAX KM CL
+CORTO_LAJA,Pedro Medina,Higueras,21.1,PAX KM CL
+CORTO_LAJA,Pedro Medina,Los Cóndores,19.1,PAX KM CL
+CORTO_LAJA,Pedro Medina,UTFSM,17.1,PAX KM CL
+CORTO_LAJA,Pedro Medina,Lorenzo Arenas,14.2,PAX KM CL
+CORTO_LAJA,Pedro Medina,Concepción,11.2,PAX KM CL
+CORTO_LAJA,Pedro Medina,Chiguayante,1.1,PAX KM CL
+CORTO_LAJA,Pedro Medina,Pedro Medina,0.0,PAX KM CL
+CORTO_LAJA,Pedro Medina,Manquimávida,2.0,PAX KM CL
+CORTO_LAJA,Pedro Medina,La Leonera,4.4,PAX KM CL
+CORTO_LAJA,Pedro Medina,Hualqui,12.3,PAX KM CL
+CORTO_LAJA,Pedro Medina,Quilacoya,22.0,PAX KM CL
+CORTO_LAJA,Pedro Medina,San Miguel,25.1,PAX KM CL
+CORTO_LAJA,Pedro Medina,Unihue,29.7,PAX KM CL
+CORTO_LAJA,Pedro Medina,Valle Chanco,37.0,PAX KM CL
+CORTO_LAJA,Pedro Medina,Los Acacios,35.0,PAX KM CL
+CORTO_LAJA,Pedro Medina,Talcamávida,36.0,PAX KM CL
+CORTO_LAJA,Pedro Medina,Gomero,43.7,PAX KM CL
+CORTO_LAJA,Pedro Medina,Buenuraqui,50.7,PAX KM CL
+CORTO_LAJA,Pedro Medina,San Rosendo,59.0,PAX KM CL
+CORTO_LAJA,Pedro Medina,Laja,61.25,PAX KM CL
+CORTO_LAJA,Manquimávida,Mercado,27.7,PAX KM CL
+CORTO_LAJA,Manquimávida,El Arenal,26.3,PAX KM CL
+CORTO_LAJA,Manquimávida,Higueras,23.1,PAX KM CL
+CORTO_LAJA,Manquimávida,Los Cóndores,21.1,PAX KM CL
+CORTO_LAJA,Manquimávida,UTFSM,19.1,PAX KM CL
+CORTO_LAJA,Manquimávida,Lorenzo Arenas,16.2,PAX KM CL
+CORTO_LAJA,Manquimávida,Concepción,13.2,PAX KM CL
+CORTO_LAJA,Manquimávida,Chiguayante,3.1,PAX KM CL
+CORTO_LAJA,Manquimávida,Pedro Medina,2.0,PAX KM CL
+CORTO_LAJA,Manquimávida,Manquimávida,0.0,PAX KM CL
+CORTO_LAJA,Manquimávida,La Leonera,2.4,PAX KM CL
+CORTO_LAJA,Manquimávida,Hualqui,10.3,PAX KM CL
+CORTO_LAJA,Manquimávida,Quilacoya,20.0,PAX KM CL
+CORTO_LAJA,Manquimávida,San Miguel,23.1,PAX KM CL
+CORTO_LAJA,Manquimávida,Unihue,27.7,PAX KM CL
+CORTO_LAJA,Manquimávida,Valle Chanco,35.0,PAX KM CL
+CORTO_LAJA,Manquimávida,Los Acacios,33.0,PAX KM CL
+CORTO_LAJA,Manquimávida,Talcamávida,34.0,PAX KM CL
+CORTO_LAJA,Manquimávida,Gomero,41.7,PAX KM CL
+CORTO_LAJA,Manquimávida,Buenuraqui,48.7,PAX KM CL
+CORTO_LAJA,Manquimávida,San Rosendo,57.0,PAX KM CL
+CORTO_LAJA,Manquimávida,Laja,59.25,PAX KM CL
+CORTO_LAJA,La Leonera,Mercado,30.1,PAX KM CL
+CORTO_LAJA,La Leonera,El Arenal,28.7,PAX KM CL
+CORTO_LAJA,La Leonera,Higueras,25.5,PAX KM CL
+CORTO_LAJA,La Leonera,Los Cóndores,23.5,PAX KM CL
+CORTO_LAJA,La Leonera,UTFSM,21.5,PAX KM CL
+CORTO_LAJA,La Leonera,Lorenzo Arenas,18.6,PAX KM CL
+CORTO_LAJA,La Leonera,Concepción,15.6,PAX KM CL
+CORTO_LAJA,La Leonera,Chiguayante,5.5,PAX KM CL
+CORTO_LAJA,La Leonera,Pedro Medina,4.4,PAX KM CL
+CORTO_LAJA,La Leonera,Manquimávida,2.4,PAX KM CL
+CORTO_LAJA,La Leonera,La Leonera,0.0,PAX KM CL
+CORTO_LAJA,La Leonera,Hualqui,7.9,PAX KM CL
+CORTO_LAJA,La Leonera,Quilacoya,17.6,PAX KM CL
+CORTO_LAJA,La Leonera,San Miguel,20.7,PAX KM CL
+CORTO_LAJA,La Leonera,Unihue,25.3,PAX KM CL
+CORTO_LAJA,La Leonera,Valle Chanco,32.6,PAX KM CL
+CORTO_LAJA,La Leonera,Los Acacios,30.6,PAX KM CL
+CORTO_LAJA,La Leonera,Talcamávida,31.6,PAX KM CL
+CORTO_LAJA,La Leonera,Gomero,39.3,PAX KM CL
+CORTO_LAJA,La Leonera,Buenuraqui,46.3,PAX KM CL
+CORTO_LAJA,La Leonera,San Rosendo,54.6,PAX KM CL
+CORTO_LAJA,La Leonera,Laja,56.85,PAX KM CL
+CORTO_LAJA,Hualqui,Mercado,38.0,PAX KM CL
+CORTO_LAJA,Hualqui,El Arenal,36.6,PAX KM CL
+CORTO_LAJA,Hualqui,Higueras,33.4,PAX KM CL
+CORTO_LAJA,Hualqui,Los Cóndores,31.4,PAX KM CL
+CORTO_LAJA,Hualqui,UTFSM,29.4,PAX KM CL
+CORTO_LAJA,Hualqui,Lorenzo Arenas,26.5,PAX KM CL
+CORTO_LAJA,Hualqui,Concepción,23.5,PAX KM CL
+CORTO_LAJA,Hualqui,Chiguayante,13.4,PAX KM CL
+CORTO_LAJA,Hualqui,Pedro Medina,12.3,PAX KM CL
+CORTO_LAJA,Hualqui,Manquimávida,10.3,PAX KM CL
+CORTO_LAJA,Hualqui,La Leonera,7.9,PAX KM CL
+CORTO_LAJA,Hualqui,Hualqui,0.0,PAX KM CL
+CORTO_LAJA,Hualqui,Quilacoya,9.7,PAX KM CL
+CORTO_LAJA,Hualqui,San Miguel,12.8,PAX KM CL
+CORTO_LAJA,Hualqui,Unihue,17.4,PAX KM CL
+CORTO_LAJA,Hualqui,Valle Chanco,24.7,PAX KM CL
+CORTO_LAJA,Hualqui,Los Acacios,22.7,PAX KM CL
+CORTO_LAJA,Hualqui,Talcamávida,23.7,PAX KM CL
+CORTO_LAJA,Hualqui,Gomero,31.4,PAX KM CL
+CORTO_LAJA,Hualqui,Buenuraqui,38.4,PAX KM CL
+CORTO_LAJA,Hualqui,San Rosendo,46.7,PAX KM CL
+CORTO_LAJA,Hualqui,Laja,48.95,PAX KM CL
+CORTO_LAJA,Quilacoya,Mercado,47.7,PAX KM CL
+CORTO_LAJA,Quilacoya,El Arenal,46.3,PAX KM CL
+CORTO_LAJA,Quilacoya,Higueras,43.1,PAX KM CL
+CORTO_LAJA,Quilacoya,Los Cóndores,41.1,PAX KM CL
+CORTO_LAJA,Quilacoya,UTFSM,39.1,PAX KM CL
+CORTO_LAJA,Quilacoya,Lorenzo Arenas,36.2,PAX KM CL
+CORTO_LAJA,Quilacoya,Concepción,33.2,PAX KM CL
+CORTO_LAJA,Quilacoya,Chiguayante,23.1,PAX KM CL
+CORTO_LAJA,Quilacoya,Pedro Medina,22.0,PAX KM CL
+CORTO_LAJA,Quilacoya,Manquimávida,20.0,PAX KM CL
+CORTO_LAJA,Quilacoya,La Leonera,17.6,PAX KM CL
+CORTO_LAJA,Quilacoya,Hualqui,9.7,PAX KM CL
+CORTO_LAJA,Quilacoya,Quilacoya,0.0,PAX KM CL
+CORTO_LAJA,Quilacoya,San Miguel,3.1,PAX KM CL
+CORTO_LAJA,Quilacoya,Unihue,7.7,PAX KM CL
+CORTO_LAJA,Quilacoya,Valle Chanco,15.0,PAX KM CL
+CORTO_LAJA,Quilacoya,Los Acacios,13.0,PAX KM CL
+CORTO_LAJA,Quilacoya,Talcamávida,14.0,PAX KM CL
+CORTO_LAJA,Quilacoya,Gomero,21.7,PAX KM CL
+CORTO_LAJA,Quilacoya,Buenuraqui,28.7,PAX KM CL
+CORTO_LAJA,Quilacoya,San Rosendo,37.0,PAX KM CL
+CORTO_LAJA,Quilacoya,Laja,39.25,PAX KM CL
+CORTO_LAJA,San Miguel,Mercado,50.8,PAX KM CL
+CORTO_LAJA,San Miguel,El Arenal,49.4,PAX KM CL
+CORTO_LAJA,San Miguel,Higueras,46.2,PAX KM CL
+CORTO_LAJA,San Miguel,Los Cóndores,44.2,PAX KM CL
+CORTO_LAJA,San Miguel,UTFSM,42.2,PAX KM CL
+CORTO_LAJA,San Miguel,Lorenzo Arenas,39.3,PAX KM CL
+CORTO_LAJA,San Miguel,Concepción,36.3,PAX KM CL
+CORTO_LAJA,San Miguel,Chiguayante,26.2,PAX KM CL
+CORTO_LAJA,San Miguel,Pedro Medina,25.1,PAX KM CL
+CORTO_LAJA,San Miguel,Manquimávida,23.1,PAX KM CL
+CORTO_LAJA,San Miguel,La Leonera,20.7,PAX KM CL
+CORTO_LAJA,San Miguel,Hualqui,12.8,PAX KM CL
+CORTO_LAJA,San Miguel,Quilacoya,3.1,PAX KM CL
+CORTO_LAJA,San Miguel,San Miguel,0.0,PAX KM CL
+CORTO_LAJA,San Miguel,Unihue,4.6,PAX KM CL
+CORTO_LAJA,San Miguel,Valle Chanco,11.9,PAX KM CL
+CORTO_LAJA,San Miguel,Los Acacios,9.9,PAX KM CL
+CORTO_LAJA,San Miguel,Talcamávida,10.9,PAX KM CL
+CORTO_LAJA,San Miguel,Gomero,18.6,PAX KM CL
+CORTO_LAJA,San Miguel,Buenuraqui,25.6,PAX KM CL
+CORTO_LAJA,San Miguel,San Rosendo,33.9,PAX KM CL
+CORTO_LAJA,San Miguel,Laja,36.15,PAX KM CL
+CORTO_LAJA,Unihue,Mercado,55.4,PAX KM CL
+CORTO_LAJA,Unihue,El Arenal,54.0,PAX KM CL
+CORTO_LAJA,Unihue,Higueras,50.8,PAX KM CL
+CORTO_LAJA,Unihue,Los Cóndores,48.8,PAX KM CL
+CORTO_LAJA,Unihue,UTFSM,46.8,PAX KM CL
+CORTO_LAJA,Unihue,Lorenzo Arenas,43.9,PAX KM CL
+CORTO_LAJA,Unihue,Concepción,40.9,PAX KM CL
+CORTO_LAJA,Unihue,Chiguayante,30.8,PAX KM CL
+CORTO_LAJA,Unihue,Pedro Medina,29.7,PAX KM CL
+CORTO_LAJA,Unihue,Manquimávida,27.7,PAX KM CL
+CORTO_LAJA,Unihue,La Leonera,25.3,PAX KM CL
+CORTO_LAJA,Unihue,Hualqui,17.4,PAX KM CL
+CORTO_LAJA,Unihue,Quilacoya,7.7,PAX KM CL
+CORTO_LAJA,Unihue,San Miguel,4.6,PAX KM CL
+CORTO_LAJA,Unihue,Unihue,0.0,PAX KM CL
+CORTO_LAJA,Unihue,Valle Chanco,7.3,PAX KM CL
+CORTO_LAJA,Unihue,Los Acacios,5.3,PAX KM CL
+CORTO_LAJA,Unihue,Talcamávida,6.3,PAX KM CL
+CORTO_LAJA,Unihue,Gomero,14.0,PAX KM CL
+CORTO_LAJA,Unihue,Buenuraqui,21.0,PAX KM CL
+CORTO_LAJA,Unihue,San Rosendo,29.3,PAX KM CL
+CORTO_LAJA,Unihue,Laja,31.55,PAX KM CL
+CORTO_LAJA,Valle Chanco,Mercado,62.7,PAX KM CL
+CORTO_LAJA,Valle Chanco,El Arenal,61.3,PAX KM CL
+CORTO_LAJA,Valle Chanco,Higueras,58.1,PAX KM CL
+CORTO_LAJA,Valle Chanco,Los Cóndores,56.1,PAX KM CL
+CORTO_LAJA,Valle Chanco,UTFSM,54.1,PAX KM CL
+CORTO_LAJA,Valle Chanco,Lorenzo Arenas,51.2,PAX KM CL
+CORTO_LAJA,Valle Chanco,Concepción,48.2,PAX KM CL
+CORTO_LAJA,Valle Chanco,Chiguayante,38.1,PAX KM CL
+CORTO_LAJA,Valle Chanco,Pedro Medina,37.0,PAX KM CL
+CORTO_LAJA,Valle Chanco,Manquimávida,35.0,PAX KM CL
+CORTO_LAJA,Valle Chanco,La Leonera,32.6,PAX KM CL
+CORTO_LAJA,Valle Chanco,Hualqui,24.7,PAX KM CL
+CORTO_LAJA,Valle Chanco,Quilacoya,15.0,PAX KM CL
+CORTO_LAJA,Valle Chanco,San Miguel,11.9,PAX KM CL
+CORTO_LAJA,Valle Chanco,Unihue,7.3,PAX KM CL
+CORTO_LAJA,Valle Chanco,Valle Chanco,0.0,PAX KM CL
+CORTO_LAJA,Valle Chanco,Los Acacios,2.0,PAX KM CL
+CORTO_LAJA,Valle Chanco,Talcamávida,1.0,PAX KM CL
+CORTO_LAJA,Valle Chanco,Gomero,6.7,PAX KM CL
+CORTO_LAJA,Valle Chanco,Buenuraqui,13.7,PAX KM CL
+CORTO_LAJA,Valle Chanco,San Rosendo,22.0,PAX KM CL
+CORTO_LAJA,Valle Chanco,Laja,24.25,PAX KM CL
+CORTO_LAJA,Los Acacios,Mercado,60.7,PAX KM CL
+CORTO_LAJA,Los Acacios,El Arenal,59.3,PAX KM CL
+CORTO_LAJA,Los Acacios,Higueras,56.1,PAX KM CL
+CORTO_LAJA,Los Acacios,Los Cóndores,54.1,PAX KM CL
+CORTO_LAJA,Los Acacios,UTFSM,52.1,PAX KM CL
+CORTO_LAJA,Los Acacios,Lorenzo Arenas,49.2,PAX KM CL
+CORTO_LAJA,Los Acacios,Concepción,46.2,PAX KM CL
+CORTO_LAJA,Los Acacios,Chiguayante,36.1,PAX KM CL
+CORTO_LAJA,Los Acacios,Pedro Medina,35.0,PAX KM CL
+CORTO_LAJA,Los Acacios,Manquimávida,33.0,PAX KM CL
+CORTO_LAJA,Los Acacios,La Leonera,30.6,PAX KM CL
+CORTO_LAJA,Los Acacios,Hualqui,22.7,PAX KM CL
+CORTO_LAJA,Los Acacios,Quilacoya,13.0,PAX KM CL
+CORTO_LAJA,Los Acacios,San Miguel,9.9,PAX KM CL
+CORTO_LAJA,Los Acacios,Unihue,5.3,PAX KM CL
+CORTO_LAJA,Los Acacios,Valle Chanco,2.0,PAX KM CL
+CORTO_LAJA,Los Acacios,Los Acacios,0.0,PAX KM CL
+CORTO_LAJA,Los Acacios,Talcamávida,1.0,PAX KM CL
+CORTO_LAJA,Los Acacios,Gomero,8.7,PAX KM CL
+CORTO_LAJA,Los Acacios,Buenuraqui,15.7,PAX KM CL
+CORTO_LAJA,Los Acacios,San Rosendo,24.0,PAX KM CL
+CORTO_LAJA,Los Acacios,Laja,26.25,PAX KM CL
+CORTO_LAJA,Talcamávida,Mercado,61.7,PAX KM CL
+CORTO_LAJA,Talcamávida,El Arenal,60.3,PAX KM CL
+CORTO_LAJA,Talcamávida,Higueras,57.1,PAX KM CL
+CORTO_LAJA,Talcamávida,Los Cóndores,55.1,PAX KM CL
+CORTO_LAJA,Talcamávida,UTFSM,53.1,PAX KM CL
+CORTO_LAJA,Talcamávida,Lorenzo Arenas,50.2,PAX KM CL
+CORTO_LAJA,Talcamávida,Concepción,47.2,PAX KM CL
+CORTO_LAJA,Talcamávida,Chiguayante,37.1,PAX KM CL
+CORTO_LAJA,Talcamávida,Pedro Medina,36.0,PAX KM CL
+CORTO_LAJA,Talcamávida,Manquimávida,34.0,PAX KM CL
+CORTO_LAJA,Talcamávida,La Leonera,31.6,PAX KM CL
+CORTO_LAJA,Talcamávida,Hualqui,23.7,PAX KM CL
+CORTO_LAJA,Talcamávida,Quilacoya,14.0,PAX KM CL
+CORTO_LAJA,Talcamávida,San Miguel,10.9,PAX KM CL
+CORTO_LAJA,Talcamávida,Unihue,6.3,PAX KM CL
+CORTO_LAJA,Talcamávida,Valle Chanco,1.0,PAX KM CL
+CORTO_LAJA,Talcamávida,Los Acacios,1.0,PAX KM CL
+CORTO_LAJA,Talcamávida,Talcamávida,0.0,PAX KM CL
+CORTO_LAJA,Talcamávida,Gomero,7.7,PAX KM CL
+CORTO_LAJA,Talcamávida,Buenuraqui,14.7,PAX KM CL
+CORTO_LAJA,Talcamávida,San Rosendo,23.0,PAX KM CL
+CORTO_LAJA,Talcamávida,Laja,25.25,PAX KM CL
+CORTO_LAJA,Gomero,Mercado,69.4,PAX KM CL
+CORTO_LAJA,Gomero,El Arenal,68.0,PAX KM CL
+CORTO_LAJA,Gomero,Higueras,64.8,PAX KM CL
+CORTO_LAJA,Gomero,Los Cóndores,62.8,PAX KM CL
+CORTO_LAJA,Gomero,UTFSM,60.8,PAX KM CL
+CORTO_LAJA,Gomero,Lorenzo Arenas,57.9,PAX KM CL
+CORTO_LAJA,Gomero,Concepción,54.9,PAX KM CL
+CORTO_LAJA,Gomero,Chiguayante,44.8,PAX KM CL
+CORTO_LAJA,Gomero,Pedro Medina,43.7,PAX KM CL
+CORTO_LAJA,Gomero,Manquimávida,41.7,PAX KM CL
+CORTO_LAJA,Gomero,La Leonera,39.3,PAX KM CL
+CORTO_LAJA,Gomero,Hualqui,31.4,PAX KM CL
+CORTO_LAJA,Gomero,Quilacoya,21.7,PAX KM CL
+CORTO_LAJA,Gomero,San Miguel,18.6,PAX KM CL
+CORTO_LAJA,Gomero,Unihue,14.0,PAX KM CL
+CORTO_LAJA,Gomero,Valle Chanco,6.7,PAX KM CL
+CORTO_LAJA,Gomero,Los Acacios,8.7,PAX KM CL
+CORTO_LAJA,Gomero,Talcamávida,7.7,PAX KM CL
+CORTO_LAJA,Gomero,Gomero,0.0,PAX KM CL
+CORTO_LAJA,Gomero,Buenuraqui,7.0,PAX KM CL
+CORTO_LAJA,Gomero,San Rosendo,15.3,PAX KM CL
+CORTO_LAJA,Gomero,Laja,17.55,PAX KM CL
+CORTO_LAJA,Buenuraqui,Mercado,76.4,PAX KM CL
+CORTO_LAJA,Buenuraqui,El Arenal,75.0,PAX KM CL
+CORTO_LAJA,Buenuraqui,Higueras,71.8,PAX KM CL
+CORTO_LAJA,Buenuraqui,Los Cóndores,69.8,PAX KM CL
+CORTO_LAJA,Buenuraqui,UTFSM,67.8,PAX KM CL
+CORTO_LAJA,Buenuraqui,Lorenzo Arenas,64.9,PAX KM CL
+CORTO_LAJA,Buenuraqui,Concepción,61.9,PAX KM CL
+CORTO_LAJA,Buenuraqui,Chiguayante,51.8,PAX KM CL
+CORTO_LAJA,Buenuraqui,Pedro Medina,50.7,PAX KM CL
+CORTO_LAJA,Buenuraqui,Manquimávida,48.7,PAX KM CL
+CORTO_LAJA,Buenuraqui,La Leonera,46.3,PAX KM CL
+CORTO_LAJA,Buenuraqui,Hualqui,38.4,PAX KM CL
+CORTO_LAJA,Buenuraqui,Quilacoya,28.7,PAX KM CL
+CORTO_LAJA,Buenuraqui,San Miguel,25.6,PAX KM CL
+CORTO_LAJA,Buenuraqui,Unihue,21.0,PAX KM CL
+CORTO_LAJA,Buenuraqui,Valle Chanco,13.7,PAX KM CL
+CORTO_LAJA,Buenuraqui,Los Acacios,15.7,PAX KM CL
+CORTO_LAJA,Buenuraqui,Talcamávida,14.7,PAX KM CL
+CORTO_LAJA,Buenuraqui,Gomero,7.0,PAX KM CL
+CORTO_LAJA,Buenuraqui,Buenuraqui,0.0,PAX KM CL
+CORTO_LAJA,Buenuraqui,San Rosendo,8.3,PAX KM CL
+CORTO_LAJA,Buenuraqui,Laja,10.55,PAX KM CL
+CORTO_LAJA,San Rosendo,Mercado,84.7,PAX KM CL
+CORTO_LAJA,San Rosendo,El Arenal,83.3,PAX KM CL
+CORTO_LAJA,San Rosendo,Higueras,80.1,PAX KM CL
+CORTO_LAJA,San Rosendo,Los Cóndores,78.1,PAX KM CL
+CORTO_LAJA,San Rosendo,UTFSM,76.1,PAX KM CL
+CORTO_LAJA,San Rosendo,Lorenzo Arenas,73.2,PAX KM CL
+CORTO_LAJA,San Rosendo,Concepción,70.2,PAX KM CL
+CORTO_LAJA,San Rosendo,Chiguayante,60.1,PAX KM CL
+CORTO_LAJA,San Rosendo,Pedro Medina,59.0,PAX KM CL
+CORTO_LAJA,San Rosendo,Manquimávida,57.0,PAX KM CL
+CORTO_LAJA,San Rosendo,La Leonera,54.6,PAX KM CL
+CORTO_LAJA,San Rosendo,Hualqui,46.7,PAX KM CL
+CORTO_LAJA,San Rosendo,Quilacoya,37.0,PAX KM CL
+CORTO_LAJA,San Rosendo,San Miguel,33.9,PAX KM CL
+CORTO_LAJA,San Rosendo,Unihue,29.3,PAX KM CL
+CORTO_LAJA,San Rosendo,Valle Chanco,22.0,PAX KM CL
+CORTO_LAJA,San Rosendo,Los Acacios,24.0,PAX KM CL
+CORTO_LAJA,San Rosendo,Talcamávida,23.0,PAX KM CL
+CORTO_LAJA,San Rosendo,Gomero,15.3,PAX KM CL
+CORTO_LAJA,San Rosendo,Buenuraqui,8.3,PAX KM CL
+CORTO_LAJA,San Rosendo,San Rosendo,0.0,PAX KM CL
+CORTO_LAJA,San Rosendo,Laja,2.25,PAX KM CL
+CORTO_LAJA,Laja,Mercado,86.95,PAX KM CL
+CORTO_LAJA,Laja,El Arenal,85.55,PAX KM CL
+CORTO_LAJA,Laja,Higueras,82.35,PAX KM CL
+CORTO_LAJA,Laja,Los Cóndores,80.35,PAX KM CL
+CORTO_LAJA,Laja,UTFSM,78.35,PAX KM CL
+CORTO_LAJA,Laja,Lorenzo Arenas,75.45,PAX KM CL
+CORTO_LAJA,Laja,Concepción,72.45,PAX KM CL
+CORTO_LAJA,Laja,Chiguayante,62.35,PAX KM CL
+CORTO_LAJA,Laja,Pedro Medina,61.25,PAX KM CL
+CORTO_LAJA,Laja,Manquimávida,59.25,PAX KM CL
+CORTO_LAJA,Laja,La Leonera,56.85,PAX KM CL
+CORTO_LAJA,Laja,Hualqui,48.95,PAX KM CL
+CORTO_LAJA,Laja,Quilacoya,39.25,PAX KM CL
+CORTO_LAJA,Laja,San Miguel,36.15,PAX KM CL
+CORTO_LAJA,Laja,Unihue,31.55,PAX KM CL
+CORTO_LAJA,Laja,Valle Chanco,24.25,PAX KM CL
+CORTO_LAJA,Laja,Los Acacios,26.25,PAX KM CL
+CORTO_LAJA,Laja,Talcamávida,25.25,PAX KM CL
+CORTO_LAJA,Laja,Gomero,17.55,PAX KM CL
+CORTO_LAJA,Laja,Buenuraqui,10.55,PAX KM CL
+CORTO_LAJA,Laja,San Rosendo,2.25,PAX KM CL
+CORTO_LAJA,Laja,Laja,0.0,PAX KM CL

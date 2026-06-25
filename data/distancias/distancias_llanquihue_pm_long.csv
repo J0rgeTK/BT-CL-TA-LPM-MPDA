@@ -1,0 +1,17 @@
+servicio,origen,destino,distancia_km,fuente_hoja
+LLANQUIHUE_PM,La Paloma,La Paloma,0.0,PAX KM LL-LP
+LLANQUIHUE_PM,La Paloma,Alerce,19.6,PAX KM LL-LP
+LLANQUIHUE_PM,La Paloma,Puerto Varas,32.5,PAX KM LL-LP
+LLANQUIHUE_PM,La Paloma,Llanquihue,40.2,PAX KM LL-LP
+LLANQUIHUE_PM,Alerce,La Paloma,19.6,PAX KM LL-LP
+LLANQUIHUE_PM,Alerce,Alerce,0.0,PAX KM LL-LP
+LLANQUIHUE_PM,Alerce,Puerto Varas,12.9,PAX KM LL-LP
+LLANQUIHUE_PM,Alerce,Llanquihue,20.6,PAX KM LL-LP
+LLANQUIHUE_PM,Puerto Varas,La Paloma,32.5,PAX KM LL-LP
+LLANQUIHUE_PM,Puerto Varas,Alerce,12.9,PAX KM LL-LP
+LLANQUIHUE_PM,Puerto Varas,Puerto Varas,0.0,PAX KM LL-LP
+LLANQUIHUE_PM,Puerto Varas,Llanquihue,7.7,PAX KM LL-LP
+LLANQUIHUE_PM,Llanquihue,La Paloma,40.2,PAX KM LL-LP
+LLANQUIHUE_PM,Llanquihue,Alerce,20.6,PAX KM LL-LP
+LLANQUIHUE_PM,Llanquihue,Puerto Varas,7.7,PAX KM LL-LP
+LLANQUIHUE_PM,Llanquihue,Llanquihue,0.0,PAX KM LL-LP

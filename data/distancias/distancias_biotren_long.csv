@@ -1,0 +1,730 @@
+servicio,origen,destino,distancia_km,fuente_hoja
+BIOTREN,Hualqui,Hualqui,0.0,PAX KM BT
+BIOTREN,Hualqui,La Leonera,8.8,PAX KM BT
+BIOTREN,Hualqui,Manquimávida,10.3,PAX KM BT
+BIOTREN,Hualqui,Pedro Medina,12.3,PAX KM BT
+BIOTREN,Hualqui,Chiguayante,13.4,PAX KM BT
+BIOTREN,Hualqui,Concepción,23.5,PAX KM BT
+BIOTREN,Hualqui,Concepcion Centro,23.5,PAX KM BT
+BIOTREN,Hualqui,Lorenzo Arenas,26.5,PAX KM BT
+BIOTREN,Hualqui,UTFSM,29.4,PAX KM BT
+BIOTREN,Hualqui,Los Cóndores,31.4,PAX KM BT
+BIOTREN,Hualqui,Higueras,33.4,PAX KM BT
+BIOTREN,Hualqui,El Arenal,36.6,PAX KM BT
+BIOTREN,Hualqui,Mercado,38.0,PAX KM BT
+BIOTREN,Hualqui,Juan Pablo II,26.5,PAX KM BT
+BIOTREN,Hualqui,Diagonal Biobío,28.5,PAX KM BT
+BIOTREN,Hualqui,Alborada,30.7,PAX KM BT
+BIOTREN,Hualqui,Costa Mar,31.5,PAX KM BT
+BIOTREN,Hualqui,El Parque,33.15,PAX KM BT
+BIOTREN,Hualqui,Lomas Coloradas,34.8,PAX KM BT
+BIOTREN,Hualqui,C. Raúl Silva H.,36.775,PAX KM BT
+BIOTREN,Hualqui,Hito Galvarino,43.055,PAX KM BT
+BIOTREN,Hualqui,Los Canelos,46.015,PAX KM BT
+BIOTREN,Hualqui,Huinca,46.88,PAX KM BT
+BIOTREN,Hualqui,Cristo Redentor,48.05,PAX KM BT
+BIOTREN,Hualqui,Laguna Quiñenco,49.64,PAX KM BT
+BIOTREN,Hualqui,Intermodal Coronel,50.78,PAX KM BT
+BIOTREN,Hualqui,Pasajero Lota,50.78,PAX KM BT
+BIOTREN,La Leonera,Hualqui,8.8,PAX KM BT
+BIOTREN,La Leonera,La Leonera,0.0,PAX KM BT
+BIOTREN,La Leonera,Manquimávida,1.5,PAX KM BT
+BIOTREN,La Leonera,Pedro Medina,4.4,PAX KM BT
+BIOTREN,La Leonera,Chiguayante,5.5,PAX KM BT
+BIOTREN,La Leonera,Concepción,15.6,PAX KM BT
+BIOTREN,La Leonera,Concepcion Centro,15.6,PAX KM BT
+BIOTREN,La Leonera,Lorenzo Arenas,18.6,PAX KM BT
+BIOTREN,La Leonera,UTFSM,21.5,PAX KM BT
+BIOTREN,La Leonera,Los Cóndores,23.5,PAX KM BT
+BIOTREN,La Leonera,Higueras,25.5,PAX KM BT
+BIOTREN,La Leonera,El Arenal,28.7,PAX KM BT
+BIOTREN,La Leonera,Mercado,30.1,PAX KM BT
+BIOTREN,La Leonera,Juan Pablo II,18.6,PAX KM BT
+BIOTREN,La Leonera,Diagonal Biobío,20.6,PAX KM BT
+BIOTREN,La Leonera,Alborada,22.8,PAX KM BT
+BIOTREN,La Leonera,Costa Mar,23.6,PAX KM BT
+BIOTREN,La Leonera,El Parque,25.25,PAX KM BT
+BIOTREN,La Leonera,Lomas Coloradas,26.9,PAX KM BT
+BIOTREN,La Leonera,C. Raúl Silva H.,28.875,PAX KM BT
+BIOTREN,La Leonera,Hito Galvarino,35.155,PAX KM BT
+BIOTREN,La Leonera,Los Canelos,38.115,PAX KM BT
+BIOTREN,La Leonera,Huinca,38.98,PAX KM BT
+BIOTREN,La Leonera,Cristo Redentor,40.15,PAX KM BT
+BIOTREN,La Leonera,Laguna Quiñenco,41.74,PAX KM BT
+BIOTREN,La Leonera,Intermodal Coronel,42.88,PAX KM BT
+BIOTREN,La Leonera,Pasajero Lota,42.88,PAX KM BT
+BIOTREN,Manquimávida,Hualqui,10.3,PAX KM BT
+BIOTREN,Manquimávida,La Leonera,1.5,PAX KM BT
+BIOTREN,Manquimávida,Manquimávida,0.0,PAX KM BT
+BIOTREN,Manquimávida,Pedro Medina,1.8,PAX KM BT
+BIOTREN,Manquimávida,Chiguayante,3.1,PAX KM BT
+BIOTREN,Manquimávida,Concepción,13.2,PAX KM BT
+BIOTREN,Manquimávida,Concepcion Centro,13.2,PAX KM BT
+BIOTREN,Manquimávida,Lorenzo Arenas,16.2,PAX KM BT
+BIOTREN,Manquimávida,UTFSM,19.1,PAX KM BT
+BIOTREN,Manquimávida,Los Cóndores,21.1,PAX KM BT
+BIOTREN,Manquimávida,Higueras,23.1,PAX KM BT
+BIOTREN,Manquimávida,El Arenal,26.3,PAX KM BT
+BIOTREN,Manquimávida,Mercado,27.7,PAX KM BT
+BIOTREN,Manquimávida,Juan Pablo II,16.2,PAX KM BT
+BIOTREN,Manquimávida,Diagonal Biobío,18.2,PAX KM BT
+BIOTREN,Manquimávida,Alborada,20.4,PAX KM BT
+BIOTREN,Manquimávida,Costa Mar,21.2,PAX KM BT
+BIOTREN,Manquimávida,El Parque,22.85,PAX KM BT
+BIOTREN,Manquimávida,Lomas Coloradas,24.5,PAX KM BT
+BIOTREN,Manquimávida,C. Raúl Silva H.,26.475,PAX KM BT
+BIOTREN,Manquimávida,Hito Galvarino,32.755,PAX KM BT
+BIOTREN,Manquimávida,Los Canelos,35.715,PAX KM BT
+BIOTREN,Manquimávida,Huinca,36.58,PAX KM BT
+BIOTREN,Manquimávida,Cristo Redentor,37.75,PAX KM BT
+BIOTREN,Manquimávida,Laguna Quiñenco,39.34,PAX KM BT
+BIOTREN,Manquimávida,Intermodal Coronel,40.48,PAX KM BT
+BIOTREN,Manquimávida,Pasajero Lota,40.48,PAX KM BT
+BIOTREN,Pedro Medina,Hualqui,12.3,PAX KM BT
+BIOTREN,Pedro Medina,La Leonera,4.4,PAX KM BT
+BIOTREN,Pedro Medina,Manquimávida,1.8,PAX KM BT
+BIOTREN,Pedro Medina,Pedro Medina,0.0,PAX KM BT
+BIOTREN,Pedro Medina,Chiguayante,1.4,PAX KM BT
+BIOTREN,Pedro Medina,Concepción,11.5,PAX KM BT
+BIOTREN,Pedro Medina,Concepcion Centro,11.5,PAX KM BT
+BIOTREN,Pedro Medina,Lorenzo Arenas,14.5,PAX KM BT
+BIOTREN,Pedro Medina,UTFSM,17.4,PAX KM BT
+BIOTREN,Pedro Medina,Los Cóndores,19.4,PAX KM BT
+BIOTREN,Pedro Medina,Higueras,21.4,PAX KM BT
+BIOTREN,Pedro Medina,El Arenal,24.6,PAX KM BT
+BIOTREN,Pedro Medina,Mercado,26.0,PAX KM BT
+BIOTREN,Pedro Medina,Juan Pablo II,14.5,PAX KM BT
+BIOTREN,Pedro Medina,Diagonal Biobío,16.5,PAX KM BT
+BIOTREN,Pedro Medina,Alborada,18.7,PAX KM BT
+BIOTREN,Pedro Medina,Costa Mar,19.5,PAX KM BT
+BIOTREN,Pedro Medina,El Parque,21.15,PAX KM BT
+BIOTREN,Pedro Medina,Lomas Coloradas,22.8,PAX KM BT
+BIOTREN,Pedro Medina,C. Raúl Silva H.,24.775,PAX KM BT
+BIOTREN,Pedro Medina,Hito Galvarino,31.055,PAX KM BT
+BIOTREN,Pedro Medina,Los Canelos,34.015,PAX KM BT
+BIOTREN,Pedro Medina,Huinca,34.88,PAX KM BT
+BIOTREN,Pedro Medina,Cristo Redentor,36.05,PAX KM BT
+BIOTREN,Pedro Medina,Laguna Quiñenco,37.64,PAX KM BT
+BIOTREN,Pedro Medina,Intermodal Coronel,38.78,PAX KM BT
+BIOTREN,Pedro Medina,Pasajero Lota,38.78,PAX KM BT
+BIOTREN,Chiguayante,Hualqui,13.4,PAX KM BT
+BIOTREN,Chiguayante,La Leonera,5.5,PAX KM BT
+BIOTREN,Chiguayante,Manquimávida,3.1,PAX KM BT
+BIOTREN,Chiguayante,Pedro Medina,1.4,PAX KM BT
+BIOTREN,Chiguayante,Chiguayante,0.0,PAX KM BT
+BIOTREN,Chiguayante,Concepción,10.1,PAX KM BT
+BIOTREN,Chiguayante,Concepcion Centro,10.1,PAX KM BT
+BIOTREN,Chiguayante,Lorenzo Arenas,13.1,PAX KM BT
+BIOTREN,Chiguayante,UTFSM,16.0,PAX KM BT
+BIOTREN,Chiguayante,Los Cóndores,18.0,PAX KM BT
+BIOTREN,Chiguayante,Higueras,20.0,PAX KM BT
+BIOTREN,Chiguayante,El Arenal,23.3,PAX KM BT
+BIOTREN,Chiguayante,Mercado,24.7,PAX KM BT
+BIOTREN,Chiguayante,Juan Pablo II,13.1,PAX KM BT
+BIOTREN,Chiguayante,Diagonal Biobío,15.1,PAX KM BT
+BIOTREN,Chiguayante,Alborada,17.3,PAX KM BT
+BIOTREN,Chiguayante,Costa Mar,18.1,PAX KM BT
+BIOTREN,Chiguayante,El Parque,19.75,PAX KM BT
+BIOTREN,Chiguayante,Lomas Coloradas,21.4,PAX KM BT
+BIOTREN,Chiguayante,C. Raúl Silva H.,23.375,PAX KM BT
+BIOTREN,Chiguayante,Hito Galvarino,29.655,PAX KM BT
+BIOTREN,Chiguayante,Los Canelos,32.615,PAX KM BT
+BIOTREN,Chiguayante,Huinca,33.48,PAX KM BT
+BIOTREN,Chiguayante,Cristo Redentor,34.65,PAX KM BT
+BIOTREN,Chiguayante,Laguna Quiñenco,36.24,PAX KM BT
+BIOTREN,Chiguayante,Intermodal Coronel,37.38,PAX KM BT
+BIOTREN,Chiguayante,Pasajero Lota,37.38,PAX KM BT
+BIOTREN,Concepción,Hualqui,23.5,PAX KM BT
+BIOTREN,Concepción,La Leonera,15.6,PAX KM BT
+BIOTREN,Concepción,Manquimávida,13.2,PAX KM BT
+BIOTREN,Concepción,Pedro Medina,11.5,PAX KM BT
+BIOTREN,Concepción,Chiguayante,10.1,PAX KM BT
+BIOTREN,Concepción,Concepción,0.0,PAX KM BT
+BIOTREN,Concepción,Concepcion Centro,0.0,PAX KM BT
+BIOTREN,Concepción,Lorenzo Arenas,3.0,PAX KM BT
+BIOTREN,Concepción,UTFSM,5.9,PAX KM BT
+BIOTREN,Concepción,Los Cóndores,7.9,PAX KM BT
+BIOTREN,Concepción,Higueras,9.9,PAX KM BT
+BIOTREN,Concepción,El Arenal,13.1,PAX KM BT
+BIOTREN,Concepción,Mercado,14.5,PAX KM BT
+BIOTREN,Concepción,Juan Pablo II,3.0,PAX KM BT
+BIOTREN,Concepción,Diagonal Biobío,5.0,PAX KM BT
+BIOTREN,Concepción,Alborada,7.2,PAX KM BT
+BIOTREN,Concepción,Costa Mar,8.0,PAX KM BT
+BIOTREN,Concepción,El Parque,9.65,PAX KM BT
+BIOTREN,Concepción,Lomas Coloradas,11.3,PAX KM BT
+BIOTREN,Concepción,C. Raúl Silva H.,13.275,PAX KM BT
+BIOTREN,Concepción,Hito Galvarino,19.555,PAX KM BT
+BIOTREN,Concepción,Los Canelos,22.515,PAX KM BT
+BIOTREN,Concepción,Huinca,23.38,PAX KM BT
+BIOTREN,Concepción,Cristo Redentor,24.55,PAX KM BT
+BIOTREN,Concepción,Laguna Quiñenco,26.14,PAX KM BT
+BIOTREN,Concepción,Intermodal Coronel,27.28,PAX KM BT
+BIOTREN,Concepción,Pasajero Lota,27.28,PAX KM BT
+BIOTREN,Concepcion Centro,Hualqui,23.5,PAX KM BT
+BIOTREN,Concepcion Centro,La Leonera,15.6,PAX KM BT
+BIOTREN,Concepcion Centro,Manquimávida,13.2,PAX KM BT
+BIOTREN,Concepcion Centro,Pedro Medina,11.5,PAX KM BT
+BIOTREN,Concepcion Centro,Chiguayante,10.1,PAX KM BT
+BIOTREN,Concepcion Centro,Concepción,0.0,PAX KM BT
+BIOTREN,Concepcion Centro,Concepcion Centro,0.0,PAX KM BT
+BIOTREN,Concepcion Centro,Lorenzo Arenas,3.0,PAX KM BT
+BIOTREN,Concepcion Centro,UTFSM,5.9,PAX KM BT
+BIOTREN,Concepcion Centro,Los Cóndores,7.9,PAX KM BT
+BIOTREN,Concepcion Centro,Higueras,9.9,PAX KM BT
+BIOTREN,Concepcion Centro,El Arenal,13.1,PAX KM BT
+BIOTREN,Concepcion Centro,Mercado,14.5,PAX KM BT
+BIOTREN,Concepcion Centro,Juan Pablo II,3.0,PAX KM BT
+BIOTREN,Concepcion Centro,Diagonal Biobío,5.0,PAX KM BT
+BIOTREN,Concepcion Centro,Alborada,7.2,PAX KM BT
+BIOTREN,Concepcion Centro,Costa Mar,8.0,PAX KM BT
+BIOTREN,Concepcion Centro,El Parque,9.65,PAX KM BT
+BIOTREN,Concepcion Centro,Lomas Coloradas,11.3,PAX KM BT
+BIOTREN,Concepcion Centro,C. Raúl Silva H.,13.275,PAX KM BT
+BIOTREN,Concepcion Centro,Hito Galvarino,19.555,PAX KM BT
+BIOTREN,Concepcion Centro,Los Canelos,22.515,PAX KM BT
+BIOTREN,Concepcion Centro,Huinca,23.38,PAX KM BT
+BIOTREN,Concepcion Centro,Cristo Redentor,24.55,PAX KM BT
+BIOTREN,Concepcion Centro,Laguna Quiñenco,26.14,PAX KM BT
+BIOTREN,Concepcion Centro,Intermodal Coronel,27.28,PAX KM BT
+BIOTREN,Concepcion Centro,Pasajero Lota,27.28,PAX KM BT
+BIOTREN,Lorenzo Arenas,Hualqui,26.5,PAX KM BT
+BIOTREN,Lorenzo Arenas,La Leonera,18.6,PAX KM BT
+BIOTREN,Lorenzo Arenas,Manquimávida,16.2,PAX KM BT
+BIOTREN,Lorenzo Arenas,Pedro Medina,14.5,PAX KM BT
+BIOTREN,Lorenzo Arenas,Chiguayante,13.1,PAX KM BT
+BIOTREN,Lorenzo Arenas,Concepción,3.0,PAX KM BT
+BIOTREN,Lorenzo Arenas,Concepcion Centro,3.0,PAX KM BT
+BIOTREN,Lorenzo Arenas,Lorenzo Arenas,0.0,PAX KM BT
+BIOTREN,Lorenzo Arenas,UTFSM,2.9,PAX KM BT
+BIOTREN,Lorenzo Arenas,Los Cóndores,4.9,PAX KM BT
+BIOTREN,Lorenzo Arenas,Higueras,6.9,PAX KM BT
+BIOTREN,Lorenzo Arenas,El Arenal,10.1,PAX KM BT
+BIOTREN,Lorenzo Arenas,Mercado,11.5,PAX KM BT
+BIOTREN,Lorenzo Arenas,Juan Pablo II,6.0,PAX KM BT
+BIOTREN,Lorenzo Arenas,Diagonal Biobío,8.0,PAX KM BT
+BIOTREN,Lorenzo Arenas,Alborada,10.2,PAX KM BT
+BIOTREN,Lorenzo Arenas,Costa Mar,11.0,PAX KM BT
+BIOTREN,Lorenzo Arenas,El Parque,12.65,PAX KM BT
+BIOTREN,Lorenzo Arenas,Lomas Coloradas,14.3,PAX KM BT
+BIOTREN,Lorenzo Arenas,C. Raúl Silva H.,16.275,PAX KM BT
+BIOTREN,Lorenzo Arenas,Hito Galvarino,22.555,PAX KM BT
+BIOTREN,Lorenzo Arenas,Los Canelos,25.515,PAX KM BT
+BIOTREN,Lorenzo Arenas,Huinca,26.38,PAX KM BT
+BIOTREN,Lorenzo Arenas,Cristo Redentor,27.55,PAX KM BT
+BIOTREN,Lorenzo Arenas,Laguna Quiñenco,29.14,PAX KM BT
+BIOTREN,Lorenzo Arenas,Intermodal Coronel,30.28,PAX KM BT
+BIOTREN,Lorenzo Arenas,Pasajero Lota,30.28,PAX KM BT
+BIOTREN,UTFSM,Hualqui,29.4,PAX KM BT
+BIOTREN,UTFSM,La Leonera,21.5,PAX KM BT
+BIOTREN,UTFSM,Manquimávida,19.1,PAX KM BT
+BIOTREN,UTFSM,Pedro Medina,17.4,PAX KM BT
+BIOTREN,UTFSM,Chiguayante,16.0,PAX KM BT
+BIOTREN,UTFSM,Concepción,5.9,PAX KM BT
+BIOTREN,UTFSM,Concepcion Centro,5.9,PAX KM BT
+BIOTREN,UTFSM,Lorenzo Arenas,2.9,PAX KM BT
+BIOTREN,UTFSM,UTFSM,0.0,PAX KM BT
+BIOTREN,UTFSM,Los Cóndores,2.0,PAX KM BT
+BIOTREN,UTFSM,Higueras,4.0,PAX KM BT
+BIOTREN,UTFSM,El Arenal,7.2,PAX KM BT
+BIOTREN,UTFSM,Mercado,8.6,PAX KM BT
+BIOTREN,UTFSM,Juan Pablo II,8.9,PAX KM BT
+BIOTREN,UTFSM,Diagonal Biobío,10.9,PAX KM BT
+BIOTREN,UTFSM,Alborada,13.1,PAX KM BT
+BIOTREN,UTFSM,Costa Mar,13.9,PAX KM BT
+BIOTREN,UTFSM,El Parque,15.55,PAX KM BT
+BIOTREN,UTFSM,Lomas Coloradas,17.2,PAX KM BT
+BIOTREN,UTFSM,C. Raúl Silva H.,19.175,PAX KM BT
+BIOTREN,UTFSM,Hito Galvarino,25.455,PAX KM BT
+BIOTREN,UTFSM,Los Canelos,28.415,PAX KM BT
+BIOTREN,UTFSM,Huinca,29.28,PAX KM BT
+BIOTREN,UTFSM,Cristo Redentor,30.45,PAX KM BT
+BIOTREN,UTFSM,Laguna Quiñenco,32.04,PAX KM BT
+BIOTREN,UTFSM,Intermodal Coronel,33.18,PAX KM BT
+BIOTREN,UTFSM,Pasajero Lota,33.18,PAX KM BT
+BIOTREN,Los Cóndores,Hualqui,31.4,PAX KM BT
+BIOTREN,Los Cóndores,La Leonera,23.5,PAX KM BT
+BIOTREN,Los Cóndores,Manquimávida,21.1,PAX KM BT
+BIOTREN,Los Cóndores,Pedro Medina,19.4,PAX KM BT
+BIOTREN,Los Cóndores,Chiguayante,18.0,PAX KM BT
+BIOTREN,Los Cóndores,Concepción,7.9,PAX KM BT
+BIOTREN,Los Cóndores,Concepcion Centro,7.9,PAX KM BT
+BIOTREN,Los Cóndores,Lorenzo Arenas,4.9,PAX KM BT
+BIOTREN,Los Cóndores,UTFSM,2.0,PAX KM BT
+BIOTREN,Los Cóndores,Los Cóndores,0.0,PAX KM BT
+BIOTREN,Los Cóndores,Higueras,2.0,PAX KM BT
+BIOTREN,Los Cóndores,El Arenal,5.2,PAX KM BT
+BIOTREN,Los Cóndores,Mercado,6.6,PAX KM BT
+BIOTREN,Los Cóndores,Juan Pablo II,10.9,PAX KM BT
+BIOTREN,Los Cóndores,Diagonal Biobío,12.9,PAX KM BT
+BIOTREN,Los Cóndores,Alborada,15.1,PAX KM BT
+BIOTREN,Los Cóndores,Costa Mar,15.9,PAX KM BT
+BIOTREN,Los Cóndores,El Parque,17.55,PAX KM BT
+BIOTREN,Los Cóndores,Lomas Coloradas,19.2,PAX KM BT
+BIOTREN,Los Cóndores,C. Raúl Silva H.,21.175,PAX KM BT
+BIOTREN,Los Cóndores,Hito Galvarino,27.455,PAX KM BT
+BIOTREN,Los Cóndores,Los Canelos,30.415,PAX KM BT
+BIOTREN,Los Cóndores,Huinca,31.28,PAX KM BT
+BIOTREN,Los Cóndores,Cristo Redentor,32.45,PAX KM BT
+BIOTREN,Los Cóndores,Laguna Quiñenco,34.04,PAX KM BT
+BIOTREN,Los Cóndores,Intermodal Coronel,35.18,PAX KM BT
+BIOTREN,Los Cóndores,Pasajero Lota,35.18,PAX KM BT
+BIOTREN,Higueras,Hualqui,33.4,PAX KM BT
+BIOTREN,Higueras,La Leonera,25.5,PAX KM BT
+BIOTREN,Higueras,Manquimávida,23.1,PAX KM BT
+BIOTREN,Higueras,Pedro Medina,21.4,PAX KM BT
+BIOTREN,Higueras,Chiguayante,20.0,PAX KM BT
+BIOTREN,Higueras,Concepción,9.9,PAX KM BT
+BIOTREN,Higueras,Concepcion Centro,9.9,PAX KM BT
+BIOTREN,Higueras,Lorenzo Arenas,6.9,PAX KM BT
+BIOTREN,Higueras,UTFSM,4.0,PAX KM BT
+BIOTREN,Higueras,Los Cóndores,2.0,PAX KM BT
+BIOTREN,Higueras,Higueras,0.0,PAX KM BT
+BIOTREN,Higueras,El Arenal,3.2,PAX KM BT
+BIOTREN,Higueras,Mercado,4.6,PAX KM BT
+BIOTREN,Higueras,Juan Pablo II,12.9,PAX KM BT
+BIOTREN,Higueras,Diagonal Biobío,14.9,PAX KM BT
+BIOTREN,Higueras,Alborada,17.1,PAX KM BT
+BIOTREN,Higueras,Costa Mar,17.9,PAX KM BT
+BIOTREN,Higueras,El Parque,19.55,PAX KM BT
+BIOTREN,Higueras,Lomas Coloradas,21.2,PAX KM BT
+BIOTREN,Higueras,C. Raúl Silva H.,23.175,PAX KM BT
+BIOTREN,Higueras,Hito Galvarino,29.455,PAX KM BT
+BIOTREN,Higueras,Los Canelos,32.415,PAX KM BT
+BIOTREN,Higueras,Huinca,33.28,PAX KM BT
+BIOTREN,Higueras,Cristo Redentor,34.45,PAX KM BT
+BIOTREN,Higueras,Laguna Quiñenco,36.04,PAX KM BT
+BIOTREN,Higueras,Intermodal Coronel,37.18,PAX KM BT
+BIOTREN,Higueras,Pasajero Lota,37.18,PAX KM BT
+BIOTREN,El Arenal,Hualqui,36.6,PAX KM BT
+BIOTREN,El Arenal,La Leonera,28.7,PAX KM BT
+BIOTREN,El Arenal,Manquimávida,26.3,PAX KM BT
+BIOTREN,El Arenal,Pedro Medina,24.6,PAX KM BT
+BIOTREN,El Arenal,Chiguayante,23.3,PAX KM BT
+BIOTREN,El Arenal,Concepción,13.1,PAX KM BT
+BIOTREN,El Arenal,Concepcion Centro,13.1,PAX KM BT
+BIOTREN,El Arenal,Lorenzo Arenas,10.1,PAX KM BT
+BIOTREN,El Arenal,UTFSM,7.2,PAX KM BT
+BIOTREN,El Arenal,Los Cóndores,5.2,PAX KM BT
+BIOTREN,El Arenal,Higueras,3.2,PAX KM BT
+BIOTREN,El Arenal,El Arenal,0.0,PAX KM BT
+BIOTREN,El Arenal,Mercado,1.4,PAX KM BT
+BIOTREN,El Arenal,Juan Pablo II,16.1,PAX KM BT
+BIOTREN,El Arenal,Diagonal Biobío,18.1,PAX KM BT
+BIOTREN,El Arenal,Alborada,20.3,PAX KM BT
+BIOTREN,El Arenal,Costa Mar,21.1,PAX KM BT
+BIOTREN,El Arenal,El Parque,22.75,PAX KM BT
+BIOTREN,El Arenal,Lomas Coloradas,24.4,PAX KM BT
+BIOTREN,El Arenal,C. Raúl Silva H.,26.375,PAX KM BT
+BIOTREN,El Arenal,Hito Galvarino,32.655,PAX KM BT
+BIOTREN,El Arenal,Los Canelos,35.615,PAX KM BT
+BIOTREN,El Arenal,Huinca,36.48,PAX KM BT
+BIOTREN,El Arenal,Cristo Redentor,37.65,PAX KM BT
+BIOTREN,El Arenal,Laguna Quiñenco,39.24,PAX KM BT
+BIOTREN,El Arenal,Intermodal Coronel,40.38,PAX KM BT
+BIOTREN,El Arenal,Pasajero Lota,40.38,PAX KM BT
+BIOTREN,Mercado,Hualqui,38.0,PAX KM BT
+BIOTREN,Mercado,La Leonera,30.1,PAX KM BT
+BIOTREN,Mercado,Manquimávida,27.7,PAX KM BT
+BIOTREN,Mercado,Pedro Medina,26.0,PAX KM BT
+BIOTREN,Mercado,Chiguayante,24.7,PAX KM BT
+BIOTREN,Mercado,Concepción,14.5,PAX KM BT
+BIOTREN,Mercado,Concepcion Centro,14.5,PAX KM BT
+BIOTREN,Mercado,Lorenzo Arenas,11.5,PAX KM BT
+BIOTREN,Mercado,UTFSM,8.6,PAX KM BT
+BIOTREN,Mercado,Los Cóndores,6.6,PAX KM BT
+BIOTREN,Mercado,Higueras,4.6,PAX KM BT
+BIOTREN,Mercado,El Arenal,1.4,PAX KM BT
+BIOTREN,Mercado,Mercado,0.0,PAX KM BT
+BIOTREN,Mercado,Juan Pablo II,17.5,PAX KM BT
+BIOTREN,Mercado,Diagonal Biobío,19.5,PAX KM BT
+BIOTREN,Mercado,Alborada,21.7,PAX KM BT
+BIOTREN,Mercado,Costa Mar,22.5,PAX KM BT
+BIOTREN,Mercado,El Parque,24.15,PAX KM BT
+BIOTREN,Mercado,Lomas Coloradas,25.8,PAX KM BT
+BIOTREN,Mercado,C. Raúl Silva H.,27.775,PAX KM BT
+BIOTREN,Mercado,Hito Galvarino,34.055,PAX KM BT
+BIOTREN,Mercado,Los Canelos,37.015,PAX KM BT
+BIOTREN,Mercado,Huinca,37.88,PAX KM BT
+BIOTREN,Mercado,Cristo Redentor,39.05,PAX KM BT
+BIOTREN,Mercado,Laguna Quiñenco,40.64,PAX KM BT
+BIOTREN,Mercado,Intermodal Coronel,41.78,PAX KM BT
+BIOTREN,Mercado,Pasajero Lota,41.78,PAX KM BT
+BIOTREN,Juan Pablo II,Hualqui,26.5,PAX KM BT
+BIOTREN,Juan Pablo II,La Leonera,18.6,PAX KM BT
+BIOTREN,Juan Pablo II,Manquimávida,16.2,PAX KM BT
+BIOTREN,Juan Pablo II,Pedro Medina,14.5,PAX KM BT
+BIOTREN,Juan Pablo II,Chiguayante,13.1,PAX KM BT
+BIOTREN,Juan Pablo II,Concepción,3.0,PAX KM BT
+BIOTREN,Juan Pablo II,Concepcion Centro,3.0,PAX KM BT
+BIOTREN,Juan Pablo II,Lorenzo Arenas,6.0,PAX KM BT
+BIOTREN,Juan Pablo II,UTFSM,8.9,PAX KM BT
+BIOTREN,Juan Pablo II,Los Cóndores,10.9,PAX KM BT
+BIOTREN,Juan Pablo II,Higueras,12.9,PAX KM BT
+BIOTREN,Juan Pablo II,El Arenal,16.1,PAX KM BT
+BIOTREN,Juan Pablo II,Mercado,17.5,PAX KM BT
+BIOTREN,Juan Pablo II,Juan Pablo II,0.0,PAX KM BT
+BIOTREN,Juan Pablo II,Diagonal Biobío,2.0,PAX KM BT
+BIOTREN,Juan Pablo II,Alborada,4.2,PAX KM BT
+BIOTREN,Juan Pablo II,Costa Mar,5.0,PAX KM BT
+BIOTREN,Juan Pablo II,El Parque,6.65,PAX KM BT
+BIOTREN,Juan Pablo II,Lomas Coloradas,8.3,PAX KM BT
+BIOTREN,Juan Pablo II,C. Raúl Silva H.,10.275,PAX KM BT
+BIOTREN,Juan Pablo II,Hito Galvarino,16.555,PAX KM BT
+BIOTREN,Juan Pablo II,Los Canelos,19.515,PAX KM BT
+BIOTREN,Juan Pablo II,Huinca,20.38,PAX KM BT
+BIOTREN,Juan Pablo II,Cristo Redentor,21.55,PAX KM BT
+BIOTREN,Juan Pablo II,Laguna Quiñenco,23.14,PAX KM BT
+BIOTREN,Juan Pablo II,Intermodal Coronel,24.28,PAX KM BT
+BIOTREN,Juan Pablo II,Pasajero Lota,24.28,PAX KM BT
+BIOTREN,Diagonal Biobío,Hualqui,28.5,PAX KM BT
+BIOTREN,Diagonal Biobío,La Leonera,20.6,PAX KM BT
+BIOTREN,Diagonal Biobío,Manquimávida,18.2,PAX KM BT
+BIOTREN,Diagonal Biobío,Pedro Medina,16.5,PAX KM BT
+BIOTREN,Diagonal Biobío,Chiguayante,15.1,PAX KM BT
+BIOTREN,Diagonal Biobío,Concepción,5.0,PAX KM BT
+BIOTREN,Diagonal Biobío,Concepcion Centro,5.0,PAX KM BT
+BIOTREN,Diagonal Biobío,Lorenzo Arenas,8.0,PAX KM BT
+BIOTREN,Diagonal Biobío,UTFSM,10.9,PAX KM BT
+BIOTREN,Diagonal Biobío,Los Cóndores,12.9,PAX KM BT
+BIOTREN,Diagonal Biobío,Higueras,14.9,PAX KM BT
+BIOTREN,Diagonal Biobío,El Arenal,18.1,PAX KM BT
+BIOTREN,Diagonal Biobío,Mercado,19.5,PAX KM BT
+BIOTREN,Diagonal Biobío,Juan Pablo II,2.0,PAX KM BT
+BIOTREN,Diagonal Biobío,Diagonal Biobío,0.0,PAX KM BT
+BIOTREN,Diagonal Biobío,Alborada,2.2,PAX KM BT
+BIOTREN,Diagonal Biobío,Costa Mar,3.0,PAX KM BT
+BIOTREN,Diagonal Biobío,El Parque,4.65,PAX KM BT
+BIOTREN,Diagonal Biobío,Lomas Coloradas,6.3,PAX KM BT
+BIOTREN,Diagonal Biobío,C. Raúl Silva H.,8.275,PAX KM BT
+BIOTREN,Diagonal Biobío,Hito Galvarino,14.555,PAX KM BT
+BIOTREN,Diagonal Biobío,Los Canelos,17.515,PAX KM BT
+BIOTREN,Diagonal Biobío,Huinca,18.38,PAX KM BT
+BIOTREN,Diagonal Biobío,Cristo Redentor,19.55,PAX KM BT
+BIOTREN,Diagonal Biobío,Laguna Quiñenco,21.14,PAX KM BT
+BIOTREN,Diagonal Biobío,Intermodal Coronel,22.28,PAX KM BT
+BIOTREN,Diagonal Biobío,Pasajero Lota,22.28,PAX KM BT
+BIOTREN,Alborada,Hualqui,30.7,PAX KM BT
+BIOTREN,Alborada,La Leonera,22.8,PAX KM BT
+BIOTREN,Alborada,Manquimávida,20.4,PAX KM BT
+BIOTREN,Alborada,Pedro Medina,18.7,PAX KM BT
+BIOTREN,Alborada,Chiguayante,17.3,PAX KM BT
+BIOTREN,Alborada,Concepción,7.2,PAX KM BT
+BIOTREN,Alborada,Concepcion Centro,7.2,PAX KM BT
+BIOTREN,Alborada,Lorenzo Arenas,10.2,PAX KM BT
+BIOTREN,Alborada,UTFSM,13.1,PAX KM BT
+BIOTREN,Alborada,Los Cóndores,15.1,PAX KM BT
+BIOTREN,Alborada,Higueras,17.1,PAX KM BT
+BIOTREN,Alborada,El Arenal,20.3,PAX KM BT
+BIOTREN,Alborada,Mercado,21.7,PAX KM BT
+BIOTREN,Alborada,Juan Pablo II,4.2,PAX KM BT
+BIOTREN,Alborada,Diagonal Biobío,2.2,PAX KM BT
+BIOTREN,Alborada,Alborada,0.0,PAX KM BT
+BIOTREN,Alborada,Costa Mar,0.8,PAX KM BT
+BIOTREN,Alborada,El Parque,2.45,PAX KM BT
+BIOTREN,Alborada,Lomas Coloradas,4.1,PAX KM BT
+BIOTREN,Alborada,C. Raúl Silva H.,6.075,PAX KM BT
+BIOTREN,Alborada,Hito Galvarino,12.355,PAX KM BT
+BIOTREN,Alborada,Los Canelos,15.315,PAX KM BT
+BIOTREN,Alborada,Huinca,16.18,PAX KM BT
+BIOTREN,Alborada,Cristo Redentor,17.35,PAX KM BT
+BIOTREN,Alborada,Laguna Quiñenco,18.94,PAX KM BT
+BIOTREN,Alborada,Intermodal Coronel,20.08,PAX KM BT
+BIOTREN,Alborada,Pasajero Lota,20.08,PAX KM BT
+BIOTREN,Costa Mar,Hualqui,31.5,PAX KM BT
+BIOTREN,Costa Mar,La Leonera,23.6,PAX KM BT
+BIOTREN,Costa Mar,Manquimávida,21.2,PAX KM BT
+BIOTREN,Costa Mar,Pedro Medina,19.5,PAX KM BT
+BIOTREN,Costa Mar,Chiguayante,18.1,PAX KM BT
+BIOTREN,Costa Mar,Concepción,8.0,PAX KM BT
+BIOTREN,Costa Mar,Concepcion Centro,8.0,PAX KM BT
+BIOTREN,Costa Mar,Lorenzo Arenas,11.0,PAX KM BT
+BIOTREN,Costa Mar,UTFSM,13.9,PAX KM BT
+BIOTREN,Costa Mar,Los Cóndores,15.9,PAX KM BT
+BIOTREN,Costa Mar,Higueras,17.9,PAX KM BT
+BIOTREN,Costa Mar,El Arenal,21.1,PAX KM BT
+BIOTREN,Costa Mar,Mercado,22.5,PAX KM BT
+BIOTREN,Costa Mar,Juan Pablo II,5.0,PAX KM BT
+BIOTREN,Costa Mar,Diagonal Biobío,3.0,PAX KM BT
+BIOTREN,Costa Mar,Alborada,0.8,PAX KM BT
+BIOTREN,Costa Mar,Costa Mar,0.0,PAX KM BT
+BIOTREN,Costa Mar,El Parque,1.65,PAX KM BT
+BIOTREN,Costa Mar,Lomas Coloradas,3.3,PAX KM BT
+BIOTREN,Costa Mar,C. Raúl Silva H.,5.275,PAX KM BT
+BIOTREN,Costa Mar,Hito Galvarino,11.555,PAX KM BT
+BIOTREN,Costa Mar,Los Canelos,14.515,PAX KM BT
+BIOTREN,Costa Mar,Huinca,15.38,PAX KM BT
+BIOTREN,Costa Mar,Cristo Redentor,16.55,PAX KM BT
+BIOTREN,Costa Mar,Laguna Quiñenco,18.14,PAX KM BT
+BIOTREN,Costa Mar,Intermodal Coronel,19.28,PAX KM BT
+BIOTREN,Costa Mar,Pasajero Lota,19.28,PAX KM BT
+BIOTREN,El Parque,Hualqui,33.15,PAX KM BT
+BIOTREN,El Parque,La Leonera,25.25,PAX KM BT
+BIOTREN,El Parque,Manquimávida,22.85,PAX KM BT
+BIOTREN,El Parque,Pedro Medina,21.15,PAX KM BT
+BIOTREN,El Parque,Chiguayante,19.75,PAX KM BT
+BIOTREN,El Parque,Concepción,9.65,PAX KM BT
+BIOTREN,El Parque,Concepcion Centro,9.65,PAX KM BT
+BIOTREN,El Parque,Lorenzo Arenas,12.65,PAX KM BT
+BIOTREN,El Parque,UTFSM,15.55,PAX KM BT
+BIOTREN,El Parque,Los Cóndores,17.55,PAX KM BT
+BIOTREN,El Parque,Higueras,19.55,PAX KM BT
+BIOTREN,El Parque,El Arenal,22.75,PAX KM BT
+BIOTREN,El Parque,Mercado,24.15,PAX KM BT
+BIOTREN,El Parque,Juan Pablo II,6.65,PAX KM BT
+BIOTREN,El Parque,Diagonal Biobío,4.65,PAX KM BT
+BIOTREN,El Parque,Alborada,2.45,PAX KM BT
+BIOTREN,El Parque,Costa Mar,1.65,PAX KM BT
+BIOTREN,El Parque,El Parque,0.0,PAX KM BT
+BIOTREN,El Parque,Lomas Coloradas,1.65,PAX KM BT
+BIOTREN,El Parque,C. Raúl Silva H.,3.625,PAX KM BT
+BIOTREN,El Parque,Hito Galvarino,9.905,PAX KM BT
+BIOTREN,El Parque,Los Canelos,12.865,PAX KM BT
+BIOTREN,El Parque,Huinca,13.73,PAX KM BT
+BIOTREN,El Parque,Cristo Redentor,14.9,PAX KM BT
+BIOTREN,El Parque,Laguna Quiñenco,16.49,PAX KM BT
+BIOTREN,El Parque,Intermodal Coronel,17.63,PAX KM BT
+BIOTREN,El Parque,Pasajero Lota,17.63,PAX KM BT
+BIOTREN,Lomas Coloradas,Hualqui,34.8,PAX KM BT
+BIOTREN,Lomas Coloradas,La Leonera,26.9,PAX KM BT
+BIOTREN,Lomas Coloradas,Manquimávida,24.5,PAX KM BT
+BIOTREN,Lomas Coloradas,Pedro Medina,22.8,PAX KM BT
+BIOTREN,Lomas Coloradas,Chiguayante,21.4,PAX KM BT
+BIOTREN,Lomas Coloradas,Concepción,11.3,PAX KM BT
+BIOTREN,Lomas Coloradas,Concepcion Centro,11.3,PAX KM BT
+BIOTREN,Lomas Coloradas,Lorenzo Arenas,14.3,PAX KM BT
+BIOTREN,Lomas Coloradas,UTFSM,17.2,PAX KM BT
+BIOTREN,Lomas Coloradas,Los Cóndores,19.2,PAX KM BT
+BIOTREN,Lomas Coloradas,Higueras,21.2,PAX KM BT
+BIOTREN,Lomas Coloradas,El Arenal,24.4,PAX KM BT
+BIOTREN,Lomas Coloradas,Mercado,25.8,PAX KM BT
+BIOTREN,Lomas Coloradas,Juan Pablo II,8.3,PAX KM BT
+BIOTREN,Lomas Coloradas,Diagonal Biobío,6.3,PAX KM BT
+BIOTREN,Lomas Coloradas,Alborada,4.1,PAX KM BT
+BIOTREN,Lomas Coloradas,Costa Mar,3.3,PAX KM BT
+BIOTREN,Lomas Coloradas,El Parque,1.65,PAX KM BT
+BIOTREN,Lomas Coloradas,Lomas Coloradas,0.0,PAX KM BT
+BIOTREN,Lomas Coloradas,C. Raúl Silva H.,1.975,PAX KM BT
+BIOTREN,Lomas Coloradas,Hito Galvarino,8.255,PAX KM BT
+BIOTREN,Lomas Coloradas,Los Canelos,11.215,PAX KM BT
+BIOTREN,Lomas Coloradas,Huinca,12.08,PAX KM BT
+BIOTREN,Lomas Coloradas,Cristo Redentor,13.25,PAX KM BT
+BIOTREN,Lomas Coloradas,Laguna Quiñenco,14.84,PAX KM BT
+BIOTREN,Lomas Coloradas,Intermodal Coronel,15.98,PAX KM BT
+BIOTREN,Lomas Coloradas,Pasajero Lota,15.98,PAX KM BT
+BIOTREN,C. Raúl Silva H.,Hualqui,36.775,PAX KM BT
+BIOTREN,C. Raúl Silva H.,La Leonera,28.875,PAX KM BT
+BIOTREN,C. Raúl Silva H.,Manquimávida,26.475,PAX KM BT
+BIOTREN,C. Raúl Silva H.,Pedro Medina,24.775,PAX KM BT
+BIOTREN,C. Raúl Silva H.,Chiguayante,23.375,PAX KM BT
+BIOTREN,C. Raúl Silva H.,Concepción,13.275,PAX KM BT
+BIOTREN,C. Raúl Silva H.,Concepcion Centro,13.275,PAX KM BT
+BIOTREN,C. Raúl Silva H.,Lorenzo Arenas,16.275,PAX KM BT
+BIOTREN,C. Raúl Silva H.,UTFSM,19.175,PAX KM BT
+BIOTREN,C. Raúl Silva H.,Los Cóndores,21.175,PAX KM BT
+BIOTREN,C. Raúl Silva H.,Higueras,23.175,PAX KM BT
+BIOTREN,C. Raúl Silva H.,El Arenal,26.375,PAX KM BT
+BIOTREN,C. Raúl Silva H.,Mercado,27.775,PAX KM BT
+BIOTREN,C. Raúl Silva H.,Juan Pablo II,10.275,PAX KM BT
+BIOTREN,C. Raúl Silva H.,Diagonal Biobío,8.275,PAX KM BT
+BIOTREN,C. Raúl Silva H.,Alborada,6.075,PAX KM BT
+BIOTREN,C. Raúl Silva H.,Costa Mar,5.275,PAX KM BT
+BIOTREN,C. Raúl Silva H.,El Parque,3.625,PAX KM BT
+BIOTREN,C. Raúl Silva H.,Lomas Coloradas,1.975,PAX KM BT
+BIOTREN,C. Raúl Silva H.,C. Raúl Silva H.,0.0,PAX KM BT
+BIOTREN,C. Raúl Silva H.,Hito Galvarino,6.28,PAX KM BT
+BIOTREN,C. Raúl Silva H.,Los Canelos,9.24,PAX KM BT
+BIOTREN,C. Raúl Silva H.,Huinca,10.105,PAX KM BT
+BIOTREN,C. Raúl Silva H.,Cristo Redentor,11.275,PAX KM BT
+BIOTREN,C. Raúl Silva H.,Laguna Quiñenco,12.865,PAX KM BT
+BIOTREN,C. Raúl Silva H.,Intermodal Coronel,14.005,PAX KM BT
+BIOTREN,C. Raúl Silva H.,Pasajero Lota,14.005,PAX KM BT
+BIOTREN,Hito Galvarino,Hualqui,43.055,PAX KM BT
+BIOTREN,Hito Galvarino,La Leonera,35.155,PAX KM BT
+BIOTREN,Hito Galvarino,Manquimávida,32.755,PAX KM BT
+BIOTREN,Hito Galvarino,Pedro Medina,31.055,PAX KM BT
+BIOTREN,Hito Galvarino,Chiguayante,29.655,PAX KM BT
+BIOTREN,Hito Galvarino,Concepción,19.555,PAX KM BT
+BIOTREN,Hito Galvarino,Concepcion Centro,19.555,PAX KM BT
+BIOTREN,Hito Galvarino,Lorenzo Arenas,22.555,PAX KM BT
+BIOTREN,Hito Galvarino,UTFSM,25.455,PAX KM BT
+BIOTREN,Hito Galvarino,Los Cóndores,27.455,PAX KM BT
+BIOTREN,Hito Galvarino,Higueras,29.455,PAX KM BT
+BIOTREN,Hito Galvarino,El Arenal,32.655,PAX KM BT
+BIOTREN,Hito Galvarino,Mercado,34.055,PAX KM BT
+BIOTREN,Hito Galvarino,Juan Pablo II,16.555,PAX KM BT
+BIOTREN,Hito Galvarino,Diagonal Biobío,14.555,PAX KM BT
+BIOTREN,Hito Galvarino,Alborada,12.355,PAX KM BT
+BIOTREN,Hito Galvarino,Costa Mar,11.555,PAX KM BT
+BIOTREN,Hito Galvarino,El Parque,9.905,PAX KM BT
+BIOTREN,Hito Galvarino,Lomas Coloradas,8.255,PAX KM BT
+BIOTREN,Hito Galvarino,C. Raúl Silva H.,6.28,PAX KM BT
+BIOTREN,Hito Galvarino,Hito Galvarino,0.0,PAX KM BT
+BIOTREN,Hito Galvarino,Los Canelos,2.96,PAX KM BT
+BIOTREN,Hito Galvarino,Huinca,3.825,PAX KM BT
+BIOTREN,Hito Galvarino,Cristo Redentor,4.995,PAX KM BT
+BIOTREN,Hito Galvarino,Laguna Quiñenco,6.585,PAX KM BT
+BIOTREN,Hito Galvarino,Intermodal Coronel,7.725,PAX KM BT
+BIOTREN,Hito Galvarino,Pasajero Lota,7.725,PAX KM BT
+BIOTREN,Los Canelos,Hualqui,46.015,PAX KM BT
+BIOTREN,Los Canelos,La Leonera,38.115,PAX KM BT
+BIOTREN,Los Canelos,Manquimávida,35.715,PAX KM BT
+BIOTREN,Los Canelos,Pedro Medina,34.015,PAX KM BT
+BIOTREN,Los Canelos,Chiguayante,32.615,PAX KM BT
+BIOTREN,Los Canelos,Concepción,22.515,PAX KM BT
+BIOTREN,Los Canelos,Concepcion Centro,22.515,PAX KM BT
+BIOTREN,Los Canelos,Lorenzo Arenas,25.515,PAX KM BT
+BIOTREN,Los Canelos,UTFSM,28.415,PAX KM BT
+BIOTREN,Los Canelos,Los Cóndores,30.415,PAX KM BT
+BIOTREN,Los Canelos,Higueras,32.415,PAX KM BT
+BIOTREN,Los Canelos,El Arenal,35.615,PAX KM BT
+BIOTREN,Los Canelos,Mercado,37.015,PAX KM BT
+BIOTREN,Los Canelos,Juan Pablo II,19.515,PAX KM BT
+BIOTREN,Los Canelos,Diagonal Biobío,17.515,PAX KM BT
+BIOTREN,Los Canelos,Alborada,15.315,PAX KM BT
+BIOTREN,Los Canelos,Costa Mar,14.515,PAX KM BT
+BIOTREN,Los Canelos,El Parque,12.865,PAX KM BT
+BIOTREN,Los Canelos,Lomas Coloradas,11.215,PAX KM BT
+BIOTREN,Los Canelos,C. Raúl Silva H.,9.24,PAX KM BT
+BIOTREN,Los Canelos,Hito Galvarino,2.96,PAX KM BT
+BIOTREN,Los Canelos,Los Canelos,0.0,PAX KM BT
+BIOTREN,Los Canelos,Huinca,0.865,PAX KM BT
+BIOTREN,Los Canelos,Cristo Redentor,2.035,PAX KM BT
+BIOTREN,Los Canelos,Laguna Quiñenco,3.625,PAX KM BT
+BIOTREN,Los Canelos,Intermodal Coronel,4.765,PAX KM BT
+BIOTREN,Los Canelos,Pasajero Lota,4.765,PAX KM BT
+BIOTREN,Huinca,Hualqui,46.88,PAX KM BT
+BIOTREN,Huinca,La Leonera,38.98,PAX KM BT
+BIOTREN,Huinca,Manquimávida,36.58,PAX KM BT
+BIOTREN,Huinca,Pedro Medina,34.88,PAX KM BT
+BIOTREN,Huinca,Chiguayante,33.48,PAX KM BT
+BIOTREN,Huinca,Concepción,23.38,PAX KM BT
+BIOTREN,Huinca,Concepcion Centro,23.38,PAX KM BT
+BIOTREN,Huinca,Lorenzo Arenas,26.38,PAX KM BT
+BIOTREN,Huinca,UTFSM,29.28,PAX KM BT
+BIOTREN,Huinca,Los Cóndores,31.28,PAX KM BT
+BIOTREN,Huinca,Higueras,33.28,PAX KM BT
+BIOTREN,Huinca,El Arenal,36.48,PAX KM BT
+BIOTREN,Huinca,Mercado,37.88,PAX KM BT
+BIOTREN,Huinca,Juan Pablo II,20.38,PAX KM BT
+BIOTREN,Huinca,Diagonal Biobío,18.38,PAX KM BT
+BIOTREN,Huinca,Alborada,16.18,PAX KM BT
+BIOTREN,Huinca,Costa Mar,15.38,PAX KM BT
+BIOTREN,Huinca,El Parque,13.73,PAX KM BT
+BIOTREN,Huinca,Lomas Coloradas,12.08,PAX KM BT
+BIOTREN,Huinca,C. Raúl Silva H.,10.105,PAX KM BT
+BIOTREN,Huinca,Hito Galvarino,3.825,PAX KM BT
+BIOTREN,Huinca,Los Canelos,0.865,PAX KM BT
+BIOTREN,Huinca,Huinca,0.0,PAX KM BT
+BIOTREN,Huinca,Cristo Redentor,1.17,PAX KM BT
+BIOTREN,Huinca,Laguna Quiñenco,2.76,PAX KM BT
+BIOTREN,Huinca,Intermodal Coronel,3.9,PAX KM BT
+BIOTREN,Huinca,Pasajero Lota,3.9,PAX KM BT
+BIOTREN,Cristo Redentor,Hualqui,48.05,PAX KM BT
+BIOTREN,Cristo Redentor,La Leonera,40.15,PAX KM BT
+BIOTREN,Cristo Redentor,Manquimávida,37.75,PAX KM BT
+BIOTREN,Cristo Redentor,Pedro Medina,36.05,PAX KM BT
+BIOTREN,Cristo Redentor,Chiguayante,34.65,PAX KM BT
+BIOTREN,Cristo Redentor,Concepción,24.55,PAX KM BT
+BIOTREN,Cristo Redentor,Concepcion Centro,24.55,PAX KM BT
+BIOTREN,Cristo Redentor,Lorenzo Arenas,27.55,PAX KM BT
+BIOTREN,Cristo Redentor,UTFSM,30.45,PAX KM BT
+BIOTREN,Cristo Redentor,Los Cóndores,32.45,PAX KM BT
+BIOTREN,Cristo Redentor,Higueras,34.45,PAX KM BT
+BIOTREN,Cristo Redentor,El Arenal,37.65,PAX KM BT
+BIOTREN,Cristo Redentor,Mercado,39.05,PAX KM BT
+BIOTREN,Cristo Redentor,Juan Pablo II,21.55,PAX KM BT
+BIOTREN,Cristo Redentor,Diagonal Biobío,19.55,PAX KM BT
+BIOTREN,Cristo Redentor,Alborada,17.35,PAX KM BT
+BIOTREN,Cristo Redentor,Costa Mar,16.55,PAX KM BT
+BIOTREN,Cristo Redentor,El Parque,14.9,PAX KM BT
+BIOTREN,Cristo Redentor,Lomas Coloradas,13.25,PAX KM BT
+BIOTREN,Cristo Redentor,C. Raúl Silva H.,11.275,PAX KM BT
+BIOTREN,Cristo Redentor,Hito Galvarino,4.995,PAX KM BT
+BIOTREN,Cristo Redentor,Los Canelos,2.035,PAX KM BT
+BIOTREN,Cristo Redentor,Huinca,1.17,PAX KM BT
+BIOTREN,Cristo Redentor,Cristo Redentor,0.0,PAX KM BT
+BIOTREN,Cristo Redentor,Laguna Quiñenco,1.59,PAX KM BT
+BIOTREN,Cristo Redentor,Intermodal Coronel,2.73,PAX KM BT
+BIOTREN,Cristo Redentor,Pasajero Lota,2.73,PAX KM BT
+BIOTREN,Laguna Quiñenco,Hualqui,49.64,PAX KM BT
+BIOTREN,Laguna Quiñenco,La Leonera,41.74,PAX KM BT
+BIOTREN,Laguna Quiñenco,Manquimávida,39.34,PAX KM BT
+BIOTREN,Laguna Quiñenco,Pedro Medina,37.64,PAX KM BT
+BIOTREN,Laguna Quiñenco,Chiguayante,36.24,PAX KM BT
+BIOTREN,Laguna Quiñenco,Concepción,26.14,PAX KM BT
+BIOTREN,Laguna Quiñenco,Concepcion Centro,26.14,PAX KM BT
+BIOTREN,Laguna Quiñenco,Lorenzo Arenas,29.14,PAX KM BT
+BIOTREN,Laguna Quiñenco,UTFSM,32.04,PAX KM BT
+BIOTREN,Laguna Quiñenco,Los Cóndores,34.04,PAX KM BT
+BIOTREN,Laguna Quiñenco,Higueras,36.04,PAX KM BT
+BIOTREN,Laguna Quiñenco,El Arenal,39.24,PAX KM BT
+BIOTREN,Laguna Quiñenco,Mercado,40.64,PAX KM BT
+BIOTREN,Laguna Quiñenco,Juan Pablo II,23.14,PAX KM BT
+BIOTREN,Laguna Quiñenco,Diagonal Biobío,21.14,PAX KM BT
+BIOTREN,Laguna Quiñenco,Alborada,18.94,PAX KM BT
+BIOTREN,Laguna Quiñenco,Costa Mar,18.14,PAX KM BT
+BIOTREN,Laguna Quiñenco,El Parque,16.49,PAX KM BT
+BIOTREN,Laguna Quiñenco,Lomas Coloradas,14.84,PAX KM BT
+BIOTREN,Laguna Quiñenco,C. Raúl Silva H.,12.865,PAX KM BT
+BIOTREN,Laguna Quiñenco,Hito Galvarino,6.585,PAX KM BT
+BIOTREN,Laguna Quiñenco,Los Canelos,3.625,PAX KM BT
+BIOTREN,Laguna Quiñenco,Huinca,2.76,PAX KM BT
+BIOTREN,Laguna Quiñenco,Cristo Redentor,1.59,PAX KM BT
+BIOTREN,Laguna Quiñenco,Laguna Quiñenco,0.0,PAX KM BT
+BIOTREN,Laguna Quiñenco,Intermodal Coronel,1.14,PAX KM BT
+BIOTREN,Laguna Quiñenco,Pasajero Lota,1.14,PAX KM BT
+BIOTREN,Intermodal Coronel,Hualqui,50.78,PAX KM BT
+BIOTREN,Intermodal Coronel,La Leonera,42.88,PAX KM BT
+BIOTREN,Intermodal Coronel,Manquimávida,40.48,PAX KM BT
+BIOTREN,Intermodal Coronel,Pedro Medina,38.78,PAX KM BT
+BIOTREN,Intermodal Coronel,Chiguayante,37.38,PAX KM BT
+BIOTREN,Intermodal Coronel,Concepción,27.28,PAX KM BT
+BIOTREN,Intermodal Coronel,Concepcion Centro,27.28,PAX KM BT
+BIOTREN,Intermodal Coronel,Lorenzo Arenas,30.28,PAX KM BT
+BIOTREN,Intermodal Coronel,UTFSM,33.18,PAX KM BT
+BIOTREN,Intermodal Coronel,Los Cóndores,35.18,PAX KM BT
+BIOTREN,Intermodal Coronel,Higueras,37.18,PAX KM BT
+BIOTREN,Intermodal Coronel,El Arenal,40.38,PAX KM BT
+BIOTREN,Intermodal Coronel,Mercado,41.78,PAX KM BT
+BIOTREN,Intermodal Coronel,Juan Pablo II,24.28,PAX KM BT
+BIOTREN,Intermodal Coronel,Diagonal Biobío,22.28,PAX KM BT
+BIOTREN,Intermodal Coronel,Alborada,20.08,PAX KM BT
+BIOTREN,Intermodal Coronel,Costa Mar,19.28,PAX KM BT
+BIOTREN,Intermodal Coronel,El Parque,17.63,PAX KM BT
+BIOTREN,Intermodal Coronel,Lomas Coloradas,15.98,PAX KM BT
+BIOTREN,Intermodal Coronel,C. Raúl Silva H.,14.005,PAX KM BT
+BIOTREN,Intermodal Coronel,Hito Galvarino,7.725,PAX KM BT
+BIOTREN,Intermodal Coronel,Los Canelos,4.765,PAX KM BT
+BIOTREN,Intermodal Coronel,Huinca,3.9,PAX KM BT
+BIOTREN,Intermodal Coronel,Cristo Redentor,2.73,PAX KM BT
+BIOTREN,Intermodal Coronel,Laguna Quiñenco,1.14,PAX KM BT
+BIOTREN,Intermodal Coronel,Intermodal Coronel,0.0,PAX KM BT
+BIOTREN,Intermodal Coronel,Pasajero Lota,0.0,PAX KM BT
+BIOTREN,Pasajero Lota,Hualqui,50.78,PAX KM BT
+BIOTREN,Pasajero Lota,La Leonera,42.88,PAX KM BT
+BIOTREN,Pasajero Lota,Manquimávida,40.48,PAX KM BT
+BIOTREN,Pasajero Lota,Pedro Medina,38.78,PAX KM BT
+BIOTREN,Pasajero Lota,Chiguayante,37.38,PAX KM BT
+BIOTREN,Pasajero Lota,Concepción,27.28,PAX KM BT
+BIOTREN,Pasajero Lota,Concepcion Centro,27.28,PAX KM BT
+BIOTREN,Pasajero Lota,Lorenzo Arenas,30.28,PAX KM BT
+BIOTREN,Pasajero Lota,UTFSM,33.18,PAX KM BT
+BIOTREN,Pasajero Lota,Los Cóndores,35.18,PAX KM BT
+BIOTREN,Pasajero Lota,Higueras,37.18,PAX KM BT
+BIOTREN,Pasajero Lota,El Arenal,40.38,PAX KM BT
+BIOTREN,Pasajero Lota,Mercado,41.78,PAX KM BT
+BIOTREN,Pasajero Lota,Juan Pablo II,24.28,PAX KM BT
+BIOTREN,Pasajero Lota,Diagonal Biobío,22.28,PAX KM BT
+BIOTREN,Pasajero Lota,Alborada,20.08,PAX KM BT
+BIOTREN,Pasajero Lota,Costa Mar,19.28,PAX KM BT
+BIOTREN,Pasajero Lota,El Parque,17.63,PAX KM BT
+BIOTREN,Pasajero Lota,Lomas Coloradas,15.98,PAX KM BT
+BIOTREN,Pasajero Lota,C. Raúl Silva H.,14.005,PAX KM BT
+BIOTREN,Pasajero Lota,Hito Galvarino,7.725,PAX KM BT
+BIOTREN,Pasajero Lota,Los Canelos,4.765,PAX KM BT
+BIOTREN,Pasajero Lota,Huinca,3.9,PAX KM BT
+BIOTREN,Pasajero Lota,Cristo Redentor,2.73,PAX KM BT
+BIOTREN,Pasajero Lota,Laguna Quiñenco,1.14,PAX KM BT
+BIOTREN,Pasajero Lota,Intermodal Coronel,0.0,PAX KM BT
+BIOTREN,Pasajero Lota,Pasajero Lota,0.0,PAX KM BT
